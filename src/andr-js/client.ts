@@ -6,16 +6,32 @@ import {
 import { EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import { DeliverTxResponse, StdFee } from "@cosmjs/stargate";
 
-type Fee = number | StdFee | "auto";
-type Msg = Record<string, unknown>;
+export type Fee = number | StdFee | "auto";
+export type Msg = Record<string, unknown>;
 
+/**
+ * A helper class for interacting with the Andromeda ecosystem
+ */
 export default class AndromedaClient {
+  /** CosmWasm Signing Client
+   *
+   * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html
+   */
   cosmWasmClient: SigningCosmWasmClient | undefined;
 
+  /**
+   * A pre-message hook to check that the client is connected and functioning
+   */
   private preMessage() {
     if (!this.isConnected) throw new Error("Client not connected");
   }
 
+  /**
+   * Connects to a new chain by endpoint
+   * @param endpoint The endpoint of the chain to connect to
+   * @param signer The signer used to sign messages
+   * @param options Any additional client options
+   */
   async connect(
     endpoint: string,
     signer: OfflineSigner,
@@ -30,10 +46,21 @@ export default class AndromedaClient {
     );
   }
 
+  /**
+   * Whether the client is currently connected
+   */
   get isConnected() {
     return typeof this.cosmWasmClient !== "undefined";
   }
 
+  /**
+   * Wrapper function for CosmWasm sign and broadcast
+   * @param signer
+   * @param messages
+   * @param fee
+   * @param memo
+   * @returns
+   */
   async signAndBroadcast(
     signer: string,
     messages: EncodeObject[],
@@ -44,6 +71,16 @@ export default class AndromedaClient {
     return this.cosmWasmClient!.signAndBroadcast(signer, messages, fee, memo);
   }
 
+  /**
+   * Wrapper function for CosmWasm execute
+   * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#signAndBroadcast
+   * @param sender
+   * @param contractAddress
+   * @param msg
+   * @param fee
+   * @param memo
+   * @returns
+   */
   async execute(
     sender: string,
     contractAddress: string,
@@ -61,6 +98,17 @@ export default class AndromedaClient {
     );
   }
 
+  /**
+   * Wrapper function for CosmWasm instantiate
+   * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#signAndBroadcast
+   * @param sender
+   * @param codeId
+   * @param msg
+   * @param label
+   * @param fee
+   * @param options
+   * @returns
+   */
   async instantiate(
     sender: string,
     codeId: number,
@@ -80,6 +128,13 @@ export default class AndromedaClient {
     );
   }
 
+  /**
+   * Wrapper function for CosmWasm Query
+   * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#queryContractSmart
+   * @param address
+   * @param query
+   * @returns
+   */
   async queryContract(address: string, query: Msg) {
     this.preMessage();
     return await this.cosmWasmClient!.queryContractSmart(address, query);
