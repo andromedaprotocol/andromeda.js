@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import chalk from "chalk";
 import chalkAnimation from "chalk-animation";
 import inquirer from "inquirer";
@@ -6,7 +7,7 @@ import gradient from "gradient-string";
 import figlet from "figlet";
 import { createSpinner } from "nanospinner";
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 let promptPath = "";
 let reloadCache = [`${chalk.red("Close")}`];
 let askAgain = ""; // a value used to toggle a call from the reload functions
@@ -64,7 +65,7 @@ async function title() {
   console.clear();
   const msg = `Andromeda CLI`;
 
-  figlet(msg, (err, data) => {
+  figlet(msg, (_err: any, data: any) => {
     console.log(gradient("red", "orange", "red").multiline(data));
   });
   await sleep(20);
@@ -193,16 +194,16 @@ async function addWallet() {
     message: "What is the new wallet address?",
   });
 
-  const tmpAnswer = await inquirer.prompt({
-    name: "seed",
-    type: "input",
-    message: "What is the seeds for the address?",
-  });
+  // const _tmpAnswer = await inquirer.prompt({
+  //   name: "seed",
+  //   type: "input",
+  //   message: "What is the seeds for the address?",
+  // });
 
   walletSelections.unshift(answer.id); //Using unshift instead of push so concatination is loaded at the begining of the list
 }
 
-async function processWallet(answer) {
+async function processWallet(answer: string) {
   const spinner = createSpinner("Loading Key...").start();
   if (answer != "Cancel" && answer != "Add A New Key") {
     await sleep(2000);
@@ -254,76 +255,78 @@ async function wallet_selection() {
 }
 
 // main() /////////////////////////////////////////////////////////////////////////////
-await title();
-await subTitle();
-let response = "";
-let release = false; //Used as an eval for exiting execution loop
 
-do {
-  let response = await ask();
-  switch (response.command) {
-    case "exit":
-      release = true;
-      //process.exit(1);
-      break;
-    // Reload //////////////////////
-    case "reload --help":
-      console.log(`
+async function main() {
+  await title();
+  await subTitle();
+  let response: any = "";
+  let release = false; //Used as an eval for exiting execution loop
+
+  do {
+    response = await ask();
+    switch (response.command) {
+      case "exit":
+        release = true;
+        //process.exit(1);
+        break;
+      // Reload //////////////////////
+      case "reload --help":
+        console.log(`
            ${chalk.bold.gray(
              "reload"
            )} - Provides a selection list of previously run commands.`);
-      break;
-    case "reload":
-      askAgain = await reloader(); //Reload data to cycle on reload selection
-      break;
-    // clear //////////////////////
-    case "clr":
-    case "clear":
-      console.clear();
-      title();
-      break;
-    // Help //////////////////////
-    case "help":
-    case "-help":
-    case "--help":
-    case "-?":
-      await command_list();
-      break;
+        break;
+      case "reload":
+        askAgain = await reloader(); //Reload data to cycle on reload selection
+        break;
+      // clear //////////////////////
+      case "clr":
+      case "clear":
+        console.clear();
+        title();
+        break;
+      // Help //////////////////////
+      case "help":
+      case "-help":
+      case "--help":
+      case "-?":
+        await command_list();
+        break;
 
-    // Wallet //////////////////////
-    case "wallet --help":
-      console.log(`
+      // Wallet //////////////////////
+      case "wallet --help":
+        console.log(`
         ${chalk.bold.gray("wallet")} - Opens the wallet selection menu
 
         Arguments:
         ${chalk.gray("unload | -u")} - Unloads the currently loaded user key
         `);
-      break;
-    case "wallet -u":
-    case "wallet unload":
-      const spinner = createSpinner("Loading Key...").start();
-      sleep(1000);
-      if (promptPath) {
-        spinner.error({ text: `Unloaded Key: ${chalk.gray(promptPath)}` });
-        promptPath = "";
-      } else {
-        spinner.error({
-          text: `No key found to unload! ${chalk.gray(promptPath)}`,
-        });
-      }
-      break;
-    case "wallet":
-      await wallet_selection();
-      break;
-    // List //////////////////////
-    case "list":
-      console.log(
-        `${chalk.red(
-          "You need to specify what you are trying to list. Try an option listed below."
-        )}`
-      );
-    case "list --help":
-      console.log(`
+        break;
+      case "wallet -u":
+      case "wallet unload":
+        const spinner = createSpinner("Loading Key...").start();
+        sleep(1000);
+        if (promptPath) {
+          spinner.error({ text: `Unloaded Key: ${chalk.gray(promptPath)}` });
+          promptPath = "";
+        } else {
+          spinner.error({
+            text: `No key found to unload! ${chalk.gray(promptPath)}`,
+          });
+        }
+        break;
+      case "wallet":
+        await wallet_selection();
+        break;
+      // List //////////////////////
+      case "list":
+        console.log(
+          `${chalk.red(
+            "You need to specify what you are trying to list. Try an option listed below."
+          )}`
+        );
+      case "list --help":
+        console.log(`
         ${chalk.bold.magenta(
           "list"
         )} - Provides a listing of the specified list type
@@ -335,119 +338,119 @@ do {
         ${chalk.hex(baseColor)(
           "base"
         )} - Lists the available Base ADOs to use in the ${chalk.bold.blueBright(
-        "create"
-      )} command 
+          "create"
+        )} command 
         ${chalk.hex(moduleColor)(
           "module"
         )} - Lists the available modules to use in the ${chalk.bold.blueBright(
-        "create"
-      )} command 
+          "create"
+        )} command 
         ${chalk.hex(primitveColor)(
           "prim"
         )} - Lists the available primitives to use in the ${chalk.bold.blueBright(
-        "create"
-      )} command
+          "create"
+        )} command
         ${chalk.hex(execColor)(
           "exec"
         )} - Lists the available actions for the ${chalk.bold.cyan(
-        "execute"
-      )} command
+          "execute"
+        )} command
       `);
-      break;
-    // ADOs
-    case "list ado":
-    case "list ados":
-      if (await checkConnected()) {
-        console.log(`${chalk.bold.blueBright("ados")}`);
-      }
-      break;
-    // Base
-    case "list base":
-      response = await base_helper();
-      //Load review data of response
-      switch (response) {
-        case "cw20":
-          console.log(
-            `   ${chalk.bold.hex(moduleColor)("cw20")}${chalk.gray(
-              "(name, symbol, decimals, [initial_balances], ?<mint>, ?<marketing>)"
-            )}
+        break;
+      // ADOs
+      case "list ado":
+      case "list ados":
+        if (await checkConnected()) {
+          console.log(`${chalk.bold.blueBright("ados")}`);
+        }
+        break;
+      // Base
+      case "list base":
+        response = await base_helper();
+        //Load review data of response
+        switch (response) {
+          case "cw20":
+            console.log(
+              `   ${chalk.bold.hex(moduleColor)("cw20")}${chalk.gray(
+                "(name, symbol, decimals, [initial_balances], ?<mint>, ?<marketing>)"
+              )}
             ${chalk.bold.gray("<mint> = ")}${chalk.gray("[minter, ?cap]")}
             ${chalk.bold.gray("<marketing> = ")}${chalk.gray(
-              "[?project, ?description, ?marketing, ?logo]"
-            )}\n    ${chalk.blue.underline(
-              "https://docs.andromedaprotocol.io/andromeda/ado-classes/cw-20-token"
-            )}
+                "[?project, ?description, ?marketing, ?logo]"
+              )}\n    ${chalk.blue.underline(
+                "https://docs.andromedaprotocol.io/andromeda/ado-classes/cw-20-token"
+              )}
             `
-          );
-          break;
-        case "splitter":
-          console.log(
-            `   ${chalk.bold.hex(moduleColor)("splitter")}${chalk.gray(
-              "(<recipient>)"
-            )}
+            );
+            break;
+          case "splitter":
+            console.log(
+              `   ${chalk.bold.hex(moduleColor)("splitter")}${chalk.gray(
+                "(<recipient>)"
+              )}
             ${chalk.bold.gray("<recipient> = ")}${chalk.gray(
-              "[addr, percent]"
-            )}\n    ${chalk.blue.underline(
-              "https://docs.andromedaprotocol.io/andromeda/ado-classes/andromeda-splitter"
-            )}
+                "[addr, percent]"
+              )}\n    ${chalk.blue.underline(
+                "https://docs.andromedaprotocol.io/andromeda/ado-classes/andromeda-splitter"
+              )}
             `
-          );
-          break;
-        case "timelock":
-          console.log(
-            `   ${chalk.bold.hex(moduleColor)("timelock")}${chalk.gray(
-              "()"
-            )}\n    ${chalk.blue.underline(
-              "https://docs.andromedaprotocol.io/andromeda/ado-classes/timelock"
-            )}
+            );
+            break;
+          case "timelock":
+            console.log(
+              `   ${chalk.bold.hex(moduleColor)("timelock")}${chalk.gray(
+                "()"
+              )}\n    ${chalk.blue.underline(
+                "https://docs.andromedaprotocol.io/andromeda/ado-classes/timelock"
+              )}
             `
-          );
-          break;
-      }
-      break;
+            );
+            break;
+        }
+        break;
 
-    case "list module":
-      response = await module_helper();
-      //Load review data of response
-      switch (response) {
-        case "rates":
-          console.log(
-            `   ${chalk.bold.hex(moduleColor)("rates")}${chalk.gray(
-              "(rate_type, is_additive, description, [recivers])"
-            )}\n    ${chalk.blue.underline(
-              "https://docs.andromedaprotocol.io/andromeda/modules/rates-module"
-            )}
+      case "list module":
+        response = await module_helper();
+        //Load review data of response
+        switch (response) {
+          case "rates":
+            console.log(
+              `   ${chalk.bold.hex(moduleColor)("rates")}${chalk.gray(
+                "(rate_type, is_additive, description, [recivers])"
+              )}\n    ${chalk.blue.underline(
+                "https://docs.andromedaprotocol.io/andromeda/modules/rates-module"
+              )}
             `
-          );
-          break;
-        case "addresslist":
-          console.log(
-            `   ${chalk.bold.hex(moduleColor)("addresslist")}${chalk.gray(
-              "(is_inclusive, [operators])"
-            )}\n    ${chalk.blue.underline(
-              "https://docs.andromedaprotocol.io/andromeda/modules/address-list-module"
-            )}
+            );
+            break;
+          case "addresslist":
+            console.log(
+              `   ${chalk.bold.hex(moduleColor)("addresslist")}${chalk.gray(
+                "(is_inclusive, [operators])"
+              )}\n    ${chalk.blue.underline(
+                "https://docs.andromedaprotocol.io/andromeda/modules/address-list-module"
+              )}
             `
-          );
-          break;
-        case "receipt":
-          console.log(
-            `   ${chalk.bold.hex(moduleColor)("receipt")}${chalk.gray(
-              "(minter, [operators])"
-            )}\n    ${chalk.blue.underline(
-              "https://docs.andromedaprotocol.io/andromeda/modules/receipt-module"
-            )}
+            );
+            break;
+          case "receipt":
+            console.log(
+              `   ${chalk.bold.hex(moduleColor)("receipt")}${chalk.gray(
+                "(minter, [operators])"
+              )}\n    ${chalk.blue.underline(
+                "https://docs.andromedaprotocol.io/andromeda/modules/receipt-module"
+              )}
             `
-          );
-          break;
-        default:
-          //console.log("Failed to find information.");
-          break;
-      }
-      break;
-    // Publish //////////////////////
-    case "publish --help":
-      console.log(`
+            );
+            break;
+          default:
+            //console.log("Failed to find information.");
+            break;
+        }
+        break;
+      // Publish //////////////////////
+      case "publish --help":
+        console.log(`
         ${chalk.bold.hex(adoColor)(
           "publish"
         )} - Submit the currently created message to be published to the chain
@@ -456,54 +459,57 @@ do {
         ${chalk.gray("-proof")} - Show the currently constructed message
         ${chalk.gray("-clear")} - Clear the currently constructed message
         `);
-      break;
-    case "publish":
-      if (await checkConnected()) {
-        console.clear();
-        title();
-        let spinner = createSpinner("Publishing: " + publishMessage).start();
-        await sleep(4500);
-        console.log(publishMessage);
-        // spinner.success({
-        //   text: `Success: Find the transactions at ${chalk.blue.underline(
-        //     "tx78ds08dsa654df"
-        //   )}.`,
-        // });
-        spinner.error({
-          text: `Failed to Publish: ${chalk.red(
-            "Publishing encountered error response of 503."
-          )}`,
-        });
-      }
-      break;
-    case "publish -proof":
-      if (publishMessage) {
-        console.log(publishMessage);
-      } else {
-        console.log("No message is currently constructed for submission.");
-      }
-      break;
-    case "publish -clear":
-      publishMessage = "";
-      console.log("Current message cleared.");
-      break;
-    default:
-      // Create //////////////////////
-      if (response.command.startsWith("create")) {
+        break;
+      case "publish":
         if (await checkConnected()) {
-          console.log(`${chalk.bold.blueBright(response.command.slice(7))}`);
-          publishMessage = response.command.slice(7);
+          console.clear();
+          title();
+          let spinner = createSpinner("Publishing: " + publishMessage).start();
+          await sleep(4500);
+          console.log(publishMessage);
+          // spinner.success({
+          //   text: `Success: Find the transactions at ${chalk.blue.underline(
+          //     "tx78ds08dsa654df"
+          //   )}.`,
+          // });
+          spinner.error({
+            text: `Failed to Publish: ${chalk.red(
+              "Publishing encountered error response of 503."
+            )}`,
+          });
         }
         break;
-      }
+      case "publish -proof":
+        if (publishMessage) {
+          console.log(publishMessage);
+        } else {
+          console.log("No message is currently constructed for submission.");
+        }
+        break;
+      case "publish -clear":
+        publishMessage = "";
+        console.log("Current message cleared.");
+        break;
+      default:
+        // Create //////////////////////
+        if (response.command.startsWith("create")) {
+          if (await checkConnected()) {
+            console.log(`${chalk.bold.blueBright(response.command.slice(7))}`);
+            publishMessage = response.command.slice(7);
+          }
+          break;
+        }
 
-      console.log(
-        'Unknown command: "' +
-          response.command +
-          `" Try "${chalk.bold.gray(
-            "help"
-          )}" or "--help" for a list of commands.`
-      );
-      break;
-  }
-} while (!release);
+        console.log(
+          'Unknown command: "' +
+            response.command +
+            `" Try "${chalk.bold.gray(
+              "help"
+            )}" or "--help" for a list of commands.`
+        );
+        break;
+    }
+  } while (!release);
+}
+
+main();

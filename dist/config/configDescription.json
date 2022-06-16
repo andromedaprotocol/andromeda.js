@@ -1,0 +1,4 @@
+{
+    "chainid": "The ID of the chain to use",
+    "chainurl": "The URL of the chain to use"
+}
