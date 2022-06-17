@@ -3,13 +3,16 @@ import Table from "cli-table";
 import inquirer from "inquirer";
 import { handle } from "../cmd";
 import { logTableConfig } from "../common";
-import { Commands, Wallet } from "../types";
+import { Commands } from "../types";
+import { WalletStore, Wallet } from "@andromeda/andromeda-js";
+import config from "../config";
+import { client } from "./chain";
 
-let wallets: Wallet[] = [];
-let currentWallet = 0;
+let currentWallet = "";
+const store = new WalletStore();
 
 export const commands: Commands = {
-  recover: {
+  add: {
     handler: addWallet,
     color: chalk.green,
     description: "Recovers a wallet by a given mnemonic",
@@ -21,7 +24,8 @@ export const commands: Commands = {
   },
   list: {
     handler: async () => {
-      await listWallets(wallets);
+      const chainId = config.get("chain.chainId");
+      await listWallets(store.getWallets(chainId));
     },
     color: chalk.white,
     description: "Lists all added wallets",
@@ -31,8 +35,10 @@ export const commands: Commands = {
 async function addWallet(input: string) {
   const trimmed = input.trim();
   let mnemonic = trimmed;
+  const chainId = config.get("chain.chainId");
+  const wallets = store.getWallets(chainId);
   if (trimmed.length === 0) {
-    const addressInput = await inquirer.prompt({
+    const mnemonicInput = await inquirer.prompt({
       type: "input",
       message: "Input the wallet mnemonic:",
       name: "addwalletmnemonic",
@@ -41,7 +47,7 @@ async function addWallet(input: string) {
       },
     });
 
-    mnemonic = addressInput.addwalletmnemonic.trim();
+    mnemonic = mnemonicInput.addwalletmnemonic.trim();
   }
   const nameInput = await inquirer.prompt({
     type: "input",
@@ -53,11 +59,21 @@ async function addWallet(input: string) {
       ? nameInput.addwalletname.trim()
       : undefined;
 
-  wallets.push({ mnemonic, name });
+  const newWallet = store.addWallet(
+    mnemonic,
+    config.get("chain.chainId"),
+    name
+  );
   console.log(chalk.green("Wallet added!"));
+
+  if (wallets.length === 0) {
+    setWallet(newWallet);
+  }
 }
 
 async function removeWalletHandler(input: string) {
+  const chainId = config.get("chain.chainId");
+  const wallets = store.getWallets(chainId);
   if (input.trim().length === 0) {
     const { selection } = await inquirer.prompt({
       name: "selection",
@@ -81,6 +97,8 @@ async function removeWalletHandler(input: string) {
 }
 
 async function removeWalletByIndex(idx: number) {
+  const chainId = config.get("chain.chainId");
+  const wallets = store.getWallets(chainId);
   if (idx >= wallets.length) {
     console.error(
       chalk.red(
@@ -102,14 +120,16 @@ async function removeWalletByIndex(idx: number) {
   });
 
   if (confirmed) {
-    wallets = wallets.filter((_, i) => i !== idx);
-    if (wallet.mnemonic === wallets[currentWallet].mnemonic) {
-      currentWallet = 0;
+    store.removeWalletByIndex(idx, chainId);
+    if (wallet.name === currentWallet) {
+      currentWallet = "";
     }
   }
 }
 
 async function removeWalletByNameOrAddress(input: string) {
+  const chainId = config.get("chain.chainId");
+  const wallets = store.getWallets(chainId);
   const wallet = wallets.find(
     (wallet) => wallet.mnemonic === input.trim() || wallet.name === input.trim()
   );
@@ -127,12 +147,9 @@ async function removeWalletByNameOrAddress(input: string) {
     }?`,
   });
   if (confirmed) {
-    wallets = wallets.filter(
-      (wallet) =>
-        wallet.mnemonic !== input.trim() && wallet.name !== input.trim()
-    );
-    if (wallet.mnemonic === wallets[currentWallet].mnemonic) {
-      currentWallet = 0;
+    store.removeWallet(input, chainId);
+    if (wallet.name === currentWallet) {
+      currentWallet = "";
     }
   }
 }
@@ -147,7 +164,7 @@ async function listWallets(wallets: Wallet[]) {
     console.log(
       `
 You can add a wallet by using the add command:
-  ${chalk.green("wallet add <address> <name?>")}
+  ${chalk.green("wallet add")}
       `
     );
     return;
@@ -156,18 +173,24 @@ You can add a wallet by using the add command:
     ...logTableConfig,
     colWidths: [2],
   });
-  wallets.forEach((wallet, idx) =>
+  for (let i = 0; i < wallets.length; i++) {
+    const wallet = wallets[i];
+    const isCurrent = wallet.name === currentWallet;
     walletTable.push([
-      idx === currentWallet ? "*" : "",
-      idx === currentWallet
-        ? chalk.green(wallet.name ?? idx)
-        : wallet.name ?? idx,
-      idx === currentWallet
-        ? chalk.green(wallet.mnemonic ?? idx)
-        : wallet.mnemonic ?? idx,
-    ])
-  );
+      isCurrent ? "*" : "",
+      isCurrent ? chalk.green(wallet.name ?? i) : wallet.name ?? i,
+      isCurrent
+        ? chalk.green((await wallet.getFirstOfflineSigner()) ?? i)
+        : wallet.mnemonic ?? i,
+    ]);
+  }
   console.log(walletTable.toString());
+}
+
+async function setWallet(wallet: Wallet) {
+  const signer = await wallet.getWallet();
+  const chainUrl = config.get("chain.chainUrl");
+  await client.connect(chainUrl, signer);
 }
 
 export default walletHandler;

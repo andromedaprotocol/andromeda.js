@@ -1,0 +1,6 @@
+{
+  "name": "default",
+  "chainId": "local",
+  "chainUrl": "https://127.0.0.1:26657",
+  "registryAddress": ""
+}

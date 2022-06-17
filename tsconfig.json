@@ -19,8 +19,12 @@
     "noFallthroughCasesInSwitch": false /* Report errors for fallthrough cases in switch statement. */,
     "noImplicitAny": true,
 
-    "lib": ["esnext"]
+    "lib": ["esnext"],
+    "paths": {
+      "@andromeda/andromeda-js": ["andr-js"]
+    },
+    "baseUrl": "./src"
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"],
-  "exclude": ["node_modules", "dist", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.json", "tests/**/*.ts"],
+  "exclude": ["node_modules", "dist", "test/**/*.ts"],
 }

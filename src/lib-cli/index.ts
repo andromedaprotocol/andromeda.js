@@ -3,7 +3,8 @@ import { handle, listCommands, title } from "./cmd";
 import history from "./reload";
 import { Commands } from "./types";
 import walletHandler from "./handlers/wallet";
-import configHandler from "./handlers/config";
+import chainHandler from "./handlers/chain";
+import wasmHandler from "./handlers/wasm";
 
 export const baseCommands: Commands = {
   exit: {
@@ -39,9 +40,14 @@ export const baseCommands: Commands = {
     description: "Manage wallets",
     color: chalk.magenta,
   },
-  config: {
-    handler: configHandler,
-    description: "Manage CLI Config",
+  chain: {
+    handler: chainHandler,
+    description: "Manage Chain Config",
     color: chalk.yellow,
+  },
+  wasm: {
+    handler: wasmHandler,
+    description: "Send CosmWasm messages to the chain",
+    color: chalk.black,
   },
 };

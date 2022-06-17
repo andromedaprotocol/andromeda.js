@@ -39,11 +39,15 @@ export default class AndromedaClient {
   ) {
     delete this.cosmWasmClient;
 
-    this.cosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
-      endpoint,
-      signer,
-      options
-    );
+    try {
+      this.cosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
+        endpoint,
+        signer,
+        options
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /**

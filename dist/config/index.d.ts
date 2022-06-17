@@ -1,6 +1,12 @@
 import convict from "convict";
 declare const config: convict.Config<{
-    chainid: string;
-    chainurl: string;
+    chain: {
+        chainId: string;
+        chainUrl: string;
+        registryAddress: string;
+        nullable: {
+            valueOf: any;
+        };
+    };
 }>;
 export default config;

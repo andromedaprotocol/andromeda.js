@@ -8,7 +8,3 @@ export interface Command {
 export declare type Commands = Record<string, Command>;
 export declare type HandlerFunc = (input: string) => Promise<any>;
 export declare type HelpFunc = () => void;
-export interface Wallet {
-    name?: string | number;
-    mnemonic: string;
-}

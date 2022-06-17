@@ -22,6 +22,7 @@
     "@cosmjs/cosmwasm-stargate": "^0.28.0",
     "@cosmjs/proto-signing": "^0.28.7",
     "@cosmjs/stargate": "^0.28.7",
+    "@types/convict-format-with-validator": "^6.0.2",
     "chalk": "^4.1.1",
     "chalk-animation": "^1.6.0",
     "cli-table": "^0.3.11",
@@ -39,7 +40,11 @@
     "@types/figlet": "^1.5.4",
     "@types/gradient-string": "^1.1.2",
     "@types/inquirer": "^8.2.1",
+    "module-alias": "^2.2.2",
     "nodemon": "^2.0.16",
     "ts-node": "^10.8.0"
+  },
+  "_moduleAliases": {
+    "@andromeda/andromeda-js": "dist/andr-js/index.js"
   }
 }

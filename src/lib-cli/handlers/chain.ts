@@ -1,21 +1,37 @@
 import chalk from "chalk";
 import Table from "cli-table";
-import config from "../../config";
+import config from "../config";
 import { handle } from "../cmd";
 import { logTableConfig } from "../common";
 import { Commands } from "../types";
+import {
+  ChainConfig,
+  configs,
+  getConfigByName,
+  default as AndromedaClient,
+} from "@andromeda/andromeda-js";
 
-const schema = config.getProperties();
+type ConfigKey = keyof ChainConfig;
 
-type ConfigKey = keyof typeof schema;
+export const client = new AndromedaClient();
 
 export const commands: Commands = {
-  list: {
+  config: {
     handler: async () => {
-      await listConfig();
+      await printConfig(config.get("chain"));
     },
     color: chalk.white,
-    description: "Displays current config",
+    description: "Displays current chain config",
+  },
+  list: {
+    handler: listConfigs,
+    color: chalk.blue,
+    description: "Lists all the currently saved configs",
+  },
+  use: {
+    handler: useConfig,
+    color: chalk.yellow,
+    description: "Swap to a saved config",
   },
   get: {
     handler: async (input: string) => {
@@ -26,10 +42,10 @@ export const commands: Commands = {
         console.log(chalk.green("config get <key>"));
         return;
       } else {
-        await listConfig(inputs[0] as ConfigKey);
+        await printConfig(config.get("chain"), inputs[0] as ConfigKey);
       }
     },
-    color: chalk.white,
+    color: chalk.green,
     description: "Displays current value for a given key",
   },
   set: {
@@ -43,19 +59,20 @@ export const commands: Commands = {
         await setKey(inputs[0] as ConfigKey, inputs[1]);
       }
     },
-    color: chalk.white,
+    color: chalk.black,
     description: "Displays current config",
   },
 };
 
 function getConfigDoc(key: ConfigKey): string {
   const schema = JSON.parse(config.getSchemaString());
-  const properties = schema["_cvtProperties"];
+  const properties = schema["_cvtProperties"]["chain"]["_cvtProperties"];
+  if (!properties[key]) return "";
 
   return properties[key].doc;
 }
 
-async function listConfig(keyToPrint?: ConfigKey) {
+async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
   const configTable = new Table(logTableConfig);
   configTable.push([
     chalk.bold("Key"),
@@ -63,9 +80,9 @@ async function listConfig(keyToPrint?: ConfigKey) {
     chalk.bold("Description"),
   ]);
   const trimmedKey = keyToPrint?.trim() as ConfigKey;
-  let keys = Object.keys(config.getProperties()) as ConfigKey[];
+  let keys = Object.keys(config) as ConfigKey[];
   if (trimmedKey && trimmedKey.length > 0) {
-    if (!config.has(trimmedKey)) {
+    if (!keys.includes(trimmedKey)) {
       console.error(
         chalk.red(
           `Invalid config key, try ${chalk.white(
@@ -79,7 +96,8 @@ async function listConfig(keyToPrint?: ConfigKey) {
   }
 
   keys.forEach((key: ConfigKey) => {
-    const val = config.get(key);
+    if ((key as any) === "nullable") return;
+    const val = config[key];
     configTable.push([
       key,
       val && val.length > 0 ? val : "<unset>",
@@ -87,7 +105,7 @@ async function listConfig(keyToPrint?: ConfigKey) {
     ]);
   });
 
-  console.log(chalk.green("Current config"));
+  console.log(chalk.green("Current chain config"));
   console.log();
   console.log(configTable.toString());
 }
@@ -95,8 +113,7 @@ async function listConfig(keyToPrint?: ConfigKey) {
 async function setKey(key: string, value: string) {
   const trimmedKey: ConfigKey = key.trim() as ConfigKey;
   const trimmedValue = value.trim();
-  console.log(trimmedKey);
-  if (!config.has(trimmedKey)) {
+  if (!config.has(`chain.${trimmedKey}`)) {
     console.error(
       chalk.red(
         `Invalid config key, try ${chalk.white(
@@ -108,6 +125,39 @@ async function setKey(key: string, value: string) {
   }
 
   config.set(trimmedKey, trimmedValue);
+}
+
+async function listConfigs() {
+  const configTable = new Table(logTableConfig);
+  configTable.push([chalk.bold("Name"), chalk.bold("Chain ID")]);
+  configs.forEach((chainConfig) =>
+    config.get("chain.name") === chainConfig.name
+      ? configTable.push([
+          chalk.green(chainConfig.name),
+          chalk.green(chainConfig.chainId),
+        ])
+      : configTable.push([chainConfig.name, chainConfig.chainId])
+  );
+
+  console.log(configTable.toString());
+}
+
+async function useConfig(input: string) {
+  const trimmedInput = input.trim();
+  if (trimmedInput.length === 0) {
+    console.error(chalk.red("Invalid input"));
+    return;
+  }
+
+  const chainConfig = getConfigByName(input);
+
+  if (!chainConfig) {
+    console.error(chalk.red(`No chain config with the name ${trimmedInput}`));
+    return;
+  }
+
+  config.set("chain", chainConfig);
+  console.log(chalk.green(`Config loaded!`));
 }
 
 async function configHandler(input: string) {

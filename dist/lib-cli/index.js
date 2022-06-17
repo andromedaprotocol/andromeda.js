@@ -8,7 +8,8 @@ const chalk_1 = __importDefault(require("chalk"));
 const cmd_1 = require("./cmd");
 const reload_1 = __importDefault(require("./reload"));
 const wallet_1 = __importDefault(require("./handlers/wallet"));
-const config_1 = __importDefault(require("./handlers/config"));
+const chain_1 = __importDefault(require("./handlers/chain"));
+const wasm_1 = __importDefault(require("./handlers/wasm"));
 exports.baseCommands = {
     exit: {
         handler: () => process.exit(0),
@@ -44,9 +45,14 @@ exports.baseCommands = {
         description: "Manage wallets",
         color: chalk_1.default.magenta,
     },
-    config: {
-        handler: config_1.default,
-        description: "Manage CLI Config",
+    chain: {
+        handler: chain_1.default,
+        description: "Manage Chain Config",
         color: chalk_1.default.yellow,
+    },
+    wasm: {
+        handler: wasm_1.default,
+        description: "Send CosmWasm messages to the chain",
+        color: chalk_1.default.black,
     },
 };

@@ -12,8 +12,3 @@ export type Commands = Record<string, Command>;
 export type HandlerFunc = (input: string) => Promise<any>;
 
 export type HelpFunc = () => void;
-
-export interface Wallet {
-  name?: string | number;
-  mnemonic: string;
-}

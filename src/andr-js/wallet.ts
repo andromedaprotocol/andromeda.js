@@ -6,8 +6,11 @@ import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 export default class Wallet {
   /** The Mnemonic of the Wallet */
   mnemonic: string;
-  constructor(mnemonic: string) {
+  name?: string;
+
+  constructor(mnemonic: string, name?: string) {
     this.mnemonic = mnemonic;
+    this.name = name;
   }
 
   /**
