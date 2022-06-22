@@ -1,4 +1,9 @@
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import { generateMnemonic } from "bip39";
+
+// const prefixes = {
+//   juno: "juno",
+// };
 
 /**
  * Used to generate a client wallet by Mnemonic
@@ -6,10 +11,11 @@ import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 export default class Wallet {
   /** The Mnemonic of the Wallet */
   mnemonic: string;
-  name?: string;
+  name: string;
 
-  constructor(mnemonic: string, name?: string) {
-    this.mnemonic = mnemonic;
+  constructor(name: string, mnemonic?: string) {
+    this.mnemonic =
+      mnemonic && mnemonic.length > 0 ? mnemonic : generateMnemonic(256);
     this.name = name;
   }
 
@@ -17,7 +23,9 @@ export default class Wallet {
    * Get wallet associated with the provided mnemonic
    */
   async getWallet() {
-    return await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic);
+    return await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic, {
+      prefix: "juno", //TODO: FIx THIS
+    });
   }
 
   /**

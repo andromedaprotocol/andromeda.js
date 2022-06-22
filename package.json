@@ -1,6 +1,6 @@
 {
   "name": "andromeda-cli",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "./dist/index.js",
   "bin": {
@@ -11,7 +11,7 @@
     "start:windows": "nodemon --watch 'src/**/*.ts' --exec \"npm run\" build",
     "create": "npm run build && npm run test",
     "build": "tsc -p .",
-    "install:local": "npm run build && sudo npm i -g && andr",
+    "install:local": "rm -rf ./build && npm run build && sudo npm i -g && andr",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
   },
   "keywords": [],
@@ -23,6 +23,7 @@
     "@cosmjs/proto-signing": "^0.28.7",
     "@cosmjs/stargate": "^0.28.7",
     "@types/convict-format-with-validator": "^6.0.2",
+    "bip39": "^3.0.4",
     "chalk": "^4.1.1",
     "chalk-animation": "^1.6.0",
     "cli-table": "^0.3.11",
@@ -31,6 +32,7 @@
     "figlet": "^1.5.2",
     "inquirer": "^8.2.4",
     "inquirer-command-prompt": "^0.1.0",
+    "minimist": "^1.2.6",
     "nanospinner": "^1.1.0"
   },
   "devDependencies": {
@@ -40,9 +42,11 @@
     "@types/figlet": "^1.5.4",
     "@types/gradient-string": "^1.1.2",
     "@types/inquirer": "^8.2.1",
+    "@types/minimist": "^1.2.2",
     "module-alias": "^2.2.2",
-    "nodemon": "^2.0.16",
-    "ts-node": "^10.8.0"
+    "nodemon": "^1.3.3",
+    "ts-node": "^10.8.0",
+    "typescript": "^4.7.3"
   },
   "_moduleAliases": {
     "@andromeda/andromeda-js": "dist/andr-js/index.js"

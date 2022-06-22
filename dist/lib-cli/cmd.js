@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handle = exports.listCommands = exports.splitArgs = exports.ask = exports.subTitle = exports.title = void 0;
+exports.printCommandHelp = exports.listCommands = exports.ask = exports.subTitle = exports.title = void 0;
 const chalk_1 = __importDefault(require("chalk"));
 const chalk_animation_1 = __importDefault(require("chalk-animation"));
 const cli_table_1 = __importDefault(require("cli-table"));
@@ -11,12 +11,13 @@ const figlet_1 = __importDefault(require("figlet"));
 const gradient_string_1 = __importDefault(require("gradient-string"));
 const inquirer_1 = __importDefault(require("inquirer"));
 const common_1 = require("./common");
-// Display Functions/////////////////////////////////////////////////////////////////////////////
+const config_1 = __importDefault(require("./config"));
+const wallet_1 = require("./handlers/wallet");
 async function title() {
     console.clear();
     const msg = `Andromeda CLI`;
     (0, figlet_1.default)(msg, (_err, data) => {
-        console.log((0, gradient_string_1.default)("red", "orange", "red").multiline(data));
+        console.log((0, gradient_string_1.default)("blue", "purple", "red", "orange").multiline(data));
     });
     await (0, common_1.sleep)(20);
 }
@@ -29,10 +30,12 @@ async function subTitle() {
 exports.subTitle = subTitle;
 // Common Functions/////////////////////////////////////////////////////////////////////////////
 async function ask(defaultValue = "") {
+    const chainId = config_1.default.get("chain.chainId");
+    const wallet = (0, wallet_1.getCurrentWallet)();
     const question = {
         name: "command",
         type: "command",
-        message: "$ >",
+        message: `$${wallet ? `${wallet.name}@` : ""}${chainId ?? chalk_1.default.red("<Disconnected>")}>`,
         default: defaultValue,
         context: 10,
     };
@@ -42,45 +45,53 @@ async function ask(defaultValue = "") {
 }
 exports.ask = ask;
 const log = console.log;
-function splitArgs(input) {
-    return input.trim().split(" ");
-}
-exports.splitArgs = splitArgs;
 async function listCommands(commands, prefix) {
     const commandsArray = Object.keys(commands);
-    log(`Andromeda CLI
-
+    log(`
 Usage:
    ${prefix ? `${prefix} ` : ""}[cmd]
 
 Valid commands:`);
-    const commandTable = new cli_table_1.default(Object.assign(Object.assign({}, common_1.logTableConfig), { colWidths: [2] }));
+    const commandTable = new cli_table_1.default({
+        ...common_1.logTableConfig,
+        colWidths: [2],
+    });
     commandsArray
         .sort((a, b) => (a > b ? 1 : -1))
-        .forEach((cmd) => {
-        var _a;
-        return commandTable.push([
-            "",
-            commands[cmd].color(cmd),
-            (_a = commands[cmd].description) !== null && _a !== void 0 ? _a : "",
-        ]);
-    });
+        .forEach((cmd) => commandTable.push([
+        "",
+        commands[cmd].color(cmd),
+        commands[cmd].description ?? "",
+    ]));
     log(commandTable.toString());
     log();
 }
 exports.listCommands = listCommands;
-async function handle(input, commands) {
-    if (input.trim().length === 0) {
-        return listCommands(commands);
+function printCommandHelp(cmd) {
+    const { description, usage } = cmd;
+    log(chalk_1.default.bold(description));
+    log();
+    log("Usage:");
+    log(chalk_1.default.green(usage));
+    if (cmd.flags) {
+        log();
+        log("Valid flags:");
+        const flagTable = new cli_table_1.default(common_1.logTableConfig);
+        const flags = Object.keys(cmd.flags);
+        flags.forEach((flag) => {
+            flagTable.push([
+                chalk_1.default.green(flag),
+                cmd.flags[flag].description,
+                cmd.flags[flag].usage ?? "",
+            ]);
+        });
+        flagTable.push([
+            chalk_1.default.green("help"),
+            "Displays info about the current command",
+            "",
+        ]);
+        log(flagTable.toString());
     }
-    const args = splitArgs(input);
-    const arg = args.shift();
-    const validCommands = Object.keys(commands);
-    if (!arg || !validCommands.includes(arg)) {
-        log(chalk_1.default.red("Invalid command"));
-    }
-    else {
-        await commands[arg].handler(args.join(" "));
-    }
+    log();
 }
-exports.handle = handle;
+exports.printCommandHelp = printCommandHelp;

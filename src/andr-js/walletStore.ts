@@ -5,17 +5,18 @@ import Wallet from "./Wallet";
  */
 export default class WalletStore {
   wallets: Record<string, Wallet[]> = {};
+  defaultWallets: Record<string, Wallet> = {};
 
   /**
    * Adds a wallet by mnemonic and chain ID
    * @param mnemonic
    * @param chainId
    */
-  addWallet(mnemonic: string, chainId: string, name?: string) {
+  addWallet(chainId: string, name: string, mnemonic?: string) {
     const trimmedChainId = chainId.trim();
     if (trimmedChainId.length === 0) throw new Error("Invalid Chain ID");
 
-    const newWallet = new Wallet(mnemonic, name);
+    const newWallet = new Wallet(name, mnemonic);
     if (this.wallets[trimmedChainId]) {
       this.wallets[trimmedChainId] = [
         ...this.wallets[trimmedChainId],
@@ -46,6 +47,11 @@ export default class WalletStore {
     this.wallets[chainId.trim()] = wallets.filter(
       (wallet) => wallet.name !== trimmedIdentifier
     );
+
+    const defaultWallet = this.getDefaultWallet(chainId);
+    if (defaultWallet.name === name) {
+      this.removeDefaultWallet(chainId);
+    }
   }
 
   /**
@@ -56,9 +62,14 @@ export default class WalletStore {
   removeWalletByIndex(index: number, chainId: string) {
     const wallets = this.getWallets(chainId);
 
-    wallets.splice(index, 1);
+    const removed = wallets.splice(index, 1);
 
     this.wallets[chainId.trim()] = wallets;
+
+    const defaultWallet = this.getDefaultWallet(chainId);
+    if (defaultWallet.name === removed[0].name) {
+      this.removeDefaultWallet(chainId);
+    }
   }
 
   /**
@@ -77,5 +88,71 @@ export default class WalletStore {
     const trimmedChainId = chainId.trim();
     if (trimmedChainId.length === 0) throw new Error("Invalid Chain ID");
     return this.wallets[trimmedChainId] ?? [];
+  }
+
+  /**
+   * Gets all wallets in the store with their assigned chain ID
+   * @returns
+   */
+  getAllWallets(): { chainId: string; wallet: Wallet }[] {
+    const chainIds = this.ChainIDs;
+    const wallets: { chainId: string; wallet: Wallet }[] = [];
+    for (let i = 0; i < chainIds.length; i++) {
+      const chainId = chainIds[i];
+      const chainWallets = this.getWallets(chainId);
+      wallets.push(...chainWallets.map((wallet) => ({ chainId, wallet })));
+    }
+
+    return wallets;
+  }
+
+  /**
+   * Get a wallet by Chain ID/Name combination
+   * @param chainId The ID of the Chain
+   * @param name The assigned name for the wallet
+   * @returns
+   */
+  getWallet(chainId: string, name: string) {
+    const trimmedChainId = chainId.trim();
+    if (trimmedChainId.length === 0) throw new Error("Invalid Chain ID");
+    const wallet = (this.wallets[trimmedChainId] ?? []).find(
+      (wallet) => wallet.name === name
+    );
+    return wallet;
+  }
+
+  /**
+   * Sets the default wallet for a given chain ID
+   * @param chainId
+   * @param wallet
+   */
+  setDefaultWallet(chainId: string, wallet: Wallet) {
+    this.defaultWallets[chainId] = wallet;
+    const wallets = this.getWallets(chainId);
+    if (!wallets.map((wallet) => wallet.name).includes(wallet.name)) {
+      this.addWallet(wallet.mnemonic, chainId, wallet.name);
+    }
+  }
+
+  /**
+   *
+   * @param chainId Gets the default wallet for a given chain ID
+   * @returns
+   */
+  getDefaultWallet(chainId: string) {
+    return this.defaultWallets[chainId];
+  }
+
+  /**
+   * Removes the default wallet for a given chain ID. Sets the first indexed wallet for the chain ID as the new default.
+   * @param chainId
+   */
+  removeDefaultWallet(chainId: string) {
+    const wallets = this.getWallets(chainId);
+    delete this.defaultWallets[chainId];
+
+    if (wallets.length > 0) {
+      this.setDefaultWallet(chainId, wallets[0]);
+    }
   }
 }

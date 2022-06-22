@@ -5,15 +5,16 @@ import figlet from "figlet";
 import gradient from "gradient-string";
 import inquirer from "inquirer";
 import { logTableConfig, sleep } from "./common";
-import { Commands } from "./types";
+import config from "./config";
+import { getCurrentWallet } from "./handlers/wallet";
+import { Command, Commands } from "./types";
 
-// Display Functions/////////////////////////////////////////////////////////////////////////////
 export async function title() {
   console.clear();
   const msg = `Andromeda CLI`;
 
   figlet(msg, (_err: any, data: any) => {
-    console.log(gradient("red", "orange", "red").multiline(data));
+    console.log(gradient("blue", "purple", "red", "orange").multiline(data));
   });
   await sleep(20);
 }
@@ -29,10 +30,14 @@ export async function subTitle() {
 
 // Common Functions/////////////////////////////////////////////////////////////////////////////
 export async function ask(defaultValue: string = "") {
+  const chainId = config.get("chain.chainId");
+  const wallet = getCurrentWallet();
   const question: any = {
     name: "command",
     type: "command",
-    message: "$ >",
+    message: `$${wallet ? `${wallet.name}@` : ""}${
+      chainId ?? chalk.red("<Disconnected>")
+    }>`,
     default: defaultValue,
     context: 10,
   };
@@ -45,15 +50,10 @@ export async function ask(defaultValue: string = "") {
 
 const log = console.log;
 
-export function splitArgs(input: string): string[] {
-  return input.trim().split(" ");
-}
-
 export async function listCommands(commands: Commands, prefix?: string) {
   const commandsArray = Object.keys(commands);
 
-  log(`Andromeda CLI
-
+  log(`
 Usage:
    ${prefix ? `${prefix} ` : ""}[cmd]
 
@@ -75,18 +75,32 @@ Valid commands:`);
   log();
 }
 
-export async function handle(input: string, commands: Commands) {
-  if (input.trim().length === 0) {
-    return listCommands(commands);
+export function printCommandHelp(cmd: Command) {
+  const { description, usage } = cmd;
+  log(chalk.bold(description));
+  log();
+  log("Usage:");
+  log(chalk.green(usage));
+  if (cmd.flags) {
+    log();
+    log("Valid flags:");
+    const flagTable = new Table(logTableConfig);
+
+    const flags = Object.keys(cmd.flags);
+    flags.forEach((flag) => {
+      flagTable.push([
+        chalk.green(flag),
+        cmd.flags![flag].description,
+        cmd.flags![flag].usage ?? "",
+      ]);
+    });
+    flagTable.push([
+      chalk.green("help"),
+      "Displays info about the current command",
+      "",
+    ]);
+    log(flagTable.toString());
   }
 
-  const args = splitArgs(input);
-  const arg = args.shift();
-  const validCommands = Object.keys(commands);
-
-  if (!arg || !validCommands.includes(arg)) {
-    log(chalk.red("Invalid command"));
-  } else {
-    await commands[arg].handler(args.join(" "));
-  }
+  log();
 }

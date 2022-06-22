@@ -3,7 +3,7 @@ import {
   SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
-import { EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
+import { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import { DeliverTxResponse, StdFee } from "@cosmjs/stargate";
 
 export type Fee = number | StdFee | "auto";
@@ -39,15 +39,11 @@ export default class AndromedaClient {
   ) {
     delete this.cosmWasmClient;
 
-    try {
-      this.cosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
-        endpoint,
-        signer,
-        options
-      );
-    } catch (error) {
-      console.error(error);
-    }
+    this.cosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
+      endpoint,
+      signer,
+      options
+    );
   }
 
   /**
@@ -90,7 +86,8 @@ export default class AndromedaClient {
     contractAddress: string,
     msg: Msg,
     fee: Fee,
-    memo?: string
+    memo?: string,
+    funds?: readonly Coin[]
   ) {
     this.preMessage();
     return await this.cosmWasmClient!.execute(
@@ -98,7 +95,8 @@ export default class AndromedaClient {
       contractAddress,
       msg,
       fee,
-      memo
+      memo,
+      funds
     );
   }
 

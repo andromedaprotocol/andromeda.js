@@ -1,66 +1,49 @@
-import chalk from "chalk";
-import Table from "cli-table";
-import config from "../config";
-import { handle } from "../cmd";
-import { logTableConfig } from "../common";
-import { Commands } from "../types";
 import {
   ChainConfig,
   configs,
-  getConfigByName,
   default as AndromedaClient,
+  getConfigByName,
 } from "@andromeda/andromeda-js";
+import chalk from "chalk";
+import Table from "cli-table";
+import { logTableConfig } from "../common";
+import config from "../config";
+import { Commands } from "../types";
 
 type ConfigKey = keyof ChainConfig;
 
 export const client = new AndromedaClient();
 
-export const commands: Commands = {
+const commands: Commands = {
   config: {
-    handler: async () => {
-      await printConfig(config.get("chain"));
-    },
+    handler: configPrintHandler,
     color: chalk.white,
     description: "Displays current chain config",
+    usage: "chain config",
   },
   list: {
-    handler: listConfigs,
+    handler: listConfigsHandler,
     color: chalk.blue,
     description: "Lists all the currently saved configs",
+    usage: "chain list",
   },
   use: {
-    handler: useConfig,
+    handler: useConfigHandler,
     color: chalk.yellow,
     description: "Swap to a saved config",
+    usage: "chain use <config name>",
   },
   get: {
-    handler: async (input: string) => {
-      const inputs = input.split(" ").filter((str) => str.length > 0);
-      if (inputs.length === 0) {
-        console.error(chalk.red("Invalid input, please provide a key:"));
-        console.log();
-        console.log(chalk.green("config get <key>"));
-        return;
-      } else {
-        await printConfig(config.get("chain"), inputs[0] as ConfigKey);
-      }
-    },
+    handler: configGetHandler,
     color: chalk.green,
     description: "Displays current value for a given key",
+    usage: "chain get <key>",
   },
   set: {
-    handler: async (input: string) => {
-      const inputs = input.split(" ").filter((str) => str.length > 0);
-      if (inputs.length !== 2) {
-        console.error(chalk.red("Invalid input, example usage:"));
-        console.log("");
-        console.log(chalk.green("config set <key> <value>"));
-      } else {
-        await setKey(inputs[0] as ConfigKey, inputs[1]);
-      }
-    },
+    handler: configSetHandler,
     color: chalk.black,
     description: "Displays current config",
+    usage: "chain set <key> <value>",
   },
 };
 
@@ -83,14 +66,11 @@ async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
   let keys = Object.keys(config) as ConfigKey[];
   if (trimmedKey && trimmedKey.length > 0) {
     if (!keys.includes(trimmedKey)) {
-      console.error(
-        chalk.red(
-          `Invalid config key, try ${chalk.white(
-            "config list"
-          )} to see a list of valid keys`
-        )
+      throw new Error(
+        `Invalid config key, try ${chalk.white(
+          "config list"
+        )} to see a list of valid keys`
       );
-      return;
     }
     keys = [trimmedKey];
   }
@@ -113,21 +93,18 @@ async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
 async function setKey(key: string, value: string) {
   const trimmedKey: ConfigKey = key.trim() as ConfigKey;
   const trimmedValue = value.trim();
-  if (!config.has(`chain.${trimmedKey}`)) {
-    console.error(
-      chalk.red(
-        `Invalid config key, try ${chalk.white(
-          "config list"
-        )} to see a list of valid keys`
-      )
+  if (!config.has(`chain.${trimmedKey}` as any)) {
+    throw new Error(
+      `Invalid config key, try ${chalk.white(
+        "config list"
+      )} to see a list of valid keys`
     );
-    return;
   }
 
   config.set(trimmedKey, trimmedValue);
 }
 
-async function listConfigs() {
+async function listConfigsHandler() {
   const configTable = new Table(logTableConfig);
   configTable.push([chalk.bold("Name"), chalk.bold("Chain ID")]);
   configs.forEach((chainConfig) =>
@@ -142,26 +119,44 @@ async function listConfigs() {
   console.log(configTable.toString());
 }
 
-async function useConfig(input: string) {
-  const trimmedInput = input.trim();
-  if (trimmedInput.length === 0) {
-    console.error(chalk.red("Invalid input"));
-    return;
+async function useConfigHandler(input: string[]) {
+  if (input.length === 0) {
+    throw new Error("Invalid input");
   }
-
-  const chainConfig = getConfigByName(input);
+  const [name] = input;
+  const chainConfig = getConfigByName(name);
 
   if (!chainConfig) {
-    console.error(chalk.red(`No chain config with the name ${trimmedInput}`));
-    return;
+    throw new Error(`No chain config with the name ${name}`);
   }
 
   config.set("chain", chainConfig);
   console.log(chalk.green(`Config loaded!`));
 }
 
-async function configHandler(input: string) {
-  return handle(input, commands);
+async function configGetHandler(input: string[]) {
+  if (input.length === 0) {
+    throw new Error(`Invalid input, usage:
+
+    ${chalk.green("config get <key>")}`);
+  } else {
+    await printConfig(config.get("chain"), input[0] as ConfigKey);
+  }
 }
 
-export default configHandler;
+async function configSetHandler(input: string[]) {
+  if (input.length !== 2) {
+    throw new Error(`Invalid input, usage:
+
+    ${chalk.green("config set <key> <value>")}`);
+  } else {
+    const [key, value] = input;
+    await setKey(key, value);
+  }
+}
+
+async function configPrintHandler() {
+  await printConfig(config.get("chain"));
+}
+
+export default commands;
