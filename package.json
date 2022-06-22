@@ -1,8 +1,9 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "repository": {
-    "url": "https://github.com/andromedaprotocol/andromeda-cli"
+    "type": "git",
+    "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
   },
   "description": "",
   "main": "./dist/index.js",
@@ -13,9 +14,10 @@
     "start": "nodemon -I --watch 'src/**/*.ts' --exec 'ts-node' src/cli.ts",
     "start:windows": "nodemon --watch 'src/**/*.ts' --exec \"npm run\" build",
     "create": "npm run build && npm run test",
-    "build": "tsc -p .",
+    "build": "tsc -p tsconfig.json",
     "install:local": "rm -rf ./dist && npm run build && sudo npm i -g --force && andr",
-    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
+    "prepare": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +28,7 @@
     "@cosmjs/proto-signing": "^0.28.7",
     "@cosmjs/stargate": "^0.28.7",
     "@types/convict-format-with-validator": "^6.0.2",
+    "@types/node": "^18.0.0",
     "bip39": "^3.0.4",
     "chalk": "^4.1.1",
     "chalk-animation": "^1.6.0",
@@ -36,6 +39,7 @@
     "inquirer": "^8.2.4",
     "inquirer-command-prompt": "^0.1.0",
     "minimist": "^1.2.6",
+    "module-alias": "^2.2.2",
     "nanospinner": "^1.1.0"
   },
   "devDependencies": {
@@ -46,7 +50,6 @@
     "@types/gradient-string": "^1.1.2",
     "@types/inquirer": "^8.2.1",
     "@types/minimist": "^1.2.2",
-    "module-alias": "^2.2.2",
     "nodemon": "^1.3.3",
     "ts-node": "^10.8.0",
     "typescript": "^4.7.3"
