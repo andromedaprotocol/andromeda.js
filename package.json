@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.1.0",
+  "version": "0.0.5",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -15,7 +15,7 @@
     "start:windows": "nodemon --watch 'src/**/*.ts' --exec \"npm run\" build",
     "create": "npm run build && npm run test",
     "build": "tsc -p tsconfig.json",
-    "install:local": "rm -rf ./dist && npm run build && sudo npm i -g --force && andr",
+    "install:local": "npm run build && sudo npm i -g && andr",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
     "prepare": "npm run build"
   },
@@ -56,8 +56,5 @@
   },
   "_moduleAliases": {
     "@andromeda/andromeda-js": "dist/andr-js/index.js"
-  },
-  "files": [
-    "./dist/**/*"
-  ]
+  }
 }
