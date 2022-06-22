@@ -1,5 +1,5 @@
 {
-  "name": "andromeda-js",
+  "name": "@andromedaprotocol/andromeda.js",
   "version": "0.0.1",
   "repository": {
     "url": "https://github.com/andromedaprotocol/andromeda-cli"
