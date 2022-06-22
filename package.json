@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -8,7 +8,7 @@
   "description": "",
   "main": "./dist/index.js",
   "bin": {
-    "andr": "./dist/cli.js"
+    "andr": "dist/cli.js"
   },
   "scripts": {
     "start": "nodemon -I --watch 'src/**/*.ts' --exec 'ts-node' src/cli.ts",
