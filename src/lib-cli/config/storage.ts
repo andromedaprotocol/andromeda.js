@@ -24,16 +24,20 @@ export function writeStorageFile(file: string, data: string) {
 }
 
 export function addExitHandler(exitHandler: NodeJS.ExitListener) {
-  //do something when app is closing
-  process.on("exit", exitHandler);
+  try {
+    //do something when app is closing
+    process.on("exit", exitHandler);
 
-  //catches ctrl+c event
-  process.on("SIGINT", exitHandler);
+    //catches ctrl+c event
+    process.on("SIGINT", exitHandler);
 
-  // catches "kill pid" (for example: nodemon restart)
-  process.on("SIGUSR1", exitHandler);
-  process.on("SIGUSR2", exitHandler);
+    // catches "kill pid" (for example: nodemon restart)
+    process.on("SIGUSR1", exitHandler);
+    process.on("SIGUSR2", exitHandler);
 
-  //catches uncaught exceptions
-  process.on("uncaughtException", exitHandler);
+    //catches uncaught exceptions
+    process.on("uncaughtException", exitHandler);
+  } catch (error) {
+    console.error(error);
+  }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -23,6 +23,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apollo/client": "^3.6.9",
     "@cosmjs/cli": "^0.28.0",
     "@cosmjs/cosmwasm-stargate": "^0.28.0",
     "@cosmjs/proto-signing": "^0.28.7",
@@ -40,7 +41,8 @@
     "inquirer-command-prompt": "^0.1.0",
     "minimist": "^1.2.6",
     "module-alias": "^2.2.2",
-    "nanospinner": "^1.1.0"
+    "nanospinner": "^1.1.0",
+    "ora": "^6.1.0"
   },
   "devDependencies": {
     "@types/chalk-animation": "^1.6.1",

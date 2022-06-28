@@ -4,14 +4,15 @@ import {
   default as AndromedaClient,
   getConfigByName,
 } from "@andromeda/andromeda-js";
+import { parseCoins } from "@cosmjs/proto-signing";
 import chalk from "chalk";
 import Table from "cli-table";
+
 import { logTableConfig } from "../common";
 import config from "../config";
-import { Commands } from "../types";
+import { Commands, Flags } from "../types";
 
 type ConfigKey = keyof ChainConfig;
-
 export const client = new AndromedaClient();
 
 const commands: Commands = {
@@ -101,7 +102,7 @@ async function setKey(key: string, value: string) {
     );
   }
 
-  config.set(trimmedKey, trimmedValue);
+  config.set(`chain.${trimmedKey}`, trimmedValue);
 }
 
 async function listConfigsHandler() {
@@ -157,6 +158,75 @@ async function configSetHandler(input: string[]) {
 
 async function configPrintHandler() {
   await printConfig(config.get("chain"));
+}
+
+export const defaultFee = {
+  amount: [
+    {
+      denom: "ujunox",
+      amount: "2000",
+    },
+  ],
+  gas: "500000",
+};
+
+export async function executeMessage(
+  address: string,
+  msg: Record<string, any>,
+  flags: Flags,
+  successMessage?: string
+) {
+  const { funds, memo, fee } = flags;
+  const msgFunds = parseCoins(funds);
+  // const spinner = ora(`Executing transaction on contract ${address}`).start();
+  const resp = await client.execute(
+    address,
+    msg,
+    fee ?? defaultFee,
+    memo,
+    msgFunds
+  );
+  // spinner.stop();
+  console.log(successMessage ?? chalk.green("Transaction executed!"));
+  console.log();
+  console.log(
+    `https://testnet.mintscan.io/juno-testnet/txs/${resp.transactionHash}`
+  );
+}
+
+export const defaultUploadFee = {
+  amount: [
+    {
+      denom: "ujunox",
+      amount: "25000",
+    },
+  ],
+  gas: "100000000",
+};
+
+export async function uploadWasm(
+  binary: Uint8Array,
+  flags: Flags,
+  successMessage?: string
+) {
+  const { fee } = flags;
+  // const spinner = ora("Uploading wasm").start();
+  const result = await client.upload(binary, fee ?? defaultUploadFee);
+  // spinner.stop();
+
+  console.log(successMessage ?? chalk.green("Wasm uploaded!"));
+  console.log();
+  console.log(
+    `https://testnet.mintscan.io/juno-testnet/txs/${result.transactionHash}`
+  );
+  console.log(chalk.green(`Code ID: ${result.codeId}`));
+}
+
+export async function queryMessage(address: string, msg: Record<string, any>) {
+  // const spinner = ora(`Query contract ${address}`).start();
+  const resp = await client.queryContract(address, msg);
+  // spinner.stop();
+  console.log(resp);
 }
 
 export default commands;

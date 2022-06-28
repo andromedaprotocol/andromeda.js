@@ -39,15 +39,16 @@ const config = convict({
 });
 
 function loadDefaultConfig() {
-  const savedConfig = loadStorageFile("config.json");
-  if (savedConfig) {
+  try {
+    const savedConfig = loadStorageFile("config.json");
     try {
       const parsedSavedConfig = JSON.parse(savedConfig.toString());
       config.load(parsedSavedConfig);
     } catch (error) {
       throw new Error("Invalid config file");
     }
-  } else {
+  } catch (error) {
+    console.error(error);
     const defaultConfig = {
       chain: getConfigByName("default"),
     };

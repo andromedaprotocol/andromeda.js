@@ -1,3 +1,5 @@
+import inquirer from "inquirer";
+
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export const logTableConfig = {
@@ -20,3 +22,14 @@ export const logTableConfig = {
   },
   style: { "padding-left": 0, "padding-right": 0 },
 };
+
+export async function validateOrRequest(
+  message: string,
+  input?: string
+): Promise<string> {
+  return (
+    input ??
+    (await inquirer.prompt({ type: "input", message, name: `requestinput` }))
+      .requestinput
+  );
+}

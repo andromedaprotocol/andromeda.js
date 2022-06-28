@@ -11,32 +11,40 @@ const store = new WalletStore();
 const STORAGE_FILE = "wallets.json";
 
 function loadWallets() {
-  const savedWalletsData = storage.loadStorageFile(STORAGE_FILE);
-  if (!savedWalletsData) return;
-
   try {
-    const savedWallets = JSON.parse(savedWalletsData.toString());
-    const { wallets, defaults } = savedWallets;
-    wallets.forEach(
-      ({
-        mnemonic,
-        chainId,
-        name,
-      }: {
-        mnemonic: string;
-        name: string;
-        chainId: string;
-      }) => {
-        store.addWallet(chainId, name, mnemonic);
-      }
-    );
-    const chainIds = Object.keys(defaults);
-    chainIds.forEach((chainId) =>
-      store.setDefaultWallet(chainId, defaults[chainId])
-    );
+    const savedWalletsData = storage.loadStorageFile(STORAGE_FILE);
+    try {
+      const savedWallets = JSON.parse(savedWalletsData.toString());
+      const { wallets, defaults } = savedWallets;
+      wallets.forEach(
+        ({
+          mnemonic,
+          chainId,
+          name,
+        }: {
+          mnemonic: string;
+          name: string;
+          chainId: string;
+        }) => {
+          store.addWallet(chainId, name, mnemonic);
+        }
+      );
+      const chainIds = Object.keys(defaults);
+      chainIds.forEach((chainId) => {
+        const walletData = defaults[chainId];
+        store.setDefaultWallet(
+          chainId,
+          new Wallet(walletData.name, walletData.mnemonic)
+        );
+      });
+      const currentWallet = store.getDefaultWallet(config.get("chain.chainId"));
+      setCurrentWallet(currentWallet);
+    } catch (error) {
+      console.error(error);
+      process.exit(1);
+    }
   } catch (error) {
     console.error(error);
-    process.exit(1);
   }
 }
 
@@ -257,11 +265,11 @@ async function useWalletHandler(input: string[]) {
 
 async function setCurrentWallet(wallet: Wallet) {
   const signer = await wallet.getWallet();
-  const { chainId, chainUrl } = config.get("chain");
+  const { chainId, chainUrl, registryAddress } = config.get("chain");
 
   store.setDefaultWallet(chainId, wallet);
   try {
-    await client.connect(chainUrl, signer);
+    await client.connect(chainUrl, signer, registryAddress);
   } catch (error) {
     throw new Error("Could not connect to chain, please check your config");
   }

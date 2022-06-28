@@ -1,9 +1,9 @@
-import { parseCoins } from "@cosmjs/proto-signing";
 import chalk from "chalk";
+import fs from "fs";
+import path from "path";
 import { parseJSONInput } from ".";
-import { Commands } from "../types";
-import { client } from "./chain";
-import { getCurrentWallet } from "./wallet";
+import { Commands, Flags } from "../types";
+import { executeMessage, queryMessage, uploadWasm } from "./chain";
 
 export const commands: Commands = {
   query: {
@@ -18,6 +18,12 @@ export const commands: Commands = {
     description: "Executes a wasm message",
     usage: "wasm execute <contract address> <message> <memo> <funds>",
   },
+  upload: {
+    handler: uploadHandler,
+    color: chalk.blue,
+    description: "Upload a contract wasm",
+    usage: "wasm upload <wasm file> <memo?>",
+  },
 };
 
 async function queryHandler(input: string[]) {
@@ -30,12 +36,11 @@ async function queryHandler(input: string[]) {
 
   const parsedMsg = JSON.parse(msg);
 
-  const resp = await client.queryContract(contractAddr, parsedMsg);
-  console.log(resp);
+  await queryMessage(contractAddr, parsedMsg);
 }
 
-async function executeHandler(input: string[]) {
-  const [contractAddr, msg, memo, funds] = input;
+async function executeHandler(input: string[], flags: Flags) {
+  const [contractAddr, msg] = input;
   if (!contractAddr) {
     throw new Error("Invalid contract address");
   } else if (!msg) {
@@ -43,32 +48,21 @@ async function executeHandler(input: string[]) {
   }
 
   const parsedMsg = parseJSONInput(msg);
-  const wallet = getCurrentWallet();
-  if (!wallet) throw new Error("No wallet is currently selected");
-  const signer = await wallet?.getFirstOfflineSigner();
-  const messageFunds = parseCoins(funds);
-  const fee = {
-    amount: [
-      {
-        denom: "ujunox",
-        amount: "2000",
-      },
-    ],
-    gas: "500000",
-  };
-  const resp = await client.execute(
-    signer,
-    contractAddr,
-    parsedMsg,
-    fee,
-    memo,
-    messageFunds
-  ); //TODO: ADD FEE FLAG
-  console.log(chalk.green("Transaction executed!"));
-  console.log();
-  console.log(
-    `https://testnet.mintscan.io/juno-testnet/txs/${resp.transactionHash}`
-  );
+
+  await executeMessage(contractAddr, parsedMsg, flags); //TODO: ADD FEE FLAG
+}
+
+async function uploadHandler(input: string[], flags: Flags) {
+  const [wasmFile] = input;
+  const filePath = path.join(process.env.PWD ?? "", wasmFile);
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Could not find wasm file ${filePath}`);
+  }
+
+  const wasmBuffer = fs.readFileSync(filePath);
+  const wasmBinary = new Uint8Array(wasmBuffer);
+
+  await uploadWasm(wasmBinary, flags);
 }
 
 export default commands;
