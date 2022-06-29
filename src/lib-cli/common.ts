@@ -1,3 +1,4 @@
+import { Spinner } from "cli-spinner";
 import inquirer from "inquirer";
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -39,4 +40,22 @@ export async function validateOrRequest(
       })
     ).requestinput
   );
+}
+
+export async function displaySpinnerAsync<T>(
+  text: string,
+  cb: (...args: any) => Promise<T>
+) {
+  const spinner = new Spinner(text);
+  spinner.setSpinnerString(1);
+  spinner.start();
+  try {
+    const resp = await cb();
+    return resp;
+  } catch (error) {
+    throw error;
+  } finally {
+    spinner.stop();
+    console.log();
+  }
 }

@@ -7,8 +7,9 @@ import {
 import { parseCoins } from "@cosmjs/proto-signing";
 import chalk from "chalk";
 import Table from "cli-table";
+import inquirer from "inquirer";
 
-import { logTableConfig } from "../common";
+import { displaySpinnerAsync, logTableConfig } from "../common";
 import config from "../config";
 import { Commands, Flags } from "../types";
 
@@ -176,17 +177,32 @@ export async function executeMessage(
   flags: Flags,
   successMessage?: string
 ) {
-  const { funds, memo, fee } = flags;
-  const msgFunds = parseCoins(funds);
-  // const spinner = ora(`Executing transaction on contract ${address}`).start();
-  const resp = await client.execute(
-    address,
-    msg,
-    fee ?? defaultFee,
-    memo,
-    msgFunds
+  const { funds, memo, fee, simulate } = flags;
+  const gasEstimate = await simulateMessage(address, msg, flags);
+  if (simulate) {
+    console.log(successMessage ?? chalk.green("Transaction simulated!"));
+    console.log();
+    console.log(`Gas Estimate: ${chalk.bold(gasEstimate)}`);
+    return;
+  }
+  console.log(chalk.bold(`Gas Estimate: ${chalk.green(gasEstimate)}`));
+  const confirmation = await inquirer.prompt({
+    type: "confirm",
+    message: `Do you want to proceed?`,
+    name: "confirmtx",
+  });
+  if (!confirmation.confirmtx) {
+    console.log(chalk.red("Transaction cancelled"));
+    return;
+  }
+
+  const msgFunds = parseCoins(funds ?? "");
+  const resp = await displaySpinnerAsync(
+    "Executing Tx...",
+    async () =>
+      await client.execute(address, msg, fee ?? defaultFee, memo, msgFunds)
   );
-  // spinner.stop();
+  console.log();
   console.log(successMessage ?? chalk.green("Transaction executed!"));
   console.log();
   console.log(
@@ -227,6 +243,20 @@ export async function queryMessage(address: string, msg: Record<string, any>) {
   const resp = await client.queryContract(address, msg);
   // spinner.stop();
   console.log(resp);
+}
+
+export async function simulateMessage(
+  address: string,
+  msg: Record<string, any>,
+  flags: Flags
+) {
+  const { funds, memo } = flags;
+  const msgFunds = parseCoins(funds ?? "");
+  const gasEstimate = displaySpinnerAsync(
+    "Simulating Tx...",
+    async () => await client.simulateTx(address, msg, msgFunds, memo)
+  );
+  return gasEstimate;
 }
 
 export default commands;

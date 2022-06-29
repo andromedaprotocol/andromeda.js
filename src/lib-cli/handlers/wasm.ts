@@ -46,8 +46,12 @@ async function executeHandler(input: string[], flags: Flags) {
   } else if (!msg) {
     throw new Error("Invalid query message");
   }
-
-  const parsedMsg = parseJSONInput(msg);
+  let parsedMsg;
+  try {
+    parsedMsg = parseJSONInput(msg);
+  } catch (error) {
+    throw new Error("Invalid message JSON");
+  }
 
   await executeMessage(contractAddr, parsedMsg, flags); //TODO: ADD FEE FLAG
 }

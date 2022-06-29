@@ -22,6 +22,9 @@ export interface QueryAppResponse {
   };
 }
 
+/**
+ * GraphQL Document to Query App details
+ */
 export const QUERY_APP = gql`
   query QUERY_APP($contractAddress: String!) {
     app(contractAddress: $contractAddress) {
@@ -41,6 +44,11 @@ export const QUERY_APP = gql`
   }
 `;
 
+/**
+ * Queries details about an App given its contract address
+ * @param contractAddress The contract address of the app
+ * @returns
+ */
 export async function queryApp(contractAddress: string) {
   return query<QueryApp, QueryAppResponse>(QUERY_APP, { contractAddress });
 }

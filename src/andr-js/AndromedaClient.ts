@@ -1,5 +1,6 @@
 import {
   InstantiateOptions,
+  MsgExecuteContractEncodeObject,
   SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
@@ -166,4 +167,43 @@ export default class AndromedaClient {
     this.preMessage();
     return (await this.cosmWasmClient!.queryContractSmart(address, query)) as T;
   }
+
+  async simulateTx(
+    address: string,
+    msg: Msg,
+    funds: Coin[],
+    memo: string = ""
+  ) {
+    this.preMessage();
+    return await this.cosmWasmClient?.simulate(
+      this.signer,
+      [this.encodeExecuteMsg(address, msg, funds)],
+      memo
+    );
+  }
+
+  encodeExecuteMsg(
+    address: string,
+    msg: Msg,
+    funds: Coin[]
+  ): MsgExecuteContractEncodeObject {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
+      value: {
+        sender: this.signer,
+        contract: address,
+        msg: JsonToArray(msg),
+        funds,
+      },
+    };
+  }
 }
+
+var JsonToArray = function (json: Record<string, any>) {
+  var str = JSON.stringify(json, null, 0);
+  var ret = new Uint8Array(str.length);
+  for (var i = 0; i < str.length; i++) {
+    ret[i] = str.charCodeAt(i);
+  }
+  return ret;
+};

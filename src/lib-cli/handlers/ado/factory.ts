@@ -1,5 +1,4 @@
 import chalk from "chalk";
-// import ora from "ora";
 import { validateOrRequest } from "../../common";
 import { Commands } from "../../types";
 import { client, defaultFee } from "../chain";
@@ -35,9 +34,7 @@ async function updateCodeIdHandler(input: string[]) {
   }
 
   const { factory } = client;
-  // const spinner = ora("Updating code ID").start();
   const resp = await factory.updateCodeId(adoKey, parsedCodeId, defaultFee);
-  // spinner.stop();
 
   console.log(chalk.green("Code ID updated!"));
   console.log();
