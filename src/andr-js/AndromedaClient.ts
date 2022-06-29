@@ -90,7 +90,6 @@ export default class AndromedaClient {
   /**
    * Wrapper function for CosmWasm execute
    * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#signAndBroadcast
-   * @param sender
    * @param contractAddress
    * @param msg
    * @param fee
@@ -118,7 +117,6 @@ export default class AndromedaClient {
   /**
    *  Wrapper function for CosmWasm upload
    * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#upload
-   * @param sender
    * @param code
    * @param fee
    * @param memo
@@ -132,7 +130,6 @@ export default class AndromedaClient {
   /**
    * Wrapper function for CosmWasm instantiate
    * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#instantiate
-   * @param sender
    * @param codeId
    * @param msg
    * @param label
@@ -141,7 +138,6 @@ export default class AndromedaClient {
    * @returns
    */
   async instantiate(
-    sender: string,
     codeId: number,
     msg: Msg,
     label: string,
@@ -150,7 +146,7 @@ export default class AndromedaClient {
   ) {
     this.preMessage();
     return await this.cosmWasmClient!.instantiate(
-      sender,
+      this.signer,
       codeId,
       msg,
       label,

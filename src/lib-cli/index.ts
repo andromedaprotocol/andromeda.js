@@ -6,6 +6,7 @@ import {
   chainHandler,
   wasmHandler,
   adoHandler,
+  hubbleHandler,
   reload,
 } from "./handlers";
 import { Commands, Flags } from "./types";
@@ -67,6 +68,12 @@ export const baseCommands: Commands = {
     description: "Query and execute on an ADO",
     color: chalk.yellow,
     usage: "ado <cmd>",
+  },
+  hubble: {
+    handler: hubbleHandler,
+    description: "Query using the Hubble service",
+    color: chalk.magenta,
+    usage: "hubble <cmd>",
   },
 };
 

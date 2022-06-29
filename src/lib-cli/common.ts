@@ -25,11 +25,18 @@ export const logTableConfig = {
 
 export async function validateOrRequest(
   message: string,
-  input?: string
+  input?: string,
+  validate?: (input: string) => Promise<boolean> | boolean
 ): Promise<string> {
   return (
     input ??
-    (await inquirer.prompt({ type: "input", message, name: `requestinput` }))
-      .requestinput
+    (
+      await inquirer.prompt({
+        type: "input",
+        message,
+        name: `requestinput`,
+        validate,
+      })
+    ).requestinput
   );
 }
