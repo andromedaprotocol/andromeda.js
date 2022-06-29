@@ -1,4 +1,8 @@
-import { logTableConfig, validateOrRequest } from "../../common";
+import {
+  displaySpinnerAsync,
+  logTableConfig,
+  validateOrRequest,
+} from "../../common";
 import { Commands } from "../../types";
 import { hubble } from "@andromeda/andromeda-js";
 import chalk from "chalk";
@@ -23,7 +27,10 @@ async function appHandler(input: string[]) {
     (input: string) => input.length > 0
   );
 
-  const { app } = await hubble.queryApp(address);
+  const { app } = await displaySpinnerAsync(
+    "Searching the Cosmos...",
+    async () => await hubble.queryApp(address)
+  );
 
   const {
     config: { name, owner },
