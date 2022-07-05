@@ -6,7 +6,8 @@ import {
 import { parseCoins } from "@cosmjs/proto-signing";
 import chalk from "chalk";
 import inquirer from "inquirer";
-import { Commands } from "lib-cli/types";
+import { executeFlags } from "../../common";
+import { Commands } from "../../types";
 import { client } from "../chain";
 
 const commands: Commands = {
@@ -15,6 +16,7 @@ const commands: Commands = {
     usage: "ado primitive set <contract address?> <key?> <value?> <valuetype?>",
     handler: setHandler,
     color: chalk.blue,
+    flags: executeFlags,
   },
 };
 

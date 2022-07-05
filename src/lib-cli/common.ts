@@ -59,3 +59,18 @@ export async function displaySpinnerAsync<T>(
     console.log();
   }
 }
+
+export const executeFlags = {
+  funds: {
+    description: "Funds to send with the message",
+    usage: "--funds 100ujunox",
+  },
+  memo: {
+    description: "An optional memo to attach to the message",
+    usage: "--memo 'Wow what a great transaction!'",
+  },
+  simulate: {
+    description:
+      "Simulates the transaction without broadcasting it. Useful to estimate gas costs.",
+  },
+};

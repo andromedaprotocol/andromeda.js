@@ -1,7 +1,8 @@
 import chalk from "chalk";
 import fs from "fs";
+import { executeFlags } from "../common";
 import path from "path";
-import { parseJSONInput } from ".";
+import { parseJSONInput } from "./utils";
 import { Commands, Flags } from "../types";
 import { executeMessage, queryMessage, uploadWasm } from "./chain";
 
@@ -17,6 +18,7 @@ export const commands: Commands = {
     color: chalk.yellow,
     description: "Executes a wasm message",
     usage: "wasm execute <contract address> <message> <memo> <funds>",
+    flags: executeFlags,
   },
   upload: {
     handler: uploadHandler,

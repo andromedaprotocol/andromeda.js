@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { validateOrRequest } from "../../common";
+import { executeFlags, validateOrRequest } from "../../common";
 import { Commands } from "../../types";
 import { client, defaultFee } from "../chain";
 
@@ -9,6 +9,7 @@ const commands: Commands = {
     usage: "ado factory updatecodeid <ado key?> <code id?>",
     handler: updateCodeIdHandler,
     color: chalk.blue,
+    flags: executeFlags,
   },
   address: {
     description: "Gets the current address for the factory",

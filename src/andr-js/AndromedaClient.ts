@@ -168,6 +168,14 @@ export default class AndromedaClient {
     return (await this.cosmWasmClient!.queryContractSmart(address, query)) as T;
   }
 
+  /**
+   * Estimates the gas cost of sending an execute transaction
+   * @param address
+   * @param msg
+   * @param funds
+   * @param memo
+   * @returns A gas fee estimation
+   */
   async simulateTx(
     address: string,
     msg: Msg,
@@ -182,6 +190,13 @@ export default class AndromedaClient {
     );
   }
 
+  /**
+   * Converts an execute message to an EncodeObject for signing or simulating
+   * @param address
+   * @param msg
+   * @param funds
+   * @returns
+   */
   encodeExecuteMsg(
     address: string,
     msg: Msg,
@@ -199,7 +214,12 @@ export default class AndromedaClient {
   }
 }
 
-var JsonToArray = function (json: Record<string, any>) {
+/**
+ * Helper function to convert JSON to Uint8Array
+ * @param json JSON object to convert to Uint8Array
+ * @returns
+ */
+const JsonToArray = function (json: Record<string, any>) {
   var str = JSON.stringify(json, null, 0);
   var ret = new Uint8Array(str.length);
   for (var i = 0; i < str.length; i++) {

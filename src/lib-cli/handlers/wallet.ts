@@ -10,7 +10,7 @@ import { client } from "./chain";
 const store = new WalletStore();
 const STORAGE_FILE = "wallets.json";
 
-function loadWallets() {
+async function loadWallets() {
   try {
     const savedWalletsData = storage.loadStorageFile(STORAGE_FILE);
     try {
@@ -38,7 +38,7 @@ function loadWallets() {
         );
       });
       const currentWallet = store.getDefaultWallet(config.get("chain.chainId"));
-      setCurrentWallet(currentWallet);
+      await setCurrentWallet(currentWallet);
     } catch (error) {
       console.error(error);
       process.exit(1);
