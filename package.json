@@ -34,14 +34,17 @@
     "cli-table": "^0.3.11",
     "convict": "^6.2.3",
     "convict-format-with-validator": "^6.2.0",
+    "fetch": "^1.1.0",
     "figlet": "^1.5.2",
     "graphql": "^16.5.0",
     "graphql-request": "^4.3.0",
     "inquirer": "^8.2.4",
     "inquirer-command-prompt": "^0.1.0",
+    "jsonschema": "^1.4.1",
     "minimist": "^1.2.6",
     "module-alias": "^2.2.2",
     "nanospinner": "^1.1.0",
+    "node-fetch": "^3.2.6",
     "ora": "^6.1.0"
   },
   "devDependencies": {

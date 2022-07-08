@@ -6,12 +6,12 @@ import gradient from "gradient-string";
 import inquirer from "inquirer";
 import { logTableConfig, sleep } from "./common";
 import config from "./config";
-import { getCurrentWallet } from "./handlers/wallet";
+import { getCurrentWallet } from "./handlers/wallets";
 import { Command, Commands } from "./types";
 
 export async function title() {
   console.clear();
-  const msg = `Andromeda CLI`;
+  const msg = "Andromeda CLI";
 
   figlet(msg, (_err: any, data: any) => {
     console.log(gradient("blue", "purple", "red", "orange").multiline(data));
@@ -28,7 +28,6 @@ export async function subTitle() {
   rainbowTitle.stop();
 }
 
-// Common Functions/////////////////////////////////////////////////////////////////////////////
 export async function ask(defaultValue: string = "") {
   const chainId = config.get("chain.chainId");
   const wallet = getCurrentWallet();
@@ -53,8 +52,7 @@ const log = console.log;
 export async function listCommands(commands: Commands, prefix?: string) {
   const commandsArray = Object.keys(commands);
 
-  log(`
-Usage:
+  log(`Usage:
    ${prefix ? `${prefix} ` : ""}[cmd]
 
 Valid commands:`);
@@ -63,7 +61,7 @@ Valid commands:`);
     colWidths: [2],
   });
   commandsArray
-    .sort((a, b) => (a > b ? 1 : -1))
+    .sort((a, b) => (a === "exit" ? -1 : a > b ? 1 : -1))
     .forEach((cmd) =>
       commandTable.push([
         "",

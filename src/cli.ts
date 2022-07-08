@@ -2,15 +2,34 @@
 require("module-alias/register");
 
 import inquirer from "inquirer";
-import { baseCommands } from "./lib-cli";
-import { ask, subTitle, title } from "./lib-cli/cmd";
-import { handle, parseInput } from "./lib-cli/handlers";
-import reload from "./lib-cli/handlers/reload";
+import {
+  baseCommands,
+  handle,
+  parseInput,
+  ask,
+  subTitle,
+  title,
+  reload,
+  displaySpinnerAsync,
+  wallets,
+  loadDefaultConfig,
+} from "./lib-cli";
 import minimist from "minimist";
 
 inquirer.registerPrompt("command", require("inquirer-command-prompt"));
 
+async function onStartup() {
+  await displaySpinnerAsync("Loading config...", async () =>
+    loadDefaultConfig()
+  );
+  await displaySpinnerAsync(
+    "Loading wallets...",
+    async () => await wallets.loadWallets()
+  );
+}
+
 async function start() {
+  await onStartup();
   await title();
   await subTitle();
   while (true) {

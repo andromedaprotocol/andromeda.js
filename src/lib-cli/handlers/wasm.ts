@@ -1,10 +1,16 @@
+import { Msg } from "andr-js/AndromedaClient";
 import chalk from "chalk";
 import fs from "fs";
-import { executeFlags } from "../common";
 import path from "path";
-import { parseJSONInput } from "./utils";
+import { executeFlags, validateOrRequest } from "../common";
 import { Commands, Flags } from "../types";
-import { executeMessage, queryMessage, uploadWasm } from "./chain";
+import {
+  executeMessage,
+  instantiateMessage,
+  queryMessage,
+  uploadWasm,
+} from "./chain";
+import { parseJSONInput } from "./utils";
 
 export const commands: Commands = {
   query: {
@@ -17,7 +23,14 @@ export const commands: Commands = {
     handler: executeHandler,
     color: chalk.yellow,
     description: "Executes a wasm message",
-    usage: "wasm execute <contract address> <message> <memo> <funds>",
+    usage: "wasm execute <contract address> <message>",
+    flags: executeFlags,
+  },
+  instantiate: {
+    handler: instantiateHandler,
+    color: chalk.magenta,
+    description: "Instantiates a contract by code ID",
+    usage: "wasm instantiate <codeid?> <instantiatemsg?>",
     flags: executeFlags,
   },
   upload: {
@@ -69,6 +82,34 @@ async function uploadHandler(input: string[], flags: Flags) {
   const wasmBinary = new Uint8Array(wasmBuffer);
 
   await uploadWasm(wasmBinary, flags);
+}
+
+async function instantiateHandler(input: string[], flags: Flags) {
+  let [codeIdInput, instantiateMsg] = input;
+  codeIdInput = await validateOrRequest(
+    "Input the contract Code ID:",
+    codeIdInput
+  );
+  instantiateMsg = await validateOrRequest(
+    "Input the contract instantiate message:",
+    instantiateMsg
+  );
+  let codeId = -1;
+  try {
+    codeId = parseInt(codeIdInput);
+    if (codeId <= 0) throw new Error("Invalid code ID");
+  } catch (error) {
+    throw new Error("Invalid code ID");
+  }
+
+  let parsedMsg: Msg;
+  try {
+    parsedMsg = parseJSONInput(instantiateMsg);
+  } catch (error) {
+    throw new Error("Invalid message JSON");
+  }
+
+  await instantiateMessage(codeId, parsedMsg, flags);
 }
 
 export default commands;

@@ -29,7 +29,7 @@ async function appHandler(input: string[]) {
 
   const { app } = await displaySpinnerAsync(
     "Searching the Cosmos...",
-    async () => await hubble.queryApp(address)
+    async () => await hubble.app.queryApp(address)
   );
 
   const {

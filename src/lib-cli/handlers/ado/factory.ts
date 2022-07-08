@@ -34,8 +34,11 @@ async function updateCodeIdHandler(input: string[]) {
     throw new Error("Invalid Code ID");
   }
 
-  const { factory } = client;
-  const resp = await factory.updateCodeId(adoKey, parsedCodeId, defaultFee);
+  const resp = await client.ado.factory.updateCodeId(
+    adoKey,
+    parsedCodeId,
+    defaultFee
+  );
 
   console.log(chalk.green("Code ID updated!"));
   console.log();
@@ -45,7 +48,7 @@ async function updateCodeIdHandler(input: string[]) {
 }
 
 async function getAddressHandler() {
-  console.log(client.factory.address);
+  console.log(client.ado.factory.address ?? "<unset>");
 }
 
 export default commands;

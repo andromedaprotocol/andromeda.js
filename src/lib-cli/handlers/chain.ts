@@ -164,7 +164,7 @@ async function configPrintHandler() {
 export const defaultFee = {
   amount: [
     {
-      denom: "ujunox",
+      denom: "uandr",
       amount: "2000",
     },
   ],
@@ -213,7 +213,7 @@ export async function executeMessage(
 export const defaultUploadFee = {
   amount: [
     {
-      denom: "ujunox",
+      denom: "uandr",
       amount: "25000",
     },
   ],
@@ -257,6 +257,51 @@ export async function simulateMessage(
     async () => await client.simulateTx(address, msg, msgFunds, memo)
   );
   return gasEstimate;
+}
+
+export async function instantiateMessage(
+  codeId: number,
+  msg: Record<string, any>,
+  flags: Flags,
+  successMessage?: string
+) {
+  const { label, admin } = flags;
+  // const gasEstimate = await simulateMessage(address, msg, flags); //TODO: SIMULATE INSTANTIATE
+  // if (simulate) {
+  //   console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  //   console.log();
+  //   console.log(`Gas Estimate: ${chalk.bold(gasEstimate)}`);
+  //   return;
+  // }
+  // console.log(chalk.bold(`Gas Estimate: ${chalk.green(gasEstimate)}`));
+  // const confirmation = await inquirer.prompt({
+  //   type: "confirm",
+  //   message: `Do you want to proceed?`,
+  //   name: "confirmtx",
+  // });
+  // if (!confirmation.confirmtx) {
+  //   console.log(chalk.red("Transaction cancelled"));
+  //   return;
+  // }
+
+  const resp = await displaySpinnerAsync(
+    "Instantiating your contract...",
+    async () =>
+      await client.instantiate(
+        codeId,
+        msg,
+        label ?? "Instantiation",
+        defaultFee,
+        admin ? { admin } : undefined
+      )
+  );
+  console.log();
+  console.log(successMessage ?? chalk.green("Contract instantiated!"));
+  console.log();
+  console.log(
+    `https://testnet.mintscan.io/juno-testnet/txs/${resp.transactionHash}`
+  );
+  console.log(`Address: ${chalk.bold(resp.contractAddress)}`);
 }
 
 export default commands;

@@ -78,3 +78,8 @@ export const baseCommands: Commands = {
 };
 
 export default baseCommands;
+
+export * from "./config";
+export * from "./handlers";
+export * from "./cmd";
+export * from "./common";

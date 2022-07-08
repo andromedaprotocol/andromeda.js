@@ -6,7 +6,7 @@ import {
 } from "@cosmjs/cosmwasm-stargate";
 import { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import { DeliverTxResponse, StdFee } from "@cosmjs/stargate";
-import { Factory, Primitive } from "./ADOs";
+import ADOAPI from "./ADOs";
 
 export type Fee = number | StdFee | "auto";
 export type Msg = Record<string, unknown>;
@@ -20,9 +20,8 @@ export default class AndromedaClient {
    * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html
    */
   cosmWasmClient: SigningCosmWasmClient | undefined;
-  registry: Primitive = new Primitive("", this);
-  factory: Factory = new Factory("", this);
   signer: string = "";
+  ado = new ADOAPI(this, "");
 
   /**
    * A pre-message hook to check that the client is connected and functioning
@@ -54,9 +53,7 @@ export default class AndromedaClient {
     const [account] = await signer.getAccounts();
     this.signer = account.address;
 
-    this.registry = new Primitive(registryAddress, this);
-    const factoryAddress = await this.registry.get("factory");
-    this.factory = new Factory(factoryAddress, this);
+    await this.ado.setRegistryAddress(registryAddress);
   }
 
   /**
@@ -152,7 +149,7 @@ export default class AndromedaClient {
       msg,
       label,
       fee,
-      options
+      { admin: this.signer, ...options }
     );
   }
 

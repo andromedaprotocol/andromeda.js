@@ -1,9 +1,8 @@
 import { gql } from "graphql-request";
-import { query } from "./client";
+import { query } from "../client";
+import { ContractAddressQuery } from "./types";
 
-export interface QueryApp {
-  contractAddress: string;
-}
+export interface QueryApp extends ContractAddressQuery {}
 
 export interface QueryAppResponse {
   app: {

@@ -1,11 +1,11 @@
 import chainCommands from "./chain";
-import walletCommands from "./wallet";
+import walletCommands from "./wallets";
 import wasmCommands from "./wasm";
 import adoCommands from "./ado";
 import hubbleCommands from "./hubble";
 import { generateHandler } from "./utils";
 
-export * as wallet from "./wallet";
+export * as wallets from "./wallets";
 export * as wasm from "./wasm";
 export * as chain from "./chain";
 export { default as reload } from "./reload";

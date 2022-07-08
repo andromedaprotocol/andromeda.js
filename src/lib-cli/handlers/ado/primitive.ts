@@ -1,14 +1,16 @@
-import {
-  Primitive,
-  PrimitiveValue,
-  PrimitiveValueType,
-} from "@andromeda/andromeda-js";
+import { PrimitiveValue, PrimitiveValueType } from "@andromeda/andromeda-js";
 import { parseCoins } from "@cosmjs/proto-signing";
 import chalk from "chalk";
-import inquirer from "inquirer";
-import { executeFlags } from "../../common";
-import { Commands } from "../../types";
-import { client } from "../chain";
+import {
+  displaySpinnerAsync,
+  executeFlags,
+  instantiateFlags,
+  factoryFlag,
+  requestOperators,
+  validateOrRequest,
+} from "../../common";
+import { Commands, Flags } from "../../types";
+import { client, defaultFee } from "../chain";
 
 const commands: Commands = {
   set: {
@@ -17,6 +19,19 @@ const commands: Commands = {
     handler: setHandler,
     color: chalk.blue,
     flags: executeFlags,
+  },
+  create: {
+    description: "Creates a primitive contract",
+    usage: "ado primitive create <operators (comma separated addresses)?>",
+    handler: createHandler,
+    color: chalk.magenta,
+    flags: { ...instantiateFlags, ...factoryFlag },
+  },
+  get: {
+    description: "Get the value for a given key",
+    usage: "ado primitive get <contract address?> <key?>",
+    handler: getHandler,
+    color: chalk.green,
   },
 };
 
@@ -53,55 +68,29 @@ function mapValue(input: string, type: PrimitiveValueType): PrimitiveValue {
 
 async function setHandler(inputs: string[]) {
   let [contractAddr, key, value, valueType] = inputs;
-  if (!contractAddr) {
-    contractAddr = (
-      await inquirer.prompt({
-        type: "input",
-        message: "Input the contract address for the Primitive",
-        name: "primitivecontractaddr",
-      })
-    ).primitivecontractaddr;
-  }
-  if (!key) {
-    key = (
-      await inquirer.prompt({
-        type: "input",
-        message: "Input the primitive value key",
-        name: "primitivekey",
-      })
-    ).primitivekey;
-  }
-  if (!value) {
-    key = (
-      await inquirer.prompt({
-        type: "input",
-        message: `Input the primitive value for ${key}`,
-        name: "primitivevalue",
-      })
-    ).primitivevalue;
-  }
-  if (!valueType) {
-    key = (
-      await inquirer.prompt({
-        type: "list",
-        message: `Input the primitive value for ${key}`,
-        name: "primitivevaluetype",
-        choices: valueTypes,
-      })
-    ).primitivevaluetype;
-  }
+  contractAddr = await validateOrRequest(
+    "Input the contract address:",
+    contractAddr
+  );
+  key = await validateOrRequest("Input the primitive value key:", key);
+  value = await validateOrRequest(`Input the value for ${key}:`, value);
+  valueType = await validateOrRequest(
+    `Input the value type for ${key} (One of ${valueTypes.join(", ")}):`,
+    valueType
+  );
 
   const primitiveValue = mapValue(value, valueType as PrimitiveValueType);
   const fee = {
     amount: [
       {
-        denom: "ujunox",
+        denom: "uandr",
         amount: "2000",
       },
     ],
     gas: "500000",
   };
-  const resp = await new Primitive(contractAddr, client).set(
+  const resp = await client.ado.primitive.set(
+    contractAddr,
     primitiveValue,
     fee,
     key
@@ -112,6 +101,53 @@ async function setHandler(inputs: string[]) {
   console.log(
     `https://testnet.mintscan.io/juno-testnet/txs/${resp.transactionHash}`
   );
+}
+
+async function getHandler(inputs: string[]) {
+  let [contractAddr, key] = inputs;
+  contractAddr = await validateOrRequest(
+    "Input the contract address:",
+    contractAddr
+  );
+  key = await validateOrRequest("Input the primitive value key:", key);
+
+  const resp = await client.ado.primitive.get(contractAddr, key);
+
+  console.log(chalk.green(resp));
+}
+
+async function createHandler(inputs: string[], flags: Flags) {
+  const [operators] = inputs;
+  const { label, admin, factory } = flags;
+  let operatorsArray =
+    operators && operators.length > 0
+      ? operators.split(",").map((op) => op.trim())
+      : [];
+  if (operatorsArray.length === 0) {
+    operatorsArray = await requestOperators();
+  }
+
+  const resp = await displaySpinnerAsync(
+    "Creating your primitive...",
+    async () =>
+      await client.ado.primitive.create(
+        operatorsArray,
+        defaultFee,
+        label,
+        admin ? { admin } : undefined,
+        factory
+      )
+  );
+
+  console.log(chalk.green("Primitive created!"));
+  console.log();
+  console.log(
+    chalk.bold(
+      `https://testnet.mintscan.io/juno-testnet/txs/${resp.transactionHash}`
+    )
+  );
+  console.log();
+  console.log(`Address: ${chalk.bold(resp.contractAddress)}`);
 }
 
 export default commands;

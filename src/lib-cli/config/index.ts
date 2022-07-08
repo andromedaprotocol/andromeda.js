@@ -35,10 +35,16 @@ const config = convict({
       env: "CONFIG_NAME",
       nullable: false,
     },
+    addressPrefix: {
+      default: "",
+      doc: "The prefix for all addresses on chain",
+      format: String,
+      nullable: false,
+    },
   },
 });
 
-function loadDefaultConfig() {
+export function loadDefaultConfig() {
   try {
     const savedConfig = loadStorageFile("config.json");
     try {
@@ -55,8 +61,6 @@ function loadDefaultConfig() {
     config.load(defaultConfig);
   }
 }
-
-loadDefaultConfig();
 
 addExitHandler(() => {
   writeStorageFile("config.json", JSON.stringify(config.getProperties()));

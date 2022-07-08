@@ -1,7 +1,8 @@
 import { Coin } from "@cosmjs/proto-signing";
 import { encode } from "../utils";
 import { Fee } from "..";
-import ADO from "./ADO";
+import BaseADOAPI from "./BaseADOAPI";
+import { InstantiateOptions } from "@cosmjs/cosmwasm-stargate";
 
 export type PrimitiveValueType =
   | "string"
@@ -43,39 +44,71 @@ export type PrimitiveValue =
   | BoolPrimitive
   | VecPrimitive;
 
-export default class Primitive extends ADO {
+export default class PrimitiveAPI extends BaseADOAPI {
+  name = "primitive";
+
+  msgSet(value: PrimitiveValue, key?: string) {
+    return {
+      set_value: {
+        value,
+        key,
+      },
+    };
+  }
+
   async set(
+    address: string,
     value: PrimitiveValue,
     fee: Fee,
     key?: string,
     memo?: string,
     funds?: Coin[]
   ) {
-    const msg = {
-      set_value: {
-        value,
-        key,
-      },
-    };
-    return this.client.execute(this.address, msg, fee, memo, funds);
+    const msg = this.msgSet(value, key);
+
+    return this.client.execute(address, msg, fee, memo, funds);
   }
 
-  async get<T = any>(key: string) {
-    const msg = {
+  msgGet(key: string) {
+    return {
       andr_query: {
         get: encode(key),
       },
     };
+  }
+
+  async get<T = any>(address: string, key: string) {
+    const msg = this.msgGet(key);
+
     const resp = await this.client.queryContract<{
       key: string;
       value: Record<PrimitiveValueType, any>;
-    }>(this.address, msg);
-
+    }>(address, msg);
+    if (!resp.value) throw new Error("Could not query key");
     const valueKey: PrimitiveValueType = Object.keys(
       resp.value
     )[0] as PrimitiveValueType;
     const value: T = resp.value[valueKey];
 
     return value;
+  }
+
+  async create(
+    operators: string[],
+    fee: Fee,
+    label?: string,
+    options?: InstantiateOptions,
+    factoryAddress?: string
+  ) {
+    const instantiateMsg = {
+      operators,
+    };
+    return await super.create(
+      instantiateMsg,
+      fee,
+      label,
+      options,
+      factoryAddress
+    );
   }
 }
