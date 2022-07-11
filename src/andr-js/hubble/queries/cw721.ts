@@ -87,7 +87,7 @@ export const QUERY_CW721_ALL_NFT_INFO = gql`
   }
 `;
 
-export async function queryCW721AllNFTInfo(
+export async function queryAllNFTInfo(
   contractAddress: string,
   tokenId: string,
   includeExpired: boolean = false
@@ -136,7 +136,7 @@ export const QUERY_CW721_ALL_OPERATORS = gql`
   }
 `;
 
-export async function queryCW721AllOperators(
+export async function queryAllOperators(
   contractAddress: string,
   owner: string,
   includeExpired: boolean = false,
@@ -173,7 +173,7 @@ export const QUERY_CW721_ALL_TOKENS = gql`
   }
 `;
 
-export async function queryCW721AllTokens(
+export async function queryAllTokens(
   contractAddress: string,
   options?: AndrSearchOptions
 ): Promise<QueryCW721AllTokensResponse["allTokens"]> {
@@ -217,7 +217,7 @@ export const QUERY_CW721_APPROVAL = gql`
   }
 `;
 
-export async function queryCW721Approval(
+export async function queryApproval(
   contractAddress: string,
   spender: string,
   tokenId: string,
@@ -257,7 +257,7 @@ export const QUERY_CW721_APPROVALS = gql`
   }
 `;
 
-export async function queryCW721Approvals(
+export async function queryApprovals(
   contractAddress: string,
   tokenId: string,
   includeExpired: boolean = false
@@ -290,7 +290,7 @@ export const QUERY_CW721_CONTRACT_INFO = gql`
   }
 `;
 
-export async function queryCW721ContractInfo(
+export async function queryContractInfo(
   contractAddress: string
 ): Promise<QueryCW721ContractInfoResponse["contractInfo"]> {
   const resp = await query<
@@ -316,7 +316,7 @@ export const QUERY_CW721_IS_ARCHIVED = gql`
   }
 `;
 
-export async function queryCW721IsArchived(
+export async function queryIsArchived(
   contractAddress: string,
   tokenId: string
 ): Promise<QueryCW721IsArchivedResponse["isArchived"]> {
@@ -345,7 +345,7 @@ export const QUERY_CW721_NFT_INFO = gql`
     }
   }
 `;
-export async function queryCW721NFTInfo(
+export async function queryNFTInfo(
   contractAddress: string,
   tokenId: string
 ): Promise<QueryCW721NftInfoResponse["nftInfo"]> {
@@ -374,7 +374,7 @@ export const QUERY_CW721_OWNER_OF = gql`
   }
 `;
 
-export async function queryCW721OwnerOf(
+export async function queryOwnerOf(
   contractAddress: string,
   tokenId: string
 ): Promise<string> {
@@ -405,7 +405,7 @@ export const QUERY_CW721_TOKENS = gql`
   }
 `;
 
-export async function queryCW721Tokens(
+export async function queryTokens(
   contractAddress: string,
   owner: string,
   options?: AndrSearchOptions
@@ -447,7 +447,7 @@ export const QUERY_CW721_TRANSFER_AGREEMENT = gql`
   }
 `;
 
-export async function queryCW721TransferAgreement(
+export async function queryTransferAgreement(
   contractAddress: string,
   tokenId: string
 ): Promise<TransferAgreement> {

@@ -6,6 +6,10 @@ export interface PaginatedQuery {
   options?: AndrSearchOptions;
 }
 
+export interface PaginatedRequiredQuery {
+  options: AndrSearchOptions;
+}
+
 export interface AndrSearchOptions {
   limit?: number;
   orderBy?: "Asc" | "Desc";
