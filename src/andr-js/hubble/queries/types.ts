@@ -2,6 +2,10 @@ export interface ContractAddressQuery {
   contractAddress: string;
 }
 
+export interface PaginatedQuery {
+  options?: AndrSearchOptions;
+}
+
 export interface AndrSearchOptions {
   limit?: number;
   orderBy?: "Asc" | "Desc";

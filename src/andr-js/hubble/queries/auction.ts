@@ -1,6 +1,11 @@
 import { gql } from "graphql-request";
 import { query } from "../client";
-import { AndrAddress, AndrSearchOptions, Expiry } from "./types";
+import {
+  AndrAddress,
+  AndrSearchOptions,
+  Expiry,
+  PaginatedQuery,
+} from "./types";
 
 export interface QueryAuctionAuctionIds {
   tokenAddress: string;
@@ -144,9 +149,8 @@ export async function queryAuctionState(
   return resp.auctionState;
 }
 
-export interface QueryAuctionBids {
+export interface QueryAuctionBids extends PaginatedQuery {
   auctionId: number;
-  options?: AndrSearchOptions;
 }
 
 export interface Bid {
