@@ -2,7 +2,7 @@ import { Msg } from "andr-js/AndromedaClient";
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import { executeFlags, validateOrRequest } from "../common";
+import { executeFlags, instantiateFlags, validateOrRequest } from "../common";
 import { Commands, Flags } from "../types";
 import {
   executeMessage,
@@ -31,7 +31,7 @@ export const commands: Commands = {
     color: chalk.magenta,
     description: "Instantiates a contract by code ID",
     usage: "wasm instantiate <codeid?> <instantiatemsg?>",
-    flags: executeFlags,
+    flags: instantiateFlags,
   },
   upload: {
     handler: uploadHandler,
