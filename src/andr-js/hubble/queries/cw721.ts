@@ -107,10 +107,7 @@ export interface QueryCW721AllOperators
   owner: string;
 }
 export interface QueryCW721AllOperatorsResponse {
-  allOperators: {
-    expires: Expiry;
-    spender: string;
-  }[];
+  allOperators: NFTApproval[];
 }
 
 export const QUERY_CW721_ALL_OPERATORS = gql`
