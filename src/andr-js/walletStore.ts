@@ -107,18 +107,52 @@ export default class WalletStore {
   }
 
   /**
+   * Get a wallet by Chain ID/Identifier, identifier being a name or address
+   * @param chainId The ID of the Chain
+   * @param identifier The identifier for the wallet (name or address)
+   * @returns
+   */
+  async getWallet(chainId: string, identifier: string) {
+    const wallet = this.getWalletByName(chainId, identifier);
+    if (!wallet) return this.getWalletByAddress(chainId, identifier);
+    return wallet;
+  }
+
+  /**
    * Get a wallet by Chain ID/Name combination
    * @param chainId The ID of the Chain
    * @param name The assigned name for the wallet
    * @returns
    */
-  getWallet(chainId: string, name: string) {
+  getWalletByName(chainId: string, name: string) {
     const trimmedChainId = chainId.trim();
     if (trimmedChainId.length === 0) throw new Error("Invalid Chain ID");
     const wallet = (this.wallets[trimmedChainId] ?? []).find(
       (wallet) => wallet.name === name
     );
     return wallet;
+  }
+
+  /**
+   * Get a wallet by Chain ID/Address combination
+   * @param chainId The ID of the Chain
+   * @param address The address of the wallet
+   * @returns
+   */
+  async getWalletByAddress(chainId: string, address: string) {
+    const trimmedChainId = chainId.trim();
+    if (trimmedChainId.length === 0) throw new Error("Invalid Chain ID");
+    // const wallet = (this.wallets[trimmedChainId] ?? []).find(
+    //   (wallet) => wallet.name === name
+    // );
+    const wallets = this.wallets[trimmedChainId];
+    for (let i = 0; i < wallets.length; i++) {
+      const wallet = wallets[i];
+      if ((await wallet.getFirstOfflineSigner(chainId)) === address) {
+        return wallet;
+      }
+    }
+    return;
   }
 
   /**

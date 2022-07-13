@@ -35,27 +35,32 @@ const config = convict({
       env: "CONFIG_NAME",
       nullable: false,
     },
+    addressPrefix: {
+      default: "",
+      doc: "The prefix for all addresses on chain",
+      format: String,
+      nullable: false,
+    },
   },
 });
 
-function loadDefaultConfig() {
-  const savedConfig = loadStorageFile("config.json");
-  if (savedConfig) {
+export function loadDefaultConfig() {
+  try {
+    const savedConfig = loadStorageFile("config.json");
     try {
       const parsedSavedConfig = JSON.parse(savedConfig.toString());
       config.load(parsedSavedConfig);
     } catch (error) {
       throw new Error("Invalid config file");
     }
-  } else {
+  } catch (error) {
+    console.error(error);
     const defaultConfig = {
       chain: getConfigByName("default"),
     };
     config.load(defaultConfig);
   }
 }
-
-loadDefaultConfig();
 
 addExitHandler(() => {
   writeStorageFile("config.json", JSON.stringify(config.getProperties()));

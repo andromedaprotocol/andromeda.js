@@ -1,4 +1,5 @@
 import Uni3 from "./uni-3.json";
+import Galileo2 from "./galileo-2.json";
 import Default from "./default.json";
 
 export interface ChainConfig {
@@ -10,9 +11,11 @@ export interface ChainConfig {
   chainUrl: string;
   /** The address of the Andromeda Registry */
   registryAddress: string;
+  /** The prefix for any addresses on this chain */
+  addressPrefix: string;
 }
 
-export const configs: ChainConfig[] = [Uni3, Default];
+export const configs: ChainConfig[] = [Uni3, Galileo2, Default];
 
 /**
  * Gets a config by its name

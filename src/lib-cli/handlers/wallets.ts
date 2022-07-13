@@ -10,37 +10,45 @@ import { client } from "./chain";
 const store = new WalletStore();
 const STORAGE_FILE = "wallets.json";
 
-function loadWallets() {
-  const savedWalletsData = storage.loadStorageFile(STORAGE_FILE);
-  if (!savedWalletsData) return;
-
+export async function loadWallets() {
   try {
-    const savedWallets = JSON.parse(savedWalletsData.toString());
-    const { wallets, defaults } = savedWallets;
-    wallets.forEach(
-      ({
-        mnemonic,
-        chainId,
-        name,
-      }: {
-        mnemonic: string;
-        name: string;
-        chainId: string;
-      }) => {
-        store.addWallet(chainId, name, mnemonic);
-      }
-    );
-    const chainIds = Object.keys(defaults);
-    chainIds.forEach((chainId) =>
-      store.setDefaultWallet(chainId, defaults[chainId])
-    );
+    const savedWalletsData = storage.loadStorageFile(STORAGE_FILE);
+    try {
+      const savedWallets = JSON.parse(savedWalletsData.toString());
+      const { wallets, defaults } = savedWallets;
+      wallets.forEach(
+        ({
+          mnemonic,
+          chainId,
+          name,
+        }: {
+          mnemonic: string;
+          name: string;
+          chainId: string;
+        }) => {
+          store.addWallet(chainId, name, mnemonic);
+        }
+      );
+      const chainIds = Object.keys(defaults);
+      chainIds.forEach((chainId) => {
+        const walletData = defaults[chainId];
+        store.setDefaultWallet(
+          chainId,
+          new Wallet(walletData.name, walletData.mnemonic)
+        );
+      });
+      const currentWallet = store.getDefaultWallet(config.get("chain.chainId"));
+      if (currentWallet) await setCurrentWallet(currentWallet);
+    } catch (error) {
+      console.error(error);
+      process.exit(1);
+    }
   } catch (error) {
     console.error(error);
-    process.exit(1);
   }
 }
 
-loadWallets();
+// loadWallets();
 
 storage.addExitHandler(() => {
   const storedConfig = {
@@ -87,13 +95,21 @@ export const commands: Commands = {
   },
 };
 
+function validateMnemonic(input: string) {
+  return (
+    input &&
+    input.length > 0 &&
+    input.split(" ").filter((str) => str.trim().length > 0).length === 24
+  );
+}
+
 async function addWalletHandler(input: string[], flags: Flags) {
   let [name] = input;
   let mnemonic;
   const chainId = config.get("chain.chainId");
   const wallets = store.getWallets(chainId);
-
-  if (flags.recover) {
+  while (flags.recover && !validateMnemonic(mnemonic)) {
+    if (mnemonic) console.error(chalk.red("Invalid mnemonic"));
     const mnemonicInput = await inquirer.prompt({
       type: "input",
       message: "Input the wallet mnemonic:",
@@ -105,11 +121,13 @@ async function addWalletHandler(input: string[], flags: Flags) {
 
     mnemonic = mnemonicInput.addwalletmnemonic.trim();
   }
+
   if (!name) {
     const nameInput = await inquirer.prompt({
       type: "input",
       message: "Input the wallet name:",
       name: "addwalletname",
+      validate: (input: string) => input.trim().length > 0,
     });
     name =
       nameInput.addwalletname.trim().length > 0
@@ -197,9 +215,9 @@ async function removeWalletByIndex(idx: number) {
 
 async function removeWalletByNameOrAddress(input: string) {
   const chainId = config.get("chain.chainId");
-  const wallet = store.getWallet(chainId, input.trim());
+  const wallet = await store.getWallet(chainId, input.trim());
   if (!wallet) {
-    throw new Error(`Could not find wallet with address ${input.trim()}`);
+    throw new Error(`Could not find wallet with name/address ${input.trim()}`);
   }
   const confirmed = await inquirer.prompt({
     name: "rmwalletconfirm",
@@ -223,7 +241,7 @@ async function listWallets(wallets: Wallet[]) {
     throw new Error(`No wallets to display
 
 You can add a wallet by using the add command:
-  ${chalk.green("wallet add")}
+  ${chalk.green("wallets add")}
       `);
   }
   const walletTable = new Table({
@@ -234,7 +252,9 @@ You can add a wallet by using the add command:
     const wallet = wallets[i];
     const isCurrent =
       getCurrentWallet() && wallet.name === getCurrentWallet().name;
-    const addr = await wallet.getFirstOfflineSigner();
+    const addr = await wallet.getFirstOfflineSigner(
+      config.get("chain.chainId")
+    );
     walletTable.push([
       isCurrent ? "*" : "",
       isCurrent ? chalk.green(wallet.name ?? i) : wallet.name ?? i,
@@ -247,7 +267,7 @@ You can add a wallet by using the add command:
 async function useWalletHandler(input: string[]) {
   const [walletName] = input;
   const chainId = config.get("chain.chainId");
-  const wallet = store.getWallet(chainId, walletName);
+  const wallet = await store.getWallet(chainId, walletName);
   if (!wallet) {
     throw new Error("Wallet not found");
   } else {
@@ -256,12 +276,12 @@ async function useWalletHandler(input: string[]) {
 }
 
 async function setCurrentWallet(wallet: Wallet) {
-  const signer = await wallet.getWallet();
-  const { chainId, chainUrl } = config.get("chain");
+  const signer = await wallet.getWallet(config.get("chain.chainId"));
+  const { chainId, chainUrl, registryAddress } = config.get("chain");
 
   store.setDefaultWallet(chainId, wallet);
   try {
-    await client.connect(chainUrl, signer);
+    await client.connect(chainUrl, signer, registryAddress);
   } catch (error) {
     throw new Error("Could not connect to chain, please check your config");
   }

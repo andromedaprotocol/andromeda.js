@@ -1,9 +1,6 @@
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { generateMnemonic } from "bip39";
-
-// const prefixes = {
-//   juno: "juno",
-// };
+import { getConfigByChainID } from "./chainConfigs";
 
 /**
  * Used to generate a client wallet by Mnemonic
@@ -22,25 +19,27 @@ export default class Wallet {
   /**
    * Get wallet associated with the provided mnemonic
    */
-  async getWallet() {
+  async getWallet(chainId: string) {
+    const config = getConfigByChainID(chainId);
+    if (!config) throw new Error("No config for provided chain ID");
     return await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic, {
-      prefix: "juno", //TODO: FIx THIS
+      prefix: config.addressPrefix,
     });
   }
 
   /**
    * Get all accounts associated with the wallet
    */
-  async getAccounts() {
-    const wallet = await this.getWallet();
+  async getAccounts(chainId: string) {
+    const wallet = await this.getWallet(chainId);
     return await wallet.getAccounts();
   }
 
   /**
    * Provides the first OfflineSigner object associated with the wallet. Can be used for signing messages.
    */
-  async getFirstOfflineSigner() {
-    const [firstAccount] = await this.getAccounts();
+  async getFirstOfflineSigner(chainId: string) {
+    const [firstAccount] = await this.getAccounts(chainId);
     return firstAccount.address;
   }
 }
