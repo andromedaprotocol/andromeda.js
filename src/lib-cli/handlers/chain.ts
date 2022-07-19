@@ -82,7 +82,7 @@ async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
     const val = config[key];
     configTable.push([
       key,
-      val && val.length > 0 ? val : "<unset>",
+      val && (typeof val !== "string" || val.length > 0) ? val : "<unset>",
       getConfigDoc(key),
     ]);
   });
@@ -161,15 +161,15 @@ async function configPrintHandler() {
   await printConfig(config.get("chain"));
 }
 
-export const defaultFee = {
-  amount: [
-    {
-      denom: "uandr",
-      amount: "2000",
-    },
-  ],
-  gas: "500000",
-};
+// export const defaultFee = {
+//   amount: [
+//     {
+//       denom: "uandr",
+//       amount: "2000",
+//     },
+//   ],
+//   gas: "500000",
+// };
 
 export async function executeMessage(
   address: string,
@@ -200,7 +200,7 @@ export async function executeMessage(
   const resp = await displaySpinnerAsync(
     "Executing Tx...",
     async () =>
-      await client.execute(address, msg, fee ?? defaultFee, memo, msgFunds)
+      await client.execute(address, msg, fee ?? "auto", memo, msgFunds)
   );
   console.log();
   console.log(successMessage ?? chalk.green("Transaction executed!"));
@@ -210,15 +210,15 @@ export async function executeMessage(
   );
 }
 
-export const defaultUploadFee = {
-  amount: [
-    {
-      denom: "uandr",
-      amount: "25000",
-    },
-  ],
-  gas: "100000000",
-};
+// export const defaultUploadFee = {
+//   amount: [
+//     {
+//       denom: "uandr",
+//       amount: "25000",
+//     },
+//   ],
+//   gas: "100000000",
+// };
 
 export async function uploadWasm(
   binary: Uint8Array,
@@ -227,7 +227,7 @@ export async function uploadWasm(
 ) {
   const { fee } = flags;
   // const spinner = ora("Uploading wasm").start();
-  const result = await client.upload(binary, fee ?? defaultUploadFee);
+  const result = await client.upload(binary, fee ?? "auto");
   // spinner.stop();
 
   console.log(successMessage ?? chalk.green("Wasm uploaded!"));
@@ -291,7 +291,7 @@ export async function instantiateMessage(
         codeId,
         msg,
         label ?? "Instantiation",
-        defaultFee,
+        "auto",
         admin ? { admin } : undefined
       )
   );

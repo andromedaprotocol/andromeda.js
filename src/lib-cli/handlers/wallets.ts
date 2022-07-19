@@ -1,4 +1,5 @@
 import { Wallet, WalletStore } from "@andromeda/andromeda-js";
+import { GasPrice } from "@cosmjs/stargate";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
@@ -277,12 +278,16 @@ async function useWalletHandler(input: string[]) {
 
 async function setCurrentWallet(wallet: Wallet) {
   const signer = await wallet.getWallet(config.get("chain.chainId"));
-  const { chainId, chainUrl, registryAddress } = config.get("chain");
+  const { chainId, chainUrl, registryAddress, defaultFee } =
+    config.get("chain");
 
   store.setDefaultWallet(chainId, wallet);
   try {
-    await client.connect(chainUrl, signer, registryAddress);
+    await client.connect(chainUrl, signer, registryAddress, {
+      gasPrice: GasPrice.fromString(defaultFee),
+    });
   } catch (error) {
+    console.warn(error);
     throw new Error("Could not connect to chain, please check your config");
   }
 }

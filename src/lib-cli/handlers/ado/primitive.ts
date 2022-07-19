@@ -10,7 +10,7 @@ import {
   validateOrRequest,
 } from "../../common";
 import { Commands, Flags } from "../../types";
-import { client, defaultFee } from "../chain";
+import { client } from "../chain";
 
 const commands: Commands = {
   set: {
@@ -132,7 +132,7 @@ async function createHandler(inputs: string[], flags: Flags) {
     async () =>
       await client.ado.primitive.create(
         operatorsArray,
-        defaultFee,
+        "auto",
         label,
         admin ? { admin } : undefined,
         factory

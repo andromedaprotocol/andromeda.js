@@ -41,6 +41,12 @@ const config = convict({
       format: String,
       nullable: false,
     },
+    defaultFee: {
+      default: "0.025ujunox",
+      format: String,
+      doc: "The default fee amount",
+      nullable: false,
+    },
   },
 });
 

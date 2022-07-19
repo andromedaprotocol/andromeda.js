@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { executeFlags, validateOrRequest } from "../../common";
 import { Commands } from "../../types";
-import { client, defaultFee } from "../chain";
+import { client } from "../chain";
 
 const commands: Commands = {
   updatecodeid: {
@@ -37,7 +37,7 @@ async function updateCodeIdHandler(input: string[]) {
   const resp = await client.ado.factory.updateCodeId(
     adoKey,
     parsedCodeId,
-    defaultFee
+    "auto"
   );
 
   console.log(chalk.green("Code ID updated!"));

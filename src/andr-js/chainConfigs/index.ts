@@ -13,6 +13,8 @@ export interface ChainConfig {
   registryAddress: string;
   /** The prefix for any addresses on this chain */
   addressPrefix: string;
+  /** The default fee value for the chain, e.g. "0.025ujunox" */
+  defaultFee: string;
 }
 
 export const configs: ChainConfig[] = [Uni3, Galileo2, Default];
