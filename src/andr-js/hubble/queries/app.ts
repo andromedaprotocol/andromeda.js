@@ -6,11 +6,11 @@ export interface QueryApp extends ContractAddressQuery {}
 
 export interface QueryAppResponse {
   app: {
-    getAddresses: {
+    addresses: {
       address: string;
       name: string;
     }[];
-    getComponents: {
+    components: {
       name: string;
       ado_type: string;
     }[];
@@ -26,12 +26,12 @@ export interface QueryAppResponse {
  */
 export const QUERY_APP = gql`
   query QUERY_APP($contractAddress: String!) {
-    app(contractAddress: $contractAddress) {
-      getAddresses {
+    app(address: $contractAddress) {
+      addresses {
         address
         name
       }
-      getComponents {
+      components {
         name
         ado_type
       }
