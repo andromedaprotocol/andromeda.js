@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.0.14",
+  "version": "0.0.16",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -29,7 +29,6 @@
     "@cosmjs/proto-signing": "^0.28.7",
     "@cosmjs/stargate": "^0.28.7",
     "bip39": "^3.0.4",
-    "buffer": "^6.0.3",
     "chalk": "^4.1.1",
     "chalk-animation": "^1.6.0",
     "cli-spinner": "^0.2.10",

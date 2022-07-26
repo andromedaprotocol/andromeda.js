@@ -4,7 +4,7 @@ import {
   validateOrRequest,
 } from "../../common";
 import { Commands } from "../../types";
-import { hubble } from "@andromeda/andromeda-js";
+import { queryApp } from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import Table from "cli-table";
 
@@ -29,17 +29,17 @@ async function appHandler(input: string[]) {
 
   const { app } = await displaySpinnerAsync(
     "Searching the Cosmos...",
-    async () => await hubble.app.queryApp(address)
+    async () => await queryApp(address)
   );
 
   const {
     config: { name, owner },
-    getAddresses,
-    getComponents,
+    addresses,
+    components,
   } = app;
 
   const getAdoType = (name: string) => {
-    const comp = getComponents.find((comp) => comp.name === name);
+    const comp = components.find((comp) => comp.name === name);
 
     return comp ? comp.ado_type : "<unknown>";
   };
@@ -49,7 +49,7 @@ async function appHandler(input: string[]) {
   log();
   const componentTable = new Table(logTableConfig);
   log(chalk.bold("Components"));
-  getAddresses.forEach((comp) => {
+  addresses.forEach((comp) => {
     componentTable.push([comp.name, getAdoType(comp.name), comp.address]);
   });
   log(componentTable.toString());

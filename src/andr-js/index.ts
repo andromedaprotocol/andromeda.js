@@ -5,7 +5,7 @@ export { default as Wallet } from "./Wallet";
 export { default as WalletStore } from "./WalletStore";
 export * from "./chainConfigs";
 export * from "./ADOs";
-export * as hubble from "./hubble";
+export * from "./hubble";
 export * from "./utils";
 
 export default AndromedaClient;
