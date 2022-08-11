@@ -1,6 +1,7 @@
 import Uni3 from "./uni-3.json";
 import Galileo2 from "./galileo-2.json";
 import Default from "./default.json";
+import Elgafar1 from "./elgafar-1.json";
 
 export interface ChainConfig {
   /** The name for the config */
@@ -17,7 +18,7 @@ export interface ChainConfig {
   defaultFee: string;
 }
 
-export const configs: ChainConfig[] = [Uni3, Galileo2, Default];
+export const configs: ChainConfig[] = [Uni3, Galileo2, Default, Elgafar1];
 
 /**
  * Gets a config by its name
@@ -25,6 +26,7 @@ export const configs: ChainConfig[] = [Uni3, Galileo2, Default];
  * @returns
  */
 export function getConfigByName(name: string): ChainConfig | undefined {
+  if (!name || name.length === 0) return;
   const config = configs.find((config) => config.name === name.trim());
 
   return config;
@@ -36,6 +38,7 @@ export function getConfigByName(name: string): ChainConfig | undefined {
  * @returns
  */
 export function getConfigByChainID(chainId: string): ChainConfig | undefined {
+  if (!chainId || chainId.length === 0) return;
   const config = configs.find((config) => config.chainId === chainId.trim());
 
   return config;

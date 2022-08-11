@@ -283,7 +283,7 @@ async function setCurrentWallet(wallet: Wallet) {
 
   store.setDefaultWallet(chainId, wallet);
   try {
-    await client.connect(chainUrl, signer, registryAddress, {
+    await client.connect(chainUrl, registryAddress, signer, {
       gasPrice: GasPrice.fromString(defaultFee),
     });
   } catch (error) {

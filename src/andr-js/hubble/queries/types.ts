@@ -39,6 +39,6 @@ export interface RecipientAddress {
 export type Recipient = RecipientADO | RecipientAddress;
 
 export interface TxQuery {
-  minHeight: number;
-  maxHeight: number;
+  minHeight?: number;
+  maxHeight?: number;
 }

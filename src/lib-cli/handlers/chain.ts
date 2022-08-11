@@ -3,8 +3,10 @@ import {
   configs,
   default as AndromedaClient,
   getConfigByName,
+  Msg,
 } from "@andromeda/andromeda-js";
 import { parseCoins } from "@cosmjs/proto-signing";
+import { StdFee } from "@cosmjs/stargate";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
@@ -178,14 +180,13 @@ export async function executeMessage(
   successMessage?: string
 ) {
   const { funds, memo, fee, simulate } = flags;
-  const gasEstimate = await simulateMessage(address, msg, flags);
+  const feeEstimate = await simulateMessage(address, msg, flags);
+  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log();
+  logFeeEstimation(feeEstimate);
   if (simulate) {
-    console.log(successMessage ?? chalk.green("Transaction simulated!"));
-    console.log();
-    console.log(`Gas Estimate: ${chalk.bold(gasEstimate)}`);
     return;
   }
-  console.log(chalk.bold(`Gas Estimate: ${chalk.green(gasEstimate)}`));
   const confirmation = await inquirer.prompt({
     type: "confirm",
     message: `Do you want to proceed?`,
@@ -210,25 +211,13 @@ export async function executeMessage(
   );
 }
 
-// export const defaultUploadFee = {
-//   amount: [
-//     {
-//       denom: "uandr",
-//       amount: "25000",
-//     },
-//   ],
-//   gas: "100000000",
-// };
-
 export async function uploadWasm(
   binary: Uint8Array,
   flags: Flags,
   successMessage?: string
 ) {
   const { fee } = flags;
-  // const spinner = ora("Uploading wasm").start();
   const result = await client.upload(binary, fee ?? "auto");
-  // spinner.stop();
 
   console.log(successMessage ?? chalk.green("Wasm uploaded!"));
   console.log();
@@ -239,10 +228,19 @@ export async function uploadWasm(
 }
 
 export async function queryMessage(address: string, msg: Record<string, any>) {
-  // const spinner = ora(`Query contract ${address}`).start();
   const resp = await client.queryContract(address, msg);
-  // spinner.stop();
   console.log(resp);
+}
+
+function logFeeEstimation(fee: StdFee) {
+  console.log(chalk.bold("Cost Estimates"));
+  console.log(`Gas Used: ${fee.gas}`);
+  console.log("Fee estimates:");
+  for (let i = 0; i < fee.amount.length; i++) {
+    const feeCoin = fee.amount[i];
+    console.log(`   ${chalk.green(`${feeCoin.amount}${feeCoin.denom}`)}`);
+  }
+  console.log();
 }
 
 export async function simulateMessage(
@@ -252,11 +250,23 @@ export async function simulateMessage(
 ) {
   const { funds, memo } = flags;
   const msgFunds = parseCoins(funds ?? "");
-  const gasEstimate = displaySpinnerAsync(
+  const feeEstimate = displaySpinnerAsync(
     "Simulating Tx...",
-    async () => await client.simulateTx(address, msg, msgFunds, memo)
+    async () => await client.estimateExecuteFee(address, msg, msgFunds, memo)
   );
-  return gasEstimate;
+  return feeEstimate;
+}
+
+export async function simulateInstantiationMessage(
+  codeId: number,
+  msg: Msg,
+  label: string
+) {
+  const feeEstimate = displaySpinnerAsync(
+    "Simulating Instantiation Tx...",
+    async () => await client.estimateInstantiationFee(codeId, msg, label)
+  );
+  return feeEstimate;
 }
 
 export async function instantiateMessage(
@@ -265,24 +275,27 @@ export async function instantiateMessage(
   flags: Flags,
   successMessage?: string
 ) {
-  const { label, admin } = flags;
-  // const gasEstimate = await simulateMessage(address, msg, flags); //TODO: SIMULATE INSTANTIATE
-  // if (simulate) {
-  //   console.log(successMessage ?? chalk.green("Transaction simulated!"));
-  //   console.log();
-  //   console.log(`Gas Estimate: ${chalk.bold(gasEstimate)}`);
-  //   return;
-  // }
-  // console.log(chalk.bold(`Gas Estimate: ${chalk.green(gasEstimate)}`));
-  // const confirmation = await inquirer.prompt({
-  //   type: "confirm",
-  //   message: `Do you want to proceed?`,
-  //   name: "confirmtx",
-  // });
-  // if (!confirmation.confirmtx) {
-  //   console.log(chalk.red("Transaction cancelled"));
-  //   return;
-  // }
+  const { label, admin, simulate } = flags;
+  const feeEstimate = await simulateInstantiationMessage(
+    codeId,
+    msg,
+    label ?? "Instantion"
+  );
+  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log();
+  logFeeEstimation(feeEstimate);
+  if (simulate) {
+    return;
+  }
+  const confirmation = await inquirer.prompt({
+    type: "confirm",
+    message: `Do you want to proceed?`,
+    name: "confirmtx",
+  });
+  if (!confirmation.confirmtx) {
+    console.log(chalk.red("Transaction cancelled"));
+    return;
+  }
 
   const resp = await displaySpinnerAsync(
     "Instantiating your contract...",

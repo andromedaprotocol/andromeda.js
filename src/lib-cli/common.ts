@@ -85,6 +85,10 @@ export const instantiateFlags = {
       "Used to provide an alternative admin address for the contract",
     usage: "--admin juno1...",
   },
+  simulate: {
+    description:
+      "Simulates the transaction without broadcasting it. Useful to estimate gas costs.",
+  },
 };
 
 export const factoryFlag = {
