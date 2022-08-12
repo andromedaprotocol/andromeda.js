@@ -1,10 +1,12 @@
 import { Msg } from "andr-js/AndromedaClient";
+import { cleanTx } from "../../andr-js/hubble";
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 import { executeFlags, instantiateFlags, validateOrRequest } from "../common";
 import { Commands, Flags } from "../types";
 import {
+  client,
   executeMessage,
   instantiateMessage,
   queryMessage,
@@ -38,6 +40,12 @@ export const commands: Commands = {
     color: chalk.blue,
     description: "Upload a contract wasm",
     usage: "wasm upload <wasm file> <memo?>",
+  },
+  tx: {
+    handler: txInfoHandler,
+    color: chalk.blue,
+    description: "Gets transaction info from provided hash",
+    usage: "wasm tx <hash>",
   },
 };
 
@@ -110,6 +118,19 @@ async function instantiateHandler(input: string[], flags: Flags) {
   }
 
   await instantiateMessage(codeId, parsedMsg, flags);
+}
+
+async function txInfoHandler(input: string[]) {
+  let [hash] = input;
+  hash = await validateOrRequest("Input the transaction hash:", hash);
+
+  const txInfo = await client.getTx(hash);
+  if (!txInfo) {
+    console.log(chalk.red("Transaction info not found"));
+    return;
+  }
+  console.log("Transaction Info:");
+  console.log(JSON.stringify(cleanTx(txInfo), null, 2));
 }
 
 export default commands;

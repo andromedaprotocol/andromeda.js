@@ -368,6 +368,15 @@ export default class AndromedaClient {
 
     return this.cosmWasmClient?.getBalance(_address, denom);
   }
+
+  /**
+   * Wrapper around the cosm.js client's "getTx" function
+   * @param hash The Tx Hash
+   * @returns
+   */
+  async getTx(hash: string) {
+    return this.queryClient?.getTx(hash);
+  }
 }
 
 /**
