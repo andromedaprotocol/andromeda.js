@@ -33,7 +33,7 @@ Please check the [docs](https://docs.andromedaprotocol.io/andromeda.js/) for not
 
 The andromeda CLI can be used to interact with the andromeda ecosytem on any of the chains andromeda is deployed on.
 
-Run `andr` to start the CLI. 
+Run  `andr`  to start the CLI. 
 
 Documentation on the CLI commands is coming soon.
 
