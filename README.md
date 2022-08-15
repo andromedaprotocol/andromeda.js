@@ -24,15 +24,25 @@ Please check the [docs](https://docs.andromedaprotocol.io/andromeda.js/) for not
 
 |Class| Description | Docs|
 |----------------------------------------------------------|-------------------------------------------------|------------------------------|
-| AndromedClient | A helper class to interact with the andromeda ecosystem | [Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/andromedaclient-class) |
+| AndromedaClient | A helper class to interact with the Andromeda ecosystem | [Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/andromedaclient-class) |
 | Wallet | Generate and interact wallets for the connected chain | [Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/wallet-class) |
 | WalletStore | Used to store wallets based on chain id and mnemonics |[Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/walletstore-class)|
 | ADO | Used to create and interact with andromeda ADOs | [Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/ado-class)|
 
+# CLI
+
+The andromeda CLI can be used to interact with the andromeda ecosytem on any of the chains andromeda is deployed on.
+
+Run `andr` to start the CLI. 
+
+Documentation on the CLI commands is coming soon.
+
 ## Supported Chains
+
+These are the chains currently supperted by andromeda.js and the CLI.
 
 - [Juno](https://docs.junonetwork.io/juno/readme)
 - [Stargaze](https://www.stargaze.zone)
 - Andromeda (Docs coming soon)
 
-Many more comming soon. 
+Many more chains will be added soon. 
