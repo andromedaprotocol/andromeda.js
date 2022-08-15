@@ -31,8 +31,8 @@ Please check the [docs](https://docs.andromedaprotocol.io/andromeda.js/) for not
 
 ## Supported Chains
 
-- Juno
-- Stargaze
-- Andromeda
+- [Juno](https://docs.junonetwork.io/juno/readme)
+- [Stargaze](https://www.stargaze.zone)
+- Andromeda (Docs coming soon)
 
 Many more comming soon. 
