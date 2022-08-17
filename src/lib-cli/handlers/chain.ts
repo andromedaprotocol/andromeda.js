@@ -51,7 +51,7 @@ const commands: Commands = {
   set: {
     handler: configSetHandler,
     color: chalk.black,
-    description: "Displays current config",
+    description: "Sets the value for a given config key",
     usage: "chain set <key> <value>",
   },
 };
@@ -158,14 +158,11 @@ async function configGetHandler(input: string[]) {
 }
 
 async function configSetHandler(input: string[]) {
-  if (input.length !== 2) {
-    throw new Error(`Invalid input, usage:
+  let [key, value] = input;
+  key = await validateOrRequest("Input the config key:", key);
+  value = await validateOrRequest("Input the value:", value);
 
-    ${chalk.green("chain set <key> <value>")}`);
-  } else {
-    const [key, value] = input;
-    await setKey(key, value);
-  }
+  await setKey(key, value);
 }
 
 async function configPrintHandler() {
