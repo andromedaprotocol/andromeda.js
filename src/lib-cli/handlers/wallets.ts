@@ -96,12 +96,23 @@ export const commands: Commands = {
   },
 };
 
-function validateMnemonic(input: string) {
-  return (
-    input &&
-    input.length > 0 &&
-    input.split(" ").filter((str) => str.trim().length > 0).length === 24
-  );
+async function validateMnemonic(input: string) {
+  if (
+    !input ||
+    input.length === 0 ||
+    input.split(" ").filter((str) => str.trim().length > 0).length !== 24
+  )
+    return false;
+
+  try {
+    const newWallet = new Wallet("", input);
+    await newWallet.getWallet(config.get("chain.chainId"));
+  } catch (error) {
+    console.error(chalk.red(error));
+    return false;
+  }
+
+  return true;
 }
 
 async function addWalletHandler(input: string[], flags: Flags) {
@@ -109,7 +120,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
   let mnemonic;
   const chainId = config.get("chain.chainId");
   const wallets = store.getWallets(chainId);
-  while (flags.recover && !validateMnemonic(mnemonic)) {
+  while (flags.recover && !(await validateMnemonic(mnemonic))) {
     if (mnemonic) console.error(chalk.red("Invalid mnemonic"));
     const mnemonicInput = await inquirer.prompt({
       type: "input",
@@ -121,6 +132,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
     });
 
     mnemonic = mnemonicInput.addwalletmnemonic.trim();
+    if (mnemonic === "exit") return;
   }
 
   if (!name) {
@@ -134,6 +146,8 @@ async function addWalletHandler(input: string[], flags: Flags) {
       nameInput.addwalletname.trim().length > 0
         ? nameInput.addwalletname.trim()
         : undefined;
+
+    if (name === "exit") return;
   }
 
   const newWallet = store.addWallet(
@@ -141,6 +155,12 @@ async function addWalletHandler(input: string[], flags: Flags) {
     name,
     mnemonic
   );
+  try {
+    await newWallet.getWallet(config.get("chain.chainId"));
+  } catch (error) {
+    console.error(chalk.red(error));
+    return;
+  }
   console.log(chalk.green("Wallet added!"));
 
   if (!mnemonic || mnemonic.length === 0) {
