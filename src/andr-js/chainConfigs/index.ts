@@ -4,8 +4,6 @@ import Default from "./default.json";
 import Elgafar1 from "./elgafar-1.json";
 
 export interface ChainConfig {
-  /** The name for the config */
-  name: string;
   /** The ID for the chain */
   chainId: string;
   /** The URL for the chain */
@@ -16,21 +14,11 @@ export interface ChainConfig {
   addressPrefix: string;
   /** The default fee value for the chain, e.g. "0.025ujunox" */
   defaultFee: string;
+  /** Block explorer transaction pages */
+  blockExplorerTxPages: string[];
 }
 
 export const configs: ChainConfig[] = [Uni3, Galileo2, Default, Elgafar1];
-
-/**
- * Gets a config by its name
- * @param name The name of the Config
- * @returns
- */
-export function getConfigByName(name: string): ChainConfig | undefined {
-  if (!name || name.length === 0) return;
-  const config = configs.find((config) => config.name === name.trim());
-
-  return config;
-}
 
 /**
  * Gets a config by its chainId

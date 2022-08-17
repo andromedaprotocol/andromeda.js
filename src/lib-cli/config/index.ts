@@ -1,6 +1,6 @@
+import { getConfigByChainID } from "../../andr-js/chainConfigs";
 import convict from "convict";
 import convictFormatWithValidator from "convict-format-with-validator";
-import { getConfigByName } from "@andromeda/andromeda-js";
 import { addExitHandler, loadStorageFile, writeStorageFile } from "./storage";
 
 convict.addFormats(convictFormatWithValidator);
@@ -28,13 +28,6 @@ const config = convict({
       env: "REGISTRY_ADDRESS",
       nullable: false,
     },
-    name: {
-      default: "default",
-      doc: "The name of the config",
-      format: String,
-      env: "CONFIG_NAME",
-      nullable: false,
-    },
     addressPrefix: {
       default: "",
       doc: "The prefix for all addresses on chain",
@@ -46,6 +39,16 @@ const config = convict({
       format: String,
       doc: "The default fee amount",
       nullable: false,
+    },
+    blockExplorerTxPages: {
+      format: Array<string>,
+      nullable: false,
+      doc: "URLs to block explorers for the given chain. Must include '${txHash}'",
+      validate: (val: string) => {
+        if (!val.includes("${txHash}"))
+          throw new Error("Transaction page URL must include '${txHash}'");
+      },
+      default: ["https://testnet.mintscan.io/juno-testnet/txs/${txHash}"],
     },
   },
 });
@@ -62,7 +65,7 @@ export function loadDefaultConfig() {
   } catch (error) {
     console.error(error);
     const defaultConfig = {
-      chain: getConfigByName("default"),
+      chain: getConfigByChainID("default"),
     };
     config.load(defaultConfig);
   }

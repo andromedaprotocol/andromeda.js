@@ -6,13 +6,13 @@ import path from "path";
 import { executeFlags, instantiateFlags, validateOrRequest } from "../common";
 import { Commands, Flags } from "../types";
 import {
-  client,
   executeMessage,
   instantiateMessage,
   queryMessage,
   uploadWasm,
 } from "./chain";
 import { parseJSONInput } from "./utils";
+import client from "./client";
 
 export const commands: Commands = {
   query: {
@@ -125,6 +125,7 @@ async function txInfoHandler(input: string[]) {
   hash = await validateOrRequest("Input the transaction hash:", hash);
 
   const txInfo = await client.getTx(hash);
+  console.log(txInfo);
   if (!txInfo) {
     console.log(chalk.red("Transaction info not found"));
     return;

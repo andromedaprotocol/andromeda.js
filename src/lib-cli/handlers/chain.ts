@@ -1,22 +1,26 @@
 import {
   ChainConfig,
   configs,
-  default as AndromedaClient,
-  getConfigByName,
+  getConfigByChainID,
   Msg,
 } from "@andromeda/andromeda-js";
 import { parseCoins } from "@cosmjs/proto-signing";
-import { StdFee } from "@cosmjs/stargate";
+import { GasPrice, StdFee } from "@cosmjs/stargate";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
 
-import { displaySpinnerAsync, logTableConfig } from "../common";
+import {
+  displaySpinnerAsync,
+  logTableConfig,
+  printTransactionUrl,
+} from "../common";
 import config from "../config";
 import { Commands, Flags } from "../types";
+import client from "./client";
+import { getCurrentWallet, setCurrentWallet } from "./wallets";
 
 type ConfigKey = keyof ChainConfig;
-export const client = new AndromedaClient();
 
 const commands: Commands = {
   config: {
@@ -112,12 +116,9 @@ async function listConfigsHandler() {
   const configTable = new Table(logTableConfig);
   configTable.push([chalk.bold("Name"), chalk.bold("Chain ID")]);
   configs.forEach((chainConfig) =>
-    config.get("chain.name") === chainConfig.name
-      ? configTable.push([
-          chalk.green(chainConfig.name),
-          chalk.green(chainConfig.chainId),
-        ])
-      : configTable.push([chainConfig.name, chainConfig.chainId])
+    config.get("chain.chainId") === chainConfig.chainId
+      ? configTable.push([chalk.green(chainConfig.chainId)])
+      : configTable.push([chainConfig.chainId])
   );
 
   console.log(configTable.toString());
@@ -127,14 +128,24 @@ async function useConfigHandler(input: string[]) {
   if (input.length === 0) {
     throw new Error("Invalid input");
   }
-  const [name] = input;
-  const chainConfig = getConfigByName(name);
+  const [chainId] = input;
+  const chainConfig = getConfigByChainID(chainId);
 
   if (!chainConfig) {
     throw new Error(`No chain config with the name ${name}`);
   }
 
   config.set("chain", chainConfig);
+  const wallet = getCurrentWallet();
+  if (wallet) {
+    await setCurrentWallet(wallet);
+  } else {
+    const { chainUrl, registryAddress, defaultFee } = config.get("chain");
+    await client.connect(chainUrl, registryAddress, undefined, {
+      gasPrice: GasPrice.fromString(defaultFee),
+    });
+  }
+
   console.log(chalk.green(`Config loaded!`));
 }
 
@@ -162,16 +173,6 @@ async function configSetHandler(input: string[]) {
 async function configPrintHandler() {
   await printConfig(config.get("chain"));
 }
-
-// export const defaultFee = {
-//   amount: [
-//     {
-//       denom: "uandr",
-//       amount: "2000",
-//     },
-//   ],
-//   gas: "500000",
-// };
 
 export async function executeMessage(
   address: string,
@@ -206,9 +207,7 @@ export async function executeMessage(
   console.log();
   console.log(successMessage ?? chalk.green("Transaction executed!"));
   console.log();
-  console.log(
-    `https://testnet.mintscan.io/juno-testnet/txs/${resp.transactionHash}`
-  );
+  printTransactionUrl(resp.transactionHash);
 }
 
 export async function uploadWasm(
@@ -221,9 +220,7 @@ export async function uploadWasm(
 
   console.log(successMessage ?? chalk.green("Wasm uploaded!"));
   console.log();
-  console.log(
-    `https://testnet.mintscan.io/juno-testnet/txs/${result.transactionHash}`
-  );
+  printTransactionUrl(result.transactionHash);
   console.log(chalk.green(`Code ID: ${result.codeId}`));
 }
 
@@ -311,9 +308,7 @@ export async function instantiateMessage(
   console.log();
   console.log(successMessage ?? chalk.green("Contract instantiated!"));
   console.log();
-  console.log(
-    `https://testnet.mintscan.io/juno-testnet/txs/${resp.transactionHash}`
-  );
+  printTransactionUrl(resp.transactionHash);
   console.log(`Address: ${chalk.bold(resp.contractAddress)}`);
 }
 

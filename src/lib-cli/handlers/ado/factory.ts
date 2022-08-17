@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { executeFlags, validateOrRequest } from "../../common";
 import { Commands } from "../../types";
-import { client } from "../chain";
+import client from "../client";
 
 const commands: Commands = {
   updatecodeid: {

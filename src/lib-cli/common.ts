@@ -1,5 +1,7 @@
 import { Spinner } from "cli-spinner";
 import inquirer from "inquirer";
+import config from "./config";
+import { getTxExplorerURL } from "@andromeda/andromeda-js";
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -142,4 +144,11 @@ export async function requestOperators(): Promise<string[]> {
   } else {
     return [];
   }
+}
+
+export function printTransactionUrl(hash: string) {
+  const urls = config.get("chain.blockExplorerTxPages");
+  if (urls.length === 0) return;
+  const txUrls = urls.map((url) => getTxExplorerURL(hash, url));
+  console.log(txUrls[0]);
 }

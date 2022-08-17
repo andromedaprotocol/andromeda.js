@@ -10,7 +10,7 @@ import {
   validateOrRequest,
 } from "../../common";
 import { Commands, Flags } from "../../types";
-import { client } from "../chain";
+import client from "../client";
 
 const commands: Commands = {
   set: {

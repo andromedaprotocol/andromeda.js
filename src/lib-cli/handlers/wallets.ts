@@ -6,7 +6,7 @@ import inquirer from "inquirer";
 import { logTableConfig } from "../common";
 import config, { storage } from "../config";
 import { Commands, Flags } from "../types";
-import { client } from "./chain";
+import client from "./client";
 
 const store = new WalletStore();
 const STORAGE_FILE = "wallets.json";
@@ -276,7 +276,7 @@ async function useWalletHandler(input: string[]) {
   }
 }
 
-async function setCurrentWallet(wallet: Wallet) {
+export async function setCurrentWallet(wallet: Wallet) {
   const signer = await wallet.getWallet(config.get("chain.chainId"));
   const { chainId, chainUrl, registryAddress, defaultFee } =
     config.get("chain");
