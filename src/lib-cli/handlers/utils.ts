@@ -71,7 +71,7 @@ export async function handle(
     listCommands(commands, prefix);
     return;
   } else {
-    if (cmd.flags && flags["help"]) {
+    if (flags["help"]) {
       printCommandHelp(cmd);
       return;
     }

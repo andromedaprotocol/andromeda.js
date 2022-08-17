@@ -34,22 +34,34 @@ export default class WalletStore {
    * @param name The name of the wallet to remove
    * @param chainId
    */
-  removeWallet(name: string, chainId: string) {
+  async removeWallet(name: string, chainId: string) {
     const trimmedIdentifier = name.trim();
 
     if (trimmedIdentifier.length === 0)
       throw new Error("Invalid Wallet Identifier");
 
     const wallets = this.getWallets(chainId);
-    if (!wallets.find((wallet) => wallet.name === trimmedIdentifier))
-      throw new Error(`No wallet found by name ${trimmedIdentifier}`);
+    let wallet: Wallet | undefined;
+    for (let i = 0; i < wallets.length; i++) {
+      const currWallet = wallets[i];
+      const address = await currWallet.getFirstOfflineSigner(chainId);
+      if (
+        currWallet.name === trimmedIdentifier ||
+        address === trimmedIdentifier
+      )
+        wallet = currWallet;
+    }
+    if (!wallet)
+      throw new Error(
+        `No wallet found by name or address: ${trimmedIdentifier}`
+      );
 
     this.wallets[chainId.trim()] = wallets.filter(
-      (wallet) => wallet.name !== trimmedIdentifier
+      (_wallet) => _wallet.name !== wallet!.name
     );
 
     const defaultWallet = this.getDefaultWallet(chainId);
-    if (defaultWallet.name === name) {
+    if (defaultWallet.name === wallet.name) {
       this.removeDefaultWallet(chainId);
     }
   }

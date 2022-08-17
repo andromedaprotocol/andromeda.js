@@ -3,7 +3,7 @@ import { GasPrice } from "@cosmjs/stargate";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
-import { logTableConfig } from "../common";
+import { logTableConfig, validateOrRequest } from "../common";
 import config, { storage } from "../config";
 import { Commands, Flags } from "../types";
 import client from "./client";
@@ -96,12 +96,33 @@ export const commands: Commands = {
   },
 };
 
-function validateMnemonic(input: string) {
-  return (
-    input &&
-    input.length > 0 &&
-    input.split(" ").filter((str) => str.trim().length > 0).length === 24
-  );
+async function validateMnemonic(input: string) {
+  if (
+    !input ||
+    input.length === 0 ||
+    input.split(" ").filter((str) => str.trim().length > 0).length !== 24
+  )
+    return false;
+
+  try {
+    const newWallet = new Wallet("", input);
+    await newWallet.getWallet(config.get("chain.chainId"));
+  } catch (error) {
+    console.error(chalk.red(error));
+    return false;
+  }
+
+  return true;
+}
+
+function parseWalletName(name: string) {
+  const parsedName = name.trim().split(" ").join("");
+  if (parsedName.length === 0) {
+    console.log(chalk.red("Invalid wallet name"));
+    return "";
+  }
+
+  return parsedName;
 }
 
 async function addWalletHandler(input: string[], flags: Flags) {
@@ -109,7 +130,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
   let mnemonic;
   const chainId = config.get("chain.chainId");
   const wallets = store.getWallets(chainId);
-  while (flags.recover && !validateMnemonic(mnemonic)) {
+  while (flags.recover && !(await validateMnemonic(mnemonic))) {
     if (mnemonic) console.error(chalk.red("Invalid mnemonic"));
     const mnemonicInput = await inquirer.prompt({
       type: "input",
@@ -121,19 +142,15 @@ async function addWalletHandler(input: string[], flags: Flags) {
     });
 
     mnemonic = mnemonicInput.addwalletmnemonic.trim();
+    if (mnemonic === "exit") return;
   }
 
-  if (!name) {
-    const nameInput = await inquirer.prompt({
-      type: "input",
-      message: "Input the wallet name:",
-      name: "addwalletname",
-      validate: (input: string) => input.trim().length > 0,
-    });
-    name =
-      nameInput.addwalletname.trim().length > 0
-        ? nameInput.addwalletname.trim()
-        : undefined;
+  if (name) name = parseWalletName(name);
+  while (!name || name.length === 0) {
+    let input = await validateOrRequest("Input the wallet name:", name);
+    if (input === "exit") return;
+
+    name = parseWalletName(input);
   }
 
   const newWallet = store.addWallet(
@@ -141,7 +158,13 @@ async function addWalletHandler(input: string[], flags: Flags) {
     name,
     mnemonic
   );
-  console.log(chalk.green("Wallet added!"));
+  try {
+    await newWallet.getWallet(config.get("chain.chainId"));
+  } catch (error) {
+    console.error(chalk.red(error));
+    return;
+  }
+  console.log(chalk.green(`Wallet ${name} added!`));
 
   if (!mnemonic || mnemonic.length === 0) {
     newWalletConfirmation(newWallet.mnemonic);
@@ -174,7 +197,7 @@ async function removeWalletHandler(input: string[]) {
       name: "selection",
       type: "list",
       message: "Select a wallet to remove",
-      choices: [...wallets.map((wallet) => wallet.mnemonic), "cancel"],
+      choices: [...wallets.map((wallet) => wallet.name), "cancel"],
     });
 
     if (selection !== "cancel") {
@@ -228,7 +251,7 @@ async function removeWalletByNameOrAddress(input: string) {
     }?`,
   });
   if (confirmed) {
-    store.removeWallet(input, chainId);
+    await store.removeWallet(input, chainId);
   }
 }
 

@@ -1,15 +1,13 @@
 import chalk from "chalk";
 import { listCommands, title } from "./cmd";
 import {
-  handle,
-  walletHandler,
-  chainHandler,
-  wasmHandler,
   adoHandler,
+  chainHandler,
   hubbleHandler,
-  reload,
+  walletHandler,
+  wasmHandler,
 } from "./handlers";
-import { Commands, Flags } from "./types";
+import { Commands } from "./types";
 
 export const baseCommands: Commands = {
   exit: {
@@ -34,16 +32,6 @@ export const baseCommands: Commands = {
     description: "Clears the terminal",
     color: chalk.white,
     usage: "clear",
-  },
-  reload: {
-    handler: async (_: string[], flags: Flags) => {
-      const { selection } = await reload.pick();
-      if (selection !== "cancel")
-        await handle([selection], flags, baseCommands);
-    },
-    description: "Prints previous commands",
-    color: chalk.blue,
-    usage: "reload",
   },
   wallets: {
     handler: walletHandler,
@@ -79,7 +67,7 @@ export const baseCommands: Commands = {
 
 export default baseCommands;
 
-export * from "./config";
-export * from "./handlers";
 export * from "./cmd";
 export * from "./common";
+export * from "./config";
+export * from "./handlers";

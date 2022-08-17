@@ -9,7 +9,6 @@ import {
   ask,
   subTitle,
   title,
-  reload,
   displaySpinnerAsync,
   wallets,
   loadDefaultConfig,
@@ -36,7 +35,6 @@ async function start() {
     let input = await ask();
     const { _: cmd, ...flags } = minimist(parseInput(input.command));
     await handle(cmd, flags, baseCommands);
-    reload.newInput(input.command);
   }
 }
 

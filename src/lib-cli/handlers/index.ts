@@ -8,7 +8,6 @@ import { generateHandler } from "./utils";
 export * as wallets from "./wallets";
 export * as wasm from "./wasm";
 export * as chain from "./chain";
-export { default as reload } from "./reload";
 export * as ado from "./ado";
 export * as hubble from "./hubble";
 export * from "./utils";

@@ -50,25 +50,30 @@ export const commands: Commands = {
 };
 
 async function queryHandler(input: string[]) {
-  const [contractAddr, msg] = input;
-  if (!contractAddr) {
-    throw new Error("Invalid contract address");
-  } else if (!msg) {
-    throw new Error("Invalid query message");
-  }
+  let [contractAddr, msg] = input;
+  contractAddr = await validateOrRequest(
+    "Input the contract address:",
+    contractAddr
+  );
+  msg = await validateOrRequest("Input the query message:", msg);
 
-  const parsedMsg = JSON.parse(msg);
+  let parsedMsg;
+  try {
+    parsedMsg = parseJSONInput(msg);
+  } catch (error) {
+    throw new Error("Invalid message JSON");
+  }
 
   await queryMessage(contractAddr, parsedMsg);
 }
 
 async function executeHandler(input: string[], flags: Flags) {
-  const [contractAddr, msg] = input;
-  if (!contractAddr) {
-    throw new Error("Invalid contract address");
-  } else if (!msg) {
-    throw new Error("Invalid query message");
-  }
+  let [contractAddr, msg] = input;
+  contractAddr = await validateOrRequest(
+    "Input the contract address:",
+    contractAddr
+  );
+  msg = await validateOrRequest("Input the query message:", msg);
   let parsedMsg;
   try {
     parsedMsg = parseJSONInput(msg);
