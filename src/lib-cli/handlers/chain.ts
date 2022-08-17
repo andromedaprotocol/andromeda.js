@@ -14,6 +14,7 @@ import {
   displaySpinnerAsync,
   logTableConfig,
   printTransactionUrl,
+  validateOrRequest,
 } from "../common";
 import config from "../config";
 import { Commands, Flags } from "../types";
@@ -39,7 +40,7 @@ const commands: Commands = {
     handler: useConfigHandler,
     color: chalk.yellow,
     description: "Swap to a saved config",
-    usage: "chain use <config name>",
+    usage: "chain use <chain ID>",
   },
   get: {
     handler: configGetHandler,
@@ -76,7 +77,7 @@ async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
     if (!keys.includes(trimmedKey)) {
       throw new Error(
         `Invalid config key, try ${chalk.white(
-          "config list"
+          "chain list"
         )} to see a list of valid keys`
       );
     }
@@ -104,7 +105,7 @@ async function setKey(key: string, value: string) {
   if (!config.has(`chain.${trimmedKey}` as any)) {
     throw new Error(
       `Invalid config key, try ${chalk.white(
-        "config list"
+        "chain list"
       )} to see a list of valid keys`
     );
   }
@@ -114,7 +115,7 @@ async function setKey(key: string, value: string) {
 
 async function listConfigsHandler() {
   const configTable = new Table(logTableConfig);
-  configTable.push([chalk.bold("Name"), chalk.bold("Chain ID")]);
+  configTable.push([chalk.bold("Chain ID")]);
   configs.forEach((chainConfig) =>
     config.get("chain.chainId") === chainConfig.chainId
       ? configTable.push([chalk.green(chainConfig.chainId)])
@@ -132,7 +133,7 @@ async function useConfigHandler(input: string[]) {
   const chainConfig = getConfigByChainID(chainId);
 
   if (!chainConfig) {
-    throw new Error(`No chain config with the name ${name}`);
+    throw new Error(`No chain config for chain ID: ${chainId}`);
   }
 
   config.set("chain", chainConfig);
@@ -150,20 +151,17 @@ async function useConfigHandler(input: string[]) {
 }
 
 async function configGetHandler(input: string[]) {
-  if (input.length === 0) {
-    throw new Error(`Invalid input, usage:
+  let [key] = input;
+  key = await validateOrRequest("Input config key:", key);
 
-    ${chalk.green("config get <key>")}`);
-  } else {
-    await printConfig(config.get("chain"), input[0] as ConfigKey);
-  }
+  await printConfig(config.get("chain"), key as ConfigKey);
 }
 
 async function configSetHandler(input: string[]) {
   if (input.length !== 2) {
     throw new Error(`Invalid input, usage:
 
-    ${chalk.green("config set <key> <value>")}`);
+    ${chalk.green("chain set <key> <value>")}`);
   } else {
     const [key, value] = input;
     await setKey(key, value);
