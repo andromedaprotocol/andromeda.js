@@ -248,7 +248,7 @@ async function removeWalletByNameOrAddress(input: string) {
     }?`,
   });
   if (confirmed) {
-    store.removeWallet(input, chainId);
+    await store.removeWallet(input, chainId);
   }
 }
 
