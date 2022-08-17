@@ -1,14 +1,13 @@
 import chalk from "chalk";
 import { listCommands, title } from "./cmd";
 import {
-  handle,
-  walletHandler,
-  chainHandler,
-  wasmHandler,
   adoHandler,
+  chainHandler,
   hubbleHandler,
+  walletHandler,
+  wasmHandler,
 } from "./handlers";
-import { Commands, Flags } from "./types";
+import { Commands } from "./types";
 
 export const baseCommands: Commands = {
   exit: {
@@ -68,7 +67,7 @@ export const baseCommands: Commands = {
 
 export default baseCommands;
 
-export * from "./config";
-export * from "./handlers";
 export * from "./cmd";
 export * from "./common";
+export * from "./config";
+export * from "./handlers";

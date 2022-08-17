@@ -3,7 +3,7 @@ import { GasPrice } from "@cosmjs/stargate";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
-import { logTableConfig } from "../common";
+import { logTableConfig, validateOrRequest } from "../common";
 import config, { storage } from "../config";
 import { Commands, Flags } from "../types";
 import client from "./client";
@@ -115,6 +115,16 @@ async function validateMnemonic(input: string) {
   return true;
 }
 
+function parseWalletName(name: string) {
+  const parsedName = name.trim().split(" ").join("");
+  if (parsedName.length === 0) {
+    console.log(chalk.red("Invalid wallet name"));
+    return "";
+  }
+
+  return parsedName;
+}
+
 async function addWalletHandler(input: string[], flags: Flags) {
   let [name] = input;
   let mnemonic;
@@ -135,19 +145,12 @@ async function addWalletHandler(input: string[], flags: Flags) {
     if (mnemonic === "exit") return;
   }
 
-  if (!name) {
-    const nameInput = await inquirer.prompt({
-      type: "input",
-      message: "Input the wallet name:",
-      name: "addwalletname",
-      validate: (input: string) => input.trim().length > 0,
-    });
-    name =
-      nameInput.addwalletname.trim().length > 0
-        ? nameInput.addwalletname.trim()
-        : undefined;
+  if (name) name = parseWalletName(name);
+  while (!name || name.length === 0) {
+    let input = await validateOrRequest("Input the wallet name:", name);
+    if (input === "exit") return;
 
-    if (name === "exit") return;
+    name = parseWalletName(input);
   }
 
   const newWallet = store.addWallet(
@@ -161,7 +164,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
     console.error(chalk.red(error));
     return;
   }
-  console.log(chalk.green("Wallet added!"));
+  console.log(chalk.green(`Wallet ${name} added!`));
 
   if (!mnemonic || mnemonic.length === 0) {
     newWalletConfirmation(newWallet.mnemonic);
