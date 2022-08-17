@@ -194,7 +194,7 @@ async function removeWalletHandler(input: string[]) {
       name: "selection",
       type: "list",
       message: "Select a wallet to remove",
-      choices: [...wallets.map((wallet) => wallet.mnemonic), "cancel"],
+      choices: [...wallets.map((wallet) => wallet.name), "cancel"],
     });
 
     if (selection !== "cancel") {
