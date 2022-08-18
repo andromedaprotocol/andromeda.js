@@ -3,7 +3,7 @@ import { GasPrice } from "@cosmjs/stargate";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
-import { logTableConfig, validateOrRequest } from "../common";
+import { logTableConfig } from "../common";
 import config, { storage } from "../config";
 import { Commands, Flags } from "../types";
 import client from "./client";
@@ -49,8 +49,6 @@ export async function loadWallets() {
   }
 }
 
-// loadWallets();
-
 storage.addExitHandler(() => {
   const storedConfig = {
     wallets: store.getAllWallets().map(({ chainId, wallet }) => ({
@@ -61,7 +59,9 @@ storage.addExitHandler(() => {
     defaults: store.defaultWallets,
   };
 
-  storage.writeStorageFile(STORAGE_FILE, JSON.stringify(storedConfig));
+  const currentWallet = store.getDefaultWallet(config.get("chain.chainId"));
+  if (currentWallet)
+    storage.writeStorageFile(STORAGE_FILE, JSON.stringify(storedConfig));
 });
 
 export const commands: Commands = {
@@ -75,18 +75,38 @@ export const commands: Commands = {
         description: "Recovers a wallet by mnemonic",
       },
     },
+    inputs: [
+      {
+        requestMessage: "Input Wallet Name:",
+        transform: parseWalletName,
+      },
+    ],
   },
   rm: {
     handler: removeWalletHandler,
     color: chalk.red,
     description: "Remove a wallet by address",
     usage: "wallets rm <name?>",
+    inputs: [
+      {
+        requestMessage: "Select wallet to remove:",
+        options: () =>
+          store.getWallets(config.get("chain.chainId")).map(({ name }) => name),
+      },
+    ],
   },
   use: {
     handler: useWalletHandler,
     color: chalk.blue,
     description: "Sets the default wallet to use",
     usage: "wallets use <name>",
+    inputs: [
+      {
+        requestMessage: "Select wallet to use:",
+        options: () =>
+          store.getWallets(config.get("chain.chainId")).map(({ name }) => name),
+      },
+    ],
   },
   list: {
     handler: listWalletsHandler,
@@ -145,14 +165,6 @@ async function addWalletHandler(input: string[], flags: Flags) {
     if (mnemonic === "exit") return;
   }
 
-  if (name) name = parseWalletName(name);
-  while (!name || name.length === 0) {
-    let input = await validateOrRequest("Input the wallet name:", name);
-    if (input === "exit") return;
-
-    name = parseWalletName(input);
-  }
-
   const newWallet = store.addWallet(
     config.get("chain.chainId"),
     name,
@@ -190,27 +202,12 @@ function newWalletConfirmation(seed: string) {
 }
 
 async function removeWalletHandler(input: string[]) {
-  const chainId = config.get("chain.chainId");
-  const wallets = store.getWallets(chainId);
-  if (input.length === 0) {
-    const { selection } = await inquirer.prompt({
-      name: "selection",
-      type: "list",
-      message: "Select a wallet to remove",
-      choices: [...wallets.map((wallet) => wallet.name), "cancel"],
-    });
-
-    if (selection !== "cancel") {
-      await removeWalletByNameOrAddress(selection);
-    }
-  } else {
-    const [walletInput] = input;
-    try {
-      const idx = parseInt(walletInput);
-      await removeWalletByIndex(idx);
-    } catch (error) {
-      await removeWalletByNameOrAddress(walletInput);
-    }
+  const [walletId] = input;
+  try {
+    const idx = parseInt(walletId);
+    await removeWalletByIndex(idx);
+  } catch (error) {
+    await removeWalletByNameOrAddress(walletId);
   }
 }
 

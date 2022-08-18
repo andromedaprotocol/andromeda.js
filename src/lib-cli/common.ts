@@ -29,19 +29,27 @@ export const logTableConfig = {
 export async function validateOrRequest(
   message: string,
   input?: string,
-  validate?: (input: string) => Promise<boolean> | boolean
+  validate?: (input: string) => Promise<boolean> | boolean,
+  choices?: string[]
 ): Promise<string> {
-  return (
-    input ??
-    (
-      await inquirer.prompt({
+  const prompt = await (choices
+    ? inquirer.prompt({
+        type: "list",
+        message,
+        name: `requestinput`,
+        validate,
+        choices: [...choices, "exit"],
+      })
+    : inquirer.prompt({
         type: "input",
         message,
         name: `requestinput`,
         validate,
-      })
-    ).requestinput
-  );
+      }));
+
+  return input && (!validate || (await validate(input)))
+    ? input
+    : prompt.requestinput;
 }
 
 export async function displaySpinnerAsync<T>(

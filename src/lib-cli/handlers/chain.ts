@@ -14,7 +14,6 @@ import {
   displaySpinnerAsync,
   logTableConfig,
   printTransactionUrl,
-  validateOrRequest,
 } from "../common";
 import config from "../config";
 import { Commands, Flags } from "../types";
@@ -41,18 +40,37 @@ const commands: Commands = {
     color: chalk.yellow,
     description: "Swap to a saved config",
     usage: "chain use <chain ID>",
+    inputs: [
+      {
+        requestMessage: "Input the chain ID to use:",
+        options: configs.map(({ chainId }) => chainId),
+      },
+    ],
   },
   get: {
     handler: configGetHandler,
     color: chalk.green,
     description: "Displays current value for a given key",
     usage: "chain get <key>",
+    inputs: [
+      {
+        requestMessage: "Input Config Key:",
+      },
+    ],
   },
   set: {
     handler: configSetHandler,
     color: chalk.black,
     description: "Sets the value for a given config key",
     usage: "chain set <key> <value>",
+    inputs: [
+      {
+        requestMessage: "Input Config Key:",
+      },
+      {
+        requestMessage: "Input Value:",
+      },
+    ],
   },
 };
 
@@ -151,16 +169,13 @@ async function useConfigHandler(input: string[]) {
 }
 
 async function configGetHandler(input: string[]) {
-  let [key] = input;
-  key = await validateOrRequest("Input config key:", key);
+  const [key] = input;
 
   await printConfig(config.get("chain"), key as ConfigKey);
 }
 
 async function configSetHandler(input: string[]) {
-  let [key, value] = input;
-  key = await validateOrRequest("Input the config key:", key);
-  value = await validateOrRequest("Input the value:", value);
+  const [key, value] = input;
 
   await setKey(key, value);
 }
@@ -211,7 +226,10 @@ export async function uploadWasm(
   successMessage?: string
 ) {
   const { fee } = flags;
-  const result = await client.upload(binary, fee ?? "auto");
+  const result = await displaySpinnerAsync(
+    "Uploading contract binary...",
+    async () => await client.upload(binary, fee ?? "auto")
+  );
 
   console.log(successMessage ?? chalk.green("Wasm uploaded!"));
   console.log();
@@ -220,7 +238,10 @@ export async function uploadWasm(
 }
 
 export async function queryMessage(address: string, msg: Record<string, any>) {
-  const resp = await client.queryContract(address, msg);
+  const resp = await displaySpinnerAsync(
+    "Querying contract...",
+    async () => await client.queryContract(address, msg)
+  );
   console.log(resp);
 }
 
@@ -268,10 +289,10 @@ export async function instantiateMessage(
   successMessage?: string
 ) {
   const { label, admin, simulate } = flags;
-  const feeEstimate = await simulateInstantiationMessage(
-    codeId,
-    msg,
-    label ?? "Instantion"
+  const feeEstimate = await displaySpinnerAsync(
+    "Simulating transaction...",
+    async () =>
+      await simulateInstantiationMessage(codeId, msg, label ?? "Instantiation")
   );
   console.log(successMessage ?? chalk.green("Transaction simulated!"));
   console.log();

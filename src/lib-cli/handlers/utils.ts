@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { validateOrRequest } from "../common";
 import { listCommands, printCommandHelp } from "../cmd";
 import { Command, Commands, Flags, HandlerFunc } from "../types";
 
@@ -37,10 +38,21 @@ export function parseInput(input: string) {
   ).inputs;
 }
 
+/**
+ * Parses a JSON input between two single quotation marks and returns a JSON object
+ * @param input
+ * @returns
+ */
 export function parseJSONInput(input: string) {
   return JSON.parse(input.replace(/'/gm, ""));
 }
 
+/**
+ * Validates that all flags input were correct
+ * @param flags
+ * @param cmd
+ * @returns
+ */
 function validateFlags(flags: Flags, cmd: Command) {
   if (!cmd.flags) return;
 
@@ -54,6 +66,14 @@ function validateFlags(flags: Flags, cmd: Command) {
   }
 }
 
+/**
+ * Generalized handler function, parses any inputs and flags and calls the appropriate handler
+ * @param input
+ * @param flags
+ * @param commands
+ * @param prefix
+ * @returns
+ */
 export async function handle(
   input: string[],
   flags: Flags,
@@ -61,6 +81,7 @@ export async function handle(
   prefix?: string
 ) {
   const arg = input.shift();
+  let commandInput = [...input];
   const cmd = commands[arg ?? ""];
 
   if (!arg || !cmd) {
@@ -71,10 +92,11 @@ export async function handle(
     listCommands(commands, prefix);
     return;
   } else {
-    if (flags["help"]) {
+    if (flags["help"] && (commandInput.length === 0 || cmd.inputs)) {
       printCommandHelp(cmd);
       return;
     }
+
     try {
       validateFlags(flags, cmd);
     } catch (error) {
@@ -88,7 +110,30 @@ export async function handle(
     }
 
     try {
-      await cmd.handler(input, flags);
+      //Check if command has expected inputs
+      if (cmd.inputs) {
+        for (let i = 0; i < cmd.inputs.length; i++) {
+          const { requestMessage, validate, options, transform } =
+            cmd.inputs[i];
+          let userInput = input[i];
+          const inputOptions = options
+            ? Array.isArray(options)
+              ? options
+              : await options()
+            : undefined;
+          userInput = await validateOrRequest(
+            requestMessage,
+            userInput,
+            validate,
+            inputOptions
+          );
+
+          if (userInput === "exit") return;
+
+          commandInput[i] = transform ? await transform(userInput) : userInput;
+        }
+      }
+      await cmd.handler(commandInput, flags);
     } catch (error) {
       //Invalid command, print out help text
       const { message } = error as Error;
