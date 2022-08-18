@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { validateOrRequest } from "../common";
 import { listCommands, printCommandHelp } from "../cmd";
 import { Command, Commands, Flags, HandlerFunc } from "../types";
 
@@ -61,6 +62,7 @@ export async function handle(
   prefix?: string
 ) {
   const arg = input.shift();
+  let commandInput = [...input];
   const cmd = commands[arg ?? ""];
 
   if (!arg || !cmd) {
@@ -75,6 +77,7 @@ export async function handle(
       printCommandHelp(cmd);
       return;
     }
+
     try {
       validateFlags(flags, cmd);
     } catch (error) {
@@ -88,7 +91,29 @@ export async function handle(
     }
 
     try {
-      await cmd.handler(input, flags);
+      if (cmd.inputs) {
+        for (let i = 0; i < cmd.inputs.length; i++) {
+          const { requestMessage, validate, options, transform } =
+            cmd.inputs[i];
+          let userInput = input[i];
+          const inputOptions = options
+            ? Array.isArray(options)
+              ? options
+              : await options()
+            : undefined;
+          userInput = await validateOrRequest(
+            requestMessage,
+            userInput,
+            validate,
+            inputOptions
+          );
+
+          if (userInput === "exit") return;
+
+          commandInput[i] = transform ? await transform(userInput) : userInput;
+        }
+      }
+      await cmd.handler(commandInput, flags);
     } catch (error) {
       //Invalid command, print out help text
       const { message } = error as Error;
