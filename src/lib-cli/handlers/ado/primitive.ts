@@ -12,6 +12,8 @@ import {
 import { Commands, Flags } from "../../types";
 import client from "../client";
 
+const valueTypes = ["string", "uint128", "bool", "decimal", "coin"];
+
 const commands: Commands = {
   set: {
     description: "Set the value for a given key",
@@ -19,6 +21,21 @@ const commands: Commands = {
     handler: setHandler,
     color: chalk.blue,
     flags: executeFlags,
+    inputs: [
+      {
+        requestMessage: "Input Contract Address:",
+      },
+      {
+        requestMessage: "Input Key to Set:",
+      },
+      {
+        requestMessage: "Input Value for Key:",
+      },
+      {
+        requestMessage: "Input Value Type",
+        options: valueTypes,
+      },
+    ],
   },
   create: {
     description: "Creates a primitive contract",
@@ -34,8 +51,6 @@ const commands: Commands = {
     color: chalk.green,
   },
 };
-
-const valueTypes = ["string", "uint128", "bool", "decimal", "coin"]; //TODO: work out how to add vectors
 
 function mapValue(input: string, type: PrimitiveValueType): PrimitiveValue {
   if (!valueTypes.includes(type))

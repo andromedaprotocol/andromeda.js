@@ -38,10 +38,21 @@ export function parseInput(input: string) {
   ).inputs;
 }
 
+/**
+ * Parses a JSON input between two single quotation marks and returns a JSON object
+ * @param input
+ * @returns
+ */
 export function parseJSONInput(input: string) {
   return JSON.parse(input.replace(/'/gm, ""));
 }
 
+/**
+ * Validates that all flags input were correct
+ * @param flags
+ * @param cmd
+ * @returns
+ */
 function validateFlags(flags: Flags, cmd: Command) {
   if (!cmd.flags) return;
 
@@ -55,6 +66,14 @@ function validateFlags(flags: Flags, cmd: Command) {
   }
 }
 
+/**
+ * Generalized handler function, parses any inputs and flags and calls the appropriate handler
+ * @param input
+ * @param flags
+ * @param commands
+ * @param prefix
+ * @returns
+ */
 export async function handle(
   input: string[],
   flags: Flags,
@@ -73,7 +92,7 @@ export async function handle(
     listCommands(commands, prefix);
     return;
   } else {
-    if (flags["help"]) {
+    if (flags["help"] && (commandInput.length === 0 || cmd.inputs)) {
       printCommandHelp(cmd);
       return;
     }
@@ -91,6 +110,7 @@ export async function handle(
     }
 
     try {
+      //Check if command has expected inputs
       if (cmd.inputs) {
         for (let i = 0; i < cmd.inputs.length; i++) {
           const { requestMessage, validate, options, transform } =

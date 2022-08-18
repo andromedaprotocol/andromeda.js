@@ -47,7 +47,9 @@ export async function validateOrRequest(
         validate,
       }));
 
-  return input ?? prompt.requestinput;
+  return input && (!validate || (await validate(input)))
+    ? input
+    : prompt.requestinput;
 }
 
 export async function displaySpinnerAsync<T>(
