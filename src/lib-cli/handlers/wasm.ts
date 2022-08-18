@@ -1,9 +1,9 @@
-import { Msg } from "andr-js/AndromedaClient";
-import { cleanTx } from "../../andr-js/hubble";
+import type { Msg } from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import { executeFlags, instantiateFlags, validateOrRequest } from "../common";
+import { cleanTx } from "../../andr-js/hubble";
+import { executeFlags, instantiateFlags } from "../common";
 import { Commands, Flags } from "../types";
 import {
   executeMessage,
@@ -11,8 +11,8 @@ import {
   queryMessage,
   uploadWasm,
 } from "./chain";
-import { parseJSONInput } from "./utils";
 import client from "./client";
+import { parseJSONInput } from "./utils";
 
 export const commands: Commands = {
   query: {
@@ -20,6 +20,24 @@ export const commands: Commands = {
     color: chalk.green,
     description: "Queries a contract",
     usage: "wasm query <contract address> <query object>",
+    inputs: [
+      {
+        requestMessage: "Input Contract Address:",
+      },
+      {
+        requestMessage: "Input query:",
+        validate: (input: string) => {
+          try {
+            parseJSONInput(input);
+            return true;
+          } catch (error) {
+            console.log();
+            console.log(chalk.red("Invalid JSON Input"));
+            return false;
+          }
+        },
+      },
+    ],
   },
   execute: {
     handler: executeHandler,
@@ -27,6 +45,24 @@ export const commands: Commands = {
     description: "Executes a wasm message",
     usage: "wasm execute <contract address> <message>",
     flags: executeFlags,
+    inputs: [
+      {
+        requestMessage: "Input Contract Address:",
+      },
+      {
+        requestMessage: "Input execute message:",
+        validate: (input: string) => {
+          try {
+            parseJSONInput(input);
+            return true;
+          } catch (error) {
+            console.log();
+            console.log(chalk.red("Invalid JSON Input"));
+            return false;
+          }
+        },
+      },
+    ],
   },
   instantiate: {
     handler: instantiateHandler,
@@ -34,103 +70,110 @@ export const commands: Commands = {
     description: "Instantiates a contract by code ID",
     usage: "wasm instantiate <codeid?> <instantiatemsg?>",
     flags: instantiateFlags,
+    inputs: [
+      {
+        requestMessage: "Input Code ID:",
+        validate: (input: string) => {
+          try {
+            parseInt(input);
+            return true;
+          } catch (error) {
+            console.log();
+            console.log(chalk.red("Please input a valid code ID"));
+            return false;
+          }
+        },
+      },
+      {
+        requestMessage: "Input instantiate message:",
+        validate: (input: string) => {
+          try {
+            parseJSONInput(input);
+            return true;
+          } catch (error) {
+            console.log();
+            console.log(chalk.red("Invalid JSON Input"));
+            return false;
+          }
+        },
+      },
+    ],
   },
   upload: {
     handler: uploadHandler,
     color: chalk.blue,
     description: "Upload a contract wasm",
-    usage: "wasm upload <wasm file> <memo?>",
+    usage: "wasm upload <wasm file>",
+    inputs: [
+      {
+        requestMessage: "Input Wasm File Path:",
+        validate: (input: string) => {
+          const filePath = path.join(process.env.PWD ?? "", input);
+          const exists = fs.existsSync(filePath);
+          if (!exists) {
+            console.log();
+            console.log(chalk.red(`No file found at path ${filePath}`));
+            return false;
+          } else {
+            return true;
+          }
+        },
+        transform: (input: string) => {
+          return path.join(process.env.PWD ?? "", input);
+        },
+      },
+    ],
   },
   tx: {
     handler: txInfoHandler,
     color: chalk.blue,
     description: "Gets transaction info from provided hash",
     usage: "wasm tx <hash>",
+    inputs: [
+      {
+        requestMessage: "Input Transaction Hash:",
+      },
+    ],
   },
 };
 
 async function queryHandler(input: string[]) {
-  let [contractAddr, msg] = input;
-  contractAddr = await validateOrRequest(
-    "Input the contract address:",
-    contractAddr
-  );
-  msg = await validateOrRequest("Input the query message:", msg);
+  const [contractAddr, msg] = input;
 
-  let parsedMsg;
-  try {
-    parsedMsg = parseJSONInput(msg);
-  } catch (error) {
-    throw new Error("Invalid message JSON");
-  }
+  const parsedMsg: Msg = parseJSONInput(msg);
 
   await queryMessage(contractAddr, parsedMsg);
 }
 
 async function executeHandler(input: string[], flags: Flags) {
-  let [contractAddr, msg] = input;
-  contractAddr = await validateOrRequest(
-    "Input the contract address:",
-    contractAddr
-  );
-  msg = await validateOrRequest("Input the query message:", msg);
-  let parsedMsg;
-  try {
-    parsedMsg = parseJSONInput(msg);
-  } catch (error) {
-    throw new Error("Invalid message JSON");
-  }
+  const [contractAddr, msg] = input;
+  const parsedMsg: Msg = parseJSONInput(msg);
 
   await executeMessage(contractAddr, parsedMsg, flags); //TODO: ADD FEE FLAG
 }
 
 async function uploadHandler(input: string[], flags: Flags) {
   const [wasmFile] = input;
-  const filePath = path.join(process.env.PWD ?? "", wasmFile);
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`Could not find wasm file ${filePath}`);
-  }
 
-  const wasmBuffer = fs.readFileSync(filePath);
+  const wasmBuffer = fs.readFileSync(wasmFile);
   const wasmBinary = new Uint8Array(wasmBuffer);
 
   await uploadWasm(wasmBinary, flags);
 }
 
 async function instantiateHandler(input: string[], flags: Flags) {
-  let [codeIdInput, instantiateMsg] = input;
-  codeIdInput = await validateOrRequest(
-    "Input the contract Code ID:",
-    codeIdInput
-  );
-  instantiateMsg = await validateOrRequest(
-    "Input the contract instantiate message:",
-    instantiateMsg
-  );
-  let codeId = -1;
-  try {
-    codeId = parseInt(codeIdInput);
-    if (codeId <= 0) throw new Error("Invalid code ID");
-  } catch (error) {
-    throw new Error("Invalid code ID");
-  }
+  const [codeIdInput, msg] = input;
 
-  let parsedMsg: Msg;
-  try {
-    parsedMsg = parseJSONInput(instantiateMsg);
-  } catch (error) {
-    throw new Error("Invalid message JSON");
-  }
+  const parsedMsg: Msg = parseJSONInput(msg);
+  const codeId = parseInt(codeIdInput);
 
   await instantiateMessage(codeId, parsedMsg, flags);
 }
 
 async function txInfoHandler(input: string[]) {
-  let [hash] = input;
-  hash = await validateOrRequest("Input the transaction hash:", hash);
+  const [hash] = input;
 
   const txInfo = await client.getTx(hash);
-  console.log(txInfo);
   if (!txInfo) {
     console.log(chalk.red("Transaction info not found"));
     return;

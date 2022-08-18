@@ -226,7 +226,10 @@ export async function uploadWasm(
   successMessage?: string
 ) {
   const { fee } = flags;
-  const result = await client.upload(binary, fee ?? "auto");
+  const result = await displaySpinnerAsync(
+    "Uploading contract binary...",
+    async () => await client.upload(binary, fee ?? "auto")
+  );
 
   console.log(successMessage ?? chalk.green("Wasm uploaded!"));
   console.log();
@@ -235,7 +238,10 @@ export async function uploadWasm(
 }
 
 export async function queryMessage(address: string, msg: Record<string, any>) {
-  const resp = await client.queryContract(address, msg);
+  const resp = await displaySpinnerAsync(
+    "Querying contract...",
+    async () => await client.queryContract(address, msg)
+  );
   console.log(resp);
 }
 
@@ -283,10 +289,10 @@ export async function instantiateMessage(
   successMessage?: string
 ) {
   const { label, admin, simulate } = flags;
-  const feeEstimate = await simulateInstantiationMessage(
-    codeId,
-    msg,
-    label ?? "Instantion"
+  const feeEstimate = await displaySpinnerAsync(
+    "Simulating transaction...",
+    async () =>
+      await simulateInstantiationMessage(codeId, msg, label ?? "Instantiation")
   );
   console.log(successMessage ?? chalk.green("Transaction simulated!"));
   console.log();
