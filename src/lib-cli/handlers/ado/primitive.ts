@@ -4,10 +4,9 @@ import chalk from "chalk";
 import {
   displaySpinnerAsync,
   executeFlags,
-  instantiateFlags,
   factoryFlag,
+  instantiateFlags,
   requestOperators,
-  validateOrRequest,
 } from "../../common";
 import { Commands, Flags } from "../../types";
 import client from "../client";
@@ -37,18 +36,26 @@ const commands: Commands = {
       },
     ],
   },
+  get: {
+    description: "Get the value for a given key",
+    usage: "ado primitive get <contract address?> <key?>",
+    handler: getHandler,
+    color: chalk.green,
+    inputs: [
+      {
+        requestMessage: "Input Contract Address:",
+      },
+      {
+        requestMessage: "Input Key to Get:",
+      },
+    ],
+  },
   create: {
     description: "Creates a primitive contract",
     usage: "ado primitive create <operators (comma separated addresses)?>",
     handler: createHandler,
     color: chalk.magenta,
     flags: { ...instantiateFlags, ...factoryFlag },
-  },
-  get: {
-    description: "Get the value for a given key",
-    usage: "ado primitive get <contract address?> <key?>",
-    handler: getHandler,
-    color: chalk.green,
   },
 };
 
@@ -82,32 +89,13 @@ function mapValue(input: string, type: PrimitiveValueType): PrimitiveValue {
 }
 
 async function setHandler(inputs: string[]) {
-  let [contractAddr, key, value, valueType] = inputs;
-  contractAddr = await validateOrRequest(
-    "Input the contract address:",
-    contractAddr
-  );
-  key = await validateOrRequest("Input the primitive value key:", key);
-  value = await validateOrRequest(`Input the value for ${key}:`, value);
-  valueType = await validateOrRequest(
-    `Input the value type for ${key} (One of ${valueTypes.join(", ")}):`,
-    valueType
-  );
+  const [contractAddr, key, value, valueType] = inputs;
 
   const primitiveValue = mapValue(value, valueType as PrimitiveValueType);
-  const fee = {
-    amount: [
-      {
-        denom: "uandr",
-        amount: "2000",
-      },
-    ],
-    gas: "500000",
-  };
   const resp = await client.ado.primitive.set(
     contractAddr,
     primitiveValue,
-    fee,
+    "auto",
     key
   );
 
@@ -119,12 +107,7 @@ async function setHandler(inputs: string[]) {
 }
 
 async function getHandler(inputs: string[]) {
-  let [contractAddr, key] = inputs;
-  contractAddr = await validateOrRequest(
-    "Input the contract address:",
-    contractAddr
-  );
-  key = await validateOrRequest("Input the primitive value key:", key);
+  const [contractAddr, key] = inputs;
 
   const resp = await client.ado.primitive.get(contractAddr, key);
 
