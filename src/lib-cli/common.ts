@@ -32,6 +32,13 @@ export async function validateOrRequest(
   validate?: (input: string) => Promise<boolean> | boolean,
   choices?: string[]
 ): Promise<string> {
+  if (input) {
+    const valid = !validate || (await validate(input));
+    if (valid) {
+      return input;
+    }
+  }
+
   const prompt = await (choices
     ? inquirer.prompt({
         type: "list",
@@ -47,9 +54,7 @@ export async function validateOrRequest(
         validate,
       }));
 
-  return input && (!validate || (await validate(input)))
-    ? input
-    : prompt.requestinput;
+  return prompt.requestinput;
 }
 
 export async function displaySpinnerAsync<T>(

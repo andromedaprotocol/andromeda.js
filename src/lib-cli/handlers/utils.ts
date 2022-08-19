@@ -115,7 +115,7 @@ export async function handle(
         for (let i = 0; i < cmd.inputs.length; i++) {
           const { requestMessage, validate, options, transform } =
             cmd.inputs[i];
-          let userInput = input[i];
+          let userInput = commandInput[i];
           const inputOptions = options
             ? Array.isArray(options)
               ? options

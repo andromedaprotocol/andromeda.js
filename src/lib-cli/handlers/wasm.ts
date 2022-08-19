@@ -1,8 +1,7 @@
-import type { Msg } from "@andromeda/andromeda-js";
+import { Msg, cleanTx } from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import { cleanTx } from "../../andr-js/hubble";
 import { executeFlags, instantiateFlags } from "../common";
 import { Commands, Flags } from "../types";
 import {

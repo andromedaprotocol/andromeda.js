@@ -1,4 +1,4 @@
-import { getConfigByChainID } from "../../andr-js/chainConfigs";
+import { getConfigByChainID } from "@andromeda/andromeda-js";
 import convict from "convict";
 import convictFormatWithValidator from "convict-format-with-validator";
 import { addExitHandler, loadStorageFile, writeStorageFile } from "./storage";
