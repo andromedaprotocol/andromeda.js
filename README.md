@@ -1,3 +1,7 @@
+<p>&nbsp;</p>
+<p align="center">
+<img src="" width=1000>
+</p>
 
 Andr.js is a JavaScript SDK for writing applications that interact with the cosmos blockchains.
 
