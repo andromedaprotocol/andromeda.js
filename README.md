@@ -1,7 +1,9 @@
 <p>&nbsp;</p>
 <p align="center">
-<img src="" width=1000>
+<img src="https://github.com/andromedaprotocol/andromeda.js/blob/readme/image/andromeda-js-logo-light.png" width=800>
 </p>
+
+## About
 
 Andr.js is a JavaScript SDK for writing applications that interact with the cosmos blockchains.
 
