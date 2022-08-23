@@ -247,10 +247,14 @@ export const QUERY_ASSETS = gql`
 `;
 
 export async function queryAssets(
-  walletAddress: string
+  walletAddress: string,
+  limit: number,
+  offset: number
 ): Promise<QueryAssetsResponse["assets"]> {
   const resp = await query<QueryAssets, QueryAssetsResponse>(QUERY_ASSETS, {
     walletAddress,
+    limit,
+    offset,
   });
 
   return resp.assets;
