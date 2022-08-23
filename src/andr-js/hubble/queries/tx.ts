@@ -213,6 +213,8 @@ export async function queryTxByHash(hash: string): Promise<TxInfo> {
 
 export interface QueryAssets {
   walletAddress: string;
+  limit: number;
+  offset: number;
 }
 export interface QueryAssetsResponse {
   assets: {
