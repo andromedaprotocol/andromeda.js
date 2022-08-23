@@ -17,7 +17,8 @@
     "build": "tsc -p tsconfig.json",
     "install:local": "npm run build && sudo npm i -g && andr",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -49,7 +50,8 @@
     "module-alias": "^2.2.2",
     "nanospinner": "^1.1.0",
     "node-fetch": "^3.2.6",
-    "ora": "^6.1.0"
+    "ora": "^6.1.0",
+    "ts-jest": "^28.0.8"
   },
   "devDependencies": {
     "@types/chalk-animation": "^1.6.1",
@@ -60,6 +62,7 @@
     "@types/figlet": "^1.5.4",
     "@types/gradient-string": "^1.1.2",
     "@types/inquirer": "^8.2.1",
+    "@types/jest": "^28.1.7",
     "@types/lodash": "^4.14.183",
     "@types/minimist": "^1.2.2",
     "@types/node": "^18.0.0",

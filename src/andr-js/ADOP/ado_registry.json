@@ -2,9 +2,17 @@
   {
     "name": "primitive",
     "schemas": {
-      "execute": "https://github.com/andromedaprotocol/andromeda-core/blob/development/contracts/data-storage/andromeda-primitive/schema/execute_msg.json",
+      "execute": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/data-storage/andromeda-primitive/schema/execute_msg.json",
       "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/data-storage/andromeda-primitive/schema/instantiate_msg.json",
       "query": "https://github.com/andromedaprotocol/andromeda-core/blob/development/contracts/data-storage/andromeda-primitive/schema/query_msg.json"
+    }
+  },
+  {
+    "name": "cw721",
+    "schemas": {
+      "execute": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-cw721/schema/execute_msg.json",
+      "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-cw721/schema/instantiate_msg.json",
+      "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-cw721/schema/query_msg.json"
     }
   }
 ]

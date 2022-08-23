@@ -1,13 +1,13 @@
 import { fetchSchema, getSchemasByType } from "@andromeda/andromeda-js";
 import chalk from "chalk";
-import { schemaPrompt } from "../../schemas";
 import { displaySpinnerAsync, instantiateFlags } from "../../common";
+import { InstantiateSchemaPrompt } from "../../schema";
 import { Commands, Flags } from "../../types";
+import { instantiateMessage } from "../chain";
+import client from "../client";
 import { generateHandler } from "../utils";
 import factoryCommands from "./factory";
 import primitiveCommands from "./primitive";
-import client from "../client";
-import { instantiateMessage } from "../chain";
 
 const primitiveHandler = generateHandler(primitiveCommands);
 const factoryHandler = generateHandler(factoryCommands);
@@ -56,11 +56,15 @@ async function createHandler(inputs: string[], flags: Flags) {
     "Fetching schema...",
     async () => await fetchSchema(instantiate)
   );
-  const msg = await schemaPrompt(schema);
+
+  const prompter = new InstantiateSchemaPrompt(schema);
+  // const msg = await promptInstantiateFromSchema(schema);
+  const msg = await prompter.start();
 
   const codeId = await client.ado.factory.getCodeId(type);
 
   await instantiateMessage(codeId, msg, flags);
+  // console.log(msg);
 }
 
 export default commands;

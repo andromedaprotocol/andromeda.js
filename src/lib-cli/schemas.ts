@@ -2,20 +2,29 @@ import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
 import _ from "lodash";
 
-// Forked from: https://raw.githubusercontent.com/LuisMayo/schinquirer/main/index.js
+interface QuestionDefinition {
+  name: string;
+  schema: Schema;
+}
 
-function prepare(schema: Schema["properties"], bread: string[] = []): any[] {
+// Forked from: https://raw.githubusercontent.com/LuisMayo/schinquirer/main/index.js
+function prepareQuestion(
+  schema: Schema,
+  bread: string[] = []
+): QuestionDefinition[] {
   bread = bread || [];
 
   return _.reduce(
     schema,
     function (
       questions: { name: string; schema: any }[],
-      schema: any,
+      schema: Schema,
       property
     ) {
       if (schema.type == "object") {
-        return questions.concat(prepare(schema, bread.concat(property)));
+        return questions.concat(
+          prepareQuestion(schema, bread.concat(property))
+        );
       }
       questions.push({
         name: bread.concat(property).join("."),
@@ -28,33 +37,31 @@ function prepare(schema: Schema["properties"], bread: string[] = []): any[] {
   );
 }
 
-export async function schemaPrompt(schema: Schema) {
-  var deferred: { promise?: any; resolve?: any; reject?: any };
+// function questionConfig(schema: Schema, definition: QuestionDefinition) {
+//   const config = {};
 
-  deferred = {};
-  deferred.promise = new Promise(function (resolve, reject) {
-    deferred.resolve = resolve;
-    deferred.reject = reject;
-  });
+//   if (Array.isArray(schema.enum))
+// }
 
-  const questions = prepare(schema.properties).reduce(function (
-    questions: any[],
-    definition: { name: any; schema: any }
+export async function promptInstantiateFromSchema(schema: Schema) {
+  if (!schema.properties) return;
+
+  const questions = prepareQuestion(schema.properties).reduce(function (
+    questions: Record<string, any>[],
+    definition: QuestionDefinition
   ) {
-    var when: { key: string | number; equal: any }, name;
-
-    name = definition.name;
-    const schema = definition.schema;
+    const { name, schema } = definition;
     const v = new Validator();
+
     const question: Record<string, any> = {
-      name: name,
-      default: schema.default,
-      message: schema.message || name,
+      name,
+      // default: schema.default, //Does this field exist?
+      message: `Input ${name}:`,
       validate: function (value: any) {
         const isValid = v.validate(value, schema);
 
         if (!isValid) {
-          return `Please insert correct value`;
+          return "Invalid value";
         }
 
         return true;
@@ -74,21 +81,22 @@ export async function schemaPrompt(schema: Schema) {
       }
     }
 
-    if (_.isPlainObject((when = schema.when))) {
-      question.when = function (answers: { [x: string]: any }) {
-        return answers[when.key] == when.equal;
-      };
-    }
+    //Do these fields exist?
+    // if (_.isPlainObject((when))) {
+    //   question.when = function (answers: { [x: string]: any }) {
+    //     return answers[when.key] == when.equal;
+    //   };
+    // }
 
-    if (schema.formatter == "number") {
-      question.filter = function (value: string) {
-        return parseInt(value);
-      };
-    }
+    // if (schema.formatter == "number") {
+    //   question.filter = function (value: string) {
+    //     return parseInt(value);
+    //   };
+    // }
 
-    if (typeof schema.formatter == "function") {
-      question.filter = schema.formatter;
-    }
+    // if (typeof schema.formatter == "function") {
+    //   question.filter = schema.formatter;
+    // }
 
     questions.push(_.extend({}, schema, question));
 
