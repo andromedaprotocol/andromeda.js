@@ -14,5 +14,13 @@
       "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-cw721/schema/instantiate_msg.json",
       "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-cw721/schema/query_msg.json"
     }
+  },
+  {
+    "name": "splitter",
+    "schemas": {
+      "execute": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/finance/andromeda-splitter/schema/execute_msg.json",
+      "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/finance/andromeda-splitter/schema/instantiate_msg.json",
+      "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/finance/andromeda-splitter/schema/query_msg.json"
+    }
   }
 ]
