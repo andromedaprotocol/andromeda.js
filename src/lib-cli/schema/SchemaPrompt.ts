@@ -1,11 +1,74 @@
+import { fetchSchema, getSchemasByType, encode } from "../../andr-js";
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
+import client from "../handlers/client";
 import _ from "lodash";
+
+export async function requestExecuteMessageType(
+  options: Schema[]
+): Promise<string> {
+  // Filter out Andromeda Receive message as it is unnecessary
+  const validOptions = options.filter(
+    ({ required }) =>
+      required && Array.isArray(required) && !required.includes("andr_receive")
+  );
+
+  const input = await inquirer.prompt({
+    message: `Select a message type:`,
+    type: "list",
+    choices: validOptions.map(({ properties }, idx) => {
+      const propertyKeys = properties ? Object.keys(properties) : [];
+      const messageName = propertyKeys.length > 0 ? propertyKeys[0] : "Unnamed";
+      const name = `[Option ${idx + 1}] ${messageName
+        .split("_")
+        .map(_.upperFirst)
+        .join(" ")}`;
+      return {
+        name,
+        value: idx,
+      };
+    }),
+    name: "oneOfChoice",
+  });
+
+  return input.oneOfChoice;
+}
+
+export async function promptExecuteMessage(schema: Schema) {
+  const validOptions = (schema.oneOf ?? []).filter(
+    ({ required }) =>
+      required && Array.isArray(required) && !required.includes("andr_receive")
+  );
+  const messageChoice = await requestExecuteMessageType(validOptions);
+  const messageSchema: Schema = validOptions[parseInt(messageChoice)];
+
+  const { required, properties } = messageSchema;
+  if (!properties) return {};
+
+  const prompter = new SchemaPrompt(schema);
+
+  const keys = Object.keys(properties);
+  let answers: Record<string, any> = {};
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const isRequired: boolean = Boolean(
+      required && (!Array.isArray(required) || required.includes(key))
+    );
+    answers[key] = await prompter.promptQuestion(
+      key,
+      properties[key],
+      isRequired
+    );
+  }
+
+  return answers;
+}
 
 enum AndromedaSchemaTypes {
   Recipient = "Recipient",
   AndrAddress = "AndrAddress",
+  Binary = "Binary",
 }
 
 export default class SchemaPrompt {
@@ -14,6 +77,62 @@ export default class SchemaPrompt {
 
   constructor(schema: Schema) {
     this.schema = schema;
+  }
+
+  async requestADORecipient() {
+    const address = await this.promptQuestion(
+      "address",
+      { type: "string" },
+      true,
+      ["ADO Recipient"]
+    );
+
+    const addMessage = await inquirer.prompt({
+      name: "addMessage",
+      type: "confirm",
+      message: "Would you like to add a message to this recipient?",
+    });
+    if (!addMessage.addMessage)
+      return {
+        address: {
+          identifier: address,
+        },
+      };
+
+    let type = "";
+    try {
+      const resp = await client.queryContract<{ ado_type: string }>(address, {
+        andr_query: { type: {} },
+      });
+      type = resp.ado_type;
+    } catch (error) {
+      const typeInput = await inquirer.prompt({
+        name: "adoType",
+        type: "input",
+        validate: async (input: string) => {
+          try {
+            getSchemasByType(input);
+            return true;
+          } catch (error) {
+            const { message } = error as Error;
+            console.log(chalk.red(message));
+            return false;
+          }
+        },
+      });
+      type = typeInput.adoType;
+    }
+
+    const { execute } = getSchemasByType(type);
+    const schema = await fetchSchema(execute);
+    const msg = await promptExecuteMessage(schema);
+
+    return {
+      address: {
+        identifier: address,
+        msg: encode(msg),
+      },
+    };
   }
 
   async requestRecipient(name: string) {
@@ -28,13 +147,7 @@ export default class SchemaPrompt {
 
     switch (typeChoiceInput.typeChoice) {
       case "ADO":
-        const ado = await this.promptQuestion(
-          name,
-          {
-            $ref: "#/definitions/ADORecipient",
-          },
-          true
-        );
+        const ado = await this.requestADORecipient();
         return {
           a_d_o: ado,
         };
@@ -89,6 +202,15 @@ export default class SchemaPrompt {
   async promptArray(name: string, items: Schema, bread?: string[]) {
     const response: any[] = [];
     while (true) {
+      const addElement = await inquirer.prompt({
+        prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
+        message: `Would you like to add ${
+          response.length === 0 ? name : "another"
+        }?`,
+        type: "confirm",
+        name: "confirm",
+      });
+      if (!addElement.confirm) return response;
       const input = await this.promptQuestion(
         `${name} (array element ${response.length + 1})`,
         items,
@@ -96,14 +218,6 @@ export default class SchemaPrompt {
         bread
       );
       response.push(input);
-      const addElement = await inquirer.prompt({
-        prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
-        message: `Would you like to add another?`,
-        type: "confirm",
-        name: "confirm",
-      });
-
-      if (!addElement.confirm) return response;
     }
   }
 
@@ -152,7 +266,7 @@ export default class SchemaPrompt {
     } else if (property.type === "object") {
       const { properties, required } = property;
       let answer: any = {};
-      if (!properties) throw new Error("Object property has no properties");
+      if (!properties) return {};
       const propertyNames = Object.keys(properties!);
       for (let i = 0; i < propertyNames.length; i++) {
         const propertyName = propertyNames[i];

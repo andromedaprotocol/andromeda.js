@@ -237,12 +237,16 @@ export async function uploadWasm(
   console.log(chalk.green(`Code ID: ${result.codeId}`));
 }
 
-export async function queryMessage(address: string, msg: Record<string, any>) {
+export async function queryMessage<T = any>(
+  address: string,
+  msg: Record<string, any>
+): Promise<T> {
   const resp = await displaySpinnerAsync(
     "Querying contract...",
-    async () => await client.queryContract(address, msg)
+    async () => await client.queryContract<T>(address, msg)
   );
-  console.log(resp);
+  // console.log(resp);
+  return resp;
 }
 
 function logFeeEstimation(fee: StdFee) {

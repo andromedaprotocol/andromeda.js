@@ -141,7 +141,9 @@ async function queryHandler(input: string[]) {
 
   const parsedMsg: Msg = parseJSONInput(msg);
 
-  await queryMessage(contractAddr, parsedMsg);
+  const resp = await queryMessage(contractAddr, parsedMsg);
+
+  console.log(resp);
 }
 
 async function executeHandler(input: string[], flags: Flags) {

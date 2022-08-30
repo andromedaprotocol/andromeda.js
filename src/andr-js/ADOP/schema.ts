@@ -32,3 +32,5 @@ export async function generateDefaultADOPrototypes(client: AndromedaClient) {
 
   return prototypes;
 }
+
+export const adoTypes = ADODefinitions.map(({ name }) => name);

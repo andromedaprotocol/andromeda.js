@@ -6,7 +6,7 @@ export default class InstantiateSchemaPrompt extends SchemaPrompt {
     let answers: any = {};
     const { properties, required } = this.schema;
 
-    if (!properties) throw new Error("Invalid instantiate schema");
+    if (!properties) return {};
 
     const keys = Object.keys(properties);
     for (let i = 0; i < keys.length; i++) {
