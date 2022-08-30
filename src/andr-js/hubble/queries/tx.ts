@@ -213,30 +213,48 @@ export async function queryTxByHash(hash: string): Promise<TxInfo> {
 
 export interface QueryAssets {
   walletAddress: string;
+  limit: number;
+  offset: number;
 }
 export interface QueryAssetsResponse {
   assets: {
+    address: string;
     adoType: string;
-    height: number;
-    contractAddress: string;
+    appContract?: string;
+    chainId: string;
+    instantiateHash: string;
+    instantiateHeight: number;
+    lastUpdatedHash: string;
+    lastUpdatedHeight: number;
+    owner: string;
   };
 }
 
 export const QUERY_ASSETS = gql`
-  query QUERY_ASSETS($walletAddress: String!) {
-    assets(walletAddress: $walletAddress) {
+  query QUERY_ASSETS($walletAddress: String!, $limit: Int!, $offset: Int!) {
+    assets(walletAddress: $walletAddress, limit: $limit, offset: $offset) {
+      address
       adoType
-      contractAddress
-      height
+      appContract
+      chainId
+      instantiateHash
+      instantiateHeight
+      lastUpdatedHash
+      lastUpdatedHeight
+      owner
     }
   }
 `;
 
 export async function queryAssets(
-  walletAddress: string
+  walletAddress: string,
+  limit: number,
+  offset: number
 ): Promise<QueryAssetsResponse["assets"]> {
   const resp = await query<QueryAssets, QueryAssetsResponse>(QUERY_ASSETS, {
     walletAddress,
+    limit,
+    offset,
   });
 
   return resp.assets;
