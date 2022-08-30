@@ -5,9 +5,7 @@ import { Schema, Validator } from "jsonschema";
 import client from "../handlers/client";
 import _ from "lodash";
 
-export async function requestExecuteMessageType(
-  options: Schema[]
-): Promise<string> {
+export async function requestMessageType(options: Schema[]): Promise<string> {
   // Filter out Andromeda Receive message as it is unnecessary
   const validOptions = options.filter(
     ({ required }) =>
@@ -35,12 +33,18 @@ export async function requestExecuteMessageType(
   return input.oneOfChoice;
 }
 
-export async function promptExecuteMessage(schema: Schema) {
+export async function promptQueryOrExecuteMessage(schema: Schema) {
   const validOptions = (schema.oneOf ?? []).filter(
     ({ required }) =>
-      required && Array.isArray(required) && !required.includes("andr_receive")
+      required &&
+      Array.isArray(required) &&
+      !(
+        required.includes("andr_receive") ||
+        required.includes("andr_query") ||
+        required.includes("andr_hook")
+      )
   );
-  const messageChoice = await requestExecuteMessageType(validOptions);
+  const messageChoice = await requestMessageType(validOptions);
   const messageSchema: Schema = validOptions[parseInt(messageChoice)];
 
   const { required, properties } = messageSchema;
@@ -125,7 +129,7 @@ export default class SchemaPrompt {
 
     const { execute } = getSchemasByType(type);
     const schema = await fetchSchema(execute);
-    const msg = await promptExecuteMessage(schema);
+    const msg = await promptQueryOrExecuteMessage(schema);
 
     return {
       address: {
@@ -239,6 +243,12 @@ export default class SchemaPrompt {
     }
 
     property = await this.replaceRefs(property);
+    let type = property.type;
+    if (Array.isArray(type)) {
+      let validTypes = type.filter((ty) => ty !== "null");
+      if (validTypes.length === 1) type = validTypes[0];
+    }
+
     // if (property.description) console.log(chalk.blue(property.description));
     if (property.allOf) {
       for (let i = 0; i < property.allOf.length; i++) {
@@ -263,7 +273,7 @@ export default class SchemaPrompt {
         true,
         bread
       );
-    } else if (property.type === "object") {
+    } else if (type === "object") {
       const { properties, required } = property;
       let answer: any = {};
       if (!properties) return {};
@@ -309,21 +319,23 @@ export default class SchemaPrompt {
         },
       };
 
-      if (Array.isArray(property.type)) {
+      if (Array.isArray(type)) {
         //TODO: Handle Multiple types
-        const type = await this.requestType(property.type, name);
+        const selectedType = await this.requestType(type, name);
         return await this.promptQuestion(
           name,
-          { ...property, type },
+          { ...property, type: selectedType },
           true,
           bread
         );
-      } else if (property.type) {
-        switch (property.type) {
+      } else if (type) {
+        switch (type) {
           case "number":
+          case "integer":
             question.filter = (input: string) => {
               return parseInt(input);
             };
+            break;
           case "array":
             return this.promptArray(name, property.items as Schema, bread);
           case "boolean":

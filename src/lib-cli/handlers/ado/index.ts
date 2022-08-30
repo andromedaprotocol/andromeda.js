@@ -5,7 +5,10 @@ import {
   executeFlags,
   instantiateFlags,
 } from "../../common";
-import { InstantiateSchemaPrompt, promptExecuteMessage } from "../../schema";
+import {
+  InstantiateSchemaPrompt,
+  promptQueryOrExecuteMessage,
+} from "../../schema";
 import { Commands, Flags } from "../../types";
 import { executeMessage, instantiateMessage, queryMessage } from "../chain";
 import client from "../client";
@@ -53,9 +56,20 @@ const commands: Commands = {
   },
   execute: {
     handler: executeHandler,
-    usage: "ado execute <type> <address>",
-    description: "Executes a message on an ADO by given type and address",
+    usage: "ado execute <address>",
+    description: "Executes a message on an ADO by given address",
     flags: executeFlags,
+    color: chalk.blue,
+    inputs: [
+      {
+        requestMessage: "Input the ADO Addess:",
+      },
+    ],
+  },
+  query: {
+    handler: queryHandler,
+    usage: "ado query <address>",
+    description: "Queries an ADO by given address",
     color: chalk.blue,
     inputs: [
       {
@@ -127,8 +141,31 @@ async function executeHandler(inputs: string[], flags: Flags) {
     async () => await fetchSchema(execute)
   );
 
-  const msg = await promptExecuteMessage(schema);
+  const msg = await promptQueryOrExecuteMessage(schema);
   await executeMessage(address, msg, flags);
+}
+
+async function queryHandler(inputs: string[]) {
+  const [address] = inputs;
+
+  let type = "";
+  try {
+    type = await queryADOType(address);
+  } catch (error) {
+    console.error("Contract is not a valid ADO");
+    return;
+  }
+
+  const { query } = getSchemasByType(type);
+  const schema = await displaySpinnerAsync(
+    "Fetching schema...",
+    async () => await fetchSchema(query)
+  );
+
+  const msg = await promptQueryOrExecuteMessage(schema);
+  const resp = await queryMessage(address, msg);
+
+  console.log(resp);
 }
 
 async function queryTypeHandler(inputs: string[]) {
