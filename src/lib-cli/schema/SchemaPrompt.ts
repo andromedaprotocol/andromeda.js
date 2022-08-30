@@ -44,6 +44,9 @@ export async function promptQueryOrExecuteMessage(schema: Schema) {
         required.includes("andr_hook")
       )
   );
+  if (validOptions.length === 0)
+    throw new Error("ADO has no valid execute messages");
+
   const messageChoice = await requestMessageType(validOptions);
   const messageSchema: Schema = validOptions[parseInt(messageChoice)];
 
@@ -164,8 +167,13 @@ export default class SchemaPrompt {
     }
   }
 
-  async requestType(types: string[], name: string): Promise<string> {
-    const selectableTypes = types.filter((type) => type !== "null");
+  async requestType(
+    types: (string | { type: string })[],
+    name: string
+  ): Promise<string> {
+    const selectableTypes = types
+      .map((type) => (typeof type === "string" ? type : type.type))
+      .filter((type) => type !== "null");
     if (selectableTypes.length === 1) return selectableTypes[0];
 
     const input = await inquirer.prompt({
@@ -179,6 +187,8 @@ export default class SchemaPrompt {
   }
 
   async requestOneOf(name: string, options: Schema[]): Promise<string> {
+    if (options.length === 1) return "0";
+
     const input = await inquirer.prompt({
       message: `What type would you like to use for ${name}?`,
       type: "list",
@@ -263,13 +273,13 @@ export default class SchemaPrompt {
       (property.oneOf && property.oneOf.length > 0) ||
       (property.anyOf && property.anyOf.length > 0)
     ) {
-      const choice = await this.requestOneOf(
-        name,
-        property.oneOf ?? property.anyOf ?? []
+      const validChoices = (property.oneOf ?? property.anyOf ?? []).filter(
+        (val) => val.type !== "null"
       );
+      const choice = await this.requestOneOf(name, validChoices);
       return await this.promptQuestion(
         name,
-        (property.oneOf ?? property.anyOf ?? [])[parseInt(choice)],
+        validChoices[parseInt(choice)],
         true,
         bread
       );
