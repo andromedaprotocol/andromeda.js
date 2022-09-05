@@ -4,7 +4,7 @@ export interface CommandInput {
   validate?: (input: string) => Promise<boolean> | boolean;
   requestMessage: string;
   options?: string[] | (() => Promise<string[]> | string[]);
-  transform?: (input: string) => Promise<string> | string;
+  transform?: (input: string) => Promise<any> | any;
 }
 
 export interface Command {

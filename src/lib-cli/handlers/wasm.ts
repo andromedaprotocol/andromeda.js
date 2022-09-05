@@ -7,6 +7,7 @@ import { Commands, Flags } from "../types";
 import {
   executeMessage,
   instantiateMessage,
+  migrateMessage,
   queryMessage,
   uploadWasm,
 } from "./chain";
@@ -123,6 +124,49 @@ export const commands: Commands = {
       },
     ],
   },
+  migrate: {
+    handler: migrateHandler,
+    color: chalk.magenta,
+    description: "Migrate a contract",
+    usage: "wasm migrate <contract address> <new code id> <migrate msg>",
+    inputs: [
+      {
+        requestMessage: "Input Contract Address:",
+      },
+      {
+        requestMessage: "Input New Contract Code ID:",
+        validate: (input: string) => {
+          try {
+            if (input.length === 0) return false;
+            parseInt(input);
+            return true;
+          } catch (error) {
+            console.log();
+            console.log(chalk.red("Invalid Code ID"));
+            console.log();
+            return false;
+          }
+        },
+        transform: (input: string) => {
+          return parseInt(input);
+        },
+      },
+      {
+        requestMessage: "Input Migrate message:",
+        validate: (input: string) => {
+          try {
+            parseJSONInput(input);
+            return true;
+          } catch (error) {
+            console.log();
+            console.log(chalk.red("Invalid JSON Input"));
+            console.log();
+            return false;
+          }
+        },
+      },
+    ],
+  },
   tx: {
     handler: txInfoHandler,
     color: chalk.blue,
@@ -143,7 +187,7 @@ async function queryHandler(input: string[]) {
 
   const resp = await queryMessage(contractAddr, parsedMsg);
 
-  console.log(resp);
+  console.log(JSON.stringify(resp, null, 2));
 }
 
 async function executeHandler(input: string[], flags: Flags) {
@@ -169,6 +213,15 @@ async function instantiateHandler(input: string[], flags: Flags) {
   const codeId = parseInt(codeIdInput);
 
   await instantiateMessage(codeId, parsedMsg, flags);
+}
+
+async function migrateHandler(input: string[], flags: Flags) {
+  const [contractAddress, codeIdInput, msg] = input;
+
+  const parsedMsg: Msg = parseJSONInput(msg);
+  const codeId = parseInt(codeIdInput);
+
+  await migrateMessage(contractAddress, codeId, parsedMsg, flags);
 }
 
 async function txInfoHandler(input: string[]) {

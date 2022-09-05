@@ -195,6 +195,34 @@ export default class AndromedaClient {
   }
 
   /**
+   * Wrapper function for CosmWasm migrate
+   * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#migrate
+   * @param contractAddress
+   * @param codeId
+   * @param msg
+   * @param fee
+   * @param memo
+   * @returns
+   */
+  async migrate(
+    contractAddress: string,
+    codeId: number,
+    msg: Msg,
+    fee: Fee,
+    memo?: string
+  ) {
+    this.preMessage();
+    return await this.cosmWasmClient!.migrate(
+      this.signer,
+      contractAddress,
+      codeId,
+      msg,
+      fee,
+      memo
+    );
+  }
+
+  /**
    * Estimates the gas cost of sending an execute transaction
    * @param address
    * @param msg

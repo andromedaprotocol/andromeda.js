@@ -30,5 +30,29 @@
       "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/ecosystem/andromeda-vault/schema/instantiate_msg.json",
       "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/ecosystem/andromeda-vault/schema/query_msg.json"
     }
+  },
+  {
+    "name": "rates",
+    "schemas": {
+      "execute": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/modules/andromeda-rates/schema/execute_msg.json",
+      "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/modules/andromeda-rates/schema/instantiate_msg.json",
+      "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/modules/andromeda-rates/schema/query_msg.json"
+    }
+  },
+  {
+    "name": "address-list",
+    "schemas": {
+      "execute": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/modules/andromeda-address-list/schema/execute_msg.json",
+      "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/modules/andromeda-address-list/schema/instantiate_msg.json",
+      "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/modules/andromeda-address-list/schema/query_msg.json"
+    }
+  },
+  {
+    "name": "receipt",
+    "schemas": {
+      "execute": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/modules/andromeda-receipt/schema/execute_msg.json",
+      "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/modules/andromeda-receipt/schema/instantiate_msg.json",
+      "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/modules/andromeda-receipt/schema/query_msg.json"
+    }
   }
 ]

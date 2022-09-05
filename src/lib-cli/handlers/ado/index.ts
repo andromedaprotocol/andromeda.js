@@ -165,7 +165,7 @@ async function queryHandler(inputs: string[]) {
   const msg = await promptQueryOrExecuteMessage(schema);
   const resp = await queryMessage(address, msg);
 
-  console.log(resp);
+  console.log(JSON.stringify(resp, null, 2));
 }
 
 async function queryTypeHandler(inputs: string[]) {
