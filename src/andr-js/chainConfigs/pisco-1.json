@@ -1,0 +1,8 @@
+{
+  "chainId": "pisco-1",
+  "chainUrl": "https://pisco-rpc.dalnim.finance/",
+  "registryAddress": "terra1d29xk5fenxj2039fklmy57qcajwcpwe2lj2vspku82wh53cn39sssuzavq",
+  "addressPrefix": "terra",
+  "defaultFee": "0.2uluna",
+  "blockExplorerTxPages": ["https://finder.terra.money/testnet/tx/${txHash}"]
+}
