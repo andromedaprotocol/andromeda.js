@@ -1,6 +1,7 @@
 import Uni3 from "./uni-3.json";
 import Galileo2 from "./galileo-2.json";
 import Elgafar1 from "./elgafar-1.json";
+import Pisco1 from "./pisco-1.json";
 
 export interface ChainConfig {
   /** The ID for the chain */
@@ -17,7 +18,7 @@ export interface ChainConfig {
   blockExplorerTxPages: string[];
 }
 
-export const configs: ChainConfig[] = [Uni3, Galileo2, Elgafar1];
+export const configs: ChainConfig[] = [Uni3, Galileo2, Elgafar1, Pisco1];
 
 /**
  * Gets a config by its chainId

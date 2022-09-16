@@ -237,12 +237,16 @@ export async function uploadWasm(
   console.log(chalk.green(`Code ID: ${result.codeId}`));
 }
 
-export async function queryMessage(address: string, msg: Record<string, any>) {
+export async function queryMessage<T = any>(
+  address: string,
+  msg: Record<string, any>
+): Promise<T> {
   const resp = await displaySpinnerAsync(
     "Querying contract...",
-    async () => await client.queryContract(address, msg)
+    async () => await client.queryContract<T>(address, msg)
   );
-  console.log(resp);
+  // console.log(resp);
+  return resp;
 }
 
 function logFeeEstimation(fee: StdFee) {
@@ -326,6 +330,46 @@ export async function instantiateMessage(
   console.log();
   printTransactionUrl(resp.transactionHash);
   console.log(`Address: ${chalk.bold(resp.contractAddress)}`);
+}
+
+export async function migrateMessage(
+  contractAddress: string,
+  codeId: number,
+  msg: Record<string, any>,
+  flags: Flags,
+  successMessage?: string
+) {
+  const { memo } = flags;
+  // const feeEstimate = await displaySpinnerAsync(
+  //   "Simulating transaction...",
+  //   async () =>
+  //     await simulateInstantiationMessage(codeId, msg, label ?? "Instantiation")
+  // );
+  // console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  // console.log();
+  // logFeeEstimation(feeEstimate);
+  // if (simulate) {
+  //   return;
+  // }
+  // const confirmation = await inquirer.prompt({
+  //   type: "confirm",
+  //   message: `Do you want to proceed?`,
+  //   name: "confirmtx",
+  // });
+  // if (!confirmation.confirmtx) {
+  //   console.log(chalk.red("Transaction cancelled"));
+  //   return;
+  // }
+
+  const resp = await displaySpinnerAsync(
+    "Migrating your contract...",
+    async () => await client.migrate(contractAddress, codeId, msg, "auto", memo)
+  );
+  console.log();
+  console.log(successMessage ?? chalk.green("Contract migrated!"));
+  console.log();
+  printTransactionUrl(resp.transactionHash);
+  console.log(`Address: ${chalk.bold(contractAddress)}`);
 }
 
 export default commands;

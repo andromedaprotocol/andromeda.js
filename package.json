@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.0.27",
+  "version": "0.0.32",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -17,7 +17,8 @@
     "build": "tsc -p tsconfig.json",
     "install:local": "npm run build && sudo npm i -g && andr",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +29,7 @@
     "@cosmjs/math": "^0.28.7",
     "@cosmjs/proto-signing": "^0.28.7",
     "@cosmjs/stargate": "^0.28.7",
+    "axios": "^0.27.2",
     "bip39": "^3.0.4",
     "chalk": "^4.1.1",
     "chalk-animation": "^1.6.0",
@@ -41,12 +43,15 @@
     "graphql-request": "^4.3.0",
     "inquirer": "^8.2.4",
     "inquirer-command-prompt": "^0.1.0",
+    "is-my-json-valid": "^2.20.6",
     "jsonschema": "^1.4.1",
+    "lodash": "^4.17.21",
     "minimist": "^1.2.6",
     "module-alias": "^2.2.2",
     "nanospinner": "^1.1.0",
     "node-fetch": "^3.2.6",
-    "ora": "^6.1.0"
+    "ora": "^6.1.0",
+    "ts-jest": "^28.0.8"
   },
   "devDependencies": {
     "@types/chalk-animation": "^1.6.1",
@@ -57,6 +62,8 @@
     "@types/figlet": "^1.5.4",
     "@types/gradient-string": "^1.1.2",
     "@types/inquirer": "^8.2.1",
+    "@types/jest": "^28.1.7",
+    "@types/lodash": "^4.14.183",
     "@types/minimist": "^1.2.2",
     "@types/node": "^18.0.0",
     "nodemon": "^1.3.3",
