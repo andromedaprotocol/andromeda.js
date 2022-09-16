@@ -405,6 +405,21 @@ export default class AndromedaClient {
   async getTx(hash: string) {
     return this.queryClient?.getTx(hash);
   }
+
+  async sendTokens(
+    receivingAddress: string,
+    amount: readonly Coin[],
+    fee?: Fee,
+    memo?: string
+  ) {
+    return this.cosmWasmClient?.sendTokens(
+      this.signer,
+      receivingAddress,
+      amount,
+      fee ?? "auto",
+      memo
+    );
+  }
 }
 
 /**

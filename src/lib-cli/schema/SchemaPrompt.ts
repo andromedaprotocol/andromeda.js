@@ -253,6 +253,7 @@ export default class SchemaPrompt {
     }
 
     property = await this.replaceRefs(property);
+    // console.log(JSON.stringify(property, null, 2));
     let type = property.type;
     if (Array.isArray(type)) {
       let validTypes = type.filter((ty) => ty !== "null");
@@ -263,7 +264,7 @@ export default class SchemaPrompt {
     if (property.allOf) {
       for (let i = 0; i < property.allOf.length; i++) {
         const val = property.allOf[i];
-        if (val.type) {
+        if (val.type || val.oneOf) {
           return await this.promptQuestion(name, val, true);
         }
       }

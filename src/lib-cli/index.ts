@@ -6,6 +6,7 @@ import {
   hubbleHandler,
   walletHandler,
   wasmHandler,
+  bankHandler,
 } from "./handlers";
 import { Commands } from "./types";
 
@@ -56,6 +57,12 @@ export const baseCommands: Commands = {
     description: "Query and execute on an ADO",
     color: chalk.yellow,
     usage: "ado <cmd>",
+  },
+  bank: {
+    handler: bankHandler,
+    description: "Send tokens or query balances",
+    color: chalk.greenBright,
+    usage: "bank <cmd>",
   },
   hubble: {
     handler: hubbleHandler,
