@@ -13,18 +13,28 @@ import {
   wallets,
   loadDefaultConfig,
 } from "./lib-cli";
+import { connectClient } from "./lib-cli/handlers/client";
 import minimist from "minimist";
 
-inquirer.registerPrompt("command", require("inquirer-command-prompt"));
+const inquirerCommandPrompt = require("inquirer-command-prompt");
+
+inquirer.registerPrompt("command", inquirerCommandPrompt);
 
 async function onStartup() {
   await displaySpinnerAsync("Loading config...", async () =>
     loadDefaultConfig()
   );
-  await displaySpinnerAsync(
+  const signer = await displaySpinnerAsync(
     "Loading wallets...",
     async () => await wallets.loadWallets()
   );
+  if (signer) {
+    try {
+      await connectClient(signer);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 
 async function start() {

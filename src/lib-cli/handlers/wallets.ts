@@ -1,12 +1,11 @@
 import { Wallet, WalletStore } from "@andromeda/andromeda-js";
-import { GasPrice } from "@cosmjs/stargate";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
 import { logTableConfig } from "../common";
 import config, { storage } from "../config";
 import { Commands, Flags } from "../types";
-import client from "./client";
+import { connectClient } from "./client";
 
 const store = new WalletStore();
 const STORAGE_FILE = "wallets.json";
@@ -38,14 +37,21 @@ export async function loadWallets() {
           new Wallet(walletData.name, walletData.mnemonic)
         );
       });
-      const currentWallet = store.getDefaultWallet(config.get("chain.chainId"));
-      if (currentWallet) await setCurrentWallet(currentWallet);
+      const chainId = config.get("chain.chainId");
+      const currentWallet = store.getDefaultWallet(chainId);
+      if (currentWallet) {
+        await setCurrentWallet(currentWallet, false);
+        const signer = await currentWallet.getWallet(chainId);
+        return signer;
+      }
+      return;
     } catch (error) {
       console.error(error);
       process.exit(1);
     }
   } catch (error) {
     console.error(error);
+    return;
   }
 }
 
@@ -296,19 +302,18 @@ async function useWalletHandler(input: string[]) {
   }
 }
 
-export async function setCurrentWallet(wallet: Wallet) {
-  const signer = await wallet.getWallet(config.get("chain.chainId"));
-  const { chainId, chainUrl, registryAddress, defaultFee } =
-    config.get("chain");
-
+export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
+  const chainId = config.get("chain.chainId");
+  const signer = await wallet.getWallet(chainId);
   store.setDefaultWallet(chainId, wallet);
+  if (!autoConnect) return signer;
   try {
-    await client.connect(chainUrl, registryAddress, signer, {
-      gasPrice: GasPrice.fromString(defaultFee),
-    });
+    await connectClient(signer);
+    return signer;
   } catch (error) {
+    console.warn();
     console.warn(error);
-    throw new Error("Could not connect to chain, please check your config");
+    return;
   }
 }
 

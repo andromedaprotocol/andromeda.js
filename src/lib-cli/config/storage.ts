@@ -23,6 +23,11 @@ export function writeStorageFile(file: string, data: string) {
   fs.writeFileSync(filePath, data);
 }
 
+export function storageFileExists(file: string) {
+  const filePath = path.join(CONFIG_DIRECTORY, file);
+  return fs.existsSync(filePath);
+}
+
 export function addExitHandler(exitHandler: NodeJS.ExitListener) {
   try {
     //do something when app is closing

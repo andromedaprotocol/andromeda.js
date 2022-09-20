@@ -7,6 +7,13 @@ convict.addFormats(convictFormatWithValidator);
 
 const config = convict({
   chain: {
+    name: {
+      default: "",
+      doc: "The name of the chain config used",
+      format: String,
+      env: "CHAIN_CONFIG_NAME",
+      nullable: false,
+    },
     chainId: {
       default: "",
       doc: "The ID of the chain to use",
