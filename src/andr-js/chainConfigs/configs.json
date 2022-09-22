@@ -1,6 +1,7 @@
 [
   {
     "name": "uni3",
+    "chainName": "Juno",
     "chainId": "uni-3",
     "chainUrl": "https://rpc.uni.juno.deuslabs.fi:443",
     "registryAddress": "juno144r95jrnk5erqhpuepe5mwz33e5mns7yuyhmxw7fmfx8w0duqwws9qd36x",
@@ -8,10 +9,15 @@
     "defaultFee": "0.025ujunox",
     "blockExplorerTxPages": [
       "https://testnet.mintscan.io/juno-testnet/txs/${txHash}"
-    ]
+    ],
+    "blockExplorerAddressPages": [
+      "https://testnet.mintscan.io/juno-testnet/account/${address}"
+    ],
+    "chainType": "testnet"
   },
   {
     "name": "elgafar1",
+    "chainName": "Stargaze",
     "chainId": "elgafar-1",
     "chainUrl": "https://rpc.elgafar-1.stargaze-apis.com/",
     "registryAddress": "stars1n8kh8ev97f5ch2c5qtujlaelz9textg3t2tunu3emuv33d2jx9cs7mv9eq",
@@ -19,24 +25,38 @@
     "defaultFee": "0.025ustars",
     "blockExplorerTxPages": [
       "https://testnet-explorer.publicawesome.dev/stargaze/tx/${txHash}"
-    ]
+    ],
+    "blockExplorerAddressPages": [
+      "https://testnet-explorer.publicawesome.dev/stargaze/account/${address}"
+    ],
+    "chainType": "testnet"
   },
   {
     "name": "galileo2",
+    "chainName": "Andromeda",
     "chainId": "galileo-2",
     "chainUrl": "https://andromeda-testnet-rpc.orbitalcommand.io",
     "registryAddress": "andr14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9shptkql",
     "addressPrefix": "andr",
     "defaultFee": "0.025uandr",
-    "blockExplorerTxPages": ["https://ping.wildsage.io/Andromeda/tx/${txHash}"]
+    "blockExplorerTxPages": ["https://ping.wildsage.io/Andromeda/tx/${txHash}"],
+    "blockExplorerAddressPages": [
+      "https://ping.wildsage.io/Andromeda/account/${address}"
+    ],
+    "chainType": "testnet"
   },
   {
     "name": "pisco1",
+    "chainName": "Terra2",
     "chainId": "pisco-1",
     "chainUrl": "https://pisco-rpc.dalnim.finance/",
     "registryAddress": "terra1d29xk5fenxj2039fklmy57qcajwcpwe2lj2vspku82wh53cn39sssuzavq",
     "addressPrefix": "terra",
     "defaultFee": "0.2uluna",
-    "blockExplorerTxPages": ["https://finder.terra.money/testnet/tx/${txHash}"]
+    "blockExplorerTxPages": ["https://finder.terra.money/testnet/tx/${txHash}"],
+    "blockExplorerAddressPages": [
+      "https://finder.terra.money/testnet/account/${address}"
+    ],
+    "chainType": "testnet"
   }
 ]

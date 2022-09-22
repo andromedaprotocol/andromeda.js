@@ -14,6 +14,12 @@ const config = convict({
       env: "CHAIN_CONFIG_NAME",
       nullable: false,
     },
+    chainName: {
+      default: "",
+      doc: "The name of the chain",
+      format: String,
+      nullable: false,
+    },
     chainId: {
       default: "",
       doc: "The ID of the chain to use",
@@ -51,11 +57,37 @@ const config = convict({
       format: Array<string>,
       nullable: false,
       doc: "URLs to block explorers for the given chain. Must include '${txHash}'",
-      validate: (val: string) => {
-        if (!val.includes("${txHash}"))
-          throw new Error("Transaction page URL must include '${txHash}'");
+      validate: (val: string[]) => {
+        if (!Array.isArray(val))
+          throw new Error("Explorer Tx pages must be an array");
+
+        if (val.some((page) => typeof page !== "string"))
+          throw new Error("Not all page URLs are a string");
+        if (!val.some((page) => page.includes("${txHash}")))
+          throw new Error("Tx page URLs must include '${txHash}'");
       },
-      default: ["https://testnet.mintscan.io/juno-testnet/txs/${txHash}"],
+      default: [""],
+    },
+    blockExplorerAddressPages: {
+      format: Array<string>,
+      nullable: false,
+      doc: "URLs to block explorers for the given chain. Must include '${txHash}'",
+      validate: (val: string[]) => {
+        if (!Array.isArray(val))
+          throw new Error("Explorer Address pages must be an array");
+
+        if (val.some((page) => typeof page !== "string"))
+          throw new Error("Not all page URLs are a string");
+        if (!val.some((page) => page.includes("${address}")))
+          throw new Error("Address page URLs must include '${address}'");
+      },
+      default: [""],
+    },
+    chainType: {
+      default: "mainnet",
+      format: ["mainnet", "testnet"],
+      doc: "The chain type",
+      nullable: false,
     },
   },
 });
