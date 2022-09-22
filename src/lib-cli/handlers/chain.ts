@@ -6,7 +6,7 @@ import {
   Msg,
 } from "@andromeda/andromeda-js";
 import { parseCoins } from "@cosmjs/proto-signing";
-import { GasPrice, StdFee } from "@cosmjs/stargate";
+import { StdFee } from "@cosmjs/stargate";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
@@ -23,7 +23,7 @@ import {
   writeStorageFile,
 } from "../config/storage";
 import { Commands, Flags } from "../types";
-import client from "./client";
+import client, { connectClient } from "./client";
 import { getCurrentWallet, setCurrentWallet } from "./wallets";
 
 const STORAGE_FILE = "chainConfigs.json";
@@ -86,6 +86,7 @@ const commands: Commands = {
       {
         requestMessage: "Input Config Name:",
         validate: (input: string) => {
+          if (input.length === 0) return false;
           const config = getCLIChainConfigByName(input);
           if (config) {
             console.log();
@@ -95,6 +96,67 @@ const commands: Commands = {
 
           return true;
         },
+      },
+    ],
+  },
+  copy: {
+    handler: copyConfigHandler,
+    color: chalk.magenta,
+    description: "Creates a copy of a current config",
+    usage: "chain copy <current config name> <new config name>",
+    inputs: [
+      {
+        requestMessage: "Input Current Config Name:",
+        validate: (input: string) => {
+          const config = getCLIChainConfigByName(input);
+          if (!config) {
+            console.log();
+            console.log(chalk.red("Config does not exist"));
+            return false;
+          }
+
+          return true;
+        },
+        options: () => [
+          ...localConfigs.map(({ name }) => name),
+          ...configs.map(({ name }) => name),
+        ],
+      },
+      {
+        requestMessage: "Input New Config Name:",
+        validate: (input: string) => {
+          if (input.length === 0) return false;
+          const config = getCLIChainConfigByName(input);
+          if (config) {
+            console.log();
+            console.log(chalk.red("Config already exists with that name"));
+            return false;
+          }
+
+          return true;
+        },
+      },
+    ],
+  },
+  rm: {
+    handler: removeConfigHandler,
+    color: chalk.magenta,
+    description: "Removes a config by name or chain ID",
+    usage: "chain rm <config name>",
+    inputs: [
+      {
+        requestMessage: "Select config to remove:",
+        validate: (input: string) => {
+          const config = getCLIChainConfigByName(input);
+          if (config) {
+            console.log();
+            console.log(chalk.red("Config already exists with that name"));
+            return false;
+          }
+
+          return true;
+        },
+        options: () => [...localConfigs.map(({ name }) => name)],
       },
     ],
   },
@@ -208,7 +270,7 @@ async function listConfigsHandler() {
           chalk.green(chainConfig.name),
           chalk.green(chainConfig.chainId),
         ])
-      : configTable.push([chalk.green(chainConfig.name), chainConfig.chainId])
+      : configTable.push([chainConfig.name, chainConfig.chainId])
   );
 
   console.log(configTable.toString());
@@ -226,17 +288,13 @@ async function useConfigHandler(input: string[]) {
   }
 
   config.set("chain", chainConfig);
+  console.log(chalk.green(`Config loaded!`));
   const wallet = getCurrentWallet();
   if (wallet) {
     await setCurrentWallet(wallet);
   } else {
-    const { chainUrl, registryAddress, defaultFee } = config.get("chain");
-    await client.connect(chainUrl, registryAddress, undefined, {
-      gasPrice: GasPrice.fromString(defaultFee),
-    });
+    await connectClient();
   }
-
-  console.log(chalk.green(`Config loaded!`));
 }
 
 async function configGetHandler(input: string[]) {
@@ -492,6 +550,50 @@ export async function newConfigHandler(input: string[]) {
   localConfigs.push(fullConfig);
   writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
   await useConfigHandler(input);
+}
+
+async function copyConfigHandler(input: string[]) {
+  const [oldConfigName, newConfigName] = input;
+  const oldConfig = getCLIChainConfigByName(oldConfigName);
+  if (!oldConfig) throw new Error(`Config '${oldConfigName}' not found`);
+
+  const newConfig = { ...oldConfig!, name: newConfigName };
+
+  localConfigs.push(newConfig);
+  writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
+
+  await useConfigHandler([newConfigName]);
+}
+
+async function removeConfigHandler(input: string[]) {
+  const [configName] = input;
+  const defaultConfig =
+    getConfigByName(configName) ?? getConfigByChainID(configName);
+  if (defaultConfig) throw new Error("Cannot remove a default config");
+
+  const localConfig = localConfigs.find(
+    ({ name, chainId }) => name === configName || chainId === configName
+  );
+  if (!localConfig) throw new Error(`Config '${configName}' not found`);
+
+  localConfigs = localConfigs.filter(
+    ({ name, chainId }) => name !== configName && chainId !== configName
+  );
+  writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
+
+  if (localConfig.name === config.get("chain.name")) {
+    const replacementConfig = await inquirer.prompt({
+      type: "list",
+      choices: [
+        ...localConfigs.map(({ name }) => name),
+        ...configs.map(({ name }) => name),
+      ],
+      message: "Select new config to use:",
+      name: "replacementconfig",
+    });
+
+    await useConfigHandler([replacementConfig.replacementconfig]);
+  }
 }
 
 export default commands;

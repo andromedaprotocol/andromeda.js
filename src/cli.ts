@@ -21,19 +21,17 @@ const inquirerCommandPrompt = require("inquirer-command-prompt");
 inquirer.registerPrompt("command", inquirerCommandPrompt);
 
 async function onStartup() {
-  await displaySpinnerAsync("Loading config...", async () =>
-    loadDefaultConfig()
-  );
-  const signer = await displaySpinnerAsync(
-    "Loading wallets...",
-    async () => await wallets.loadWallets()
-  );
-  if (signer) {
-    try {
-      await connectClient(signer);
-    } catch (error) {
-      console.error(error);
-    }
+  try {
+    await displaySpinnerAsync("Loading config...", async () =>
+      loadDefaultConfig()
+    );
+    const signer = await displaySpinnerAsync(
+      "Loading wallets...",
+      async () => await wallets.loadWallets()
+    );
+    await connectClient(signer);
+  } catch (error) {
+    console.error(error);
   }
 }
 

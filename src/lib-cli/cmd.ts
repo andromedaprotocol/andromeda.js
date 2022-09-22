@@ -124,8 +124,7 @@ export async function ask(defaultValue: string = "") {
         if (input.length === 0) {
           return commandSplit.length === 1;
         }
-        const inputs = input.split(" ");
-        return inputs.every((str) => command.includes(str));
+        return command.includes(input);
       }),
   };
   const prompt = inquirer.prompt(question);
