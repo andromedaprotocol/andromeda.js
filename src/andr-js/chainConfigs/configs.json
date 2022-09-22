@@ -13,7 +13,11 @@
     "blockExplorerAddressPages": [
       "https://testnet.mintscan.io/juno-testnet/account/${address}"
     ],
-    "chainType": "testnet"
+    "chainType": "testnet",
+    "iconUrl": {
+      "sm": "https://assets.coingecko.com/coins/images/19249/small/juno.png",
+      "lg": "https://assets.coingecko.com/coins/images/19249/large/juno.png"
+    }
   },
   {
     "name": "elgafar1",
@@ -29,7 +33,11 @@
     "blockExplorerAddressPages": [
       "https://testnet-explorer.publicawesome.dev/stargaze/account/${address}"
     ],
-    "chainType": "testnet"
+    "chainType": "testnet",
+    "iconUrl": {
+      "sm": "https://assets.coingecko.com/coins/images/22363/small/stars.png?1645256657",
+      "lg": "https://assets.coingecko.com/coins/images/22363/large/stars.png?1645256657"
+    }
   },
   {
     "name": "galileo2",
@@ -57,6 +65,10 @@
     "blockExplorerAddressPages": [
       "https://finder.terra.money/testnet/account/${address}"
     ],
-    "chainType": "testnet"
+    "chainType": "testnet",
+    "iconUrls": {
+      "sm": "https://assets.coingecko.com/coins/images/25767/small/01_Luna_color.png",
+      "lg": "https://assets.coingecko.com/coins/images/25767/large/01_Luna_color.png"
+    }
   }
 ]

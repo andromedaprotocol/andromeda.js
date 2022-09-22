@@ -21,6 +21,11 @@ export interface ChainConfig {
   blockExplorerAddressPages: string[];
   /** Block explorer address pages */
   chainType: "testnet" | "mainnet";
+  /** The URL for the chain icon */
+  iconUrls?: {
+    sm?: string;
+    lg?: string;
+  };
 }
 
 //Strictly for typing
