@@ -1,6 +1,8 @@
 import chainConfigs from "./configs.json";
 
 export interface ChainConfig {
+  /** The name of the chain */
+  chainName: string;
   /** The name of the config */
   name: string;
   /** The ID for the chain */
@@ -15,6 +17,15 @@ export interface ChainConfig {
   defaultFee: string;
   /** Block explorer transaction pages */
   blockExplorerTxPages: string[];
+  /** Block explorer address pages */
+  blockExplorerAddressPages: string[];
+  /** Block explorer address pages */
+  chainType: "testnet" | "mainnet";
+  /** The URL for the chain icon */
+  iconUrls?: {
+    sm?: string;
+    lg?: string;
+  };
 }
 
 //Strictly for typing

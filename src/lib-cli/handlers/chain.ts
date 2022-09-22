@@ -300,7 +300,7 @@ async function useConfigHandler(input: string[]) {
 async function configGetHandler(input: string[]) {
   const [key] = input;
 
-  await printConfig(config.get("chain"), key as ConfigKey);
+  await printConfig(config.get("chain") as ChainConfig, key as ConfigKey);
 }
 
 async function configSetHandler(input: string[]) {
@@ -314,7 +314,7 @@ async function configSetHandler(input: string[]) {
 }
 
 async function configPrintHandler() {
-  await printConfig(config.get("chain"));
+  await printConfig(config.get("chain") as ChainConfig);
 }
 
 export async function executeMessage(
@@ -509,6 +509,12 @@ export async function newConfigHandler(input: string[]) {
   const [name] = input;
   const config = await inquirer.prompt([
     {
+      name: "chainName",
+      message: "Input the chain name:",
+      type: "input",
+      validate: (input: string) => input.length > 0,
+    },
+    {
       name: "chainId",
       message: "Input the chain ID:",
       type: "input",
@@ -518,6 +524,13 @@ export async function newConfigHandler(input: string[]) {
       name: "chainUrl",
       message: "Input the chain URL:",
       type: "input",
+      validate: (input: string) => input.length > 0,
+    },
+    {
+      name: "chainType",
+      message: "Select the chain type:",
+      type: "list",
+      choices: ["mainnet", "testnet", "exit"],
       validate: (input: string) => input.length > 0,
     },
     {
@@ -538,14 +551,15 @@ export async function newConfigHandler(input: string[]) {
       type: "input",
       validate: (input: string) => input.length > 0,
     },
-    {
-      name: "chainId",
-      message: "Input the default block explorer URL (optional):",
-      type: "input",
-    },
   ]);
+  if (config.chainType === "exit") return;
 
-  const fullConfig: ChainConfig = { ...config, name };
+  const fullConfig: ChainConfig = {
+    ...config,
+    name,
+    blockExplorerAddressPages: [],
+    blockExplorerTxPages: [],
+  };
 
   localConfigs.push(fullConfig);
   writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
