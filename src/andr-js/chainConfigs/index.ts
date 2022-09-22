@@ -1,9 +1,8 @@
-import Uni3 from "./uni-3.json";
-import Galileo2 from "./galileo-2.json";
-import Elgafar1 from "./elgafar-1.json";
-import Pisco1 from "./pisco-1.json";
+import chainConfigs from "./configs.json";
 
 export interface ChainConfig {
+  /** The name of the config */
+  name: string;
   /** The ID for the chain */
   chainId: string;
   /** The URL for the chain */
@@ -18,7 +17,8 @@ export interface ChainConfig {
   blockExplorerTxPages: string[];
 }
 
-export const configs: ChainConfig[] = [Uni3, Galileo2, Elgafar1, Pisco1];
+//Strictly for typing
+export const configs = chainConfigs as ChainConfig[];
 
 /**
  * Gets a config by its chainId
@@ -27,7 +27,18 @@ export const configs: ChainConfig[] = [Uni3, Galileo2, Elgafar1, Pisco1];
  */
 export function getConfigByChainID(chainId: string): ChainConfig | undefined {
   if (!chainId || chainId.length === 0) return;
-  const config = configs.find((config) => config.chainId === chainId.trim());
+  const config = (configs as ChainConfig[]).find(
+    (config) => config.chainId === chainId.trim()
+  );
+
+  return config;
+}
+
+export function getConfigByName(name: string): ChainConfig | undefined {
+  if (!name || name.length === 0) return;
+  const config = (configs as ChainConfig[]).find(
+    (config) => config.name === name.trim()
+  );
 
   return config;
 }

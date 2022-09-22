@@ -14,6 +14,7 @@ export interface Command {
   color: Chalk;
   flags?: Record<string, Flag>;
   inputs?: CommandInput[];
+  disabled?: () => Promise<boolean> | boolean;
 }
 
 export type Commands = Record<string, Command>;

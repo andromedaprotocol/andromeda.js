@@ -1,8 +1,0 @@
-{
-  "chainId": "galileo-2",
-  "chainUrl": "https://andromeda-testnet-rpc.orbitalcommand.io",
-  "registryAddress": "andr14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9shptkql",
-  "addressPrefix": "andr",
-  "defaultFee": "0.025uandr",
-  "blockExplorerTxPages": ["https://ping.wildsage.io/Andromeda/tx/${txHash}"]
-}

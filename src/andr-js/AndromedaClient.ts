@@ -62,7 +62,7 @@ export default class AndromedaClient {
       this.cosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
         endpoint,
         signer,
-        options
+        { broadcastTimeoutMs: 30000, ...options }
       );
       this.queryClient = this.cosmWasmClient;
 
@@ -70,6 +70,11 @@ export default class AndromedaClient {
       this.signer = account.address;
     } else {
       this.queryClient = await CosmWasmClient.connect(endpoint);
+    }
+
+    if (!registryAddress || registryAddress.length === 0) {
+      console.warn("No registry address provided");
+      return;
     }
 
     await this.ado.setRegistryAddress(registryAddress);
@@ -89,7 +94,10 @@ export default class AndromedaClient {
    * Whether the client is currently connected
    */
   get isConnected() {
-    return typeof this.cosmWasmClient !== "undefined";
+    return (
+      typeof this.cosmWasmClient !== "undefined" ||
+      typeof this.queryClient !== "undefined"
+    );
   }
 
   /**
@@ -257,6 +265,7 @@ export default class AndromedaClient {
     funds: Coin[],
     memo: string = ""
   ) {
+    this.preMessage();
     return this.estimateFee([this.encodeExecuteMsg(address, msg, funds)], memo);
   }
 
@@ -315,6 +324,7 @@ export default class AndromedaClient {
     label: string,
     memo?: string
   ) {
+    this.preMessage();
     return this.estimateFee(
       [this.encodeInstantiateMsg(codeId, msg, label)],
       memo
@@ -392,6 +402,7 @@ export default class AndromedaClient {
    * @returns
    */
   async getBalance(denom: string, address?: string) {
+    this.preMessage();
     const _address = address ?? this.signer;
 
     return this.cosmWasmClient?.getBalance(_address, denom);
@@ -403,6 +414,7 @@ export default class AndromedaClient {
    * @returns
    */
   async getTx(hash: string) {
+    this.preMessage();
     return this.queryClient?.getTx(hash);
   }
 
@@ -412,6 +424,7 @@ export default class AndromedaClient {
     fee?: Fee,
     memo?: string
   ) {
+    this.preMessage();
     return this.cosmWasmClient?.sendTokens(
       this.signer,
       receivingAddress,

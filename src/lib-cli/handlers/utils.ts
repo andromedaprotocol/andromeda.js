@@ -89,9 +89,13 @@ export async function handle(
       log(chalk.red("Invalid command"));
       log();
     }
-    listCommands(commands, prefix);
+    await listCommands(commands, prefix);
     return;
   } else {
+    if (cmd.disabled && (await cmd.disabled())) {
+      log(chalk.red("Command disabled"));
+      return;
+    }
     if (flags["help"] && (commandInput.length === 0 || cmd.inputs)) {
       printCommandHelp(cmd);
       return;
