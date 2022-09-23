@@ -37,12 +37,20 @@ async function onStartup() {
 
 async function start() {
   await onStartup();
-  await title();
-  await subTitle();
-  while (true) {
-    let input = await ask();
-    const { _: cmd, ...flags } = minimist(parseInput(input.command));
+
+  const inputs = process.argv.slice(2);
+  if (inputs.length === 0) {
+    await title();
+    await subTitle();
+    while (true) {
+      let input = await ask();
+      const { _: cmd, ...flags } = minimist(parseInput(input.command));
+      await handle(cmd, flags, baseCommands);
+    }
+  } else {
+    const { _: cmd, ...flags } = minimist(parseInput(inputs.join(" ")));
     await handle(cmd, flags, baseCommands);
+    process.exit();
   }
 }
 
