@@ -88,6 +88,9 @@ export const executeFlags = {
     description:
       "Simulates the transaction without broadcasting it. Useful to estimate gas costs.",
   },
+  print: {
+    description: "Prints the constructed message before simulating.",
+  },
 };
 
 export const instantiateFlags = {
@@ -103,6 +106,9 @@ export const instantiateFlags = {
   simulate: {
     description:
       "Simulates the transaction without broadcasting it. Useful to estimate gas costs.",
+  },
+  print: {
+    description: "Prints the constructed message before simulating.",
   },
 };
 

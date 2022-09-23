@@ -4,6 +4,7 @@ import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
 import client from "../handlers/client";
 import _ from "lodash";
+import config from "../config";
 
 export async function requestMessageType(options: Schema[]): Promise<string> {
   // Filter out Andromeda Receive message as it is unnecessary
@@ -72,10 +73,35 @@ export async function promptQueryOrExecuteMessage(schema: Schema) {
   return answers;
 }
 
+export async function promptInstantiateMsg(schema: Schema, bread?: string[]) {
+  const { required, properties } = schema;
+  if (!properties) return {};
+
+  const prompter = new SchemaPrompt(schema);
+
+  const keys = Object.keys(properties);
+  let answers: Record<string, any> = {};
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const isRequired: boolean = Boolean(
+      required && (!Array.isArray(required) || required.includes(key))
+    );
+    answers[key] = await prompter.promptQuestion(
+      key,
+      properties[key],
+      isRequired,
+      bread
+    );
+  }
+
+  return answers;
+}
+
 enum AndromedaSchemaTypes {
   Recipient = "Recipient",
   AndrAddress = "AndrAddress",
   Binary = "Binary",
+  AppComponent = "AppComponent",
 }
 
 export default class SchemaPrompt {
@@ -84,6 +110,33 @@ export default class SchemaPrompt {
 
   constructor(schema: Schema) {
     this.schema = schema;
+  }
+
+  async requestAppComponent() {
+    const name = await this.promptQuestion(
+      "ADO Name",
+      { type: "string" },
+      true,
+      ["App Component"]
+    );
+    const adoType = await this.promptQuestion(
+      "ADO Type",
+      { type: "string" },
+      true,
+      ["App Component"]
+    );
+
+    const { instantiate } = getSchemasByType(adoType);
+    const schema = await fetchSchema(instantiate);
+
+    const msg = await promptInstantiateMsg(schema, [`${name} - Instantiation`]);
+    const instantiateMsg = encode(msg);
+
+    return {
+      ado_type: adoType,
+      name,
+      instantiate_msg: instantiateMsg,
+    };
   }
 
   async requestADORecipient() {
@@ -160,7 +213,9 @@ export default class SchemaPrompt {
         };
       case "External Address":
       default:
-        const addr = await this.promptQuestion(name, { type: "string" }, true);
+        const addr = await this.promptQuestion(name, { type: "string" }, true, [
+          name,
+        ]);
         return {
           addr,
         };
@@ -213,18 +268,26 @@ export default class SchemaPrompt {
     return input.oneOfChoice;
   }
 
-  async promptArray(name: string, items: Schema, bread?: string[]) {
+  async promptArray(
+    name: string,
+    items: Schema,
+    required: boolean,
+    bread?: string[]
+  ) {
     const response: any[] = [];
     while (true) {
-      const addElement = await inquirer.prompt({
-        prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
-        message: `Would you like to add ${
-          response.length === 0 ? name : "another"
-        }?`,
-        type: "confirm",
-        name: "confirm",
-      });
-      if (!addElement.confirm) return response;
+      if (required) {
+        const addElement = await inquirer.prompt({
+          prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
+          message: `Would you like to add ${
+            response.length === 0 ? name : "another"
+          }?`,
+          type: "confirm",
+          name: "confirm",
+        });
+        if (!addElement.confirm) return response;
+      }
+
       const input = await this.promptQuestion(
         `${name} (array element ${response.length + 1})`,
         items,
@@ -241,9 +304,11 @@ export default class SchemaPrompt {
     required = false,
     bread?: string[]
   ): Promise<any> {
+    if (name === "primitive_contract")
+      return config.get("chain.registryAddress");
     if (!required) {
       const addProperty = await inquirer.prompt({
-        prefix: bread ? `[${bread.join(".")}]` : "",
+        prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
         message: `Would you like to add ${name}?`,
         type: "confirm",
         name: "confirm",
@@ -265,7 +330,7 @@ export default class SchemaPrompt {
       for (let i = 0; i < property.allOf.length; i++) {
         const val = property.allOf[i];
         if (val.type || val.oneOf) {
-          return await this.promptQuestion(name, val, true);
+          return await this.promptQuestion(name, val, true, bread);
         }
       }
 
@@ -348,7 +413,12 @@ export default class SchemaPrompt {
             };
             break;
           case "array":
-            return this.promptArray(name, property.items as Schema, bread);
+            return this.promptArray(
+              name,
+              property.items as Schema,
+              required,
+              bread
+            );
           case "boolean":
             question.type = "confirm";
             break;
@@ -362,6 +432,8 @@ export default class SchemaPrompt {
               bread
             );
             return { identifier };
+          case AndromedaSchemaTypes.AppComponent:
+            return await this.requestAppComponent();
           default:
             break;
         }
