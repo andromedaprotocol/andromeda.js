@@ -1,10 +1,10 @@
 [
   {
-    "name": "uni3",
+    "name": "junotestnet",
     "chainName": "Juno",
-    "chainId": "uni-3",
+    "chainId": "uni-5",
     "chainUrl": "https://rpc.uni.juno.deuslabs.fi:443",
-    "registryAddress": "juno144r95jrnk5erqhpuepe5mwz33e5mns7yuyhmxw7fmfx8w0duqwws9qd36x",
+    "registryAddress": "juno133fdsnvcah870exzcyxknydswyh778jfhwxzlhhgjuagh4482zpqp856dz",
     "addressPrefix": "juno",
     "defaultFee": "0.025ujunox",
     "blockExplorerTxPages": [
