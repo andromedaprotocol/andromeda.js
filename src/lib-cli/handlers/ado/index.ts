@@ -15,6 +15,7 @@ import client from "../client";
 import { generateHandler } from "../utils";
 import factoryCommands from "./factory";
 import primitiveCommands from "./primitive";
+import hubbleCommands from "../hubble";
 
 const primitiveHandler = generateHandler(primitiveCommands);
 const factoryHandler = generateHandler(factoryCommands);
@@ -89,6 +90,7 @@ const commands: Commands = {
       },
     ],
   },
+  list: { ...hubbleCommands.assets, usage: "ado list" },
 };
 
 async function createHandler(inputs: string[], flags: Flags) {
@@ -100,13 +102,11 @@ async function createHandler(inputs: string[], flags: Flags) {
   );
 
   const prompter = new InstantiateSchemaPrompt(schema);
-  // const msg = await promptInstantiateFromSchema(schema);
   const msg = await prompter.start();
 
   const codeId = await client.ado.factory.getCodeId(type);
 
   await instantiateMessage(codeId, msg, flags);
-  // console.log(msg);
 }
 
 async function queryADOType(address: string) {

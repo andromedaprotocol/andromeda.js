@@ -1,12 +1,10 @@
-import {
-  displaySpinnerAsync,
-  logTableConfig,
-  validateOrRequest,
-} from "../../common";
-import { Commands } from "../../types";
-import { queryApp } from "@andromeda/andromeda-js";
+import { queryApp, queryAssets } from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import Table from "cli-table";
+import config from "../../config";
+import { displaySpinnerAsync, logTableConfig } from "../../common";
+import { Commands, Flags } from "../../types";
+import { getCurrentWallet } from "../wallets";
 
 const log = console.log;
 
@@ -16,43 +14,92 @@ const commands: Commands = {
     usage: "hubble app <contract address?>",
     color: chalk.blue,
     description: "Queries details about an app",
+    inputs: [
+      {
+        requestMessage: "Input the Address:",
+      },
+    ],
+  },
+  assets: {
+    handler: assetsHandler,
+    usage: "hubble assets",
+    color: chalk.blue,
+    description:
+      "Queries details about your deployed apps and ADOs for the current chain",
+    flags: {
+      type: {
+        description: "Filter assets by ADO type",
+        usage: "--type cw721",
+      },
+    },
   },
 };
 
 async function appHandler(input: string[]) {
   let [address] = input;
-  address = await validateOrRequest(
-    "Input the app contract address:",
-    address,
-    (input: string) => input.length > 0
-  );
+  try {
+    const { app } = await displaySpinnerAsync(
+      "Searching the Cosmos...",
+      async () => await queryApp(address)
+    );
 
-  const { app } = await displaySpinnerAsync(
+    const {
+      config: { name, owner },
+      addresses,
+      components,
+    } = app;
+
+    const getAdoType = (name: string) => {
+      const comp = components.find((comp) => comp.name === name);
+
+      return comp ? comp.ado_type : "<unknown>";
+    };
+
+    log(`${chalk.bold("Owner:")} ${owner}`);
+    log(`${chalk.bold("App Name:")} ${name}`);
+    log();
+    const componentTable = new Table(logTableConfig);
+    log(chalk.bold("Components"));
+    addresses.forEach((comp) => {
+      componentTable.push([comp.name, getAdoType(comp.name), comp.address]);
+    });
+    log(componentTable.toString());
+  } catch (error) {
+    const { message } = error as Error;
+    if (message.includes(":")) {
+      console.error(chalk.red(message.split(":")[0]));
+    } else {
+      console.error(chalk.red(error));
+    }
+  }
+}
+
+async function assetsHandler(_input: string[], flags: Flags) {
+  const wallet = getCurrentWallet();
+  const walletAddr = await wallet.getFirstOfflineSigner(
+    config.get("chain.chainId")
+  );
+  const { type } = flags;
+
+  const assets = await displaySpinnerAsync(
     "Searching the Cosmos...",
-    async () => await queryApp(address)
+    async () => await queryAssets(walletAddr, 0, 0)
   );
 
-  const {
-    config: { name, owner },
-    addresses,
-    components,
-  } = app;
-
-  const getAdoType = (name: string) => {
-    const comp = components.find((comp) => comp.name === name);
-
-    return comp ? comp.ado_type : "<unknown>";
-  };
-
-  log(`${chalk.bold("Owner:")} ${owner}`);
-  log(`${chalk.bold("App Name:")} ${name}`);
-  log();
-  const componentTable = new Table(logTableConfig);
-  log(chalk.bold("Components"));
-  addresses.forEach((comp) => {
-    componentTable.push([comp.name, getAdoType(comp.name), comp.address]);
+  const assetsTable = new Table({
+    ...logTableConfig,
   });
-  log(componentTable.toString());
+  assetsTable.push([
+    chalk.bold("Address"),
+    chalk.bold("ADO Type"),
+    chalk.bold("App Contract"),
+  ]);
+  assets.forEach((asset) => {
+    if (type && asset.adoType !== type) return;
+    assetsTable.push([asset.address, asset.adoType, asset.appContract ?? ""]);
+  });
+
+  log(assetsTable.toString());
 }
 
 export default commands;
