@@ -323,7 +323,12 @@ export async function executeMessage(
   flags: Flags,
   successMessage?: string
 ) {
-  const { funds, memo, fee, simulate } = flags;
+  const { funds, memo, fee, simulate, print } = flags;
+  if (print) {
+    console.log(chalk.bold("Message:"));
+    console.log(JSON.stringify(msg, null, 2));
+    console.log();
+  }
   const feeEstimate = await simulateMessage(address, msg, flags);
   console.log(successMessage ?? chalk.green("Transaction simulated!"));
   console.log();
@@ -425,7 +430,12 @@ export async function instantiateMessage(
   flags: Flags,
   successMessage?: string
 ) {
-  const { label, admin, simulate } = flags;
+  const { label, admin, simulate, print } = flags;
+  if (print) {
+    console.log(chalk.bold("Message:"));
+    console.log(JSON.stringify(msg, null, 2));
+    console.log();
+  }
   const feeEstimate = await displaySpinnerAsync(
     "Simulating transaction...",
     async () =>
