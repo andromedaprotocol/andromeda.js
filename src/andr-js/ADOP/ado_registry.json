@@ -70,5 +70,21 @@
       "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-auction/schema/instantiate_msg.json",
       "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-auction/schema/query_msg.json"
     }
+  },
+  {
+    "name": "crowdfund",
+    "schemas": {
+      "execute": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-crowdfund/schema/execute_msg.json",
+      "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-crowdfund/schema/instantiate_msg.json",
+      "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-crowdfund/schema/query_msg.json"
+    }
+  },
+  {
+    "name": "app",
+    "schemas": {
+      "execute": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/app/andromeda-app-contract/schema/execute_msg.json",
+      "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/app/andromeda-app-contract/schema/instantiate_msg.json",
+      "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/app/andromeda-app-contract/schema/query_msg.json"
+    }
   }
 ]
