@@ -1,13 +1,13 @@
 import inquirer from "inquirer";
 import { Schema } from "jsonschema";
 import _ from "lodash";
-import { fetchSchema, getSchemasByType } from "../../andr-js/ADOP";
+import { fetchSchema, getSchemaURLsByType } from "../../andr-js/ADOP";
 // import { Validator } from "jsonschema";
 import SchemaPrompt from "./SchemaPrompt";
 
 export default class ExecuteSchemaPrompt extends SchemaPrompt {
   static async fromType(adoType: string) {
-    const { execute } = getSchemasByType(adoType);
+    const { execute } = getSchemaURLsByType(adoType);
     const schema = await fetchSchema(execute);
     return new ExecuteSchemaPrompt(schema);
   }

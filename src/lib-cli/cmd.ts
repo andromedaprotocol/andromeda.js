@@ -12,7 +12,7 @@ import { Command, Commands } from "./types";
 import {
   adoHandler,
   chainHandler,
-  hubbleHandler,
+  gqlHandler,
   walletHandler,
   wasmHandler,
   bankHandler,
@@ -76,11 +76,11 @@ export const baseCommands: Commands = {
     usage: "bank <cmd>",
     disabled: () => !client.isConnected,
   },
-  hubble: {
-    handler: hubbleHandler,
-    description: "Query using the Hubble service",
+  gql: {
+    handler: gqlHandler,
+    description: "Query using the Andromeda GraphQL service",
     color: chalk.magenta,
-    usage: "hubble <cmd>",
+    usage: "gql <cmd>",
     disabled: () => !client.isConnected,
   },
 };

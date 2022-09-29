@@ -1,4 +1,4 @@
-import { fetchSchema, getSchemasByType, encode } from "../../andr-js";
+import { fetchSchema, getSchemaURLsByType, encode } from "../../andr-js";
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
@@ -126,7 +126,7 @@ export default class SchemaPrompt {
       ["App Component"]
     );
 
-    const { instantiate } = getSchemasByType(adoType);
+    const { instantiate } = getSchemaURLsByType(adoType);
     const schema = await fetchSchema(instantiate);
 
     const msg = await promptInstantiateMsg(schema, [`${name} - Instantiation`]);
@@ -171,7 +171,7 @@ export default class SchemaPrompt {
         type: "input",
         validate: async (input: string) => {
           try {
-            getSchemasByType(input);
+            getSchemaURLsByType(input);
             return true;
           } catch (error) {
             const { message } = error as Error;
@@ -183,7 +183,7 @@ export default class SchemaPrompt {
       type = typeInput.adoType;
     }
 
-    const { execute } = getSchemasByType(type);
+    const { execute } = getSchemaURLsByType(type);
     const schema = await fetchSchema(execute);
     const msg = await promptQueryOrExecuteMessage(schema);
 

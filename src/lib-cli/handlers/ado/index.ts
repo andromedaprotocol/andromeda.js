@@ -1,4 +1,4 @@
-import { fetchSchema, getSchemasByType } from "@andromeda/andromeda-js";
+import { fetchSchema, getSchemaURLsByType } from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import {
   displaySpinnerAsync,
@@ -15,6 +15,7 @@ import client from "../client";
 import { generateHandler } from "../utils";
 import factoryCommands from "./factory";
 import primitiveCommands from "./primitive";
+import gqlCommands from "../gql";
 
 const primitiveHandler = generateHandler(primitiveCommands);
 const factoryHandler = generateHandler(factoryCommands);
@@ -43,7 +44,7 @@ const commands: Commands = {
         requestMessage: "Input the ADO type:",
         validate: (input: string) => {
           try {
-            getSchemasByType(input);
+            getSchemaURLsByType(input);
             return true;
           } catch (error) {
             const { message } = error as Error;
@@ -89,11 +90,12 @@ const commands: Commands = {
       },
     ],
   },
+  list: { ...gqlCommands.assets, usage: "ado list" },
 };
 
 async function createHandler(inputs: string[], flags: Flags) {
   const [type] = inputs;
-  const { instantiate } = getSchemasByType(type);
+  const { instantiate } = getSchemaURLsByType(type);
   const schema = await displaySpinnerAsync(
     "Fetching schema...",
     async () => await fetchSchema(instantiate)
@@ -105,7 +107,6 @@ async function createHandler(inputs: string[], flags: Flags) {
   const codeId = await client.ado.factory.getCodeId(type);
 
   await instantiateMessage(codeId, msg, flags);
-  // console.log(msg);
 }
 
 async function queryADOType(address: string) {
@@ -134,7 +135,7 @@ async function executeHandler(inputs: string[], flags: Flags) {
     return;
   }
 
-  const { execute } = getSchemasByType(type);
+  const { execute } = getSchemaURLsByType(type);
   const schema = await displaySpinnerAsync(
     "Fetching schema...",
     async () => await fetchSchema(execute)
@@ -155,7 +156,7 @@ async function queryHandler(inputs: string[]) {
     return;
   }
 
-  const { query } = getSchemasByType(type);
+  const { query } = getSchemaURLsByType(type);
   const schema = await displaySpinnerAsync(
     "Fetching schema...",
     async () => await fetchSchema(query)

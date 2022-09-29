@@ -227,7 +227,7 @@ export interface QueryAssetsResponse {
     lastUpdatedHash: string;
     lastUpdatedHeight: number;
     owner: string;
-  };
+  }[];
 }
 
 export const QUERY_ASSETS = gql`
