@@ -1,17 +1,17 @@
 import { queryApp, queryAssets } from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import Table from "cli-table";
-import config from "../../config";
-import { displaySpinnerAsync, logTableConfig } from "../../common";
-import { Commands, Flags } from "../../types";
-import { getCurrentWallet } from "../wallets";
+import config from "../config";
+import { displaySpinnerAsync, logTableConfig } from "../common";
+import { Commands, Flags } from "../types";
+import { getCurrentWallet } from "./wallets";
 
 const log = console.log;
 
 const commands: Commands = {
   app: {
     handler: appHandler,
-    usage: "hubble app <contract address?>",
+    usage: "gql app <contract address?>",
     color: chalk.blue,
     description: "Queries details about an app",
     inputs: [
@@ -22,7 +22,7 @@ const commands: Commands = {
   },
   assets: {
     handler: assetsHandler,
-    usage: "hubble assets",
+    usage: "gql assets",
     color: chalk.blue,
     description:
       "Queries details about your deployed apps and ADOs for the current chain",
