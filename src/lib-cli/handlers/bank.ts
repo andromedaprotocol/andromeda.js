@@ -35,8 +35,8 @@ export const commands: Commands = {
   },
 };
 
-async function handleSend(inputs: string[]) {
-  const [recipient, amount] = inputs;
+async function handleSend(input: string[]) {
+  const [recipient, amount] = input;
   if (!amount) {
     console.error(`Invalid amount input ${amount}`);
     return;

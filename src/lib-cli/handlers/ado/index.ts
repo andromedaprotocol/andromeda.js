@@ -14,19 +14,11 @@ import { executeMessage, instantiateMessage, queryMessage } from "../chain";
 import client from "../client";
 import { generateHandler } from "../utils";
 import factoryCommands from "./factory";
-import primitiveCommands from "./primitive";
 import gqlCommands from "../gql";
 
-const primitiveHandler = generateHandler(primitiveCommands);
 const factoryHandler = generateHandler(factoryCommands);
 
 const commands: Commands = {
-  primitive: {
-    handler: primitiveHandler,
-    usage: "ado primitive",
-    description: "Allows executing and querying for a Primitive ADO",
-    color: chalk.blue,
-  },
   factory: {
     handler: factoryHandler,
     usage: "ado factory",
@@ -48,6 +40,7 @@ const commands: Commands = {
             return true;
           } catch (error) {
             const { message } = error as Error;
+            console.log();
             console.log(chalk.red(message));
             return false;
           }
@@ -93,8 +86,8 @@ const commands: Commands = {
   list: { ...gqlCommands.assets, usage: "ado list" },
 };
 
-async function createHandler(inputs: string[], flags: Flags) {
-  const [type] = inputs;
+async function createHandler(input: string[], flags: Flags) {
+  const [type] = input;
   const { instantiate } = getSchemaURLsByType(type);
   const schema = await displaySpinnerAsync(
     "Fetching schema...",
@@ -124,14 +117,14 @@ async function queryADOType(address: string) {
   return ado_type;
 }
 
-async function executeHandler(inputs: string[], flags: Flags) {
-  const [address] = inputs;
+async function executeHandler(input: string[], flags: Flags) {
+  const [address] = input;
 
   let type = "";
   try {
     type = await queryADOType(address);
   } catch (error) {
-    console.error("Contract is not a valid ADO");
+    console.error(chalk.red("Contract is not a valid ADO"));
     return;
   }
 
@@ -145,14 +138,14 @@ async function executeHandler(inputs: string[], flags: Flags) {
   await executeMessage(address, msg, flags);
 }
 
-async function queryHandler(inputs: string[]) {
-  const [address] = inputs;
+async function queryHandler(input: string[]) {
+  const [address] = input;
 
   let type = "";
   try {
     type = await queryADOType(address);
   } catch (error) {
-    console.error("Contract is not a valid ADO");
+    console.error(chalk.red("Contract is not a valid ADO"));
     return;
   }
 
@@ -168,8 +161,8 @@ async function queryHandler(inputs: string[]) {
   console.log(JSON.stringify(resp, null, 2));
 }
 
-async function queryTypeHandler(inputs: string[]) {
-  const [address] = inputs;
+async function queryTypeHandler(input: string[]) {
+  const [address] = input;
   const type = await queryADOType(address);
 
   console.log(type);

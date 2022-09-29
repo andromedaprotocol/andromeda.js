@@ -19,6 +19,8 @@ import {
   allCommands,
 } from "./handlers";
 
+export const exitInputs = [".exit", ".quit", ".e", ".q", "exit"];
+
 export const baseCommands: Commands = {
   exit: {
     handler: () => process.exit(0),
@@ -138,11 +140,6 @@ const log = console.log;
 
 export async function listCommands(commands: Commands, prefix?: string) {
   const commandsArray = Object.keys(commands);
-
-  log(`Usage:
-   ${prefix ? `${prefix} ` : ""}[cmd]
-
-Valid commands:`);
   const commandTable = new Table({
     ...logTableConfig,
     colWidths: [2],
@@ -150,17 +147,24 @@ Valid commands:`);
   const sortedCommands = commandsArray.sort((a, b) =>
     a === "exit" ? -1 : a > b ? 1 : -1
   );
+  let errors = [];
   for (let i = 0; i < sortedCommands.length; i++) {
     const cmdName = sortedCommands[i];
     const cmd = commands[cmdName];
-    const disabled = cmd.disabled && (await cmd.disabled());
-    commandTable.push([
-      "",
-      disabled ? chalk.grey(cmdName) : cmd.color(cmdName),
-      disabled ? chalk.grey("Disabled") : cmd.description ?? "",
-    ]);
+    try {
+      const disabled = cmd.disabled && (await cmd.disabled());
+      if (!disabled)
+        commandTable.push(["", cmd.color(cmdName), cmd.description ?? ""]);
+    } catch (error) {
+      errors.push(error);
+    }
   }
+  log(`Usage:
+  ${prefix ? `${prefix} ` : ""}[cmd]
+
+Valid commands:`);
   log(commandTable.toString());
+  errors.forEach((error) => console.error(chalk.red(error)));
   log();
 }
 
@@ -190,6 +194,13 @@ export function printCommandHelp(cmd: Command) {
     ]);
     log(flagTable.toString());
   }
-
+  log();
+  log(
+    chalk.bold(
+      `Any request inputs can be exited using one of the following inputs: ${exitInputs.join(
+        ", "
+      )}`
+    )
+  );
   log();
 }

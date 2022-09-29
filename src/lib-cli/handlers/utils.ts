@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { validateOrRequest } from "../common";
-import { listCommands, printCommandHelp } from "../cmd";
+import { listCommands, printCommandHelp, exitInputs } from "../cmd";
 import { Command, Commands, Flags, HandlerFunc } from "../types";
 
 const { log, error: logError } = console;
@@ -131,8 +131,7 @@ export async function handle(
             validate,
             inputOptions
           );
-
-          if (userInput === "exit") return;
+          if (exitInputs.includes(userInput)) throw new Error("Command exited");
 
           commandInput[i] = transform ? await transform(userInput) : userInput;
         }

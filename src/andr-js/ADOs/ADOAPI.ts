@@ -25,4 +25,29 @@ export default class ADOAPI {
       console.warn("Provided registry does not have a Factory address stored");
     }
   }
+
+  async getOperators(addr: string) {
+    const query = { andr_query: { operators: {} } };
+    const resp = await this.client.queryContract<{ operators: string[] }>(
+      addr,
+      query
+    );
+
+    return resp.operators;
+  }
+
+  async getOwner(addr: string) {
+    const query = { andr_query: { owner: {} } };
+    const resp = await this.client.queryContract<{ owner: string }>(
+      addr,
+      query
+    );
+    return resp.owner;
+  }
+
+  async isOperatorOrOwner(contractAddr: string, addr: string) {
+    const operators = await this.getOperators(contractAddr);
+    const owner = await this.getOwner(contractAddr);
+    return operators.includes(addr) || owner === addr;
+  }
 }
