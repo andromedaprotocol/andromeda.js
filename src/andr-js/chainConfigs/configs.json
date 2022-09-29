@@ -47,11 +47,17 @@
     "registryAddress": "andr14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9shptkql",
     "addressPrefix": "andr",
     "defaultFee": "0.025uandr",
-    "blockExplorerTxPages": ["https://ping.wildsage.io/Andromeda/tx/${txHash}"],
-    "blockExplorerAddressPages": [
-      "https://ping.wildsage.io/Andromeda/account/${address}"
+    "blockExplorerTxPages": [
+      "https://testnet-ping.wildsage.io/andromeda/tx/${txHash}"
     ],
-    "chainType": "testnet"
+    "blockExplorerAddressPages": [
+      "https://testnet-ping.wildsage.io/andromeda/account/${address}"
+    ],
+    "chainType": "testnet",
+    "iconUrl": {
+      "sm": "https://testnet-ping.wildsage.io/logos/andromeda.png",
+      "lg": "https://testnet-ping.wildsage.io/logos/andromeda.png"
+    }
   },
   {
     "name": "pisco1",
