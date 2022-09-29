@@ -28,7 +28,6 @@ const commands: Commands = {
     usage: "ado factory getcodeid <ado key?>",
     handler: getCodeIdHandler,
     color: chalk.green,
-    flags: executeFlags,
     inputs: [
       {
         requestMessage: "Input the key for the ADO:",
@@ -84,7 +83,9 @@ async function getCodeIdHandler(input: string[]) {
 
   const msg = client.ado.factory.getCodeIdQuery(adoKey);
 
-  await queryMessage(client.ado.factory.address, msg);
+  const resp = await queryMessage(client.ado.factory.address, msg);
+
+  console.log(`Code ID: ${chalk.bold(resp)}`);
 }
 
 async function getAddressHandler() {
