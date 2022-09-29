@@ -28,21 +28,34 @@ export function storageFileExists(file: string) {
   return fs.existsSync(filePath);
 }
 
-export function addExitHandler(exitHandler: NodeJS.ExitListener) {
-  try {
-    //do something when app is closing
-    process.on("exit", exitHandler);
+const exitHandlers: (() => void)[] = [];
 
-    //catches ctrl+c event
-    process.on("SIGINT", exitHandler);
+function addExitListener() {
+  const listener = () => {
+    exitHandlers.forEach((handler) => handler());
+    process.exit(0);
+  };
 
-    // catches "kill pid" (for example: nodemon restart)
-    process.on("SIGUSR1", exitHandler);
-    process.on("SIGUSR2", exitHandler);
+  const events = [
+    "exit",
+    "SIGINT",
+    "SIGTSTP",
+    "SIGUSR1",
+    "SIGUSR2",
+    "uncaughtException",
+  ];
 
-    //catches uncaught exceptions
-    process.on("uncaughtException", exitHandler);
-  } catch (error) {
-    console.error(error);
-  }
+  events.forEach((ev) => {
+    try {
+      process.on(ev, listener);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+}
+
+addExitListener();
+
+export function addExitHandler(exitHandler: () => void) {
+  exitHandlers.push(exitHandler);
 }
