@@ -12,7 +12,7 @@ import {
 import { Commands, Flags } from "../../types";
 import { executeMessage, instantiateMessage, queryMessage } from "../chain";
 import client from "../client";
-import { generateHandler } from "../utils";
+import { generateHandler, validateAddressInput } from "../utils";
 import factoryCommands from "./factory";
 import gqlCommands from "../gql";
 
@@ -23,7 +23,7 @@ const commands: Commands = {
     handler: factoryHandler,
     usage: "ado factory",
     description: "Allows executing and querying for a Factory ADO",
-    color: chalk.black,
+    color: chalk.rgb(23, 125, 90),
   },
   create: {
     handler: createHandler,
@@ -56,7 +56,8 @@ const commands: Commands = {
     color: chalk.blue,
     inputs: [
       {
-        requestMessage: "Input the ADO Addess:",
+        requestMessage: "Input the ADO Address:",
+        validate: validateAddressInput,
       },
     ],
   },
@@ -64,10 +65,11 @@ const commands: Commands = {
     handler: queryHandler,
     usage: "ado query <address>",
     description: "Queries an ADO by given address",
-    color: chalk.blue,
+    color: chalk.rgb(120, 125, 30),
     inputs: [
       {
-        requestMessage: "Input the ADO Addess:",
+        requestMessage: "Input the ADO Address:",
+        validate: validateAddressInput,
       },
     ],
   },
@@ -79,11 +81,16 @@ const commands: Commands = {
     color: chalk.yellow,
     inputs: [
       {
-        requestMessage: "Input the ADO Addess:",
+        requestMessage: "Input the ADO Address:",
+        validate: validateAddressInput,
       },
     ],
   },
-  list: { ...gqlCommands.assets, usage: "ado list" },
+  list: {
+    ...gqlCommands.assets,
+    usage: "ado list",
+    color: chalk.rgb(1, 2, 254),
+  },
 };
 
 async function createHandler(input: string[], flags: Flags) {

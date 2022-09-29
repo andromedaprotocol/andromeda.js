@@ -16,6 +16,7 @@ import {
   walletHandler,
   wasmHandler,
   bankHandler,
+  txHandler,
   allCommands,
 } from "./handlers";
 
@@ -48,7 +49,7 @@ export const baseCommands: Commands = {
   wallets: {
     handler: walletHandler,
     description: "Manage wallets",
-    color: chalk.magenta,
+    color: chalk.rgb(1, 2, 254),
     usage: "wallets <cmd>",
   },
   chain: {
@@ -60,14 +61,21 @@ export const baseCommands: Commands = {
   wasm: {
     handler: wasmHandler,
     description: "Send CosmWasm messages to the chain",
-    color: chalk.black,
+    color: chalk.rgb(0, 233, 233),
     usage: "wasm <cmd>",
+    disabled: () => !client.isConnected,
+  },
+  tx: {
+    handler: txHandler,
+    description: "Query transactions",
+    color: chalk.blueBright,
+    usage: "tx <cmd>",
     disabled: () => !client.isConnected,
   },
   ado: {
     handler: adoHandler,
     description: "Query and execute on an ADO",
-    color: chalk.yellow,
+    color: chalk.rgb(23, 125, 90),
     usage: "ado <cmd>",
     disabled: () => !client.isConnected,
   },

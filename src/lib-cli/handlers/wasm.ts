@@ -1,4 +1,4 @@
-import { Msg, cleanTx } from "@andromeda/andromeda-js";
+import { Msg } from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
@@ -11,8 +11,7 @@ import {
   queryMessage,
   uploadWasm,
 } from "./chain";
-import client from "./client";
-import { parseJSONInput } from "./utils";
+import { parseJSONInput, validateAddressInput } from "./utils";
 
 export const commands: Commands = {
   query: {
@@ -23,6 +22,7 @@ export const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Contract Address:",
+        validate: validateAddressInput,
       },
       {
         requestMessage: "Input query:",
@@ -48,6 +48,7 @@ export const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Contract Address:",
+        validate: validateAddressInput,
       },
       {
         requestMessage: "Input execute message:",
@@ -126,12 +127,13 @@ export const commands: Commands = {
   },
   migrate: {
     handler: migrateHandler,
-    color: chalk.magenta,
+    color: chalk.rgb(23, 125, 90),
     description: "Migrate a contract",
     usage: "wasm migrate <contract address> <new code id> <migrate msg>",
     inputs: [
       {
         requestMessage: "Input Contract Address:",
+        validate: validateAddressInput,
       },
       {
         requestMessage: "Input New Contract Code ID:",
@@ -164,17 +166,6 @@ export const commands: Commands = {
             return false;
           }
         },
-      },
-    ],
-  },
-  tx: {
-    handler: txInfoHandler,
-    color: chalk.blue,
-    description: "Gets transaction info from provided hash",
-    usage: "wasm tx <hash>",
-    inputs: [
-      {
-        requestMessage: "Input Transaction Hash:",
       },
     ],
   },
@@ -222,18 +213,6 @@ async function migrateHandler(input: string[], flags: Flags) {
   const codeId = parseInt(codeIdInput);
 
   await migrateMessage(contractAddress, codeId, parsedMsg, flags);
-}
-
-async function txInfoHandler(input: string[]) {
-  const [hash] = input;
-
-  const txInfo = await client.getTx(hash);
-  if (!txInfo) {
-    console.log(chalk.red("Transaction info not found"));
-    return;
-  }
-  console.log("Transaction Info:");
-  console.log(JSON.stringify(cleanTx(txInfo), null, 2));
 }
 
 export default commands;

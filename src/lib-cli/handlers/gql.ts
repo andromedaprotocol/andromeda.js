@@ -5,6 +5,7 @@ import config from "../config";
 import { displaySpinnerAsync, logTableConfig } from "../common";
 import { Commands, Flags } from "../types";
 import { getCurrentWallet } from "./wallets";
+import { validateAddressInput } from "./utils";
 
 const log = console.log;
 
@@ -12,11 +13,12 @@ const commands: Commands = {
   app: {
     handler: appHandler,
     usage: "gql app <contract address?>",
-    color: chalk.blue,
+    color: chalk.green,
     description: "Queries details about an app",
     inputs: [
       {
         requestMessage: "Input the Address:",
+        validate: validateAddressInput,
       },
     ],
   },

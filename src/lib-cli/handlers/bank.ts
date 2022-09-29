@@ -4,6 +4,7 @@ import inquirer from "inquirer";
 import { displaySpinnerAsync, printTransactionUrl } from "../common";
 import { Commands } from "../types";
 import client from "./client";
+import { validateAddressInput } from "./utils";
 
 export const commands: Commands = {
   send: {
@@ -14,6 +15,7 @@ export const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Recipient Address:",
+        validate: validateAddressInput,
       },
       {
         requestMessage: "Input Amount to Send:",
@@ -35,16 +37,19 @@ export const commands: Commands = {
   },
   balance: {
     handler: handleBalance,
-    color: chalk.green,
+    color: chalk.blue,
     description: "Send tokens to another address",
-    usage: "bank balance <token?> <address?>",
+    usage: "bank balance <denom?> <address?>",
     inputs: [
       {
-        requestMessage: "Input Amount Token:",
+        requestMessage: "Input Denom:",
       },
       {
-        requestMessage:
-          "Input Recipient Address (Leave empty to see your balance):",
+        requestMessage: "Input Address (Leave empty to see your balance):",
+        validate: (input: string) => {
+          if (input.length === 0) return true;
+          return validateAddressInput(input);
+        },
       },
     ],
   },

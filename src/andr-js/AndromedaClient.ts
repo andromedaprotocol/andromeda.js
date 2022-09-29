@@ -419,6 +419,14 @@ export default class AndromedaClient {
     return this.queryClient?.getTx(hash);
   }
 
+  /**
+   * Wrapper around the cosm.js client's "sendTokens" function
+   * @param receivingAddress
+   * @param amount
+   * @param fee
+   * @param memo
+   * @returns
+   */
   async sendTokens(
     receivingAddress: string,
     amount: readonly Coin[],
@@ -433,6 +441,39 @@ export default class AndromedaClient {
       fee ?? "auto",
       memo
     );
+  }
+
+  async getSentTxsByAddress(addr: string) {
+    this.preMessage();
+    return this.queryClient?.searchTx({
+      tags: [{ key: "msg.sender", value: addr }],
+    });
+  }
+
+  async getTxsByContract(addr: string) {
+    this.preMessage();
+    return this.queryClient?.searchTx({
+      tags: [{ key: "execute._contract_address", value: addr }],
+    });
+  }
+
+  async getBankTxsByAddress(addr: string) {
+    this.preMessage();
+    return this.queryClient?.searchTx({
+      sentFromOrTo: addr,
+    });
+  }
+
+  async getAllTxsByAddress(addr: string) {
+    const sentTxs = await this.getSentTxsByAddress(addr);
+    const contractTxs = await this.getTxsByContract(addr);
+    const bankTxs = await this.getBankTxsByAddress(addr);
+
+    return [
+      ...(sentTxs ?? []),
+      ...(contractTxs ?? []),
+      ...(bankTxs ?? []),
+    ].sort((txA, txB) => (txA.height < txB.height ? 1 : -1));
   }
 }
 

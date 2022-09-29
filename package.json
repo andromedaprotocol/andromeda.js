@@ -30,6 +30,7 @@
     "@cosmjs/proto-signing": "^0.28.7",
     "@cosmjs/stargate": "^0.28.7",
     "axios": "^0.27.2",
+    "bech32": "^2.0.0",
     "bip39": "^3.0.4",
     "chalk": "^4.1.1",
     "chalk-animation": "^1.6.0",

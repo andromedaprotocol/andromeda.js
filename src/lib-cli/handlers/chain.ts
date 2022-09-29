@@ -57,7 +57,7 @@ const commands: Commands = {
   },
   get: {
     handler: configGetHandler,
-    color: chalk.green,
+    color: chalk.rgb(23, 125, 90),
     description: "Displays current value for a given key",
     usage: "chain get <key?>",
   },
@@ -140,7 +140,7 @@ const commands: Commands = {
   },
   rm: {
     handler: removeConfigHandler,
-    color: chalk.magenta,
+    color: chalk.red,
     description: "Removes a config by name or chain ID",
     usage: "chain rm <config name>",
     inputs: [
