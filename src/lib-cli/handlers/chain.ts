@@ -148,9 +148,9 @@ const commands: Commands = {
         requestMessage: "Select config to remove:",
         validate: (input: string) => {
           const config = getCLIChainConfigByName(input);
-          if (config) {
+          if (!config) {
             console.log();
-            console.log(chalk.red("Config already exists with that name"));
+            console.log(chalk.red(`Config ${input} not found`));
             return false;
           }
 
