@@ -33,6 +33,21 @@ export const commands: Commands = {
       },
     ],
   },
+  balance: {
+    handler: handleBalance,
+    color: chalk.green,
+    description: "Send tokens to another address",
+    usage: "bank balance <token?> <address?>",
+    inputs: [
+      {
+        requestMessage: "Input Amount Token:",
+      },
+      {
+        requestMessage:
+          "Input Recipient Address (Leave empty to see your balance):",
+      },
+    ],
+  },
 };
 
 async function handleSend(input: string[]) {
@@ -63,6 +78,16 @@ async function handleSend(input: string[]) {
   console.log();
   console.log(chalk.green(`Sent ${coinsString} to ${recipient}!`));
   printTransactionUrl(resp?.transactionHash!);
+}
+
+async function handleBalance(inputs: string[]) {
+  const [denom, addr] = inputs;
+
+  const resp = await client.getBalance(denom, addr);
+
+  console.log();
+  console.log(chalk.bold("Balance"));
+  console.log(`${denom}: ${resp ? `${chalk.green(resp.amount)}` : 0}`);
 }
 
 export default commands;

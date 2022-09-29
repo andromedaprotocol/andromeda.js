@@ -403,7 +403,8 @@ export default class AndromedaClient {
    */
   async getBalance(denom: string, address?: string) {
     this.preMessage();
-    const _address = address ?? this.signer;
+    const _address = address && address.length > 0 ? address : this.signer;
+    if (!_address || _address.length === 0) throw new Error("Invalid address");
 
     return this.cosmWasmClient?.getBalance(_address, denom);
   }
