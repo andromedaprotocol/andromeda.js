@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
 import _ from "lodash";
+import { exitInputs } from "./cmd";
 
 interface QuestionDefinition {
   name: string;
@@ -58,6 +59,7 @@ export async function promptInstantiateFromSchema(schema: Schema) {
       // default: schema.default, //Does this field exist?
       message: `Input ${name}:`,
       validate: function (value: any) {
+        if (exitInputs.includes(value)) return true;
         const isValid = v.validate(value, schema);
 
         if (!isValid) {

@@ -2,6 +2,7 @@ import { Spinner } from "cli-spinner";
 import inquirer from "inquirer";
 import config from "./config";
 import { getTxExplorerURL } from "@andromeda/andromeda-js";
+import { exitInputs } from "./cmd";
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -33,6 +34,8 @@ export async function validateOrRequest(
   choices?: string[]
 ): Promise<string> {
   if (input) {
+    if (exitInputs.includes(input.trim())) throw new Error("Prompt exited");
+
     const valid = !validate || (await validate(input));
     if (valid) {
       return input;
@@ -44,14 +47,20 @@ export async function validateOrRequest(
         type: "list",
         message,
         name: `requestinput`,
-        validate,
+        validate: (input: string) => {
+          if (exitInputs.includes(input.trim()) || !validate) return true;
+          return validate(input);
+        },
         choices: [...choices, "exit"],
       })
     : inquirer.prompt({
         type: "input",
         message,
         name: `requestinput`,
-        validate,
+        validate: (input: string) => {
+          if (exitInputs.includes(input.trim()) || !validate) return true;
+          return validate(input);
+        },
       }));
 
   return prompt.requestinput;
@@ -130,6 +139,7 @@ export async function requestStringArray(
       message,
       name: `requestinput`,
       validate: async (input: string) => {
+        if (exitInputs.includes(input)) return true;
         return (
           input &&
           input.trim().length > 0 &&
@@ -138,6 +148,8 @@ export async function requestStringArray(
       },
     })
   ).requestinput;
+  if (exitInputs.includes(input)) throw new Error("Prompt exited");
+
   const addMore = await inquirer.prompt({
     type: "confirm",
     message: "Add another?",
