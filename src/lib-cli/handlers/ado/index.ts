@@ -77,7 +77,6 @@ const commands: Commands = {
     handler: queryTypeHandler,
     usage: "ado type <address>",
     description: "Queries the type of ADO for a given address",
-    flags: executeFlags,
     color: chalk.yellow,
     inputs: [
       {
