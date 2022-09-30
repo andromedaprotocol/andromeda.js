@@ -21,7 +21,8 @@
 
     "lib": ["esnext"],
     "paths": {
-      "@andromeda/andromeda-js": ["andr-js"]
+      "@andromeda/andromeda-js": ["andr-js"],
+      "@andromeda/cli": ["lib-cli"]
     },
     "baseUrl": "./src"
   },

@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.0.41",
+  "version": "0.0.42",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -72,6 +72,7 @@
     "typescript": "^4.7.3"
   },
   "_moduleAliases": {
-    "@andromeda/andromeda-js": "dist/andr-js/index.js"
+    "@andromeda/andromeda-js": "dist/andr-js/index.js",
+    "@andromeda/cli": "dist/lib-cli/index.js"
   }
 }
