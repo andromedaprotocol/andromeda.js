@@ -34,7 +34,8 @@ export async function validateOrRequest(
   choices?: string[]
 ): Promise<string> {
   if (input) {
-    if (exitInputs.includes(input.trim())) throw new Error("Prompt exited");
+    if (typeof input === "string" && exitInputs.includes(input.trim()))
+      throw new Error("Prompt exited");
 
     const valid = !validate || (await validate(input));
     if (valid) {
