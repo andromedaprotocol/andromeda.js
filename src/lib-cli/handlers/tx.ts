@@ -1,6 +1,11 @@
-import { cleanTx, getTxExplorerURL } from "@andromeda/andromeda-js";
+import {
+  cleanTx,
+  getAttribute,
+  getTxExplorerURL,
+} from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import Table from "cli-table";
+import _ from "lodash";
 import { logTableConfig } from "../common";
 import config from "../config";
 import { Commands } from "../types";
@@ -24,7 +29,7 @@ export const commands: Commands = {
     handler: txAddressHandler,
     color: chalk.green,
     description: "Gets a history of transactions for a given address",
-    usage: "tx byaddress",
+    usage: "tx byaddress <address>",
     inputs: [
       {
         requestMessage: "Input Address:",
@@ -62,11 +67,16 @@ async function txAddressHandler(inputs: string[]) {
   const urls = config.get("chain.blockExplorerTxPages");
 
   const txTable = new Table(logTableConfig);
-  txTable.push(["Hash", "Height", "Link"].map((str) => chalk.bold(str)));
+  txTable.push(
+    ["Hash", "Height", "Type", "Link"].map((str) => chalk.bold(str))
+  );
   txInfo.map(cleanTx).forEach((tx) => {
+    const [txTypeAttr] = getAttribute("message.action", tx.rawLog);
+    const txType = txTypeAttr ? _.last(txTypeAttr.value.split(".")) : "";
     txTable.push([
       tx.hash,
       tx.height,
+      txType,
       urls.length > 0 ? getTxExplorerURL(tx.hash, urls[0]) : "",
     ]);
   });
