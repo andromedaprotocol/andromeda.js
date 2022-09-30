@@ -3,6 +3,8 @@ import {
   InstantiateOptions,
   MsgExecuteContractEncodeObject,
   MsgInstantiateContractEncodeObject,
+  MsgMigrateContractEncodeObject,
+  MsgStoreCodeEncodeObject,
   SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
@@ -332,6 +334,50 @@ export default class AndromedaClient {
   }
 
   /**
+   * Estimates the gas cost of sending an upload transaction
+   * @param wasmByteCode
+   * @returns A gas fee estimation
+   */
+  async simulateUpload(wasmByteCode: Uint8Array) {
+    this.preMessage();
+    return this.simulateMsgs([this.encodeUploadMessage(wasmByteCode)]);
+  }
+
+  /**
+   * Estimates the fee cost of sending an upload transaction
+   * @param wasmByteCode
+   * @returns A fee estimate
+   */
+  async estimateUploadFee(wasmByteCode: Uint8Array) {
+    this.preMessage();
+    return this.estimateFee([this.encodeUploadMessage(wasmByteCode)]);
+  }
+
+  /**
+   * Estimates the gas cost of sending a migrate transaction
+   * @param address
+   * @param codeId
+   * @param msg
+   * @returns A gas fee estimation
+   */
+  async simulateMigrate(address: string, codeId: number, msg: Msg) {
+    this.preMessage();
+    return this.simulateMsgs([this.encodeMigrateMessage(address, codeId, msg)]);
+  }
+
+  /**
+   * Estimates the fee cost of sending a migrate transaction
+   * @param address
+   * @param codeId
+   * @param msg
+   * @returns A fee estimate
+   */
+  async estimateMigrateFee(address: string, codeId: number, msg: Msg) {
+    this.preMessage();
+    return this.estimateFee([this.encodeMigrateMessage(address, codeId, msg)]);
+  }
+
+  /**
    * Converts an instantiate message to an EncodeObject for signing or simulating
    * @param codeId
    * @param msg
@@ -350,6 +396,44 @@ export default class AndromedaClient {
         codeId: Long.fromInt(codeId),
         msg: JsonToArray(msg),
         label,
+      },
+    };
+  }
+
+  /**
+   * Converts an upload message to an EncodeObject for signing or simulating
+   * @param wasmByteCode
+   * @returns
+   */
+  encodeUploadMessage(wasmByteCode: Uint8Array): MsgStoreCodeEncodeObject {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.MsgStoreCode",
+      value: {
+        sender: this.signer,
+        wasmByteCode,
+      },
+    };
+  }
+
+  /**
+   * Converts a migrate message to an EncodeObject for signing or simulating
+   * @param address
+   * @param codeId
+   * @param msg
+   * @returns
+   */
+  encodeMigrateMessage(
+    address: string,
+    codeId: number,
+    msg: Msg
+  ): MsgMigrateContractEncodeObject {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.MsgMigrateContract",
+      value: {
+        sender: this.signer,
+        codeId: Long.fromNumber(codeId),
+        contract: address,
+        msg: JsonToArray(msg),
       },
     };
   }
@@ -446,7 +530,7 @@ export default class AndromedaClient {
   async getSentTxsByAddress(addr: string) {
     this.preMessage();
     return this.queryClient?.searchTx({
-      tags: [{ key: "msg.sender", value: addr }],
+      tags: [{ key: "message.sender", value: addr }],
     });
   }
 
@@ -468,7 +552,6 @@ export default class AndromedaClient {
     const sentTxs = await this.getSentTxsByAddress(addr);
     const contractTxs = await this.getTxsByContract(addr);
     const bankTxs = await this.getBankTxsByAddress(addr);
-
     return [
       ...(sentTxs ?? []),
       ...(contractTxs ?? []),

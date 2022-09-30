@@ -363,12 +363,29 @@ export async function uploadWasm(
   flags: Flags,
   successMessage?: string
 ) {
-  const { fee } = flags;
+  const { fee, simulate } = flags;
+
+  const feeEstimate = await client.estimateUploadFee(binary);
+  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log();
+  logFeeEstimation(feeEstimate);
+  if (simulate) {
+    return;
+  }
+  const confirmation = await inquirer.prompt({
+    type: "confirm",
+    message: `Do you want to proceed?`,
+    name: "confirmtx",
+  });
+  if (!confirmation.confirmtx) {
+    console.log(chalk.red("Transaction cancelled"));
+    return;
+  }
+
   const result = await displaySpinnerAsync(
     "Uploading contract binary...",
     async () => await client.upload(binary, fee ?? "auto")
   );
-
   console.log(successMessage ?? chalk.green("Wasm uploaded!"));
   console.log();
   printTransactionUrl(result.transactionHash);
@@ -420,6 +437,26 @@ export async function simulateInstantiationMessage(
   const feeEstimate = displaySpinnerAsync(
     "Simulating Instantiation Tx...",
     async () => await client.estimateInstantiationFee(codeId, msg, label)
+  );
+  return feeEstimate;
+}
+
+export async function simulateUploadMessage(binary: Uint8Array) {
+  const feeEstimate = displaySpinnerAsync(
+    "Simulating Upload Tx...",
+    async () => await client.estimateUploadFee(binary)
+  );
+  return feeEstimate;
+}
+
+export async function simulateMigrate(
+  address: string,
+  codeId: number,
+  msg: Msg
+) {
+  const feeEstimate = displaySpinnerAsync(
+    "Simulating Migrate Tx...",
+    async () => await client.estimateMigrateFee(address, codeId, msg)
   );
   return feeEstimate;
 }
@@ -482,27 +519,23 @@ export async function migrateMessage(
   flags: Flags,
   successMessage?: string
 ) {
-  const { memo } = flags;
-  // const feeEstimate = await displaySpinnerAsync(
-  //   "Simulating transaction...",
-  //   async () =>
-  //     await simulateInstantiationMessage(codeId, msg, label ?? "Instantiation")
-  // );
-  // console.log(successMessage ?? chalk.green("Transaction simulated!"));
-  // console.log();
-  // logFeeEstimation(feeEstimate);
-  // if (simulate) {
-  //   return;
-  // }
-  // const confirmation = await inquirer.prompt({
-  //   type: "confirm",
-  //   message: `Do you want to proceed?`,
-  //   name: "confirmtx",
-  // });
-  // if (!confirmation.confirmtx) {
-  //   console.log(chalk.red("Transaction cancelled"));
-  //   return;
-  // }
+  const { memo, simulate } = flags;
+  const feeEstimate = await simulateMigrate(contractAddress, codeId, msg);
+  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log();
+  logFeeEstimation(feeEstimate);
+  if (simulate) {
+    return;
+  }
+  const confirmation = await inquirer.prompt({
+    type: "confirm",
+    message: `Do you want to proceed?`,
+    name: "confirmtx",
+  });
+  if (!confirmation.confirmtx) {
+    console.log(chalk.red("Transaction cancelled"));
+    return;
+  }
 
   const resp = await displaySpinnerAsync(
     "Migrating your contract...",
