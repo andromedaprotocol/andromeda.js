@@ -43,7 +43,7 @@
     "name": "galileo2",
     "chainName": "Andromeda",
     "chainId": "galileo-2",
-    "chainUrl": "https://andromeda-testnet-rpc.orbitalcommand.io",
+    "chainUrl": "https://rpc-andromeda-testnet.cereslabs.io/",
     "registryAddress": "andr14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9shptkql",
     "addressPrefix": "andr",
     "defaultFee": "0.025uandr",
