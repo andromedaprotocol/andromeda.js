@@ -17,6 +17,7 @@ export default class FactoryAPI extends ADOAPI {
       const factoryAddress = await registryAPI.getAddress("factory");
       this.address = factoryAddress;
     } catch (e) {
+      console.error(e);
       console.warn("Could not fetch factory address");
     }
   }

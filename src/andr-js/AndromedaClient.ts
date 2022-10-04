@@ -100,7 +100,6 @@ export default class AndromedaClient {
       return;
     }
     this.registry.address = registryAddress;
-
     await this.factory.getAddressFromRegistry(this.registry);
   }
 
@@ -124,7 +123,7 @@ export default class AndromedaClient {
    * Whether the client is currently connected
    */
   get isConnected() {
-    return isUndefined(this.cosmWasmClient) || isUndefined(this.queryClient);
+    return !(isUndefined(this.cosmWasmClient) || isUndefined(this.queryClient));
   }
 
   /**

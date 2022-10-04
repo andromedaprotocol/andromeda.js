@@ -1,12 +1,8 @@
 import { query } from "../client";
 import { gql } from "graphql-request";
-import type {
-  AndrAddress,
-  ContractAddressQuery,
-  Expiry,
-  Recipient,
-} from "./types";
+import type { ContractAddressQuery, Expiry, Recipient } from "./types";
 import { Coin } from "@cosmjs/proto-signing";
+import { AndrAddress } from "../../types";
 
 export interface QueryCrowdfundAvailableTokens extends ContractAddressQuery {}
 export interface QueryCrowdfundAvailableTokensResponse {

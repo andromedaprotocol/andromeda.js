@@ -1,11 +1,7 @@
 import { gql } from "graphql-request";
 import { query } from "../client";
-import {
-  AndrAddress,
-  AndrSearchOptions,
-  Expiry,
-  PaginatedQuery,
-} from "./types";
+import { AndrSearchOptions, Expiry, PaginatedQuery } from "./types";
+import { AndrAddress } from "../../types";
 
 export interface QueryAuctionAuctionIds {
   tokenAddress: string;
