@@ -1,9 +1,9 @@
+import { validateAddress } from "@andromeda/andromeda-js";
 import chalk from "chalk";
+import { exitInputs, listCommands, printCommandHelp } from "../cmd";
 import { validateOrRequest } from "../common";
-import { listCommands, printCommandHelp, exitInputs } from "../cmd";
-import { Command, Commands, Flags, HandlerFunc } from "../types";
 import config from "../config";
-import { bech32 } from "bech32";
+import { Command, Commands, Flags, HandlerFunc } from "../types";
 
 const { log, error: logError } = console;
 
@@ -164,7 +164,7 @@ export function generateHandler(
 
 export function validateAddressInput(addr: string) {
   try {
-    const isValid = isValidAddress(addr);
+    const isValid = validateAddress(addr, config.get("chain.addressPrefix"));
     if (!isValid) {
       throw new Error();
     }
@@ -174,15 +174,5 @@ export function validateAddressInput(addr: string) {
     console.log();
     console.log(chalk.red("Not a valid address"));
     return false;
-  }
-}
-
-export function isValidAddress(addr: string) {
-  const addressPrefix = config.get("chain.addressPrefix");
-  try {
-    const resp = bech32.decode(addr);
-    return resp.prefix === addressPrefix;
-  } catch (error) {
-    throw error;
   }
 }

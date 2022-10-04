@@ -103,7 +103,7 @@ async function createHandler(input: string[], flags: Flags) {
   const prompter = new InstantiateSchemaPrompt(schema);
   const msg = await prompter.start();
 
-  const codeId = await client.ado.factory.getCodeId(type);
+  const codeId = await client.factory.getCodeId(type);
 
   await instantiateMessage(codeId, msg, flags);
 }

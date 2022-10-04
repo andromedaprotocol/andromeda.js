@@ -8,41 +8,49 @@ import {
   SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
-import { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
-import {
-  calculateFee,
-  DeliverTxResponse,
-  GasPrice,
-  StdFee,
-} from "@cosmjs/stargate";
+import { calculateFee, DeliverTxResponse, GasPrice } from "@cosmjs/stargate";
 import Long from "long";
-import ADOAPI from "./ADOs";
-
-export type Fee = number | StdFee | "auto";
-export type Msg = Record<string, unknown>;
+import { ADOAPI, RegistryAPI, FactoryAPI } from "./api";
+import type { Fee, Msg } from "./types";
+import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
  */
 export default class AndromedaClient {
   /** CosmWasm Signing Client
-   *
    * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html
    */
-  cosmWasmClient: SigningCosmWasmClient | undefined;
-  queryClient: CosmWasmClient | undefined;
-  signer: string = "";
-  ado = new ADOAPI(this, "");
-  private gasPrice: GasPrice | undefined;
+  public cosmWasmClient?: SigningCosmWasmClient;
+  /** CosmWasm Client
+   * Used if no signer assigned
+   * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/CosmWasmClient.html
+   */
+  public queryClient?: CosmWasmClient;
+  // Signer used for broadcasting messages
+  public signer: string = "";
+  // The gas price assigned for broadcasting messages
+  private gasPrice?: GasPrice;
 
-  constructor() {}
+  /**
+   * Instantiate all provided APIs
+   */
+
+  // API for shared ADO messages
+  public ado = new ADOAPI(this);
+  // API for registry specific messages
+  public registry = new RegistryAPI(this);
+  // API for factory specific messages
+  public factory = new FactoryAPI(this);
 
   /**
    * A pre-message hook to check that the client is connected and functioning
+   * @param signed Whether the message is signed
    */
-  private preMessage() {
+  private preMessage(signed = true) {
     if (!this.isConnected) throw new Error("Client not connected");
-    if (!this.signer) throw new Error("No signing wallet assigned");
+    if (signed && (!this.signer || this.signer.length === 0))
+      throw new Error("No signing wallet assigned");
   }
 
   /**
@@ -59,7 +67,9 @@ export default class AndromedaClient {
   ) {
     delete this.cosmWasmClient;
     delete this.queryClient;
+
     this.gasPrice = options?.gasPrice;
+
     if (signer) {
       this.cosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
         endpoint,
@@ -74,14 +84,27 @@ export default class AndromedaClient {
       this.queryClient = await CosmWasmClient.connect(endpoint);
     }
 
+    await this.assignKeyAddresses(registryAddress);
+  }
+
+  /**
+   * Assigns key addresses to the provided APIs
+   * @param registryAddress
+   * @returns
+   */
+  private async assignKeyAddresses(registryAddress: string) {
     if (!registryAddress || registryAddress.length === 0) {
       console.warn("No registry address provided");
       return;
     }
+    this.registry = new RegistryAPI(this, registryAddress);
 
-    await this.ado.setRegistryAddress(registryAddress);
+    await this.factory.getAddressFromRegistry(this.registry);
   }
 
+  /**
+   * Disconnects the assigned clients
+   */
   disconnect() {
     this.cosmWasmClient?.disconnect();
     delete this.cosmWasmClient;
@@ -90,6 +113,9 @@ export default class AndromedaClient {
 
     this.signer = "";
     delete this.gasPrice;
+
+    this.registry = new RegistryAPI(this);
+    this.factory = new FactoryAPI(this);
   }
 
   /**
@@ -104,7 +130,6 @@ export default class AndromedaClient {
 
   /**
    * Wrapper function for CosmWasm sign and broadcast
-   * @param signer
    * @param messages
    * @param fee
    * @param memo
@@ -486,7 +511,7 @@ export default class AndromedaClient {
    * @returns
    */
   async getBalance(denom: string, address?: string) {
-    this.preMessage();
+    this.preMessage(false);
     const _address = address && address.length > 0 ? address : this.signer;
     if (!_address || _address.length === 0) throw new Error("Invalid address");
 
@@ -499,7 +524,7 @@ export default class AndromedaClient {
    * @returns
    */
   async getTx(hash: string) {
-    this.preMessage();
+    this.preMessage(false);
     return this.queryClient?.getTx(hash);
   }
 
@@ -527,27 +552,47 @@ export default class AndromedaClient {
     );
   }
 
+  /**
+   * Gets all send transactions for a given address
+   * @param addr
+   * @returns
+   */
   async getSentTxsByAddress(addr: string) {
-    this.preMessage();
+    this.preMessage(false);
     return this.queryClient?.searchTx({
       tags: [{ key: "message.sender", value: addr }],
     });
   }
 
+  /**
+   * Gets all transactions sent to a contract
+   * @param addr
+   * @returns
+   */
   async getTxsByContract(addr: string) {
-    this.preMessage();
+    this.preMessage(false);
     return this.queryClient?.searchTx({
       tags: [{ key: "execute._contract_address", value: addr }],
     });
   }
 
+  /**
+   * Gets all bank messages sent to or from an address
+   * @param addr
+   * @returns
+   */
   async getBankTxsByAddress(addr: string) {
-    this.preMessage();
+    this.preMessage(false);
     return this.queryClient?.searchTx({
       sentFromOrTo: addr,
     });
   }
 
+  /**
+   * Queries all possible transactions for a given address
+   * @param addr
+   * @returns
+   */
   async getAllTxsByAddress(addr: string) {
     const sentTxs = await this.getSentTxsByAddress(addr);
     const contractTxs = await this.getTxsByContract(addr);

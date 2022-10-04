@@ -1,4 +1,4 @@
-import { PrimitiveValue } from "../../ADOs";
+import type { PrimitiveValue } from "../../types";
 import { gql } from "graphql-request";
 import { query } from "../client";
 import { ContractAddressQuery } from "./types";
