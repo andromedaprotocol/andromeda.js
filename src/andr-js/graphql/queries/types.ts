@@ -1,3 +1,5 @@
+import { AndrAddress } from "../../types";
+
 export interface ContractAddressQuery {
   contractAddress: string;
 }
@@ -19,10 +21,6 @@ export interface AndrSearchOptions {
 export interface Expiry {
   at_time?: number;
   at_height?: number;
-}
-
-export interface AndrAddress {
-  identifier: string;
 }
 
 export interface RecipientADO {

@@ -16,8 +16,8 @@ import {
 import { connectClient } from "./lib-cli/handlers/client";
 import minimist from "minimist";
 
+// Register command type prompt
 const inquirerCommandPrompt = require("inquirer-command-prompt");
-
 inquirer.registerPrompt("command", inquirerCommandPrompt);
 
 async function onStartup() {

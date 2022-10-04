@@ -43,7 +43,7 @@ const commands: Commands = {
 };
 
 async function isOperatorOrOwnerOfFactory() {
-  if (!client.ado.factory.address)
+  if (!client.factory.address)
     throw new Error("No factory address for current chain");
 
   const wallet = getCurrentWallet();
@@ -51,14 +51,14 @@ async function isOperatorOrOwnerOfFactory() {
     config.get("chain.chainId")
   );
   const isAuthorized = await client.ado.isOperatorOrOwner(
-    client.ado.factory.address,
+    client.factory.address,
     walletAddr
   );
   return isAuthorized;
 }
 
 async function updateCodeIdHandler(input: string[], flags: Flags) {
-  if (!client.ado.factory.address)
+  if (!client.factory.address)
     throw new Error("No factory address for current chain");
 
   const [adoKey, codeId] = input;
@@ -70,26 +70,26 @@ async function updateCodeIdHandler(input: string[], flags: Flags) {
     throw new Error("Invalid Code ID");
   }
 
-  const msg = client.ado.factory.updateCodeIdMsg(adoKey, parsedCodeId);
+  const msg = client.factory.updateCodeIdMsg(adoKey, parsedCodeId);
 
-  await executeMessage(client.ado.factory.address, msg, flags);
+  await executeMessage(client.factory.address, msg, flags);
 }
 
 async function getCodeIdHandler(input: string[]) {
-  if (!client.ado.factory.address)
+  if (!client.factory.address)
     throw new Error("No factory address for current chain");
 
   const [adoKey] = input;
 
-  const msg = client.ado.factory.getCodeIdQuery(adoKey);
+  const msg = client.factory.getCodeIdQuery(adoKey);
 
-  const resp = await queryMessage(client.ado.factory.address, msg);
+  const resp = await queryMessage(client.factory.address, msg);
 
   console.log(`Code ID: ${chalk.bold(resp)}`);
 }
 
 async function getAddressHandler() {
-  console.log(client.ado.factory.address ?? "<unset>");
+  console.log(client.factory.address ?? "<unset>");
 }
 
 export default commands;

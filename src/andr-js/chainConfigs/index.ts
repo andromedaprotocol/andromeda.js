@@ -1,32 +1,5 @@
 import chainConfigs from "./configs.json";
-
-export interface ChainConfig {
-  /** The name of the chain */
-  chainName: string;
-  /** The name of the config */
-  name: string;
-  /** The ID for the chain */
-  chainId: string;
-  /** The URL for the chain */
-  chainUrl: string;
-  /** The address of the Andromeda Registry */
-  registryAddress: string;
-  /** The prefix for any addresses on this chain */
-  addressPrefix: string;
-  /** The default fee value for the chain, e.g. "0.025ujunox" */
-  defaultFee: string;
-  /** Block explorer transaction pages */
-  blockExplorerTxPages: string[];
-  /** Block explorer address pages */
-  blockExplorerAddressPages: string[];
-  /** Block explorer address pages */
-  chainType: "testnet" | "mainnet";
-  /** The URL for the chain icon */
-  iconUrls?: {
-    sm?: string;
-    lg?: string;
-  };
-}
+import type { ChainConfig } from "../types";
 
 //Strictly for typing
 export const configs = chainConfigs as ChainConfig[];
@@ -45,6 +18,11 @@ export function getConfigByChainID(chainId: string): ChainConfig | undefined {
   return config;
 }
 
+/**
+ * Gets a config by its name
+ * @param name The config name
+ * @returns
+ */
 export function getConfigByName(name: string): ChainConfig | undefined {
   if (!name || name.length === 0) return;
   const config = (configs as ChainConfig[]).find(

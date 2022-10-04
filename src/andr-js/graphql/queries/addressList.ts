@@ -16,7 +16,7 @@ export const QUERY_ADDRESS_LIST_CONTAINS_ADDRESS = gql`
     $contractAddress: String!
     $address: String!
   ) {
-    addresslist(contractAddress: $contractAddress) {
+    addresslist(address: $contractAddress) {
       includesAddress(address: $address) {
         included
       }
