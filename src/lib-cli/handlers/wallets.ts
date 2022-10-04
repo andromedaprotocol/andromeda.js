@@ -193,10 +193,10 @@ async function addWalletHandler(input: string[], flags: Flags) {
   }
 }
 
-function newWalletConfirmation(_seed: string) {
+function newWalletConfirmation(seed: string) {
   console.log();
   console.log("Your seed phrase is:");
-  console.log(chalk.bold("x x x"));
+  console.log(chalk.bold(seed));
   console.log();
   console.log(
     chalk.red(
