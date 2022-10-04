@@ -4,7 +4,7 @@ import type RegistryAPI from "./RegistryAPI";
 import ADOAPI from "./ADOAPI";
 
 export default class FactoryAPI extends ADOAPI {
-  constructor(client: AndromedaClient, address: string = "") {
+  constructor(client: AndromedaClient, public address: string = "") {
     super(client, address);
   }
 

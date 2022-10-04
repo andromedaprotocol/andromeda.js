@@ -11,6 +11,7 @@ import {
 import { calculateFee, DeliverTxResponse, GasPrice } from "@cosmjs/stargate";
 import Long from "long";
 import { ADOAPI, RegistryAPI, FactoryAPI } from "./api";
+
 import type { Fee, Msg } from "./types";
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 
@@ -97,7 +98,7 @@ export default class AndromedaClient {
       console.warn("No registry address provided");
       return;
     }
-    this.registry = new RegistryAPI(this, registryAddress);
+    this.registry.address = registryAddress;
 
     await this.factory.getAddressFromRegistry(this.registry);
   }

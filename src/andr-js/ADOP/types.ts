@@ -1,4 +1,4 @@
-import { Schema } from "jsonschema";
+import type { Schema } from "jsonschema";
 
 export interface PackageSchemaURIs {
   execute: string;

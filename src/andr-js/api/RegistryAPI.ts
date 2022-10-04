@@ -6,7 +6,7 @@ import { encode, validateAddress } from "..";
 import ADOAPI from "./ADOAPI";
 
 export default class RegistryAPI extends ADOAPI {
-  constructor(client: AndromedaClient, address: string = "") {
+  constructor(client: AndromedaClient, public address: string = "") {
     super(client, address);
   }
 
