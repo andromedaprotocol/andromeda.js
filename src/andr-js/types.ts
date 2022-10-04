@@ -36,6 +36,9 @@ export interface VecPrimitive {
   vec: PrimitiveValue[];
 }
 
+/**
+ * Object defining the type of primitive value
+ */
 export type PrimitiveValue =
   | StringPrimitive
   | Uint128Primitive
@@ -72,12 +75,18 @@ export interface ChainConfig {
   };
 }
 
+/**
+ * Object used to define an address used with the Andromeda ecosystem
+ */
 export interface AndrAddress {
   identifier: string;
 }
 
 export interface Module {
+  /** The ADO type for the module */
   module_type: string;
+  /** The address of the module */
   address: AndrAddress;
+  /** Whether the module is mutable */
   is_mutable: boolean;
 }
