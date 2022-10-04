@@ -14,7 +14,7 @@
       "https://testnet.mintscan.io/juno-testnet/account/${address}"
     ],
     "chainType": "testnet",
-    "iconUrl": {
+    "iconUrls": {
       "sm": "https://assets.coingecko.com/coins/images/19249/small/juno.png",
       "lg": "https://assets.coingecko.com/coins/images/19249/large/juno.png"
     }
@@ -34,7 +34,7 @@
       "https://testnet-explorer.publicawesome.dev/stargaze/account/${address}"
     ],
     "chainType": "testnet",
-    "iconUrl": {
+    "iconUrls": {
       "sm": "https://assets.coingecko.com/coins/images/22363/small/stars.png?1645256657",
       "lg": "https://assets.coingecko.com/coins/images/22363/large/stars.png?1645256657"
     }
@@ -54,7 +54,7 @@
       "https://testnet-ping.wildsage.io/andromeda/account/${address}"
     ],
     "chainType": "testnet",
-    "iconUrl": {
+    "iconUrls": {
       "sm": "https://testnet-ping.wildsage.io/logos/andromeda.png",
       "lg": "https://testnet-ping.wildsage.io/logos/andromeda.png"
     }
