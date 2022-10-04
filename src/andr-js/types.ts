@@ -71,3 +71,13 @@ export interface ChainConfig {
     lg?: string;
   };
 }
+
+export interface AndrAddress {
+  identifier: string;
+}
+
+export interface Module {
+  module_type: string;
+  address: AndrAddress;
+  is_mutable: boolean;
+}

@@ -28,7 +28,7 @@ export default class RegistryAPI extends ADOAPI {
    * @param key
    * @returns
    */
-  msgSet(value: PrimitiveValue, key?: string) {
+  setMsg(value: PrimitiveValue, key?: string) {
     return {
       set_value: {
         value,
@@ -54,7 +54,7 @@ export default class RegistryAPI extends ADOAPI {
     funds?: Coin[]
   ) {
     this.preMessage();
-    const msg = this.msgSet(value, key);
+    const msg = this.setMsg(value, key);
 
     return this.client.execute(this.address, msg, fee, memo, funds);
   }
@@ -64,7 +64,7 @@ export default class RegistryAPI extends ADOAPI {
    * @param key
    * @returns
    */
-  msgGet(key: string) {
+  getQuery(key: string) {
     return {
       andr_query: {
         get: encode(key),
@@ -79,7 +79,7 @@ export default class RegistryAPI extends ADOAPI {
    */
   async get<T = any>(key: string) {
     this.preMessage();
-    const msg = this.msgGet(key);
+    const msg = this.getQuery(key);
 
     const resp = await this.client.queryContract<{
       key: string;

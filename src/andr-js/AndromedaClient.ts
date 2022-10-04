@@ -14,6 +14,7 @@ import { ADOAPI, RegistryAPI, FactoryAPI } from "./api";
 
 import type { Fee, Msg } from "./types";
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
+import { isUndefined } from "lodash";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
@@ -123,10 +124,7 @@ export default class AndromedaClient {
    * Whether the client is currently connected
    */
   get isConnected() {
-    return (
-      typeof this.cosmWasmClient !== "undefined" ||
-      typeof this.queryClient !== "undefined"
-    );
+    return isUndefined(this.cosmWasmClient) || isUndefined(this.queryClient);
   }
 
   /**
@@ -226,7 +224,7 @@ export default class AndromedaClient {
    * @returns
    */
   async queryContract<T = any>(address: string, query: Msg) {
-    if (!this.queryClient) throw new Error("Client not connected");
+    this.preMessage(false);
     return (await this.queryClient!.queryContractSmart(address, query)) as T;
   }
 
@@ -266,7 +264,7 @@ export default class AndromedaClient {
    * @param memo
    * @returns A gas fee estimation
    */
-  async simulateTx(
+  async simulateExecute(
     address: string,
     msg: Msg,
     funds: Coin[],
@@ -295,29 +293,6 @@ export default class AndromedaClient {
   ) {
     this.preMessage();
     return this.estimateFee([this.encodeExecuteMsg(address, msg, funds)], memo);
-  }
-
-  /**
-   * Converts an execute message to an EncodeObject for signing or simulating
-   * @param address
-   * @param msg
-   * @param funds
-   * @returns
-   */
-  encodeExecuteMsg(
-    address: string,
-    msg: Msg,
-    funds: Coin[]
-  ): MsgExecuteContractEncodeObject {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
-      value: {
-        sender: this.signer,
-        contract: address,
-        msg: JsonToArray(msg),
-        funds,
-      },
-    };
   }
 
   /**
@@ -401,6 +376,29 @@ export default class AndromedaClient {
   async estimateMigrateFee(address: string, codeId: number, msg: Msg) {
     this.preMessage();
     return this.estimateFee([this.encodeMigrateMessage(address, codeId, msg)]);
+  }
+
+  /**
+   * Converts an execute message to an EncodeObject for signing or simulating
+   * @param address
+   * @param msg
+   * @param funds
+   * @returns
+   */
+  encodeExecuteMsg(
+    address: string,
+    msg: Msg,
+    funds: Coin[]
+  ): MsgExecuteContractEncodeObject {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
+      value: {
+        sender: this.signer,
+        contract: address,
+        msg: JsonToArray(msg),
+        funds,
+      },
+    };
   }
 
   /**
@@ -491,7 +489,7 @@ export default class AndromedaClient {
   }
 
   /**
-   * Wrapped around cosmjs calculateFee using client's set gasPrice. Errors if no gas price provided.
+   * Wrapper around cosmjs calculateFee using client's set gasPrice. Errors if no gas price provided.
    * @param gas
    * @returns
    */
@@ -503,20 +501,6 @@ export default class AndromedaClient {
       );
 
     return calculateFee(gas, gasPrice);
-  }
-
-  /**
-   * Gets the balance for a given address and denom. Defaults to the signing wallet address if none provided.
-   * @param denom
-   * @param address
-   * @returns
-   */
-  async getBalance(denom: string, address?: string) {
-    this.preMessage(false);
-    const _address = address && address.length > 0 ? address : this.signer;
-    if (!_address || _address.length === 0) throw new Error("Invalid address");
-
-    return this.cosmWasmClient?.getBalance(_address, denom);
   }
 
   /**
@@ -551,6 +535,19 @@ export default class AndromedaClient {
       fee ?? "auto",
       memo
     );
+  }
+  /**
+   * Gets the balance for a given address and denom. Defaults to the signing wallet address if none provided.
+   * @param denom
+   * @param address
+   * @returns
+   */
+  async getBalance(denom: string, address?: string) {
+    this.preMessage(false);
+    const _address = address && address.length > 0 ? address : this.signer;
+    if (!_address || _address.length === 0) throw new Error("Invalid address");
+
+    return this.cosmWasmClient?.getBalance(_address, denom);
   }
 
   /**
