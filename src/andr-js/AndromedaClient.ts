@@ -160,7 +160,7 @@ export default class AndromedaClient {
   async execute(
     contractAddress: string,
     msg: Msg,
-    fee: Fee,
+    fee?: Fee,
     memo?: string,
     funds?: readonly Coin[]
   ) {
@@ -169,7 +169,7 @@ export default class AndromedaClient {
       this.signer,
       contractAddress,
       msg,
-      fee,
+      fee ?? "auto",
       memo,
       funds
     );

@@ -1,5 +1,5 @@
 import type AndromedaClient from "../AndromedaClient";
-import type { Module } from "../types";
+import type { Fee, Module, Msg } from "../types";
 
 export default class ADOAPI {
   constructor(
@@ -8,11 +8,281 @@ export default class ADOAPI {
   ) {}
 
   /**
+   * Converts a message object to an Andromeda Query Message
+   * @param msg
+   * @returns
+   */
+  protected andromedaReceive(msg: Msg) {
+    return { andr_receive: msg };
+  }
+
+  /**
+   * Execute Messages
+   */
+
+  /**
+   * Returns an update owner message
+   * @param newOwner
+   * @returns
+   */
+  updateOwnerMsg(newOwner: string) {
+    return this.andromedaReceive({ update_owner: { address: newOwner } });
+  }
+
+  /**
+   * Updates the owner for the given ADO.
+   * **Only accessible to the current owner**
+   * @param newOwner
+   * @param addr
+   * @param fee
+   * @param memo
+   * @returns
+   */
+  async updateOwner(
+    newOwner: string,
+    addr: string = this.address,
+    fee?: Fee,
+    memo?: string
+  ) {
+    const msg = this.updateOwnerMsg(newOwner);
+    const resp = await this.client.execute(addr, msg, fee, memo);
+
+    return resp;
+  }
+
+  /**
+   * Returns an update operators message
+   * @param operators
+   * @returns
+   */
+  updateOperatorsMsg(operators: string[]) {
+    return this.andromedaReceive({ update_operators: { operators } });
+  }
+
+  /**
+   * Updates the operators for a given ADO.
+   *  **Only accessible to the current owner**
+   * @param operators
+   * @param addr
+   * @param fee
+   * @param memo
+   * @returns
+   */
+  async updateOperators(
+    operators: string[],
+    addr: string = this.address,
+    fee?: Fee,
+    memo?: string
+  ) {
+    const msg = this.updateOperatorsMsg(operators);
+    const resp = await this.client.execute(addr, msg, fee, memo);
+
+    return resp;
+  }
+
+  /**
+   * Returns an update app contract message
+   * @param appContract
+   * @returns
+   */
+  updateAppContractMsg(appContract: string) {
+    return this.andromedaReceive({
+      update_app_contract: { address: appContract },
+    });
+  }
+
+  /**
+   * Updates the app contract for a given ADO.
+   *  **Only accessible to the current owner**
+   * @param appContract
+   * @param addr
+   * @param fee
+   * @param memo
+   * @returns
+   */
+  async updateAppContract(
+    appContract: string,
+    addr: string = this.address,
+    fee?: Fee,
+    memo?: string
+  ) {
+    const msg = this.updateAppContractMsg(appContract);
+    const resp = await this.client.execute(addr, msg, fee, memo);
+
+    return resp;
+  }
+
+  /**
+   * Returns a register module message
+   * @param module
+   * @returns
+   */
+  registerModuleMsg(module: Module) {
+    return this.andromedaReceive({ register_module: { module } });
+  }
+
+  /**
+   * Register a module with an ADO.
+   * **Only accessible by the contract owner.**
+   * **Will error if the ADO does not implement modules.**
+   * @param module
+   * @param addr
+   * @param fee
+   * @param memo
+   * @returns
+   */
+  async registerModule(
+    module: Module,
+    addr: string = this.address,
+    fee?: Fee,
+    memo?: string
+  ) {
+    const msg = this.registerModuleMsg(module);
+    const resp = await this.client.execute(addr, msg, fee, memo);
+
+    return resp;
+  }
+
+  /**
+   * Returns a deregister module message
+   * @param id The module idx
+   * @returns
+   */
+  deregisterModuleMsg(id: number) {
+    return this.andromedaReceive({ deregister_module: { module_idx: id } });
+  }
+
+  /**
+   * Deregisters a module with an ADO.
+   * **Only accessible by the contract owner.**
+   * **Will error if the ADO does not implement modules.**
+   * @param id The module idx
+   * @param addr
+   * @param fee
+   * @param memo
+   * @returns
+   */
+  async deregisterModule(
+    id: number,
+    addr: string = this.address,
+    fee?: Fee,
+    memo?: string
+  ) {
+    const msg = this.deregisterModuleMsg(id);
+    const resp = await this.client.execute(addr, msg, fee, memo);
+
+    return resp;
+  }
+
+  /**
+   * Returns am alter module message
+   * @param id The module idx
+   * @param module
+   * @returns
+   */
+  alterModuleMsg(id: number, module: Module) {
+    return this.andromedaReceive({ alter_module: { module, module_idx: id } });
+  }
+
+  /**
+   * Alters a module within an ADO.
+   * **Only accessible by the contract owner.**
+   * **Will error if the ADO does not implement modules.**
+   * @param id The module idx
+   * @param module
+   * @param addr
+   * @param fee
+   * @param memo
+   * @returns
+   */
+  async alterModule(
+    id: number,
+    module: Module,
+    addr: string = this.address,
+    fee?: Fee,
+    memo?: string
+  ) {
+    const msg = this.alterModuleMsg(id, module);
+    const resp = await this.client.execute(addr, msg, fee, memo);
+
+    return resp;
+  }
+
+  /**
+   * Returns a refresh address message
+   * @param key
+   * @returns
+   */
+  refreshAddressMsg(key: string) {
+    return this.andromedaReceive({ refresh_address: { address: key } });
+  }
+
+  /**
+   * Register a module with an ADO.
+   * **Only accessible by the contract owner.**
+   * @param key
+   * @param addr
+   * @param fee
+   * @param memo
+   * @returns
+   */
+  async refreshAddress(
+    key: string,
+    addr: string = this.address,
+    fee?: Fee,
+    memo?: string
+  ) {
+    const msg = this.refreshAddressMsg(key);
+    const resp = await this.client.execute(addr, msg, fee, memo);
+
+    return resp;
+  }
+
+  /**
+   * Returns a refresh addresses message
+   * @param startAfter The key to start after
+   * @param limit
+   * @returns
+   */
+  refreshAddressesMsg(startAfter?: string, limit?: number) {
+    return this.andromedaReceive({
+      refresh_addresses: { start_after: startAfter, limit },
+    });
+  }
+
+  /**
+   * Refreshes multiple addresses
+   * **Only accessible by the contract owner.**
+   * @param startAfter The key to start after
+   * @param limit The amount to refresh
+   * @param addr
+   * @param fee
+   * @param memo
+   * @returns
+   */
+  async refreshAddresses(
+    startAfter?: string,
+    limit?: number,
+    addr: string = this.address,
+    fee?: Fee,
+    memo?: string
+  ) {
+    const msg = this.refreshAddressesMsg(startAfter, limit);
+    const resp = await this.client.execute(addr, msg, fee, memo);
+
+    return resp;
+  }
+
+  /**
+   * Query Messages
+   */
+
+  /**
    * Converts a message object to an Andromeda Query message
    * @param msg
    * @returns
    */
-  protected andromedaQuery(msg: Record<string, any>) {
+  protected andromedaQuery(msg: Msg) {
     return { andr_query: msg };
   }
 
