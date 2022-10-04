@@ -2,3 +2,5 @@ node_modules
 dist
 .vscode
 contracts
+.graphqlrc.yml
+.DS_Store
