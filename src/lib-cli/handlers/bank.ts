@@ -38,7 +38,7 @@ export const commands: Commands = {
   balance: {
     handler: handleBalance,
     color: chalk.blue,
-    description: "Send tokens to another address",
+    description: "Request a token balance for a given address",
     usage: "bank balance <denom?> <address?>",
     inputs: [
       {

@@ -1,7 +1,8 @@
-import { decodeTxRaw } from "@cosmjs/proto-signing";
+import { DecodedTxRaw, decodeTxRaw } from "@cosmjs/proto-signing";
 import { IndexedTx } from "@cosmjs/stargate";
 import { Log, parseRawLog } from "@cosmjs/stargate/build/logs";
 import { gql } from "graphql-request";
+import _ from "lodash";
 import { query } from "../client";
 import { ContractAddressQuery, TxQuery } from "./types";
 
@@ -33,13 +34,18 @@ export interface TxInfo {
 
 export interface CleanedTx extends Omit<TxInfo, "rawLog" | "tx"> {
   rawLog: readonly Log[];
-  tx: Record<string, any>;
+  tx: DecodedTxRaw;
   adoType?: string;
 }
 
 export function cleanTx(tx: TxInfo | IndexedTx): CleanedTx {
   const rawLog = parseRawLog(tx.rawLog);
-  return { ...tx, rawLog, tx: decodeTxRaw(tx.tx), adoType: getAdoType(rawLog) };
+  return {
+    ...tx,
+    rawLog,
+    tx: decodeTxRaw(tx.tx),
+    adoType: getAdoType(rawLog),
+  };
 }
 
 export function getAdoType(logs: readonly Log[]): string | undefined {
