@@ -148,6 +148,12 @@ export async function handle(
   }
 }
 
+/**
+ * Generates a handler function given a list of commands and their prefix
+ * @param commands
+ * @param prefix
+ * @returns A handler function
+ */
 export function generateHandler(
   commands: Commands,
   prefix?: string
@@ -162,6 +168,11 @@ export function generateHandler(
   return handlerFunction;
 }
 
+/**
+ * Validates an address input parameter for a command by attempting to decode it using bech32 and ensuring the prefix of the address matches the current config
+ * @param addr The address to validate
+ * @returns Whether the address is valid or not
+ */
 export function validateAddressInput(addr: string) {
   try {
     const isValid = validateAddress(addr, config.get("chain.addressPrefix"));

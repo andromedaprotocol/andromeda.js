@@ -10,6 +10,9 @@ import { connectClient } from "./client";
 const store = new WalletStore();
 const STORAGE_FILE = "wallets.json";
 
+/**
+ * Loads all wallets in the stored config and assigns the default wallet on startup
+ */
 export async function loadWallets() {
   try {
     const savedWalletsData = storage.loadStorageFile(STORAGE_FILE);
@@ -55,6 +58,9 @@ export async function loadWallets() {
   }
 }
 
+/**
+ * Store all current wallets on exit
+ */
 storage.addExitHandler(() => {
   const storedConfig = {
     wallets: store.getAllWallets().map(({ chainId, wallet }) => ({
@@ -70,7 +76,7 @@ storage.addExitHandler(() => {
     storage.writeStorageFile(STORAGE_FILE, JSON.stringify(storedConfig));
 });
 
-export const commands: Commands = {
+const commands: Commands = {
   add: {
     handler: addWalletHandler,
     color: chalk.green,
@@ -122,6 +128,11 @@ export const commands: Commands = {
   },
 };
 
+/**
+ * Validates a given mnemonic
+ * @param input
+ * @returns Whether the probided mnemonic is valid
+ */
 async function validateMnemonic(input: string) {
   if (
     !input ||
@@ -141,6 +152,11 @@ async function validateMnemonic(input: string) {
   return true;
 }
 
+/**
+ * Strips all whitespace from a wallet name
+ * @param name
+ * @returns The stripped wallet name
+ */
 function parseWalletName(name: string) {
   const parsedName = name.trim().split(" ").join("");
   if (parsedName.length === 0) {
@@ -151,6 +167,12 @@ function parseWalletName(name: string) {
   return parsedName;
 }
 
+/**
+ * Adds a wallet with given name. Can be used to recover a wallet with a mnemonic or generate a new one.
+ * @param input
+ * @param flags
+ * @returns
+ */
 async function addWalletHandler(input: string[], flags: Flags) {
   let [name] = input;
   let mnemonic;
@@ -193,6 +215,10 @@ async function addWalletHandler(input: string[], flags: Flags) {
   }
 }
 
+/**
+ * Prompts the user to save their newly generated wallet menmonic
+ * @param seed The seed phrase for the wallet
+ */
 function newWalletConfirmation(seed: string) {
   console.log();
   console.log("Your seed phrase is:");
@@ -207,6 +233,10 @@ function newWalletConfirmation(seed: string) {
   );
 }
 
+/**
+ * Removes a wallet by name/address/index
+ * @param input
+ */
 async function removeWalletHandler(input: string[]) {
   const [walletId] = input;
   try {
@@ -217,6 +247,10 @@ async function removeWalletHandler(input: string[]) {
   }
 }
 
+/**
+ * Removes a wallet by index
+ * @param idx The index of the wallet to remove
+ */
 async function removeWalletByIndex(idx: number) {
   const chainId = config.get("chain.chainId");
   const wallets = store.getWallets(chainId);
@@ -240,6 +274,10 @@ async function removeWalletByIndex(idx: number) {
   }
 }
 
+/**
+ * Removes a wallet by given name or address
+ * @param input
+ */
 async function removeWalletByNameOrAddress(input: string) {
   const chainId = config.get("chain.chainId");
   const wallet = await store.getWallet(chainId, input.trim());
@@ -258,11 +296,18 @@ async function removeWalletByNameOrAddress(input: string) {
   }
 }
 
+/**
+ * Prints all wallets in table format
+ */
 async function listWalletsHandler() {
   const chainId = config.get("chain.chainId");
   await listWallets(store.getWallets(chainId));
 }
 
+/**
+ * Prints all provided wallets in table format
+ * @param wallets
+ */
 async function listWallets(wallets: Wallet[]) {
   if (wallets.length === 0) {
     throw new Error(`No wallets to display
@@ -277,6 +322,7 @@ You can add a wallet by using the add command:
   });
   for (let i = 0; i < wallets.length; i++) {
     const wallet = wallets[i];
+    // Highlight the currently selected wallet
     const isCurrent =
       getCurrentWallet() && wallet.name === getCurrentWallet().name;
     const addr = await wallet.getFirstOfflineSigner(
@@ -302,6 +348,12 @@ async function useWalletHandler(input: string[]) {
   }
 }
 
+/**
+ * Sets the currently used wallet
+ * @param wallet
+ * @param autoConnect
+ * @returns A signer if the wallet is valid
+ */
 export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
   const chainId = config.get("chain.chainId");
   const signer = await wallet.getWallet(chainId);
@@ -317,6 +369,10 @@ export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
   }
 }
 
+/**
+ * Gets the current default wallet for the current chain
+ * @returns The current default wallet
+ */
 export function getCurrentWallet() {
   const chainId = config.get("chain.chainId");
   const wallet = store.getDefaultWallet(chainId);

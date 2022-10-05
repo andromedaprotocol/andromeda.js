@@ -7,8 +7,6 @@ import { Commands, Flags } from "../types";
 import { getCurrentWallet } from "./wallets";
 import { validateAddressInput } from "./utils";
 
-const log = console.log;
-
 const commands: Commands = {
   app: {
     handler: appHandler,
@@ -37,6 +35,10 @@ const commands: Commands = {
   },
 };
 
+/**
+ * Prints an app by a given address in table format
+ * @param input
+ */
 async function appHandler(input: string[]) {
   let [address] = input;
   try {
@@ -57,15 +59,15 @@ async function appHandler(input: string[]) {
       return comp ? comp.ado_type : "<unknown>";
     };
 
-    log(`${chalk.bold("Owner:")} ${owner}`);
-    log(`${chalk.bold("App Name:")} ${name}`);
-    log();
+    console.log(`${chalk.bold("Owner:")} ${owner}`);
+    console.log(`${chalk.bold("App Name:")} ${name}`);
+    console.log();
     const componentTable = new Table(logTableConfig);
-    log(chalk.bold("Components"));
+    console.log(chalk.bold("Components"));
     addresses.forEach((comp) => {
       componentTable.push([comp.name, getAdoType(comp.name), comp.address]);
     });
-    log(componentTable.toString());
+    console.log(componentTable.toString());
   } catch (error) {
     const { message } = error as Error;
     if (message.includes(":")) {
@@ -76,6 +78,11 @@ async function appHandler(input: string[]) {
   }
 }
 
+/**
+ * Prints all ADOs/assets owned by the current wallet
+ * @param _input
+ * @param flags
+ */
 async function assetsHandler(_input: string[], flags: Flags) {
   const wallet = getCurrentWallet();
   const walletAddr = await wallet.getFirstOfflineSigner(
@@ -101,7 +108,7 @@ async function assetsHandler(_input: string[], flags: Flags) {
     assetsTable.push([asset.address, asset.adoType, asset.appContract ?? ""]);
   });
 
-  log(assetsTable.toString());
+  console.log(assetsTable.toString());
 }
 
 export default commands;

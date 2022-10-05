@@ -2,7 +2,7 @@ import chalk from "chalk";
 import config from "../../config";
 import { executeFlags } from "../../common";
 import { Commands, Flags } from "../../types";
-import { executeMessage, queryMessage } from "../chain";
+import { executeMessage, queryMessage } from "../wasm";
 import client from "../client";
 import { getCurrentWallet } from "../wallets";
 
@@ -19,6 +19,16 @@ const commands: Commands = {
       },
       {
         requestMessage: "Input the new code ID for the ADO:",
+        validate: (input: string) => {
+          try {
+            parseInt(input);
+            return true;
+          } catch (error) {
+            console.log();
+            console.log("Not a valid code ID");
+            return false;
+          }
+        },
       },
     ],
     disabled: async () => !(await isOperatorOrOwnerOfFactory()),
@@ -42,6 +52,10 @@ const commands: Commands = {
   },
 };
 
+/**
+ * Checks whether the currently selected wallet is an owner/operator of the current chain's factory contract
+ * @returns Whether the current wallet is an owner or operator of the current chain's factory contract
+ */
 async function isOperatorOrOwnerOfFactory() {
   if (!client.factory.address)
     throw new Error("No factory address for current chain");
@@ -57,12 +71,18 @@ async function isOperatorOrOwnerOfFactory() {
   return isAuthorized;
 }
 
+/**
+ * Updates the code ID for a given key/code ID tuple
+ * @param input
+ * @param flags
+ */
 async function updateCodeIdHandler(input: string[], flags: Flags) {
   if (!client.factory.address)
     throw new Error("No factory address for current chain");
 
   const [adoKey, codeId] = input;
 
+  // Validate the provided code ID is an int
   let parsedCodeId: number;
   try {
     parsedCodeId = parseInt(codeId);
@@ -75,6 +95,10 @@ async function updateCodeIdHandler(input: string[], flags: Flags) {
   await executeMessage(client.factory.address, msg, flags);
 }
 
+/**
+ * Gets the code ID for a given key
+ * @param input
+ */
 async function getCodeIdHandler(input: string[]) {
   if (!client.factory.address)
     throw new Error("No factory address for current chain");
@@ -88,6 +112,9 @@ async function getCodeIdHandler(input: string[]) {
   console.log(`Code ID: ${chalk.bold(resp)}`);
 }
 
+/**
+ * Prints the current chain's factory contract address
+ */
 async function getAddressHandler() {
   console.log(client.factory.address ?? "<unset>");
 }

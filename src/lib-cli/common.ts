@@ -6,6 +6,9 @@ import { exitInputs } from "./cmd";
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Default config for printing a table
+ */
 export const logTableConfig = {
   chars: {
     top: "",
@@ -27,12 +30,21 @@ export const logTableConfig = {
   style: { "padding-left": 0, "padding-right": 0 },
 };
 
+/**
+ * Validates command parameters or requests them if they are not already provided
+ * @param message The parameter request message
+ * @param input The user's input (if any)
+ * @param validate A function to validate the input
+ * @param choices Used when a list of choices is required
+ * @returns
+ */
 export async function validateOrRequest(
   message: string,
   input?: string,
   validate?: (input: string) => Promise<boolean> | boolean,
   choices?: string[]
 ): Promise<string> {
+  //If the user provided input then validate
   if (input) {
     if (typeof input === "string" && exitInputs.includes(input.trim()))
       throw new Error("Prompt exited");
@@ -67,6 +79,12 @@ export async function validateOrRequest(
   return prompt.requestinput;
 }
 
+/**
+ * Displays a spinner alongside the provided text. Primarily used for asynchronous actions.
+ * @param text The text to display
+ * @param cb The callback to call while displaying the spinner
+ * @returns The returned value from the provided callback
+ */
 export async function displaySpinnerAsync<T>(
   text: string,
   cb: (...args: any) => Promise<T>
@@ -85,6 +103,9 @@ export async function displaySpinnerAsync<T>(
   }
 }
 
+/**
+ * Flags common to all execute handlers
+ */
 export const executeFlags = {
   funds: {
     description: "Funds to send with the message",
@@ -103,6 +124,9 @@ export const executeFlags = {
   },
 };
 
+/**
+ * Flags common to all instantiation handlers
+ */
 export const instantiateFlags = {
   label: {
     description: "Used to provide a label assigned to the instantiation",
@@ -122,65 +146,14 @@ export const instantiateFlags = {
   },
 };
 
-export const factoryFlag = {
-  factory: {
-    description:
-      "Used to provide an alternative factory address for the instantiation",
-    usage: "--factory juno1...",
-  },
-};
-
-export async function requestStringArray(
-  message: string,
-  validate?: (input: string) => Promise<boolean> | boolean
-): Promise<string[]> {
-  const input = (
-    await inquirer.prompt({
-      type: "input",
-      message,
-      name: `requestinput`,
-      validate: async (input: string) => {
-        if (exitInputs.includes(input)) return true;
-        return (
-          input &&
-          input.trim().length > 0 &&
-          (!validate || (await validate(input)))
-        );
-      },
-    })
-  ).requestinput;
-  if (exitInputs.includes(input)) throw new Error("Prompt exited");
-
-  const addMore = await inquirer.prompt({
-    type: "confirm",
-    message: "Add another?",
-    name: "anotheraddprompt",
-  });
-
-  if (addMore.anotheraddprompt) {
-    return [input.trim(), ...(await requestStringArray(message, validate))];
-  } else {
-    return [input.trim()];
-  }
-}
-
-export async function requestOperators(): Promise<string[]> {
-  const addOperators = await inquirer.prompt({
-    type: "confirm",
-    message: "Would you like to add any operators?",
-    name: "addprompt",
-  });
-
-  if (addOperators.addprompt) {
-    return requestStringArray("Input the address for the operator:");
-  } else {
-    return [];
-  }
-}
-
-export function printTransactionUrl(hash: string) {
+/**
+ * Used to print a URL for a transaction hash. Always uses the first URL provided by the config unless otherwise provided.
+ * @param hash The transaction hash
+ * @param urlIdx The index of the URL to use
+ */
+export function printTransactionUrl(hash: string, urlIdx = 0) {
   const urls = config.get("chain.blockExplorerTxPages");
   if (urls.length === 0) return;
   const txUrls = urls.map((url) => getTxExplorerURL(hash, url));
-  console.log(txUrls[0]);
+  console.log(txUrls[urlIdx]);
 }
