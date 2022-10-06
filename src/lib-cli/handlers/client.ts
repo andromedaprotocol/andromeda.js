@@ -7,6 +7,9 @@ import chalk from "chalk";
 
 export const client = new AndromedaClient();
 
+/**
+ * Connects Andromeda Client using the current config with the provided signer. Connects a query client if no signer provided.
+ */
 export async function connectClient(signer?: DirectSecp256k1HdWallet) {
   const { chainUrl, registryAddress, defaultFee } = config.get("chain");
   await displaySpinnerAsync(

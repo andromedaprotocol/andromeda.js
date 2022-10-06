@@ -10,12 +10,13 @@ import {
   promptQueryOrExecuteMessage,
 } from "../../schema";
 import { Commands, Flags } from "../../types";
-import { executeMessage, instantiateMessage, queryMessage } from "../chain";
+import { executeMessage, instantiateMessage, queryMessage } from "../wasm";
 import client from "../client";
 import { generateHandler, validateAddressInput } from "../utils";
 import factoryCommands from "./factory";
 import gqlCommands from "../gql";
 
+// Factory has several subcommands, see `factory.ts`
 const factoryHandler = generateHandler(factoryCommands);
 
 const commands: Commands = {
@@ -92,6 +93,11 @@ const commands: Commands = {
   },
 };
 
+/**
+ * Creates an ADO by given type
+ * @param input
+ * @param flags
+ */
 async function createHandler(input: string[], flags: Flags) {
   const [type] = input;
   const { instantiate } = getSchemaURLsByType(type);
@@ -108,12 +114,13 @@ async function createHandler(input: string[], flags: Flags) {
   await instantiateMessage(codeId, msg, flags);
 }
 
+/**
+ * Queries an ADO for its type by address
+ * @param address The address of the ADO
+ * @returns The type of ADO the contract is, errors if the contract is not an ADO
+ */
 async function queryADOType(address: string) {
-  const queryMsg = {
-    andr_query: {
-      type: {},
-    },
-  };
+  const queryMsg = client.ado.typeQuery();
 
   const { ado_type } = await queryMessage<{ ado_type: string }>(
     address,
@@ -123,9 +130,15 @@ async function queryADOType(address: string) {
   return ado_type;
 }
 
+/**
+ * Executes a chosen message on an ADO by its address
+ * @param input
+ * @param flags
+ */
 async function executeHandler(input: string[], flags: Flags) {
   const [address] = input;
 
+  //The ADO type must be fetched before the message types can be determined
   let type = "";
   try {
     type = await queryADOType(address);
@@ -144,6 +157,10 @@ async function executeHandler(input: string[], flags: Flags) {
   await executeMessage(address, msg, flags);
 }
 
+/**
+ *  Queries an ADO by its address
+ * @param input
+ */
 async function queryHandler(input: string[]) {
   const [address] = input;
 
@@ -167,6 +184,10 @@ async function queryHandler(input: string[]) {
   console.log(JSON.stringify(resp, null, 2));
 }
 
+/**
+ * Queries an ADO for its type by address
+ * @param input
+ */
 async function queryTypeHandler(input: string[]) {
   const [address] = input;
   const type = await queryADOType(address);
