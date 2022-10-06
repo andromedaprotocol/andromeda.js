@@ -20,8 +20,14 @@ import {
   allCommands,
 } from "./handlers";
 
+/**
+ * Valid inputs to exit a prompt
+ */
 export const exitInputs = [".exit", ".quit", ".e", ".q", "exit"];
 
+/**
+ * Top level commands
+ */
 export const baseCommands: Commands = {
   exit: {
     handler: () => process.exit(0),
@@ -95,6 +101,9 @@ export const baseCommands: Commands = {
   },
 };
 
+/**
+ * Prints the Andromeda CLI title
+ */
 export async function title() {
   console.clear();
   const msg = "Andromeda CLI";
@@ -114,6 +123,11 @@ export async function subTitle() {
   rainbowTitle.stop();
 }
 
+/**
+ * Prompt the user for input
+ * @param defaultValue
+ * @returns The user's input
+ */
 export async function ask(defaultValue: string = "") {
   const chainId = config.get("chain.chainId");
   const wallet = getCurrentWallet();
@@ -144,17 +158,27 @@ export async function ask(defaultValue: string = "") {
   return answers;
 }
 
+// Alias for simpler logging
 const log = console.log;
 
+/**
+ * Prints all commands in a table for a given commands object
+ * @param commands
+ * @param prefix The prefix for all commands, for example `ado create` would have a prefix of `ado`
+ */
 export async function listCommands(commands: Commands, prefix?: string) {
   const commandsArray = Object.keys(commands);
   const commandTable = new Table({
     ...logTableConfig,
     colWidths: [2],
   });
+  //Commands are sorted alphabetically with `exit` being the last
   const sortedCommands = commandsArray.sort((a, b) =>
     a === "exit" ? -1 : a > b ? 1 : -1
   );
+
+  //Errors produced when generating command list
+  //Determining if a command is disabled may require asynchronous actions that can fail
   let errors = [];
   for (let i = 0; i < sortedCommands.length; i++) {
     const cmdName = sortedCommands[i];
@@ -167,15 +191,20 @@ export async function listCommands(commands: Commands, prefix?: string) {
       errors.push(error);
     }
   }
-  log(`Usage:
-  ${prefix ? `${prefix} ` : ""}[cmd]
 
-Valid commands:`);
+  log(`Usage:`);
+  log(`${prefix ? `${prefix} ` : ""}[cmd]`);
+  log(`Valid commands:`);
   log(commandTable.toString());
+  //Log any errors produced when generating command list
   errors.forEach((error) => console.error(chalk.red(error)));
   log();
 }
 
+/**
+ * Prints help information for a given command
+ * @param cmd
+ */
 export function printCommandHelp(cmd: Command) {
   const { description, usage } = cmd;
   log(chalk.bold(description));

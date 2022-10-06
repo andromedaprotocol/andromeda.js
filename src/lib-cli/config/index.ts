@@ -5,6 +5,10 @@ import { addExitHandler, loadStorageFile, writeStorageFile } from "./storage";
 
 convict.addFormats(convictFormatWithValidator);
 
+/**
+ * Config used by the CLI
+ * Uses convict
+ */
 const config = convict({
   chain: {
     name: {
@@ -92,6 +96,9 @@ const config = convict({
   },
 });
 
+/**
+ * Loads the config used by the CLI on startup
+ */
 export function loadDefaultConfig() {
   try {
     const savedConfig = loadStorageFile("config.json");
@@ -110,6 +117,9 @@ export function loadDefaultConfig() {
   }
 }
 
+/**
+ * Saves the current config when the CLI is exited
+ */
 addExitHandler(() => {
   writeStorageFile("config.json", JSON.stringify(config.getProperties()));
 });

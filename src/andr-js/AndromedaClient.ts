@@ -123,7 +123,7 @@ export default class AndromedaClient {
    * Whether the client is currently connected
    */
   get isConnected() {
-    return !(isUndefined(this.cosmWasmClient) || isUndefined(this.queryClient));
+    return !(isUndefined(this.cosmWasmClient) && isUndefined(this.queryClient));
   }
 
   /**

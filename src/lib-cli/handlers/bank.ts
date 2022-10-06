@@ -55,6 +55,11 @@ export const commands: Commands = {
   },
 };
 
+/**
+ * Sends tokens to a given recipient
+ * @param input
+ * @returns
+ */
 async function handleSend(input: string[]) {
   const [recipient, amount] = input;
   if (!amount) {
@@ -65,7 +70,6 @@ async function handleSend(input: string[]) {
   const coinsString = coins
     .map((coin) => `${coin.amount}${coin.denom}`)
     .join(", ");
-  console.log(coinsString);
 
   const confirm = await inquirer.prompt({
     type: "confirm",
@@ -85,6 +89,10 @@ async function handleSend(input: string[]) {
   printTransactionUrl(resp?.transactionHash!);
 }
 
+/**
+ * Queries token balance for a given address. Uses current wallet if no address is provided.
+ * @param inputs
+ */
 async function handleBalance(inputs: string[]) {
   const [denom, addr] = inputs;
 

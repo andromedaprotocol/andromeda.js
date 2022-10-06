@@ -3,27 +3,20 @@ import {
   configs,
   getConfigByChainID,
   getConfigByName,
-  Msg,
 } from "@andromeda/andromeda-js";
-import { parseCoins } from "@cosmjs/proto-signing";
-import { StdFee } from "@cosmjs/stargate";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
 
-import {
-  displaySpinnerAsync,
-  logTableConfig,
-  printTransactionUrl,
-} from "../common";
+import { logTableConfig } from "../common";
 import config from "../config";
 import {
   loadStorageFile,
   storageFileExists,
   writeStorageFile,
 } from "../config/storage";
-import { Commands, Flags } from "../types";
-import client, { connectClient } from "./client";
+import { Commands } from "../types";
+import { connectClient } from "./client";
 import { getCurrentWallet, setCurrentWallet } from "./wallets";
 
 const STORAGE_FILE = "chainConfigs.json";
@@ -87,7 +80,7 @@ const commands: Commands = {
         requestMessage: "Input Config Name:",
         validate: (input: string) => {
           if (input.length === 0) return false;
-          const config = getCLIChainConfigByName(input);
+          const config = getCLIChainConfig(input);
           if (config) {
             console.log();
             console.log(chalk.red("Config already exists with that name"));
@@ -108,7 +101,7 @@ const commands: Commands = {
       {
         requestMessage: "Input Current Config Name:",
         validate: (input: string) => {
-          const config = getCLIChainConfigByName(input);
+          const config = getCLIChainConfig(input);
           if (!config) {
             console.log();
             console.log(chalk.red("Config does not exist"));
@@ -126,7 +119,7 @@ const commands: Commands = {
         requestMessage: "Input New Config Name:",
         validate: (input: string) => {
           if (input.length === 0) return false;
-          const config = getCLIChainConfigByName(input);
+          const config = getCLIChainConfig(input);
           if (config) {
             console.log();
             console.log(chalk.red("Config already exists with that name"));
@@ -147,7 +140,7 @@ const commands: Commands = {
       {
         requestMessage: "Select config to remove:",
         validate: (input: string) => {
-          const config = getCLIChainConfigByName(input);
+          const config = getCLIChainConfig(input);
           if (!config) {
             console.log();
             console.log(chalk.red(`Config ${input} not found`));
@@ -162,8 +155,12 @@ const commands: Commands = {
   },
 };
 
+// Used for when the user creates their own config
 let localConfigs: ChainConfig[] = [];
 
+/**
+ * Loads all local configs from storage
+ */
 function loadLocalConfigs() {
   try {
     if (!storageFileExists(STORAGE_FILE)) {
@@ -181,6 +178,11 @@ function loadLocalConfigs() {
 
 loadLocalConfigs();
 
+/**
+ * Gets the description of a given key from config
+ * @param key
+ * @returns The description of the given key
+ */
 function getConfigDoc(key: ConfigKey): string {
   const schema = JSON.parse(config.getSchemaString());
   const properties = schema["_cvtProperties"]["chain"]["_cvtProperties"];
@@ -189,17 +191,27 @@ function getConfigDoc(key: ConfigKey): string {
   return properties[key].doc;
 }
 
-// Includes andromeda.js configs and locally saved configs
-function getCLIChainConfigByName(name: string): ChainConfig | undefined {
+/**
+ * Gets a config by a given name/chain ID.
+ * Includes andromeda.js configs and locally saved configs.
+ * @param identifier The config name or chain ID
+ * @returns The respective config
+ */
+function getCLIChainConfig(identifier: string): ChainConfig | undefined {
   return (
-    getConfigByName(name) ??
-    getConfigByChainID(name) ??
+    getConfigByName(identifier) ??
+    getConfigByChainID(identifier) ??
     localConfigs.find(
-      (config) => config.name === name || config.chainId === name
+      (config) => config.name === identifier || config.chainId === identifier
     )
   );
 }
 
+/**
+ * Prints a config in table format. If a key is provided only the given key is printed.
+ * @param config
+ * @param keyToPrint Optional: Key to print
+ */
 async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
   const configTable = new Table(logTableConfig);
   configTable.push([
@@ -207,7 +219,7 @@ async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
     chalk.bold("Value"),
     chalk.bold("Description"),
   ]);
-  const trimmedKey = keyToPrint?.trim() as ConfigKey;
+  const trimmedKey = (keyToPrint as string)?.trim();
   let keys = Object.keys(config) as ConfigKey[];
   if (trimmedKey && trimmedKey.length > 0) {
     if (!keys.includes(trimmedKey)) {
@@ -235,8 +247,13 @@ async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
   console.log(configTable.toString());
 }
 
+/**
+ * Sets the value for a given key in config
+ * @param key
+ * @param value
+ */
 async function setKey(key: string, value: string) {
-  const trimmedKey: ConfigKey = key.trim() as ConfigKey;
+  const trimmedKey = key.trim();
   const trimmedValue = value.trim();
   if (!config.has(`chain.${trimmedKey}` as any)) {
     throw new Error(
@@ -253,6 +270,7 @@ async function setKey(key: string, value: string) {
     ({ name: localConfigName }) => localConfigName === name
   );
 
+  // Save any updates to local configs
   if (localConfig) {
     localConfigs = localConfigs.map((config) =>
       config.name === name ? { ...config, [trimmedKey]: trimmedValue } : config
@@ -261,6 +279,9 @@ async function setKey(key: string, value: string) {
   }
 }
 
+/**
+ * Prints all available config names/chain IDs
+ */
 async function listConfigsHandler() {
   const configTable = new Table(logTableConfig);
   configTable.push([chalk.bold("Name"), chalk.bold("Chain ID")]);
@@ -276,12 +297,16 @@ async function listConfigsHandler() {
   console.log(configTable.toString());
 }
 
+/**
+ * Swaps the currently used config by name/chain ID/config index
+ * @param input
+ */
 async function useConfigHandler(input: string[]) {
   if (input.length === 0) {
     throw new Error("Invalid input");
   }
   const [chainId] = input;
-  const chainConfig = getCLIChainConfigByName(chainId);
+  const chainConfig = getCLIChainConfig(chainId);
 
   if (!chainConfig) {
     throw new Error(`No chain config for chain ID: ${chainId}`);
@@ -291,18 +316,28 @@ async function useConfigHandler(input: string[]) {
   console.log(chalk.green(`Config loaded!`));
   const wallet = getCurrentWallet();
   if (wallet) {
+    // Set current wallet also connects the client
     await setCurrentWallet(wallet);
   } else {
+    // If no wallet, connect the client without a signer
     await connectClient();
   }
 }
 
+/**
+ * Prints a config or just a key within the config if it is provided
+ * @param input
+ */
 async function configGetHandler(input: string[]) {
   const [key] = input;
 
   await printConfig(config.get("chain") as ChainConfig, key as ConfigKey);
 }
 
+/**
+ * Sets a value within the config by a given key
+ * @param input
+ */
 async function configSetHandler(input: string[]) {
   const [key, value] = input;
   const name = config.get("chain.name");
@@ -313,241 +348,17 @@ async function configSetHandler(input: string[]) {
   await setKey(key, value);
 }
 
+/**
+ * Prints the entire config
+ */
 async function configPrintHandler() {
   await printConfig(config.get("chain") as ChainConfig);
 }
 
-export async function executeMessage(
-  address: string,
-  msg: Record<string, any>,
-  flags: Flags,
-  successMessage?: string
-) {
-  const { funds, memo, fee, simulate, print } = flags;
-  if (print) {
-    console.log(chalk.bold("Message:"));
-    console.log(JSON.stringify(msg, null, 2));
-    console.log();
-  }
-  const feeEstimate = await simulateMessage(address, msg, flags);
-  console.log(successMessage ?? chalk.green("Transaction simulated!"));
-  console.log();
-  logFeeEstimation(feeEstimate);
-  if (simulate) {
-    return;
-  }
-  const confirmation = await inquirer.prompt({
-    type: "confirm",
-    message: `Do you want to proceed?`,
-    name: "confirmtx",
-  });
-  if (!confirmation.confirmtx) {
-    console.log(chalk.red("Transaction cancelled"));
-    return;
-  }
-
-  const msgFunds = parseCoins(funds ?? "");
-  const resp = await displaySpinnerAsync(
-    "Executing Tx...",
-    async () =>
-      await client.execute(address, msg, fee ?? "auto", memo, msgFunds)
-  );
-  console.log();
-  console.log(successMessage ?? chalk.green("Transaction executed!"));
-  console.log();
-  printTransactionUrl(resp.transactionHash);
-}
-
-export async function uploadWasm(
-  binary: Uint8Array,
-  flags: Flags,
-  successMessage?: string
-) {
-  const { fee, simulate } = flags;
-
-  const feeEstimate = await client.estimateUploadFee(binary);
-  console.log(successMessage ?? chalk.green("Transaction simulated!"));
-  console.log();
-  logFeeEstimation(feeEstimate);
-  if (simulate) {
-    return;
-  }
-  const confirmation = await inquirer.prompt({
-    type: "confirm",
-    message: `Do you want to proceed?`,
-    name: "confirmtx",
-  });
-  if (!confirmation.confirmtx) {
-    console.log(chalk.red("Transaction cancelled"));
-    return;
-  }
-
-  const result = await displaySpinnerAsync(
-    "Uploading contract binary...",
-    async () => await client.upload(binary, fee ?? "auto")
-  );
-  console.log(successMessage ?? chalk.green("Wasm uploaded!"));
-  console.log();
-  printTransactionUrl(result.transactionHash);
-  console.log(chalk.green(`Code ID: ${result.codeId}`));
-}
-
-export async function queryMessage<T = any>(
-  address: string,
-  msg: Record<string, any>
-): Promise<T> {
-  const resp = await displaySpinnerAsync(
-    "Querying contract...",
-    async () => await client.queryContract<T>(address, msg)
-  );
-  // console.log(resp);
-  return resp;
-}
-
-function logFeeEstimation(fee: StdFee) {
-  console.log(chalk.bold("Cost Estimates"));
-  console.log(`Gas Used: ${fee.gas}`);
-  console.log("Fee estimates:");
-  for (let i = 0; i < fee.amount.length; i++) {
-    const feeCoin = fee.amount[i];
-    console.log(`   ${chalk.green(`${feeCoin.amount}${feeCoin.denom}`)}`);
-  }
-  console.log();
-}
-
-export async function simulateMessage(
-  address: string,
-  msg: Record<string, any>,
-  flags: Flags
-) {
-  const { funds, memo } = flags;
-  const msgFunds = parseCoins(funds ?? "");
-  const feeEstimate = displaySpinnerAsync(
-    "Simulating Tx...",
-    async () => await client.estimateExecuteFee(address, msg, msgFunds, memo)
-  );
-  return feeEstimate;
-}
-
-export async function simulateInstantiationMessage(
-  codeId: number,
-  msg: Msg,
-  label: string
-) {
-  const feeEstimate = displaySpinnerAsync(
-    "Simulating Instantiation Tx...",
-    async () => await client.estimateInstantiationFee(codeId, msg, label)
-  );
-  return feeEstimate;
-}
-
-export async function simulateUploadMessage(binary: Uint8Array) {
-  const feeEstimate = displaySpinnerAsync(
-    "Simulating Upload Tx...",
-    async () => await client.estimateUploadFee(binary)
-  );
-  return feeEstimate;
-}
-
-export async function simulateMigrate(
-  address: string,
-  codeId: number,
-  msg: Msg
-) {
-  const feeEstimate = displaySpinnerAsync(
-    "Simulating Migrate Tx...",
-    async () => await client.estimateMigrateFee(address, codeId, msg)
-  );
-  return feeEstimate;
-}
-
-export async function instantiateMessage(
-  codeId: number,
-  msg: Record<string, any>,
-  flags: Flags,
-  successMessage?: string
-) {
-  const { label, admin, simulate, print } = flags;
-  if (print) {
-    console.log(chalk.bold("Message:"));
-    console.log(JSON.stringify(msg, null, 2));
-    console.log();
-  }
-  const feeEstimate = await displaySpinnerAsync(
-    "Simulating transaction...",
-    async () =>
-      await simulateInstantiationMessage(codeId, msg, label ?? "Instantiation")
-  );
-  console.log(successMessage ?? chalk.green("Transaction simulated!"));
-  console.log();
-  logFeeEstimation(feeEstimate);
-  if (simulate) {
-    return;
-  }
-  const confirmation = await inquirer.prompt({
-    type: "confirm",
-    message: `Do you want to proceed?`,
-    name: "confirmtx",
-  });
-  if (!confirmation.confirmtx) {
-    console.log(chalk.red("Transaction cancelled"));
-    return;
-  }
-
-  const resp = await displaySpinnerAsync(
-    "Instantiating your contract...",
-    async () =>
-      await client.instantiate(
-        codeId,
-        msg,
-        label ?? "Instantiation",
-        "auto",
-        admin ? { admin } : undefined
-      )
-  );
-  console.log();
-  console.log(successMessage ?? chalk.green("Contract instantiated!"));
-  console.log();
-  printTransactionUrl(resp.transactionHash);
-  console.log(`Address: ${chalk.bold(resp.contractAddress)}`);
-}
-
-export async function migrateMessage(
-  contractAddress: string,
-  codeId: number,
-  msg: Record<string, any>,
-  flags: Flags,
-  successMessage?: string
-) {
-  const { memo, simulate } = flags;
-  const feeEstimate = await simulateMigrate(contractAddress, codeId, msg);
-  console.log(successMessage ?? chalk.green("Transaction simulated!"));
-  console.log();
-  logFeeEstimation(feeEstimate);
-  if (simulate) {
-    return;
-  }
-  const confirmation = await inquirer.prompt({
-    type: "confirm",
-    message: `Do you want to proceed?`,
-    name: "confirmtx",
-  });
-  if (!confirmation.confirmtx) {
-    console.log(chalk.red("Transaction cancelled"));
-    return;
-  }
-
-  const resp = await displaySpinnerAsync(
-    "Migrating your contract...",
-    async () => await client.migrate(contractAddress, codeId, msg, "auto", memo)
-  );
-  console.log();
-  console.log(successMessage ?? chalk.green("Contract migrated!"));
-  console.log();
-  printTransactionUrl(resp.transactionHash);
-  console.log(`Address: ${chalk.bold(contractAddress)}`);
-}
-
+/**
+ * Generates a new config from several prompts
+ * @param input
+ */
 export async function newConfigHandler(input: string[]) {
   const [name] = input;
   const config = await inquirer.prompt([
@@ -609,9 +420,13 @@ export async function newConfigHandler(input: string[]) {
   await useConfigHandler(input);
 }
 
+/**
+ * Copies a currently stored config by name/chainID
+ * @param input
+ */
 async function copyConfigHandler(input: string[]) {
   const [oldConfigName, newConfigName] = input;
-  const oldConfig = getCLIChainConfigByName(oldConfigName);
+  const oldConfig = getCLIChainConfig(oldConfigName);
   if (!oldConfig) throw new Error(`Config '${oldConfigName}' not found`);
 
   const newConfig = { ...oldConfig!, name: newConfigName };
@@ -622,6 +437,10 @@ async function copyConfigHandler(input: string[]) {
   await useConfigHandler([newConfigName]);
 }
 
+/**
+ * Removes a config by name/chain ID. Default configs cannot be removed.
+ * @param input
+ */
 async function removeConfigHandler(input: string[]) {
   const [configName] = input;
   const defaultConfig =

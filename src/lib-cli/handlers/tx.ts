@@ -45,6 +45,10 @@ export const commands: Commands = {
   },
 };
 
+/**
+ * Prints all info about a transaction for a given hash
+ * @param input
+ */
 async function txInfoHandler(input: string[]) {
   const [hash] = input;
 
@@ -57,6 +61,10 @@ async function txInfoHandler(input: string[]) {
   console.log(JSON.stringify(cleanTx(txInfo), null, 2));
 }
 
+/**
+ * Prints all transactions and their types by a given address
+ * @param inputs
+ */
 async function txAddressHandler(inputs: string[]) {
   const [addr] = inputs;
 
@@ -85,6 +93,9 @@ async function txAddressHandler(inputs: string[]) {
   console.log(txTable.toString());
 }
 
+/**
+ * Prints all transactions and their types for the current wallet
+ */
 async function txHistoryHandler() {
   const wallet = getCurrentWallet();
   const walletAddr = await wallet.getFirstOfflineSigner(
