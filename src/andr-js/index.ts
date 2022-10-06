@@ -5,7 +5,7 @@ export * from "./wallets";
 export * from "./chainConfigs";
 export * from "./types";
 export * from "./graphql";
-export * from "./adop";
+export * from "./ADOP";
 export * from "./utils";
 
 export default AndromedaClient;

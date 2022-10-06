@@ -64,6 +64,14 @@
     }
   },
   {
+    "name": "cw20-staking",
+    "schemas": {
+      "execute": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/fungible-tokens/andromeda-cw20-staking/schema/execute_msg.json",
+      "instantiate": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/fungible-tokens/andromeda-cw20-staking/schema/instantiate_msg.json",
+      "query": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/fungible-tokens/andromeda-cw20-staking/schema/query_msg.json"
+    }
+  },
+  {
     "name": "auction",
     "schemas": {
       "execute": "https://raw.githubusercontent.com/andromedaprotocol/andromeda-core/development/contracts/non-fungible-tokens/andromeda-auction/schema/execute_msg.json",

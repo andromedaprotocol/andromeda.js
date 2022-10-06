@@ -303,24 +303,24 @@ export async function uploadWasm(
   flags: Flags,
   successMessage?: string
 ) {
-  const { fee, simulate } = flags;
+  const { fee } = flags;
 
-  const feeEstimate = await simulateUploadMessage(binary);
-  console.log(successMessage ?? chalk.green("Transaction simulated!"));
-  console.log();
-  logFeeEstimation(feeEstimate);
-  if (simulate) {
-    return;
-  }
-  const confirmation = await inquirer.prompt({
-    type: "confirm",
-    message: `Do you want to proceed?`,
-    name: "confirmtx",
-  });
-  if (!confirmation.confirmtx) {
-    console.log(chalk.red("Transaction cancelled"));
-    return;
-  }
+  // const feeEstimate = await simulateUploadMessage(binary);
+  // console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  // console.log();
+  // logFeeEstimation(feeEstimate);
+  // if (simulate) {
+  //   return;
+  // }
+  // const confirmation = await inquirer.prompt({
+  //   type: "confirm",
+  //   message: `Do you want to proceed?`,
+  //   name: "confirmtx",
+  // });
+  // if (!confirmation.confirmtx) {
+  //   console.log(chalk.red("Transaction cancelled"));
+  //   return;
+  // }
 
   const result = await displaySpinnerAsync(
     "Uploading contract binary...",
