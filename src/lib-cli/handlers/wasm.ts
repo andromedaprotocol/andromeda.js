@@ -369,7 +369,11 @@ export async function instantiateMessage(
     console.log(JSON.stringify(msg, null, 2));
     console.log();
   }
-  const feeEstimate = await simulateInstantiationMessage(codeId, msg, label);
+  const feeEstimate = await simulateInstantiationMessage(
+    codeId,
+    msg,
+    label ?? "Instantiation"
+  );
   console.log(successMessage ?? chalk.green("Transaction simulated!"));
   console.log();
   logFeeEstimation(feeEstimate);
