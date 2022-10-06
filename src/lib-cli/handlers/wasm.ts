@@ -261,15 +261,10 @@ export async function executeMessage(
     console.log(JSON.stringify(msg, null, 2));
     console.log();
   }
-  try {
-    const feeEstimate = await simulateExecuteMessage(address, msg, flags);
-    console.log(successMessage ?? chalk.green("Transaction simulated!"));
-    console.log();
-    logFeeEstimation(feeEstimate);
-  } catch (error) {
-    console.error(chalk.red("Could not simulate transaction"));
-    console.log();
-  }
+  const feeEstimate = await simulateExecuteMessage(address, msg, flags);
+  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log();
+  logFeeEstimation(feeEstimate);
   if (simulate) {
     return;
   }
@@ -310,15 +305,10 @@ export async function uploadWasm(
 ) {
   const { fee, simulate } = flags;
 
-  try {
-    const feeEstimate = await simulateUploadMessage(binary);
-    console.log(successMessage ?? chalk.green("Transaction simulated!"));
-    console.log();
-    logFeeEstimation(feeEstimate);
-  } catch (error) {
-    console.error(chalk.red("Could not simulate transaction"));
-    console.log();
-  }
+  const feeEstimate = await simulateUploadMessage(binary);
+  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log();
+  logFeeEstimation(feeEstimate);
   if (simulate) {
     return;
   }
@@ -379,15 +369,10 @@ export async function instantiateMessage(
     console.log(JSON.stringify(msg, null, 2));
     console.log();
   }
-  try {
-    const feeEstimate = await simulateInstantiationMessage(codeId, msg, label);
-    console.log(successMessage ?? chalk.green("Transaction simulated!"));
-    console.log();
-    logFeeEstimation(feeEstimate);
-  } catch (error) {
-    console.error(chalk.red("Could not simulate transaction"));
-    console.log();
-  }
+  const feeEstimate = await simulateInstantiationMessage(codeId, msg, label);
+  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log();
+  logFeeEstimation(feeEstimate);
   if (simulate) {
     return;
   }
@@ -436,15 +421,10 @@ export async function migrateMessage(
   successMessage?: string
 ) {
   const { memo, simulate } = flags;
-  try {
-    const feeEstimate = await simulateMigrate(contractAddress, codeId, msg);
-    console.log(successMessage ?? chalk.green("Transaction simulated!"));
-    console.log();
-    logFeeEstimation(feeEstimate);
-  } catch (error) {
-    console.error(chalk.red("Could not simulate transaction"));
-    console.log();
-  }
+  const feeEstimate = await simulateMigrate(contractAddress, codeId, msg);
+  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log();
+  logFeeEstimation(feeEstimate);
 
   if (simulate) {
     return;
