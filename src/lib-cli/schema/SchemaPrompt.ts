@@ -5,6 +5,59 @@ import { Schema, Validator } from "jsonschema";
 import client from "../handlers/client";
 import _ from "lodash";
 import config from "../config";
+import { validateAddressInput } from "..";
+
+// The standard message for sending an NFT
+const SEND_NFT_MESSAGE_TYPE = "send_nft";
+
+interface SendNftMsg {
+  send_nft: { token_id: string; msg: string; contract: string };
+}
+
+async function requestSendNFT(): Promise<SendNftMsg> {
+  const tokenIdInput = await inquirer.prompt({
+    type: "input",
+    message: "[Sending NFT] Input token ID:",
+    validate: (input: string) => input.length > 0,
+    name: "tokenid",
+  });
+  const addressInput = await inquirer.prompt({
+    type: "input",
+    message: `[Sending NFT ${tokenIdInput.tokenid}] Input receiving address:`,
+    validate: validateAddressInput,
+    name: "address",
+  });
+
+  let msg: string | Record<string, any> = {};
+  try {
+    const type = await client.ado.getType(addressInput.address);
+    const schemas = getSchemaURLsByType(type);
+    if (!schemas) throw new Error("Not a registered ADO type");
+    if (!schemas.receive || !schemas.receive.cw721)
+      throw new Error("Contract address cannot receive NFTs");
+    const schema = await fetchSchema(schemas.receive.cw721);
+    msg = await promptQueryOrExecuteMessage(schema, type);
+  } catch (error) {
+    console.error(error);
+    const messageInput = await inquirer.prompt({
+      type: "input",
+      message: `[Sending NFT ${tokenIdInput.tokenid}] Input message to send (base64 encoded):`,
+      validate: (input: string) => input.length > 0,
+      name: "message",
+    });
+
+    msg = messageInput.message;
+  }
+
+  msg = typeof msg === "string" ? msg : encode(msg);
+  return {
+    send_nft: {
+      msg,
+      contract: addressInput.address,
+      token_id: tokenIdInput.tokenid,
+    },
+  };
+}
 
 export async function requestMessageType(options: Schema[]): Promise<string> {
   // Filter out Andromeda Receive message as it is unnecessary
@@ -34,7 +87,10 @@ export async function requestMessageType(options: Schema[]): Promise<string> {
   return input.oneOfChoice;
 }
 
-export async function promptQueryOrExecuteMessage(schema: Schema) {
+export async function promptQueryOrExecuteMessage(
+  schema: Schema,
+  type: string
+) {
   const validOptions = (schema.oneOf ?? []).filter(
     ({ required }) =>
       required &&
@@ -54,7 +110,15 @@ export async function promptQueryOrExecuteMessage(schema: Schema) {
   const { required, properties } = messageSchema;
   if (!properties) return {};
 
-  const prompter = new SchemaPrompt(schema);
+  if (
+    Array.isArray(required) &&
+    required.length > 0 &&
+    required[0] === SEND_NFT_MESSAGE_TYPE
+  ) {
+    return await requestSendNFT();
+  }
+
+  const prompter = new SchemaPrompt(schema, type);
 
   const keys = Object.keys(properties);
   let answers: Record<string, any> = {};
@@ -73,11 +137,15 @@ export async function promptQueryOrExecuteMessage(schema: Schema) {
   return answers;
 }
 
-export async function promptInstantiateMsg(schema: Schema, bread?: string[]) {
+export async function promptInstantiateMsg(
+  schema: Schema,
+  type: string,
+  bread?: string[]
+) {
   const { required, properties } = schema;
   if (!properties) return {};
 
-  const prompter = new SchemaPrompt(schema);
+  const prompter = new SchemaPrompt(schema, type);
 
   const keys = Object.keys(properties);
   let answers: Record<string, any> = {};
@@ -105,12 +173,9 @@ enum AndromedaSchemaTypes {
 }
 
 export default class SchemaPrompt {
-  schema: Schema;
   answers: Record<string, any> = {};
 
-  constructor(schema: Schema) {
-    this.schema = schema;
-  }
+  constructor(public schema: Schema, public type: string) {}
 
   async requestAppComponent() {
     const name = await this.promptQuestion(
@@ -129,7 +194,9 @@ export default class SchemaPrompt {
     const { instantiate } = getSchemaURLsByType(adoType);
     const schema = await fetchSchema(instantiate);
 
-    const msg = await promptInstantiateMsg(schema, [`${name} - Instantiation`]);
+    const msg = await promptInstantiateMsg(schema, adoType, [
+      `${name} - Instantiation`,
+    ]);
     const instantiateMsg = encode(msg);
 
     return {
@@ -185,7 +252,7 @@ export default class SchemaPrompt {
 
     const { execute } = getSchemaURLsByType(type);
     const schema = await fetchSchema(execute);
-    const msg = await promptQueryOrExecuteMessage(schema);
+    const msg = await promptQueryOrExecuteMessage(schema, type);
 
     return {
       address: {

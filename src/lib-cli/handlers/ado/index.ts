@@ -106,7 +106,7 @@ async function createHandler(input: string[], flags: Flags) {
     async () => await fetchSchema(instantiate)
   );
 
-  const prompter = new InstantiateSchemaPrompt(schema);
+  const prompter = new InstantiateSchemaPrompt(schema, type);
   const msg = await prompter.start();
 
   const codeId = await client.factory.getCodeId(type);
@@ -153,7 +153,7 @@ async function executeHandler(input: string[], flags: Flags) {
     async () => await fetchSchema(execute)
   );
 
-  const msg = await promptQueryOrExecuteMessage(schema);
+  const msg = await promptQueryOrExecuteMessage(schema, type);
   await executeMessage(address, msg, flags);
 }
 
@@ -178,7 +178,7 @@ async function queryHandler(input: string[]) {
     async () => await fetchSchema(query)
   );
 
-  const msg = await promptQueryOrExecuteMessage(schema);
+  const msg = await promptQueryOrExecuteMessage(schema, type);
   const resp = await queryMessage(address, msg);
 
   console.log(JSON.stringify(resp, null, 2));

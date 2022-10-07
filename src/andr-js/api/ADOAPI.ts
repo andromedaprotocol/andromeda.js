@@ -8,7 +8,7 @@ export default class ADOAPI {
   ) {}
 
   /**
-   * Converts a message object to an Andromeda Query Message
+   * Converts a message object to an Andromeda Execute Message
    * @param msg
    * @returns
    */
@@ -358,9 +358,12 @@ export default class ADOAPI {
    */
   async getType(addr: string = this.address) {
     const query = this.typeQuery();
-    const resp = await this.client.queryContract<{ type: string }>(addr, query);
+    const resp = await this.client.queryContract<{ ado_type: string }>(
+      addr,
+      query
+    );
 
-    return resp.type;
+    return resp.ado_type;
   }
 
   /**

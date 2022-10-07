@@ -1,7 +1,7 @@
+import { fetchSchema, getSchemaURLsByType } from "@andromeda/andromeda-js";
 import inquirer from "inquirer";
 import { Schema } from "jsonschema";
 import _ from "lodash";
-import { fetchSchema, getSchemaURLsByType } from "../../andr-js/ADOP";
 // import { Validator } from "jsonschema";
 import SchemaPrompt from "./SchemaPrompt";
 
@@ -9,7 +9,7 @@ export default class ExecuteSchemaPrompt extends SchemaPrompt {
   static async fromType(adoType: string) {
     const { execute } = getSchemaURLsByType(adoType);
     const schema = await fetchSchema(execute);
-    return new ExecuteSchemaPrompt(schema);
+    return new ExecuteSchemaPrompt(schema, adoType);
   }
 
   async requestMessageType(options: Schema[]): Promise<string> {
@@ -51,10 +51,10 @@ export default class ExecuteSchemaPrompt extends SchemaPrompt {
         !required.includes("andr_receive")
     );
     const messageChoice = await this.requestMessageType(validOptions);
-
     const messageSchema: Schema = validOptions[parseInt(messageChoice)];
 
     const { required, properties } = messageSchema;
+
     if (!properties) return {};
 
     const keys = Object.keys(properties);

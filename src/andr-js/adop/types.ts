@@ -11,8 +11,14 @@ export interface PackageDefinition {
   schemas: PackageSchemaURIs;
 }
 
+export interface ReceiveSchemas {
+  cw721?: Schema;
+  cw20?: Schema;
+}
+
 export interface PackageSchemas {
   execute: Schema;
   query: Schema;
   instantiate: Schema;
+  receive?: ReceiveSchemas;
 }

@@ -12,7 +12,7 @@ describe("The Schema Prompt class...", () => {
   });
 
   it("should replace references correctly", async () => {
-    const prompter = new SchemaPrompt(schema);
+    const prompter = new SchemaPrompt(schema, "test");
     const toReplace = {
       minter: {
         description:
