@@ -15,6 +15,7 @@ const STORAGE_FILE = "wallets.json";
  */
 export async function loadWallets() {
   try {
+    if (!storage.storageFileExists(STORAGE_FILE)) return;
     const savedWalletsData = storage.loadStorageFile(STORAGE_FILE);
     try {
       const savedWallets = JSON.parse(savedWalletsData.toString());
