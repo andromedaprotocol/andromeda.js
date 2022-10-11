@@ -42,6 +42,7 @@ export const commands: Commands = {
     color: chalk.rgb(23, 125, 90),
     description: "Gets a history of transactions for your current wallet",
     usage: "tx history",
+    disabled: () => typeof getCurrentWallet() === "undefined",
   },
 };
 
@@ -98,6 +99,8 @@ async function txAddressHandler(inputs: string[]) {
  */
 async function txHistoryHandler() {
   const wallet = getCurrentWallet();
+  if (!wallet) throw new Error("No wallet currently assigned");
+
   const walletAddr = await wallet.getFirstOfflineSigner(
     config.get("chain.chainId")
   );
