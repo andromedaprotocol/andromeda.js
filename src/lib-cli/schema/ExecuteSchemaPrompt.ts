@@ -1,4 +1,7 @@
-import { fetchSchema, getSchemaURLsByType } from "@andromeda/andromeda-js";
+import {
+  fetchSchema,
+  queryADOPackageDefinition,
+} from "@andromeda/andromeda-js";
 import inquirer from "inquirer";
 import { Schema } from "jsonschema";
 import _ from "lodash";
@@ -7,7 +10,9 @@ import SchemaPrompt from "./SchemaPrompt";
 
 export default class ExecuteSchemaPrompt extends SchemaPrompt {
   static async fromType(adoType: string) {
-    const { execute } = getSchemaURLsByType(adoType);
+    const {
+      schemas: { execute },
+    } = await queryADOPackageDefinition(adoType);
     const schema = await fetchSchema(execute);
     return new ExecuteSchemaPrompt(schema, adoType);
   }

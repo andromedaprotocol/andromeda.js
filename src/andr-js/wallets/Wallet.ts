@@ -1,6 +1,6 @@
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { generateMnemonic } from "bip39";
-import { getConfigByChainID } from "../chainConfigs";
+import { queryChainConfig } from "@andromeda/andromeda-js";
 
 /**
  * Used to generate a client wallet by Mnemonic
@@ -20,7 +20,7 @@ export default class Wallet {
    * Get wallet associated with the provided mnemonic
    */
   async getWallet(chainId: string) {
-    const config = getConfigByChainID(chainId);
+    const config = await queryChainConfig(chainId);
     if (!config) throw new Error("No config for provided chain ID");
     return await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic, {
       prefix: config.addressPrefix,

@@ -13,9 +13,9 @@ let uri: string = "https://andr-graphql.herokuapp.com/graphql";
  */
 export async function query<Input, Output>(
   document: RequestDocument,
-  variables: Input
+  variables?: Input
 ) {
-  return await request<Output>(uri, document, variables);
+  return await request<Output>(uri, document, variables ?? {});
 }
 
 /**

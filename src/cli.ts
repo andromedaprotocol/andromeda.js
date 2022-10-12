@@ -22,9 +22,7 @@ inquirer.registerPrompt("command", inquirerCommandPrompt);
 
 async function onStartup() {
   try {
-    await displaySpinnerAsync("Loading config...", async () =>
-      loadDefaultConfig()
-    );
+    await displaySpinnerAsync("Loading config...", loadDefaultConfig);
     const signer = await displaySpinnerAsync(
       "Loading wallets...",
       async () => await wallets.loadWallets()
@@ -37,7 +35,6 @@ async function onStartup() {
 
 async function start() {
   await onStartup();
-
   const inputs = process.argv.slice(2);
   if (inputs.length === 0) {
     await title();

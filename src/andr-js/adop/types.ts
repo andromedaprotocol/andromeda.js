@@ -4,6 +4,10 @@ export interface PackageSchemaURIs {
   execute: string;
   query: string;
   instantiate: string;
+  receive?: {
+    cw721?: string;
+    cw20?: string;
+  };
 }
 
 export interface PackageDefinition {
