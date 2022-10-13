@@ -2,10 +2,12 @@ import type { PackageDefinition } from "../../ADOP";
 import { gql } from "graphql-request";
 import { query } from "../client";
 
-export interface QueryADOTypes {}
-export interface QueryADOTypesResponse {
-  ADOP: { adoTypes: string[] };
+export interface ADOPResponse<T> {
+  ADOP: T;
 }
+
+export interface QueryADOTypes {}
+export type QueryADOTypesResponse = ADOPResponse<{ adoTypes: string[] }>;
 
 export const QUERY_ADO_TYPES = gql`
   query QUERY_ADO_TYPES {
@@ -30,9 +32,9 @@ export async function queryADOTypes(): Promise<string[]> {
 export interface QueryADOPackageDefinition {
   adoType: string;
 }
-export interface QueryADOPackageDefinitionResponse {
-  ADOP: { package: PackageDefinition };
-}
+export type QueryADOPackageDefinitionResponse = ADOPResponse<{
+  package: PackageDefinition;
+}>;
 
 export const QUERY_ADO_PACKAGE_DEFINITION = gql`
   query QUERY_ADO_PACKAGE_DEFINITION($adoType: AdoType!) {

@@ -2,20 +2,25 @@ import { query } from "../client";
 import type { ContractAddressQuery } from "./types";
 import { gql } from "graphql-request";
 
+export interface CW20Response<T> {
+  cw20: T;
+}
+
 export interface TokenInfo {
   decimals: number;
   name: string;
   symbol: string;
   total_supply: number;
 }
+
 export interface QueryCW20TokenInfo extends ContractAddressQuery {}
-export interface QueryCW20TokenInfoResponse {
+export type QueryCW20TokenInfoResponse = CW20Response<{
   tokenInfo: TokenInfo;
-}
+}>;
 
 export const QUERY_CW20_TOKEN_INFO = gql`
   query QUERY_CW20_TOKEN_INFO($contractAddress: String!) {
-    cw20token(contractAddress: $contractAddress) {
+    cw20(address: $contractAddress) {
       tokenInfo {
         decimals
         name
@@ -26,6 +31,11 @@ export const QUERY_CW20_TOKEN_INFO = gql`
   }
 `;
 
+/**
+ * Queries the token info for a given token contract
+ * @param contractAddress
+ * @returns
+ */
 export async function queryCW20TokenInfo(
   contractAddress: string
 ): Promise<TokenInfo> {
@@ -34,5 +44,5 @@ export async function queryCW20TokenInfo(
     { contractAddress }
   );
 
-  return resp.tokenInfo;
+  return resp.cw20.tokenInfo;
 }

@@ -42,7 +42,7 @@ const commands: Commands = {
 async function appHandler(input: string[]) {
   let [address] = input;
   try {
-    const { app } = await displaySpinnerAsync(
+    const app = await displaySpinnerAsync(
       "Searching the Cosmos...",
       async () => await queryApp(address)
     );

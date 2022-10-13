@@ -3,10 +3,14 @@ import { gql } from "graphql-request";
 import type { ContractAddressQuery, Expiry, Recipient } from "./types";
 import { Coin } from "@cosmjs/proto-signing";
 
-export interface QueryCrowdfundAvailableTokens extends ContractAddressQuery {}
-export interface QueryCrowdfundAvailableTokensResponse {
-  availableTokens: string[];
+export interface CrowdfundResponse<T> {
+  crowdfund: T;
 }
+
+export interface QueryCrowdfundAvailableTokens extends ContractAddressQuery {}
+export type QueryCrowdfundAvailableTokensResponse = CrowdfundResponse<{
+  availableTokens: string[];
+}>;
 
 export const QUERY_CROWDFUND_AVAILABLE_TOKENS = gql`
   query QUERY_CROWDFUND_AVAILABLE_TOKENS($contractAddress: String!) {
@@ -16,6 +20,11 @@ export const QUERY_CROWDFUND_AVAILABLE_TOKENS = gql`
   }
 `;
 
+/**
+ * Queries all available token IDs from a crowdfund contract
+ * @param contractAddress
+ * @returns
+ */
 export async function queryCrowdfundAvailableTokens(
   contractAddress: string
 ): Promise<string[]> {
@@ -24,7 +33,7 @@ export async function queryCrowdfundAvailableTokens(
     QueryCrowdfundAvailableTokensResponse
   >(QUERY_CROWDFUND_AVAILABLE_TOKENS, { contractAddress });
 
-  return resp.availableTokens;
+  return resp.crowdfund.availableTokens;
 }
 
 export interface CrowdfundConfig {
@@ -32,9 +41,9 @@ export interface CrowdfundConfig {
   token_address: string;
 }
 export interface QueryCrowdfundConfig extends ContractAddressQuery {}
-export interface QueryCrowdfundConfigResponse {
+export type QueryCrowdfundConfigResponse = CrowdfundResponse<{
   config: CrowdfundConfig;
-}
+}>;
 
 export const QUERY_CROWDFUND_CONFIG = gql`
   query QUERY_CROWDFUND_CONFIG($contractAddress: String!) {
@@ -47,6 +56,11 @@ export const QUERY_CROWDFUND_CONFIG = gql`
   }
 `;
 
+/**
+ * Queries the config for a given crowdfund contract
+ * @param contractAddress
+ * @returns
+ */
 export async function queryCrowdfundConfig(
   contractAddress: string
 ): Promise<CrowdfundConfig> {
@@ -55,15 +69,15 @@ export async function queryCrowdfundConfig(
     { contractAddress }
   );
 
-  return resp.config;
+  return resp.crowdfund.config;
 }
 
 export interface QueryCrowdfundTokenAvailable extends ContractAddressQuery {
   tokenId: string;
 }
-export interface QueryCrowdfundTokenAvailableResponse {
+export type QueryCrowdfundTokenAvailableResponse = CrowdfundResponse<{
   isTokenAvailable: boolean;
-}
+}>;
 
 export const QUERY_CROWDFUND_TOKEN_AVAILABLE = gql`
   query QUERY_CROWDFUND_TOKEN_AVAILABLE(
@@ -76,6 +90,12 @@ export const QUERY_CROWDFUND_TOKEN_AVAILABLE = gql`
   }
 `;
 
+/**
+ * Queries a crowdfund contract for the availability of a given token ID
+ * @param contractAddress
+ * @param tokenId
+ * @returns
+ */
 export async function queryCrowdfundTokenAvailable(
   contractAddress: string,
   tokenId: string
@@ -85,7 +105,7 @@ export async function queryCrowdfundTokenAvailable(
     QueryCrowdfundTokenAvailableResponse
   >(QUERY_CROWDFUND_TOKEN_AVAILABLE, { contractAddress, tokenId });
 
-  return resp.isTokenAvailable;
+  return resp.crowdfund.isTokenAvailable;
 }
 
 export interface CrowdfundState {
@@ -99,9 +119,9 @@ export interface CrowdfundState {
   recipient: Recipient;
 }
 export interface QueryCrowdfundState extends ContractAddressQuery {}
-export interface QueryCrowdfundStateResponse {
+export type QueryCrowdfundStateResponse = CrowdfundResponse<{
   state: CrowdfundState;
-}
+}>;
 
 export const QUERY_CROWDFUND_STATE = gql`
   query QUERY_CROWDFUND_STATE($contractAddress: String!) {
@@ -123,6 +143,11 @@ export const QUERY_CROWDFUND_STATE = gql`
   }
 `;
 
+/**
+ * Queries the current crowdfund state
+ * @param contractAddress
+ * @returns
+ */
 export async function queryCrowdfundState(
   contractAddress: string
 ): Promise<CrowdfundState> {
@@ -131,5 +156,5 @@ export async function queryCrowdfundState(
     { contractAddress }
   );
 
-  return resp.state;
+  return resp.crowdfund.state;
 }
