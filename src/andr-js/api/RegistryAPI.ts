@@ -1,8 +1,6 @@
-import type { Coin } from "@cosmjs/proto-signing";
-import type { PrimitiveValue, PrimitiveValueType } from "../types";
-import type AndromedaClient from "../AndromedaClient";
-import type { Fee } from "../types";
 import { encode, validateAddress } from "..";
+import type AndromedaClient from "../AndromedaClient";
+import type { Fee, PrimitiveValue, PrimitiveValueType } from "../types";
 import ADOAPI from "./ADOAPI";
 
 export default class RegistryAPI extends ADOAPI {

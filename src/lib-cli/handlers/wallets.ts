@@ -81,7 +81,8 @@ const commands: Commands = {
   add: {
     handler: addWalletHandler,
     color: chalk.green,
-    description: "Adds a new wallet",
+    description:
+      "Adds a new wallet. Can be used with the --recover flag to add a wallet by mnemonic.",
     usage: "wallets add <name?>",
     flags: {
       recover: {

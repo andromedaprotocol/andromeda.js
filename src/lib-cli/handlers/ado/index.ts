@@ -9,7 +9,7 @@ import {
   instantiateFlags,
 } from "../../common";
 import {
-  InstantiateSchemaPrompt,
+  promptInstantiateMsg,
   promptQueryOrExecuteMessage,
 } from "../../schema";
 import { Commands, Flags } from "../../types";
@@ -115,8 +115,7 @@ async function createHandler(input: string[], flags: Flags) {
     async () => await fetchSchema(instantiate)
   );
 
-  const prompter = new InstantiateSchemaPrompt(schema, type);
-  const msg = await prompter.start();
+  const msg = await promptInstantiateMsg(schema, type);
 
   const codeId = await client.factory.getCodeId(type);
 
