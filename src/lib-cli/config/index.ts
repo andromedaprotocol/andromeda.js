@@ -1,4 +1,4 @@
-import { getConfigByChainID } from "@andromeda/andromeda-js";
+import { queryChainConfig } from "@andromeda/andromeda-js";
 import convict from "convict";
 import convictFormatWithValidator from "convict-format-with-validator";
 import { addExitHandler, loadStorageFile, writeStorageFile } from "./storage";
@@ -99,7 +99,7 @@ const config = convict({
 /**
  * Loads the config used by the CLI on startup
  */
-export function loadDefaultConfig() {
+export async function loadDefaultConfig() {
   try {
     const savedConfig = loadStorageFile("config.json");
     try {
@@ -111,7 +111,7 @@ export function loadDefaultConfig() {
   } catch (error) {
     console.error(error);
     const defaultConfig = {
-      chain: getConfigByChainID("default"),
+      chain: await queryChainConfig("uni-5"),
     };
     config.load(defaultConfig);
   }

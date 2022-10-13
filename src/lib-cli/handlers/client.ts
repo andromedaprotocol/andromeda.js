@@ -1,6 +1,6 @@
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import config from "../config";
-import AndromedaClient from "../../andr-js";
+import AndromedaClient from "@andromeda/andromeda-js";
 import { displaySpinnerAsync } from "../common";
 import { GasPrice } from "@cosmjs/stargate";
 import chalk from "chalk";
@@ -20,7 +20,11 @@ export async function connectClient(signer?: DirectSecp256k1HdWallet) {
           .connect(chainUrl, registryAddress, signer, {
             gasPrice: GasPrice.fromString(defaultFee),
           })
-          .then(() => resolve(undefined));
+          .then(() => resolve(undefined))
+          .catch((err) => {
+            console.error(err);
+            resolve(undefined);
+          });
         setTimeout(
           () => reject(chalk.red("Client connection timed out")),
           30000

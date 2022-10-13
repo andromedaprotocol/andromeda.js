@@ -1,4 +1,8 @@
-import { fetchSchema, getSchemaURLsByType, encode } from "../../andr-js";
+import {
+  fetchSchema,
+  queryADOPackageDefinition,
+  encode,
+} from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
@@ -31,7 +35,7 @@ async function requestSendNFT(): Promise<SendNftMsg> {
   let msg: string | Record<string, any> = {};
   try {
     const type = await client.ado.getType(addressInput.address);
-    const schemas = getSchemaURLsByType(type);
+    const { schemas } = await queryADOPackageDefinition(type);
     if (!schemas) throw new Error("Not a registered ADO type");
     if (!schemas.receive || !schemas.receive.cw721)
       throw new Error("Contract address cannot receive NFTs");
@@ -191,7 +195,9 @@ export default class SchemaPrompt {
       ["App Component"]
     );
 
-    const { instantiate } = getSchemaURLsByType(adoType);
+    const {
+      schemas: { instantiate },
+    } = await queryADOPackageDefinition(adoType);
     const schema = await fetchSchema(instantiate);
 
     const msg = await promptInstantiateMsg(schema, adoType, [
@@ -238,7 +244,7 @@ export default class SchemaPrompt {
         type: "input",
         validate: async (input: string) => {
           try {
-            getSchemaURLsByType(input);
+            await queryADOPackageDefinition(input);
             return true;
           } catch (error) {
             const { message } = error as Error;
@@ -250,7 +256,9 @@ export default class SchemaPrompt {
       type = typeInput.adoType;
     }
 
-    const { execute } = getSchemaURLsByType(type);
+    const {
+      schemas: { execute },
+    } = await queryADOPackageDefinition(type);
     const schema = await fetchSchema(execute);
     const msg = await promptQueryOrExecuteMessage(schema, type);
 

@@ -1,4 +1,7 @@
-import { fetchSchema, getSchemaURLsByType } from "@andromeda/andromeda-js";
+import {
+  fetchSchema,
+  queryADOPackageDefinition,
+} from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import {
   displaySpinnerAsync,
@@ -6,15 +9,15 @@ import {
   instantiateFlags,
 } from "../../common";
 import {
-  InstantiateSchemaPrompt,
+  promptInstantiateMsg,
   promptQueryOrExecuteMessage,
 } from "../../schema";
 import { Commands, Flags } from "../../types";
-import { executeMessage, instantiateMessage, queryMessage } from "../wasm";
 import client from "../client";
-import { generateHandler, validateAddressInput } from "../utils";
-import factoryCommands from "./factory";
 import gqlCommands from "../gql";
+import { generateHandler, validateAddressInput } from "../utils";
+import { executeMessage, instantiateMessage, queryMessage } from "../wasm";
+import factoryCommands from "./factory";
 
 // Factory has several subcommands, see `factory.ts`
 const factoryHandler = generateHandler(factoryCommands);
@@ -35,14 +38,18 @@ const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input the ADO type:",
-        validate: (input: string) => {
+        validate: async (input: string) => {
           try {
-            getSchemaURLsByType(input);
+            await queryADOPackageDefinition(input);
             return true;
           } catch (error) {
             const { message } = error as Error;
             console.log();
-            console.log(chalk.red(message));
+            if (message.includes("does not exist in")) {
+              console.log(chalk.red("Invalid ADO Type"));
+            } else {
+              console.log(chalk.red(message));
+            }
             return false;
           }
         },
@@ -100,14 +107,15 @@ const commands: Commands = {
  */
 async function createHandler(input: string[], flags: Flags) {
   const [type] = input;
-  const { instantiate } = getSchemaURLsByType(type);
+  const {
+    schemas: { instantiate },
+  } = await queryADOPackageDefinition(type);
   const schema = await displaySpinnerAsync(
     "Fetching schema...",
     async () => await fetchSchema(instantiate)
   );
 
-  const prompter = new InstantiateSchemaPrompt(schema, type);
-  const msg = await prompter.start();
+  const msg = await promptInstantiateMsg(schema, type);
 
   const codeId = await client.factory.getCodeId(type);
 
@@ -147,7 +155,9 @@ async function executeHandler(input: string[], flags: Flags) {
     return;
   }
 
-  const { execute } = getSchemaURLsByType(type);
+  const {
+    schemas: { execute },
+  } = await queryADOPackageDefinition(type);
   const schema = await displaySpinnerAsync(
     "Fetching schema...",
     async () => await fetchSchema(execute)
@@ -172,7 +182,9 @@ async function queryHandler(input: string[]) {
     return;
   }
 
-  const { query } = getSchemaURLsByType(type);
+  const {
+    schemas: { query },
+  } = await queryADOPackageDefinition(type);
   const schema = await displaySpinnerAsync(
     "Fetching schema...",
     async () => await fetchSchema(query)

@@ -5,5 +5,7 @@ export * from "./auction";
 export * from "./crowdfund";
 export * from "./cw20";
 export * from "./tx";
+export * from "./adop";
+export * from "./chainConfigs";
 
 export * from "./types";
