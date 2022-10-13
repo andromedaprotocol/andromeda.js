@@ -3,11 +3,15 @@ import { gql } from "graphql-request";
 import { query } from "../client";
 import { ContractAddressQuery } from "./types";
 
+export interface PrimitiveResponse<T> {
+  primitive: T;
+}
+
 export interface QueryPrimitive extends ContractAddressQuery {}
 
-export interface QueryPrimitiveResponse {
+export type QueryPrimitiveResponse = PrimitiveResponse<{
   owner: string;
-}
+}>;
 
 export const QUERY_PRIMITIVE = gql`
   query QUERY_PRIMITIVE($contractAddress: String!) {
@@ -23,24 +27,27 @@ export const QUERY_PRIMITIVE = gql`
  * @returns
  */
 export async function queryPrimitive(contractAddress: string) {
-  return query<QueryPrimitive, QueryPrimitiveResponse>(QUERY_PRIMITIVE, {
-    contractAddress,
-  });
+  const resp = await query<QueryPrimitive, QueryPrimitiveResponse>(
+    QUERY_PRIMITIVE,
+    {
+      contractAddress,
+    }
+  );
+  return resp.primitive.owner;
 }
 
-//Redundant typing here (SEE PRIMITIVEAPI)
 export interface QueryPrimitiveValue extends ContractAddressQuery {
   key: string;
 }
 
-export interface PrimitiveResponse {
+export interface PrimitiveValueResponse {
   key: string;
   value: PrimitiveValue;
 }
 
-export interface QueryPrimitiveValueResponse {
-  getValue: PrimitiveResponse;
-}
+export type QueryPrimitiveValueResponse = PrimitiveResponse<{
+  getValue: PrimitiveValueResponse;
+}>;
 
 export const QUERY_PRIMITIVE_VALUE = gql`
   query QUERY_PRIMITIVE_VALUE($contractAddress: String!, $key: String!) {
@@ -63,11 +70,12 @@ export async function queryPrimitiveValue(
   contractAddress: string,
   key: string
 ) {
-  return query<QueryPrimitiveValue, QueryPrimitiveValueResponse>(
+  const resp = await query<QueryPrimitiveValue, QueryPrimitiveValueResponse>(
     QUERY_PRIMITIVE_VALUE,
     {
       contractAddress,
       key,
     }
   );
+  return resp.primitive.getValue;
 }

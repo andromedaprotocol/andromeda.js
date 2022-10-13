@@ -2,6 +2,10 @@ import { query } from "../client";
 import { gql } from "graphql-request";
 import { ContractAddressQuery, Recipient } from "./types";
 
+export interface SplitterResponse<T> {
+  splitter: T;
+}
+
 export interface RecipientPercentage {
   percent: string;
   recipient: Recipient;
@@ -10,33 +14,31 @@ export interface SplitterConfig {
   locked: boolean;
   recipients: RecipientPercentage[];
 }
+
 export interface QuerySplitterConfig extends ContractAddressQuery {}
-export interface QuerySplitterConfigResponse {
+export type QuerySplitterConfigResponse = SplitterResponse<{
   config: SplitterConfig;
-}
+}>;
 
 export const QUERY_SPLITTER_CONFIG = gql`
   query QUERY_SPLITTER_CONFIG($contractAddress: String!) {
-    splitter(contractAddress: $contractAddress) {
+    splitter(address: $contractAddress) {
       config {
         locked
         recipients {
           percent
-          recipient {
-            a_d_o {
-              address {
-                identifier
-              }
-              msg
-            }
-            addr
-          }
+          recipient
         }
       }
     }
   }
 `;
 
+/**
+ * Queries a splitter contract for its config
+ * @param contractAddress
+ * @returns
+ */
 export async function queryConfig(
   contractAddress: string
 ): Promise<SplitterConfig> {
@@ -45,5 +47,5 @@ export async function queryConfig(
     { contractAddress }
   );
 
-  return resp.config;
+  return resp.splitter.config;
 }

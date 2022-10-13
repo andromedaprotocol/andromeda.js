@@ -172,7 +172,7 @@ export async function queryAllOperators(
   owner: string,
   includeExpired: boolean = false,
   options?: AndrSearchOptions
-): Promise<QueryCW721AllOperatorsResponse["allOperators"]> {
+): Promise<QueryCW721AllOperatorsResponse["cw721"]["allOperators"]> {
   const resp = await query<
     QueryCW721AllOperators,
     QueryCW721AllOperatorsResponse
@@ -213,7 +213,7 @@ export const QUERY_CW721_ALL_TOKENS = gql`
 export async function queryAllTokens(
   contractAddress: string,
   options?: AndrSearchOptions
-): Promise<QueryCW721AllTokensResponse["allTokens"]> {
+): Promise<string[]> {
   const resp = await query<QueryCW721AllTokens, QueryCW721AllTokensResponse>(
     QUERY_CW721_ALL_TOKENS,
     { contractAddress, options }
@@ -264,7 +264,7 @@ export async function queryApproval(
   spender: string,
   tokenId: string,
   includeExpired: boolean = false
-): Promise<QueryCW721ApprovalResponse["approval"]> {
+): Promise<NFTApproval> {
   const resp = await query<QueryCW721Approval, QueryCW721ApprovalResponse>(
     QUERY_CW721_APPROVAL,
     { contractAddress, spender, tokenId, includeExpired }
@@ -376,7 +376,7 @@ export const QUERY_CW721_IS_ARCHIVED = gql`
 export async function queryIsArchived(
   contractAddress: string,
   tokenId: string
-): Promise<QueryCW721IsArchivedResponse["isArchived"]> {
+): Promise<boolean> {
   const resp = await query<QueryCW721IsArchived, QueryCW721IsArchivedResponse>(
     QUERY_CW721_IS_ARCHIVED,
     { contractAddress, tokenId }

@@ -12,6 +12,9 @@ export interface PaginatedRequiredQuery {
   options: AndrSearchOptions;
 }
 
+/**
+ * Defines paginated query options
+ */
 export interface AndrSearchOptions {
   limit?: number;
   orderBy?: "Asc" | "Desc";
