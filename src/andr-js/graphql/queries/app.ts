@@ -49,5 +49,7 @@ export const QUERY_APP = gql`
  * @returns
  */
 export async function queryApp(contractAddress: string) {
-  return query<QueryApp, QueryAppResponse>(QUERY_APP, { contractAddress });
+  return (
+    await query<QueryApp, QueryAppResponse>(QUERY_APP, { contractAddress })
+  ).app;
 }

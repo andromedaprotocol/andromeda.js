@@ -1,151 +1,162 @@
 import { gql } from "graphql-request";
 import { query } from "../client";
-import { AndrSearchOptions, Expiry, PaginatedQuery } from "./types";
-import { AndrAddress } from "../../types";
+import { ContractAddressQuery } from "./types";
 
-export interface QueryAuctionAuctionIds {
+export const AUCTION_STATE_FRAGMENT = gql`
+  fragment AuctionStateInfo on AuctionStateResponse {
+    auction_id
+    coin_denom
+    end_time
+    high_bidder_addr
+    high_bidder_amount
+    is_cancelled
+    start_time
+    whitelist
+    min_bid
+  }
+`;
+
+export interface AuctionResponse<T> {
+  auction: T;
+}
+
+export interface QueryAuctionAuctionIds extends ContractAddressQuery {
   tokenAddress: string;
   tokenId: string;
 }
-export interface QueryAuctionAuctionIdsResponse {
-  auctionIds: number[];
-}
+export type QueryAuctionAuctionIdsResponse = AuctionResponse<{
+  auctionIDs: { auction_ids: number[] };
+}>;
 
 export const QUERY_AUCTION_AUCTION_IDS = gql`
-  query QUERY_AUCTION_AUCTION_IDS($tokenId: String!, $tokenAddress: String!) {
-    auction {
-      auctionIds(tokenId: $tokenId, tokenAddress: $tokenAddress)
+  query QUERY_AUCTION_AUCTION_IDS(
+    $contractAddress: String!
+    $tokenId: String!
+    $tokenAddress: String!
+  ) {
+    auction(address: $contractAddress) {
+      auctionIDs(tokenId: $tokenId, tokenAddress: $tokenAddress) {
+        auction_ids
+      }
     }
   }
 `;
 
+/**
+ * Queries all token IDs from an auction contract for a given token ID/token contract address tuple
+ * @param contractAddress
+ * @param tokenId
+ * @param tokenAddress
+ * @returns
+ */
 export async function queryAuctionIds(
+  contractAddress: string,
   tokenId: string,
   tokenAddress: string
 ): Promise<number[]> {
   const resp = await query<
     QueryAuctionAuctionIds,
     QueryAuctionAuctionIdsResponse
-  >(QUERY_AUCTION_AUCTION_IDS, { tokenId, tokenAddress });
+  >(QUERY_AUCTION_AUCTION_IDS, { contractAddress, tokenId, tokenAddress });
 
-  return resp.auctionIds;
+  return resp.auction.auctionIDs.auction_ids;
 }
 
-export interface QueryAuctionAuctionInfo {
-  options: AndrSearchOptions;
+export interface QueryAuctionAuctionInfo extends ContractAddressQuery {
   tokenAddress: string;
 }
-export interface QueryAuctionAuctionInfoResponse {
-  auctionInfo: {
-    auctionIds: number[];
-    contractAddress: string;
-    tokenId: string;
+export type QueryAuctionAuctionInfoResponse = AuctionResponse<{
+  auctionInfosForAddress: {
+    auction_ids: number[];
+    token_address: string;
+    token_id: string;
   };
-}
+}>;
 
 export const QUERY_AUCTION_AUCTION_INFO = gql`
   query QUERY_AUCTION_AUCTION_INFO(
-    $options: AndrSearchOptions!
+    $contractAddress: String!
     $tokenAddress: String!
   ) {
-    auction {
-      auctionInfo(options: $options, tokenAddress: $tokenAddress) {
-        auctionIds
-        tokenAddress
-        tokenId
+    auction(address: $contractAddress) {
+      auctionInfosForAddress(tokenAddress: $tokenAddress) {
+        auction_ids
+        token_address
+        token_id
       }
     }
   }
 `;
 
+/**
+ * Queries auction information from an auction contract about a particular token contract by address
+ * @param contractAddress
+ * @param tokenAddress
+ * @returns
+ */
 export async function queryAuctionInfo(
-  options: AndrSearchOptions,
+  contractAddress: string,
   tokenAddress: string
-): Promise<QueryAuctionAuctionInfoResponse> {
+): Promise<QueryAuctionAuctionInfoResponse["auction"]> {
   const resp = await query<
     QueryAuctionAuctionInfo,
     QueryAuctionAuctionInfoResponse
-  >(QUERY_AUCTION_AUCTION_INFO, { tokenAddress, options });
+  >(QUERY_AUCTION_AUCTION_INFO, { contractAddress, tokenAddress });
 
-  return resp;
+  return resp.auction;
 }
 
-export interface QueryAuctionAuctionState {
+export interface QueryAuctionAuctionState extends ContractAddressQuery {
   auctionId: number;
 }
 export interface AuctionState {
-  adoId: string;
-  adoType: string;
-  auctionId: number;
-  coinDenom: string;
-  endTime: Expiry;
-  highBidderAddr: AndrAddress;
-  highBidderAmount: number;
-  isCancelled: boolean;
-  modules: {
-    address: AndrAddress;
-    isMutable: boolean;
-    moduleType: string;
-  }[];
-  startTime: Expiry;
-  tokenAddress: string;
-  tokenId: string;
-  whitelist: AndrAddress[];
+  auction_id: string;
+  coin_denom: string;
+  end_time: Record<string, any>;
+  high_bidder_addr: string;
+  high_bidder_amount: string;
+  is_cancelled: boolean;
+  start_time: Record<string, any>;
+  whitelist: string[];
+  min_bid: string;
 }
-export interface QueryAuctionAuctionStateResponse {
+export type QueryAuctionAuctionStateResponse = AuctionResponse<{
   auctionState: AuctionState;
-}
+}>;
 
 export const QUERY_AUCTION_AUCTION_STATE = gql`
-  query QUERY_AUCTION_AUCTION_STATE($auctionId: Float!) {
-    auction {
+  query QUERY_AUCTION_AUCTION_STATE(
+    $contractAddress: String!
+    $auctionId: Float!
+  ) {
+    auction(address: $contractAddress) {
       auctionState(auctionId: $auctionId) {
-        adoId
-        adoType
-        auctionId
-        coinDenom
-        endTime {
-          at_height
-          at_time
-        }
-        highBidderAddr {
-          identifier
-        }
-        highBidderAmount
-        isCancelled
-        modules {
-          address {
-            identifier
-          }
-          isMutable
-          moduleType
-        }
-        startTime {
-          at_height
-          at_time
-        }
-        tokenAddress
-        tokenId
-        whitelist {
-          identifier
-        }
+        ...AuctionStateInfo
       }
     }
   }
+  ${AUCTION_STATE_FRAGMENT}
 `;
 
+/**
+ * Queries auction state from an auction contract given an auction ID
+ * @param contractAddress
+ * @param auctionId
+ * @returns
+ */
 export async function queryAuctionState(
+  contractAddress: string,
   auctionId: number
 ): Promise<AuctionState> {
   const resp = await query<
     QueryAuctionAuctionState,
     QueryAuctionAuctionStateResponse
-  >(QUERY_AUCTION_AUCTION_STATE, { auctionId });
+  >(QUERY_AUCTION_AUCTION_STATE, { contractAddress, auctionId });
 
-  return resp.auctionState;
+  return resp.auction.auctionState;
 }
 
-export interface QueryAuctionBids extends PaginatedQuery {
+export interface QueryAuctionBids extends ContractAddressQuery {
   auctionId: number;
 }
 
@@ -154,91 +165,85 @@ export interface Bid {
   bidder: string;
   timestamp: string;
 }
-export interface QueryAuctionBidsResponse {
-  bids: Bid[];
-}
+export type QueryAuctionBidsResponse = AuctionResponse<{
+  bids: { bids: Bid[] };
+}>;
 
 export const QUERY_AUCTION_BIDS = gql`
-  query QUERY_AUCTION_BIDS($options: AndrSearchOptions, $auctionId: Float!) {
-    auction {
-      bids(options: $options, auctionId: $auctionId) {
-        amount
-        bidder
-        timestamp
+  query QUERY_AUCTION_BIDS($contractAddress: String!, $auctionId: Float!) {
+    auction(address: $contractAddress) {
+      bids(auctionId: $auctionId) {
+        bids {
+          amount
+          bidder
+          timestamp
+        }
       }
     }
   }
 `;
 
+/**
+ * Queries all bids from an auction contract for a given auction ID
+ * @param contractAddress
+ * @param auctionId
+ * @returns
+ */
 export async function queryBids(
-  auctionId: number,
-  options?: AndrSearchOptions
+  contractAddress: string,
+  auctionId: number
 ): Promise<Bid[]> {
   const resp = await query<QueryAuctionBids, QueryAuctionBidsResponse>(
     QUERY_AUCTION_BIDS,
-    { auctionId, options }
+    { auctionId, contractAddress }
   );
 
-  return resp.bids;
+  return resp.auction.bids.bids;
 }
 
-export interface QueryAuctionLatestAuctionState {
+export interface QueryAuctionLatestAuctionState extends ContractAddressQuery {
   tokenAddress: string;
   tokenId: string;
 }
-export interface QueryAuctionLatestAuctionStateResponse {
+export type QueryAuctionLatestAuctionStateResponse = AuctionResponse<{
   latestAuctionState: AuctionState;
-}
+}>;
 
 export const QUERY_AUCTION_LATEST_AUCTION_STATE = gql`
   query QUERY_AUCTION_LATEST_AUCTION_STATE(
+    $contractAddress: String!
     $tokenAddress: String!
     $tokenId: String!
   ) {
-    auction {
+    auction(address: $contractAddress) {
       latestAuctionState(tokenAddress: $tokenAddress, tokenId: $tokenId) {
-        adoId
-        adoType
-        auctionId
-        coinDenom
-        endTime {
-          at_height
-          at_time
-        }
-        highBidderAddr {
-          identifier
-        }
-        highBidderAmount
-        isCancelled
-        modules {
-          address {
-            identifier
-          }
-          isMutable
-          moduleType
-        }
-        startTime {
-          at_height
-          at_time
-        }
-        tokenAddress
-        tokenId
-        whitelist {
-          identifier
-        }
+        ...AuctionStateInfo
       }
     }
   }
+  ${AUCTION_STATE_FRAGMENT}
 `;
 
+/**
+ * Queries an auction contract for the latest auction state for a given token address/id tuple
+ * @param contractAddress
+ * @param tokenAddress
+ * @param tokenId
+ * @returns
+ */
 export async function queryAuctionLatestState(
+  contractAddress: string,
   tokenAddress: string,
   tokenId: string
 ): Promise<AuctionState> {
   const resp = await query<
     QueryAuctionLatestAuctionState,
     QueryAuctionLatestAuctionStateResponse
-  >(QUERY_AUCTION_LATEST_AUCTION_STATE, { tokenAddress, tokenId });
+  >(QUERY_AUCTION_LATEST_AUCTION_STATE, {
+    contractAddress,
+    tokenAddress,
+    tokenId,
+  });
 
-  return resp.latestAuctionState;
+  return resp.auction.latestAuctionState;
 }

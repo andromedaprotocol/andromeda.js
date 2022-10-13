@@ -7,5 +7,9 @@ export * from "./cw20";
 export * from "./tx";
 export * from "./adop";
 export * from "./chainConfigs";
+export * from "./splitter";
+export * from "./cw721";
+export * from "./rates";
+export * from "./timelock";
 
 export * from "./types";

@@ -2,14 +2,16 @@ import { gql } from "graphql-request";
 import { query } from "../client";
 import type { ChainConfig } from "../../types";
 
+export interface ChainConfigsResponse<T> {
+  chainConfigs: T;
+}
+
 export interface QueryChainConfig {
   identifier: string; //Chain ID or config name
 }
-export interface QueryChainConfigResponse {
-  chainConfigs: {
-    config: ChainConfig;
-  };
-}
+export type QueryChainConfigResponse = ChainConfigsResponse<{
+  config: ChainConfig;
+}>;
 
 export const QUERY_CHAIN_CONFIG = gql`
   query QUERY_CHAIN_CONFIG($identifier: String!) {
@@ -51,11 +53,9 @@ export async function queryChainConfig(
 }
 
 export interface QueryAllChainConfigs {}
-export interface QueryAllChainConfigsResponse {
-  chainConfigs: {
-    allConfigs: ChainConfig[];
-  };
-}
+export type QueryAllChainConfigsResponse = ChainConfigsResponse<{
+  allConfigs: ChainConfig[];
+}>;
 
 export const QUERY_ALL_CHAIN_CONFIGS = gql`
   query QUERY_ALL_CHAIN_CONFIGS {

@@ -3,6 +3,10 @@ import { gql } from "graphql-request";
 import { ContractAddressQuery, Recipient } from "./types";
 import { Coin } from "@cosmjs/proto-signing";
 
+export interface RatesResponse<T> {
+  rates: T;
+}
+
 export interface ADORate {
   address: string;
   key: string;
@@ -23,13 +27,13 @@ export interface RateInfo {
 }
 
 export interface QueryRatesPayments extends ContractAddressQuery {}
-export interface QueryRatesPaymentsResponse {
+export type QueryRatesPaymentsResponse = RatesResponse<{
   payments: RateInfo[];
-}
+}>;
 
 export const QUERY_RATES_PAYMENTS = gql`
   query QUERY_RATES_PAYMENTS($contractAddress: String!) {
-    rates(contractAddress: $contractAddress) {
+    rates(address: $contractAddress) {
       payments {
         description
         is_additive
@@ -46,20 +50,17 @@ export const QUERY_RATES_PAYMENTS = gql`
             decimal
           }
         }
-        receivers {
-          a_d_o {
-            address {
-              identifier
-            }
-            msg
-          }
-          addr
-        }
+        receivers
       }
     }
   }
 `;
 
+/**
+ * Queries a rates contract for its stored rate info
+ * @param contractAddress
+ * @returns
+ */
 export async function queryPayments(
   contractAddress: string
 ): Promise<RateInfo[]> {
@@ -68,5 +69,5 @@ export async function queryPayments(
     { contractAddress }
   );
 
-  return resp.payments;
+  return resp.rates.payments;
 }
