@@ -49,6 +49,24 @@ export interface TransferAgreement {
   agreement: Agreement;
 }
 
+const TOKEN_EXTENSION_FRAGMENT = gql`
+  fragment TokenExtensionInfo on TokenExtension {
+    animation_url
+    attributes {
+      display_type
+      trait_type
+      value
+    }
+    description
+    external_url
+    image
+    image_data
+    name
+    publisher
+    youtube_url
+  }
+`;
+
 export interface QueryCW721AllNFTInfo extends ContractAddressQuery {
   includeExpired: boolean;
   tokenId: string;
@@ -62,39 +80,39 @@ export interface QueryCW721AllNFTInfoResponse {
 
 export const QUERY_CW721_ALL_NFT_INFO = gql`
   query QUERY_CW721_ALL_NFT_INFO(
-    $contractAddress: String!
+    $address: String!
     $includeExpired: Boolean!
     $tokenId: String!
   ) {
-    nft(contractAddress: $contractAddress) {
+    cw721(address: $address) {
       allNftInfo(includeExpired: $includeExpired, tokenId: $tokenId) {
         access {
           approvals {
-            expires {
-              at_height
-              at_height
-            }
+            expires
             spender
           }
           owner
         }
         info {
-          extension
+          extension {
+            ...TokenExtensionInfo
+          }
           tokenUri
         }
       }
     }
   }
+  ${TOKEN_EXTENSION_FRAGMENT}
 `;
 
 export async function queryAllNFTInfo(
-  contractAddress: string,
+  address: string,
   tokenId: string,
   includeExpired: boolean = false
 ): Promise<QueryCW721AllNFTInfoResponse["allNftInfo"]> {
   const resp = await query<QueryCW721AllNFTInfo, QueryCW721AllNFTInfoResponse>(
     QUERY_CW721_ALL_NFT_INFO,
-    { contractAddress, tokenId, includeExpired }
+    { address, tokenId, includeExpired }
   );
 
   return resp.allNftInfo;
@@ -112,21 +130,18 @@ export interface QueryCW721AllOperatorsResponse {
 
 export const QUERY_CW721_ALL_OPERATORS = gql`
   query QUERY_CW721_ALL_OPERATORS(
-    $contractAddress: String!
+    $address: String!
     $includeExpired: Boolean!
     $owner: String!
     $options: AndrSearchOptions
   ) {
-    nft(contractAddress: $contractAddress) {
+    cw721(address: $address) {
       allOperators(
         includeExpired: $includeExpired
         owner: $owner
         options: $options
       ) {
-        expires {
-          at_height
-          at_time
-        }
+        expires
         spender
       }
     }
@@ -134,7 +149,7 @@ export const QUERY_CW721_ALL_OPERATORS = gql`
 `;
 
 export async function queryAllOperators(
-  contractAddress: string,
+  address: string,
   owner: string,
   includeExpired: boolean = false,
   options?: AndrSearchOptions
@@ -143,7 +158,7 @@ export async function queryAllOperators(
     QueryCW721AllOperators,
     QueryCW721AllOperatorsResponse
   >(QUERY_CW721_ALL_OPERATORS, {
-    contractAddress,
+    address,
     includeExpired,
     owner,
     options,
@@ -160,23 +175,20 @@ export interface QueryCW721AllTokensResponse {
 }
 
 export const QUERY_CW721_ALL_TOKENS = gql`
-  query QUERY_CW721_ALL_TOKENS(
-    $contractAddress: String!
-    $options: AndrSearchOptions
-  ) {
-    nft(contractAddress: $contractAddress) {
+  query QUERY_CW721_ALL_TOKENS($address: String!, $options: AndrSearchOptions) {
+    cw721(address: $address) {
       allTokens(options: $options)
     }
   }
 `;
 
 export async function queryAllTokens(
-  contractAddress: string,
+  address: string,
   options?: AndrSearchOptions
 ): Promise<QueryCW721AllTokensResponse["allTokens"]> {
   const resp = await query<QueryCW721AllTokens, QueryCW721AllTokensResponse>(
     QUERY_CW721_ALL_TOKENS,
-    { contractAddress, options }
+    { address, options }
   );
 
   return resp.allTokens;
@@ -193,21 +205,18 @@ export interface QueryCW721ApprovalResponse {
 
 export const QUERY_CW721_APPROVAL = gql`
   query QUERY_CW721_APPROVAL(
-    $contractAddress: String!
+    $address: String!
     $includeExpired: Boolean!
     $spender: String!
     $tokenId: String!
   ) {
-    nft(contractAddress: $contractAddress) {
+    cw721(address: $address) {
       approval(
         includeExpired: $includeExpired
         spender: $spender
         tokenId: $tokenId
       ) {
-        expires {
-          at_height
-          at_time
-        }
+        expires
         spender
       }
     }
@@ -215,14 +224,14 @@ export const QUERY_CW721_APPROVAL = gql`
 `;
 
 export async function queryApproval(
-  contractAddress: string,
+  address: string,
   spender: string,
   tokenId: string,
   includeExpired: boolean = false
 ): Promise<QueryCW721ApprovalResponse["approval"]> {
   const resp = await query<QueryCW721Approval, QueryCW721ApprovalResponse>(
     QUERY_CW721_APPROVAL,
-    { contractAddress, spender, tokenId, includeExpired }
+    { address, spender, tokenId, includeExpired }
   );
 
   return resp.approval;
@@ -238,30 +247,27 @@ export interface QueryCW721ApprovalsResponse {
 
 export const QUERY_CW721_APPROVALS = gql`
   query QUERY_CW721_APPROVALS(
-    $contractAddress: String!
+    $address: String!
     $includeExpired: Boolean!
     $tokenId: String!
   ) {
-    nft(contractAddress: $contractAddress) {
+    cw721(address: $address) {
       approvals(includeExpired: $includeExpired, tokenId: $tokenId) {
         spender
-        expires {
-          at_height
-          at_time
-        }
+        expires
       }
     }
   }
 `;
 
 export async function queryApprovals(
-  contractAddress: string,
+  address: string,
   tokenId: string,
   includeExpired: boolean = false
 ): Promise<QueryCW721ApprovalsResponse["approvals"]> {
   const resp = await query<QueryCW721Approvals, QueryCW721ApprovalsResponse>(
     QUERY_CW721_APPROVALS,
-    { contractAddress, tokenId, includeExpired }
+    { address, tokenId, includeExpired }
   );
 
   return resp.approvals;
@@ -275,8 +281,8 @@ export interface QueryCW721ContractInfoResponse {
 }
 
 export const QUERY_CW721_CONTRACT_INFO = gql`
-  query QUERY_CW721_CONTRACT_INFO($contractAddress: String!) {
-    nft(contractAddress: $contractAddress) {
+  query QUERY_CW721_CONTRACT_INFO($address: String!) {
+    cw721(address: $address) {
       contractInfo {
         name
         symbol
@@ -288,12 +294,12 @@ export const QUERY_CW721_CONTRACT_INFO = gql`
 `;
 
 export async function queryContractInfo(
-  contractAddress: string
+  address: string
 ): Promise<QueryCW721ContractInfoResponse["contractInfo"]> {
   const resp = await query<
     QueryCW721ContractInfo,
     QueryCW721ContractInfoResponse
-  >(QUERY_CW721_CONTRACT_INFO, { contractAddress });
+  >(QUERY_CW721_CONTRACT_INFO, { address });
 
   return resp.contractInfo;
 }
@@ -306,20 +312,20 @@ export interface QueryCW721IsArchivedResponse {
 }
 
 export const QUERY_CW721_IS_ARCHIVED = gql`
-  query QUERY_CW721_IS_ARCHIVED($contractAddress: String!, $tokenId: String!) {
-    nft(contractAddress: $contractAddress) {
+  query QUERY_CW721_IS_ARCHIVED($address: String!, $tokenId: String!) {
+    cw721(address: $address) {
       isArchived(tokenId: $tokenId)
     }
   }
 `;
 
 export async function queryIsArchived(
-  contractAddress: string,
+  address: string,
   tokenId: string
 ): Promise<QueryCW721IsArchivedResponse["isArchived"]> {
   const resp = await query<QueryCW721IsArchived, QueryCW721IsArchivedResponse>(
     QUERY_CW721_IS_ARCHIVED,
-    { contractAddress, tokenId }
+    { address, tokenId }
   );
 
   return resp.isArchived;
@@ -333,22 +339,25 @@ export interface QueryCW721NftInfoResponse {
 }
 
 export const QUERY_CW721_NFT_INFO = gql`
-  query QUERY_CW721_NFT_INFO($contractAddress: String!, $tokenId: String!) {
-    nft(contractAddress: $contractAddress) {
+  query QUERY_CW721_NFT_INFO($address: String!, $tokenId: String!) {
+    cw721(address: $address) {
       nftInfo(tokenId: $tokenId) {
-        extension
+        extension {
+          ...TokenExtensionInfo
+        }
         tokenUri
       }
     }
   }
+  ${TOKEN_EXTENSION_FRAGMENT}
 `;
 export async function queryNFTInfo(
-  contractAddress: string,
+  address: string,
   tokenId: string
 ): Promise<QueryCW721NftInfoResponse["nftInfo"]> {
   const resp = await query<QueryCW721NFTInfo, QueryCW721NftInfoResponse>(
     QUERY_CW721_NFT_INFO,
-    { contractAddress, tokenId }
+    { address, tokenId }
   );
 
   return resp.nftInfo;
@@ -362,8 +371,8 @@ export interface QueryCW721OwnerOfResponse {
 }
 
 export const QUERY_CW721_OWNER_OF = gql`
-  query QUERY_CW721_OWNER_OF($contractAddress: String!, $tokenId: String!) {
-    nft(contractAddress: $contractAddress) {
+  query QUERY_CW721_OWNER_OF($address: String!, $tokenId: String!) {
+    cw721(address: $address) {
       ownerOf(tokenId: $tokenId, includeExpired: false) {
         owner
       }
@@ -372,12 +381,12 @@ export const QUERY_CW721_OWNER_OF = gql`
 `;
 
 export async function queryOwnerOf(
-  contractAddress: string,
+  address: string,
   tokenId: string
 ): Promise<string> {
   const resp = await query<QueryCW721OwnerOf, QueryCW721OwnerOfResponse>(
     QUERY_CW721_OWNER_OF,
-    { contractAddress, tokenId }
+    { address, tokenId }
   );
 
   return resp.ownerOf.owner;
@@ -392,24 +401,24 @@ export interface QueryCW721TokensResponse {
 
 export const QUERY_CW721_TOKENS = gql`
   query QUERY_CW721_TOKENS(
-    $contractAddress: String!
+    $address: String!
     $owner: String!
     $options: AndrSearchOptions
   ) {
-    nft(contractAddress: $contractAddress) {
+    cw721(address: $address) {
       tokens(owner: $owner, options: $options)
     }
   }
 `;
 
 export async function queryTokens(
-  contractAddress: string,
+  address: string,
   owner: string,
   options?: AndrSearchOptions
 ): Promise<QueryCW721TokensResponse["tokens"]> {
   const resp = await query<QueryCW721Tokens, QueryCW721TokensResponse>(
     QUERY_CW721_TOKENS,
-    { contractAddress, owner, options }
+    { address, owner, options }
   );
 
   return resp.tokens;
@@ -423,11 +432,8 @@ export interface QueryCW721TransferAgreementResponse {
 }
 
 export const QUERY_CW721_TRANSFER_AGREEMENT = gql`
-  query QUERY_CW721_TRANSFER_AGREEMENT(
-    $contractAddress: String!
-    $tokenId: String!
-  ) {
-    nft(contractAddress: $contractAddress) {
+  query QUERY_CW721_TRANSFER_AGREEMENT($address: String!, $tokenId: String!) {
+    cw721(address: $address) {
       transferAgreement(tokenId: $tokenId) {
         agreement {
           amount {
@@ -445,13 +451,13 @@ export const QUERY_CW721_TRANSFER_AGREEMENT = gql`
 `;
 
 export async function queryTransferAgreement(
-  contractAddress: string,
+  address: string,
   tokenId: string
 ): Promise<TransferAgreement> {
   const resp = await query<
     QueryCW721TransferAgreement,
     QueryCW721TransferAgreementResponse
-  >(QUERY_CW721_TRANSFER_AGREEMENT, { contractAddress, tokenId });
+  >(QUERY_CW721_TRANSFER_AGREEMENT, { address, tokenId });
 
   return resp.transferAgreement;
 }
