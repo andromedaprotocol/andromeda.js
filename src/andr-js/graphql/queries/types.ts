@@ -1,7 +1,7 @@
 import { AndrAddress } from "../../types";
 
 export interface ContractAddressQuery {
-  address: string;
+  contractAddress: string;
 }
 
 export interface PaginatedQuery {
