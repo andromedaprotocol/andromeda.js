@@ -2,7 +2,6 @@ import { query } from "../client";
 import { gql } from "graphql-request";
 import type { ContractAddressQuery, Expiry, Recipient } from "./types";
 import { Coin } from "@cosmjs/proto-signing";
-import { AndrAddress } from "../../types";
 
 export interface QueryCrowdfundAvailableTokens extends ContractAddressQuery {}
 export interface QueryCrowdfundAvailableTokensResponse {
@@ -11,7 +10,7 @@ export interface QueryCrowdfundAvailableTokensResponse {
 
 export const QUERY_CROWDFUND_AVAILABLE_TOKENS = gql`
   query QUERY_CROWDFUND_AVAILABLE_TOKENS($contractAddress: String!) {
-    crowdfund(contractAddress: $contractAddress) {
+    crowdfund(address: $contractAddress) {
       availableTokens
     }
   }
@@ -30,7 +29,7 @@ export async function queryCrowdfundAvailableTokens(
 
 export interface CrowdfundConfig {
   can_mint_after_sale: boolean;
-  token_address: AndrAddress;
+  token_address: string;
 }
 export interface QueryCrowdfundConfig extends ContractAddressQuery {}
 export interface QueryCrowdfundConfigResponse {
@@ -39,12 +38,10 @@ export interface QueryCrowdfundConfigResponse {
 
 export const QUERY_CROWDFUND_CONFIG = gql`
   query QUERY_CROWDFUND_CONFIG($contractAddress: String!) {
-    crowdfund(contractAddress: $contractAddress) {
+    crowdfund(address: $contractAddress) {
       config {
         can_mint_after_sale
-        token_address {
-          identifier
-        }
+        token_address
       }
     }
   }
@@ -73,7 +70,7 @@ export const QUERY_CROWDFUND_TOKEN_AVAILABLE = gql`
     $contractAddress: String!
     $tokenId: String!
   ) {
-    crowdfund(contractAddress: $contractAddress) {
+    crowdfund(address: $contractAddress) {
       isTokenAvailable(tokenId: $tokenId)
     }
   }
@@ -108,30 +105,19 @@ export interface QueryCrowdfundStateResponse {
 
 export const QUERY_CROWDFUND_STATE = gql`
   query QUERY_CROWDFUND_STATE($contractAddress: String!) {
-    crowdfund(contractAddress: $contractAddress) {
+    crowdfund(address: $contractAddress) {
       state {
         amount_sold
         amount_to_send
         amount_transferred
-        expiration {
-          at_height
-          at_time
-        }
+        expiration
         max_amount_per_wallet
         min_tokens_sold
         price {
           amount
           denom
         }
-        recipient {
-          a_d_o {
-            address {
-              identifier
-            }
-            msg
-          }
-          addr
-        }
+        recipient
       }
     }
   }
