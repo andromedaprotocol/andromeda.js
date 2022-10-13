@@ -45,7 +45,11 @@ const commands: Commands = {
           } catch (error) {
             const { message } = error as Error;
             console.log();
-            console.log(chalk.red(message));
+            if (message.includes("does not exist in")) {
+              console.log(chalk.red("Invalid ADO Type"));
+            } else {
+              console.log(chalk.red(message));
+            }
             return false;
           }
         },

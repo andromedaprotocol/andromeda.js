@@ -17,7 +17,7 @@ export interface StringPrimitive {
 }
 
 export interface Uint128Primitive {
-  uin128: string;
+  uint128: string;
 }
 
 export interface DecimalPrimitive {

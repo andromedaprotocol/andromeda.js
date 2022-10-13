@@ -218,7 +218,7 @@ export default class ADOAPI {
   }
 
   /**
-   * Register a module with an ADO.
+   * Refreshes any AndrAddresses within the ADO
    * **Only accessible by the contract owner.**
    * @param key
    * @param addr

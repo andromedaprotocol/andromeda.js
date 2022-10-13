@@ -1,15 +1,15 @@
 import {
-  encode,
   fetchSchema,
   queryADOPackageDefinition,
+  encode,
 } from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
+import client from "../handlers/client";
 import _ from "lodash";
 import config from "../config";
-import client from "../handlers/client";
-import { validateAddressInput } from "../handlers/utils";
+import { validateAddressInput } from "..";
 
 // The standard message for sending an NFT
 const SEND_NFT_MESSAGE_TYPE = "send_nft";

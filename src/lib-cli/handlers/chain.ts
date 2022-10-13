@@ -1,4 +1,8 @@
-import { ChainConfig, queryChainConfig } from "@andromeda/andromeda-js";
+import {
+  ChainConfig,
+  queryAllChainConfigs,
+  queryChainConfig,
+} from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
@@ -39,7 +43,13 @@ const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input the chain ID to use:",
-        // options: configs.map(({ chainId }) => chainId),
+        options: async () => {
+          const configs = await displaySpinnerAsync(
+            "Loading configs...",
+            queryAllConfigsSafe
+          );
+          return configs.map((conf) => conf.name);
+        },
       },
     ],
   },
@@ -105,9 +115,9 @@ const commands: Commands = {
 
           return true;
         },
-        options: () => [
+        options: async () => [
           ...localConfigs.map(({ name }) => name),
-          // ...configs.map(({ name }) => name),
+          ...(await queryAllConfigsSafe()).map(({ name }) => name),
         ],
       },
       {
@@ -144,11 +154,24 @@ const commands: Commands = {
 
           return true;
         },
-        options: () => [...localConfigs.map(({ name }) => name)],
+        options: async () => [...localConfigs.map(({ name }) => name)],
       },
     ],
   },
 };
+
+/**
+ * A safe query for all chain configs, returns an empty array and prints a message if something went wrong fetching the chain configs
+ * @returns
+ */
+async function queryAllConfigsSafe(): Promise<ChainConfig[]> {
+  try {
+    return await queryAllChainConfigs();
+  } catch (error) {
+    console.error(chalk.red("Something went wrong fetching chain configs"));
+    return [];
+  }
+}
 
 // Used for when the user creates their own config
 let localConfigs: ChainConfig[] = [];
@@ -288,7 +311,7 @@ async function setKey(key: string, value: string) {
 async function listConfigsHandler() {
   const configTable = new Table(logTableConfig);
   configTable.push([chalk.bold("Name"), chalk.bold("Chain ID")]);
-  [...localConfigs].forEach((chainConfig) =>
+  [...(await queryAllConfigsSafe()), ...localConfigs].forEach((chainConfig) =>
     config.get("chain.name") === chainConfig.name
       ? configTable.push([
           chalk.green(chainConfig.name),
@@ -467,7 +490,7 @@ async function removeConfigHandler(input: string[]) {
       type: "list",
       choices: [
         ...localConfigs.map(({ name }) => name),
-        // ...configs.map(({ name }) => name),
+        ...(await queryAllConfigsSafe()).map(({ name }) => name),
       ],
       message: "Select new config to use:",
       name: "replacementconfig",

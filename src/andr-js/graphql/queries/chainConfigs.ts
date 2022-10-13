@@ -6,25 +6,29 @@ export interface QueryChainConfig {
   identifier: string; //Chain ID or config name
 }
 export interface QueryChainConfigResponse {
-  chainConfig: ChainConfig;
+  chainConfigs: {
+    config: ChainConfig;
+  };
 }
 
 export const QUERY_CHAIN_CONFIG = gql`
   query QUERY_CHAIN_CONFIG($identifier: String!) {
-    chainConfig(identifier: $identifier) {
-      name
-      chainId
-      chainUrl
-      chainName
-      chainType
-      addressPrefix
-      registryAddress
-      blockExplorerAddressPages
-      blockExplorerTxPages
-      defaultFee
-      iconUrls {
-        sm
-        lg
+    chainConfigs {
+      config(identifier: $identifier) {
+        name
+        chainId
+        chainUrl
+        chainName
+        chainType
+        addressPrefix
+        registryAddress
+        blockExplorerAddressPages
+        blockExplorerTxPages
+        defaultFee
+        iconUrls {
+          sm
+          lg
+        }
       }
     }
   }
@@ -43,30 +47,34 @@ export async function queryChainConfig(
     { identifier }
   );
 
-  return resp.chainConfig;
+  return resp.chainConfigs.config;
 }
 
 export interface QueryAllChainConfigs {}
 export interface QueryAllChainConfigsResponse {
-  chainConfigs: ChainConfig[];
+  chainConfigs: {
+    allConfigs: ChainConfig[];
+  };
 }
 
 export const QUERY_ALL_CHAIN_CONFIGS = gql`
   query QUERY_ALL_CHAIN_CONFIGS {
     chainConfigs {
-      name
-      chainId
-      chainUrl
-      chainName
-      chainType
-      addressPrefix
-      registryAddress
-      blockExplorerAddressPages
-      blockExplorerTxPages
-      defaultFee
-      iconUrls {
-        sm
-        lg
+      allConfigs {
+        name
+        chainId
+        chainUrl
+        chainName
+        chainType
+        addressPrefix
+        registryAddress
+        blockExplorerAddressPages
+        blockExplorerTxPages
+        defaultFee
+        iconUrls {
+          sm
+          lg
+        }
       }
     }
   }
@@ -81,5 +89,5 @@ export async function queryAllChainConfigs(): Promise<ChainConfig[]> {
     QUERY_ALL_CHAIN_CONFIGS
   );
 
-  return resp.chainConfigs;
+  return resp.chainConfigs.allConfigs;
 }

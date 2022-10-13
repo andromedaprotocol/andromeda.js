@@ -50,13 +50,13 @@ export default class RegistryAPI extends ADOAPI {
     value: PrimitiveValue,
     fee: Fee,
     key?: string,
-    memo?: string,
-    funds?: Coin[]
+    memo?: string
+    // funds?: Coin[]
   ) {
     this.preMessage();
     const msg = this.setMsg(value, key);
 
-    return this.client.execute(this.address, msg, fee, memo, funds);
+    return this.client.execute(this.address, msg, fee, memo);
   }
 
   /**
@@ -116,9 +116,9 @@ export default class RegistryAPI extends ADOAPI {
     value: PrimitiveValue,
     fee: Fee,
     key?: string,
-    memo?: string,
-    funds?: Coin[]
+    memo?: string
+    // funds?: Coin[]
   ) {
-    return this.set(value, fee, key, memo, funds);
+    return this.set(value, fee, key, memo);
   }
 }
