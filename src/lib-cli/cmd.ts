@@ -108,6 +108,14 @@ export async function title() {
   figlet(msg, (_err: any, data: any) => {
     console.log(gradient("blue", "purple", "red", "orange").multiline(data));
   });
+  console.log();
+  console.log(
+    pc.red(
+      pc.bold(
+        "The CLI is currently in beta. If you experience any issues or would like to provide feedback you can do so here: https://github.com/andromedaprotocol/andromeda.js/issues"
+      )
+    )
+  );
   await sleep(20);
 }
 

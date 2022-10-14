@@ -21,10 +21,9 @@ export class State {
     const connectedStatus = this.client.isConnected
       ? ""
       : pc.red("<DISCONNECTED>");
-    const wallet = this.wallets.currentWallet;
-    const walletName = wallet ? wallet.name : "";
+    const walletStatus = this.wallets.CLIPrefix;
 
-    return `${walletName}@${chainId}${connectedStatus}`;
+    return `${walletStatus}@${chainId}${connectedStatus}`;
   }
 
   /**

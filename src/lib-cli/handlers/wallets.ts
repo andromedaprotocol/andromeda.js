@@ -2,7 +2,7 @@ import { Wallet } from "@andromeda/andromeda-js";
 import pc from "picocolors";
 import Table from "cli-table";
 import inquirer from "inquirer";
-import { logTableConfig } from "../common";
+import { displaySpinnerAsync, logTableConfig } from "../common";
 import config from "../config";
 import State from "../state";
 import { Commands, Flags } from "../types";
@@ -298,7 +298,10 @@ export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
   if (!autoConnect) return signer;
 
   try {
-    await State.connectClient();
+    await displaySpinnerAsync(
+      "Connecting client...",
+      async () => await State.connectClient()
+    );
     return signer;
   } catch (error) {
     console.warn();

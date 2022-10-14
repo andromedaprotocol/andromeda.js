@@ -85,6 +85,8 @@ async function appHandler(input: string[]) {
  */
 async function assetsHandler(_input: string[], flags: Flags) {
   const wallet = State.wallets.currentWallet;
+  if (!wallet) throw new Error("No wallet currently assigned");
+
   const walletAddr = await wallet.getFirstOfflineSigner(
     config.get("chain.chainId")
   );

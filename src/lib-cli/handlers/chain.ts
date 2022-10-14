@@ -347,7 +347,10 @@ async function useConfigHandler(input: string[]) {
     await setCurrentWallet(wallet);
   } else {
     // If no wallet, connect the client without a signer
-    await State.connectClient();
+    await displaySpinnerAsync(
+      "Connecting client...",
+      async () => await State.connectClient()
+    );
   }
 }
 

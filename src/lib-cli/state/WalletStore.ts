@@ -1,6 +1,7 @@
 import { Wallet } from "@andromeda/andromeda-js";
 import config from "../config";
 import {
+  addExitHandler,
   loadStorageFile,
   storageFileExists,
   writeStorageFile,
@@ -14,6 +15,11 @@ const STORAGE_FILE = "wallets.json";
 export default class WalletStore {
   wallets: Record<string, Wallet[]> = {};
   defaultWallets: Record<string, Wallet> = {};
+
+  get CLIPrefix() {
+    const wallet = this.currentWallet;
+    return wallet ? wallet.name : "";
+  }
 
   /**
    * Gets the default wallet for the current chain ID
@@ -78,7 +84,7 @@ export default class WalletStore {
     );
 
     const defaultWallet = this.getDefaultWallet(chainId);
-    if (defaultWallet.name === wallet.name) {
+    if (defaultWallet && defaultWallet.name === wallet.name) {
       this.removeDefaultWallet(chainId);
     }
   }
@@ -96,7 +102,7 @@ export default class WalletStore {
     this.wallets[chainId.trim()] = wallets;
 
     const defaultWallet = this.getDefaultWallet(chainId);
-    if (defaultWallet.name === removed[0].name) {
+    if (defaultWallet && defaultWallet.name === removed[0].name) {
       this.removeDefaultWallet(chainId);
     }
   }
@@ -202,7 +208,7 @@ export default class WalletStore {
    * @param chainId Gets the default wallet for a given chain ID
    * @returns
    */
-  getDefaultWallet(chainId: string) {
+  getDefaultWallet(chainId: string): Wallet | undefined {
     return this.defaultWallets[chainId];
   }
 
@@ -225,7 +231,10 @@ export default class WalletStore {
   async loadWalletsFromStorage() {
     try {
       // If there are no stored wallets then return
-      if (!storageFileExists(STORAGE_FILE)) return;
+      if (!storageFileExists(STORAGE_FILE)) {
+        addExitHandler(() => this.saveWallets());
+        return;
+      }
 
       const savedWalletsData = loadStorageFile(STORAGE_FILE);
       const savedWallets = JSON.parse(savedWalletsData.toString());
@@ -256,6 +265,8 @@ export default class WalletStore {
           new Wallet(walletData.name, walletData.mnemonic)
         );
       });
+
+      addExitHandler(() => this.saveWallets());
     } catch (error) {
       console.error(error);
       process.exit(1);

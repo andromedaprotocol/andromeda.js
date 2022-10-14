@@ -62,6 +62,8 @@ async function isOperatorOrOwnerOfFactory() {
     throw new Error("No factory address for current chain");
 
   const wallet = wallets.currentWallet;
+  if (!wallet) return false;
+
   const walletAddr = await wallet.getFirstOfflineSigner(
     config.get("chain.chainId")
   );
