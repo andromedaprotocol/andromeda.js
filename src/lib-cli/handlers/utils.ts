@@ -1,5 +1,5 @@
 import { validateAddress } from "@andromeda/andromeda-js";
-import chalk from "chalk";
+import pc from "picocolors";
 import { exitInputs, listCommands, printCommandHelp } from "../cmd";
 import { validateOrRequest } from "../common";
 import config from "../config";
@@ -88,14 +88,14 @@ export async function handle(
 
   if (!arg || !cmd) {
     if (!flags["help"]) {
-      log(chalk.red("Invalid command"));
+      log(pc.red("Invalid command"));
       log();
     }
     await listCommands(commands, prefix);
     return;
   } else {
     if (cmd.disabled && (await cmd.disabled())) {
-      log(chalk.red("Command disabled"));
+      log(pc.red("Command disabled"));
       return;
     }
     if (flags["help"] && (commandInput.length === 0 || cmd.inputs)) {
@@ -108,7 +108,7 @@ export async function handle(
     } catch (error) {
       //Invalid flags, print out help text and return
       const { message } = error as Error;
-      logError(chalk.red(message));
+      logError(pc.red(message));
       log();
       printCommandHelp(cmd);
 
@@ -142,8 +142,8 @@ export async function handle(
     } catch (error) {
       //Invalid command, print out help text
       const { message } = error as Error;
-      logError(chalk.red(message));
-      log(chalk.red(`Use the ${chalk.bold("--help")} flag for help`));
+      logError(pc.red(message));
+      log(pc.red(`Use the ${pc.bold("--help")} flag for help`));
     }
   }
 }
@@ -183,7 +183,7 @@ export function validateAddressInput(addr: string) {
     return isValid;
   } catch (error) {
     console.log();
-    console.log(chalk.red("Not a valid address"));
+    console.log(pc.red("Not a valid address"));
     return false;
   }
 }

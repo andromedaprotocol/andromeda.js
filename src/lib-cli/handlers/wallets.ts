@@ -1,5 +1,5 @@
 import { Wallet } from "@andromeda/andromeda-js";
-import chalk from "chalk";
+import pc from "picocolors";
 import Table from "cli-table";
 import inquirer from "inquirer";
 import { logTableConfig } from "../common";
@@ -12,7 +12,7 @@ const store = State.wallets;
 const commands: Commands = {
   add: {
     handler: addWalletHandler,
-    color: chalk.green,
+    color: pc.green,
     description:
       "Adds a new wallet. Can be used with the --recover flag to add a wallet by mnemonic.",
     usage: "wallets add <name?>",
@@ -30,7 +30,7 @@ const commands: Commands = {
   },
   rm: {
     handler: removeWalletHandler,
-    color: chalk.red,
+    color: pc.red,
     description: "Remove a wallet by address",
     usage: "wallets rm <name?>",
     inputs: [
@@ -43,7 +43,7 @@ const commands: Commands = {
   },
   use: {
     handler: useWalletHandler,
-    color: chalk.blue,
+    color: pc.blue,
     description: "Sets the default wallet to use",
     usage: "wallets use <name>",
     inputs: [
@@ -56,7 +56,7 @@ const commands: Commands = {
   },
   list: {
     handler: listWalletsHandler,
-    color: chalk.white,
+    color: pc.white,
     description: "Lists all added wallets",
     usage: "wallets list",
   },
@@ -79,7 +79,7 @@ async function validateMnemonic(input: string) {
     const newWallet = new Wallet("", input);
     await newWallet.getWallet(config.get("chain.chainId"));
   } catch (error) {
-    console.error(chalk.red(error));
+    console.error(pc.red(error as string));
     return false;
   }
 
@@ -94,7 +94,7 @@ async function validateMnemonic(input: string) {
 function parseWalletName(name: string) {
   const parsedName = name.trim().split(" ").join("");
   if (parsedName.length === 0) {
-    console.log(chalk.red("Invalid wallet name"));
+    console.log(pc.red("Invalid wallet name"));
     return "";
   }
 
@@ -113,7 +113,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
   const chainId = config.get("chain.chainId");
   const wallets = store.getWallets(chainId);
   while (flags.recover && !(await validateMnemonic(mnemonic))) {
-    if (mnemonic) console.error(chalk.red("Invalid mnemonic"));
+    if (mnemonic) console.error(pc.red("Invalid mnemonic"));
     const mnemonicInput = await inquirer.prompt({
       type: "input",
       message: "Input the wallet mnemonic:",
@@ -135,10 +135,10 @@ async function addWalletHandler(input: string[], flags: Flags) {
   try {
     await newWallet.getWallet(config.get("chain.chainId"));
   } catch (error) {
-    console.error(chalk.red(error));
+    console.error(pc.red(error as string));
     return;
   }
-  console.log(chalk.green(`Wallet ${name} added!`));
+  console.log(pc.green(`Wallet ${name} added!`));
 
   if (!mnemonic || mnemonic.length === 0) {
     newWalletConfirmation(newWallet.mnemonic);
@@ -156,11 +156,11 @@ async function addWalletHandler(input: string[], flags: Flags) {
 function newWalletConfirmation(seed: string) {
   console.log();
   console.log("Your seed phrase is:");
-  console.log(chalk.bold(seed));
+  console.log(pc.bold(seed));
   console.log();
   console.log(
-    chalk.red(
-      chalk.bold(
+    pc.red(
+      pc.bold(
         "Do not share this with anyone. Please make sure to store this for future reference, without it you cannot recover your wallet."
       )
     )
@@ -248,7 +248,7 @@ async function listWallets(wallets: Wallet[]) {
     throw new Error(`No wallets to display
 
 You can add a wallet by using the add command:
-  ${chalk.green("wallets add")}
+  ${pc.green("wallets add")}
       `);
   }
   const walletTable = new Table({
@@ -264,8 +264,8 @@ You can add a wallet by using the add command:
     const addr = await wallet.getFirstOfflineSigner(chainId);
     walletTable.push([
       isCurrent ? "*" : "",
-      isCurrent ? chalk.green(wallet.name ?? i) : wallet.name ?? i,
-      isCurrent ? chalk.green(addr ?? i) : addr ?? i,
+      isCurrent ? pc.green(wallet.name ?? i) : wallet.name ?? i,
+      isCurrent ? pc.green(addr ?? i) : addr ?? i,
     ]);
   }
   console.log(walletTable.toString());

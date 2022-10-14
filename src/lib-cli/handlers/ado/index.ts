@@ -2,7 +2,7 @@ import {
   fetchSchema,
   queryADOPackageDefinition,
 } from "@andromeda/andromeda-js";
-import chalk from "chalk";
+import pc from "picocolors";
 import {
   displaySpinnerAsync,
   executeFlags,
@@ -13,11 +13,13 @@ import {
   promptQueryOrExecuteMessage,
 } from "../../schema";
 import { Commands, Flags } from "../../types";
-import client from "../client";
 import gqlCommands from "../gql";
 import { generateHandler, validateAddressInput } from "../utils";
 import { executeMessage, instantiateMessage, queryMessage } from "../wasm";
 import factoryCommands from "./factory";
+import State from "../../state";
+
+const { client } = State;
 
 // Factory has several subcommands, see `factory.ts`
 const factoryHandler = generateHandler(factoryCommands);
@@ -27,14 +29,14 @@ const commands: Commands = {
     handler: factoryHandler,
     usage: "ado factory",
     description: "Allows executing and querying for a Factory ADO",
-    color: chalk.rgb(23, 125, 90),
+    color: pc.white,
   },
   create: {
     handler: createHandler,
     usage: "ado create <type>",
     description: "Creates an ADO by given type",
     flags: instantiateFlags,
-    color: chalk.green,
+    color: pc.green,
     inputs: [
       {
         requestMessage: "Input the ADO type:",
@@ -46,9 +48,9 @@ const commands: Commands = {
             const { message } = error as Error;
             console.log();
             if (message.includes("does not exist in")) {
-              console.log(chalk.red("Invalid ADO Type"));
+              console.log(pc.red("Invalid ADO Type"));
             } else {
-              console.log(chalk.red(message));
+              console.log(pc.red(message));
             }
             return false;
           }
@@ -61,7 +63,7 @@ const commands: Commands = {
     usage: "ado execute <address>",
     description: "Executes a message on an ADO by given address",
     flags: executeFlags,
-    color: chalk.blue,
+    color: pc.blue,
     inputs: [
       {
         requestMessage: "Input the ADO Address:",
@@ -73,7 +75,7 @@ const commands: Commands = {
     handler: queryHandler,
     usage: "ado query <address>",
     description: "Queries an ADO by given address",
-    color: chalk.rgb(120, 125, 30),
+    color: pc.magenta,
     inputs: [
       {
         requestMessage: "Input the ADO Address:",
@@ -85,7 +87,7 @@ const commands: Commands = {
     handler: queryTypeHandler,
     usage: "ado type <address>",
     description: "Queries the type of ADO for a given address",
-    color: chalk.yellow,
+    color: pc.yellow,
     inputs: [
       {
         requestMessage: "Input the ADO Address:",
@@ -96,7 +98,7 @@ const commands: Commands = {
   list: {
     ...gqlCommands.assets,
     usage: "ado list",
-    color: chalk.rgb(1, 2, 254),
+    color: pc.cyan,
   },
 };
 
@@ -151,7 +153,7 @@ async function executeHandler(input: string[], flags: Flags) {
   try {
     type = await queryADOType(address);
   } catch (error) {
-    console.error(chalk.red("Contract is not a valid ADO"));
+    console.error(pc.red("Contract is not a valid ADO"));
     return;
   }
 
@@ -178,7 +180,7 @@ async function queryHandler(input: string[]) {
   try {
     type = await queryADOType(address);
   } catch (error) {
-    console.error(chalk.red("Contract is not a valid ADO"));
+    console.error(pc.red("Contract is not a valid ADO"));
     return;
   }
 

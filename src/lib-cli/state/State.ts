@@ -1,7 +1,7 @@
 import AndromedaClient from "@andromeda/andromeda-js";
 import { GasPrice } from "@cosmjs/stargate";
 import WalletStore from "./WalletStore";
-import chalk from "chalk";
+import pc from "picocolors";
 import config from "../config";
 
 /**
@@ -20,7 +20,7 @@ export class State {
     const chainId = config.get("chain.chainId");
     const connectedStatus = this.client.isConnected
       ? ""
-      : chalk.red("<DISCONNECTED>");
+      : pc.red("<DISCONNECTED>");
     const wallet = this.wallets.currentWallet;
     const walletName = wallet ? wallet.name : "";
 
@@ -51,7 +51,7 @@ export class State {
           resolve(undefined);
         });
       // Set timeout for client connection
-      setTimeout(() => reject(chalk.red("Client connection timed out")), 30000);
+      setTimeout(() => reject(pc.red("Client connection timed out")), 30000);
     });
   }
 }

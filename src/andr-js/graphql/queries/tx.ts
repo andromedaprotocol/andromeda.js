@@ -4,9 +4,13 @@ import { Log, parseRawLog } from "@cosmjs/stargate/build/logs";
 import { gql } from "graphql-request";
 import _ from "lodash";
 import { query } from "../client";
-import { ContractAddressQuery, TxQuery } from "./types";
+import { ContractAddressQuery, TxQuery, ChainIdQuery } from "./types";
 
 export const andrEventKeys = ["andr_app"];
+
+export interface TxResponse<T> {
+  tx: T;
+}
 
 export interface TxAttribute {
   key: string;
@@ -90,20 +94,18 @@ const FRAGMENT_TX = gql`
 export interface QueryTxByAccount extends TxQuery {
   address: string;
 }
-export interface QueryTxByAccountResponse {
-  tx: {
-    byAccount: TxInfo[];
-  };
-}
+export type QueryTxByAccountResponse = TxResponse<{
+  byAccount: TxInfo[];
+}>;
 
 export const QUERY_TX_BY_ACCOUNT = gql`
-  ${FRAGMENT_TX}
   query QUERY_TX_BY_ACCOUNT(
-    $minHeight: Int!
-    $maxHeight: Int!
+    $minHeight: Int
+    $maxHeight: Int
     $address: String!
+    $chainId: String!
   ) {
-    tx {
+    tx(chainId: $chainId) {
       byAccount(
         minHeight: $minHeight
         maxHeight: $maxHeight
@@ -113,32 +115,40 @@ export const QUERY_TX_BY_ACCOUNT = gql`
       }
     }
   }
+  ${FRAGMENT_TX}
 `;
 
+/**
+ * Queries all transactions for a given account
+ * @param chainId
+ * @param address
+ * @param minHeight
+ * @param maxHeight
+ * @returns
+ */
 export async function queryTxByAccount(
-  minHeight: number,
-  maxHeight: number,
-  address: string
+  chainId: string,
+  address: string,
+  minHeight?: number,
+  maxHeight?: number
 ): Promise<TxInfo[]> {
   const resp = await query<QueryTxByAccount, QueryTxByAccountResponse>(
     QUERY_TX_BY_ACCOUNT,
-    { minHeight, maxHeight, address }
+    { minHeight, maxHeight, address, chainId }
   );
 
   return resp.tx.byAccount;
 }
 
 export interface QueryTxByContract extends TxQuery, ContractAddressQuery {}
-export interface QueryTxByContractResponse {
-  tx: {
-    byContract: TxInfo[];
-  };
-}
+export type QueryTxByContractResponse = TxResponse<{
+  byContract: TxInfo[];
+}>;
 
 export const QUERY_TX_BY_CONTRACT = gql`
-      query QUERY_TX_BY_ACCOUNT($minHeight: Int!, $maxHeight: Int!, $contractAddress: String!) {
+      query QUERY_TX_BY_ACCOUNT($minHeight: Int, $maxHeight: Int, $contractAddress: String!, $chainId: String!) {
           ${FRAGMENT_TX}
-          tx {
+          tx(chainId: $chainId) {
               byContract(minHeight: $minHeight, maxHeight: $maxHeight, address: $contractAddress) {
                   ...Tx
               }
@@ -146,14 +156,23 @@ export const QUERY_TX_BY_CONTRACT = gql`
       }
   `;
 
+/**
+ * Queries all transactions for a given contract address
+ * @param chainId
+ * @param contractAddress
+ * @param minHeight
+ * @param maxHeight
+ * @returns
+ */
 export async function queryTxByContract(
-  minHeight: number,
-  maxHeight: number,
-  contractAddress: string
+  chainId: string,
+  contractAddress: string,
+  minHeight?: number,
+  maxHeight?: number
 ): Promise<TxInfo[]> {
   const resp = await query<QueryTxByContract, QueryTxByContractResponse>(
     QUERY_TX_BY_CONTRACT,
-    { minHeight, maxHeight, contractAddress }
+    { minHeight, maxHeight, contractAddress, chainId }
   );
 
   return resp.tx.byContract;
@@ -162,16 +181,14 @@ export async function queryTxByContract(
 export interface QueryTxByHeight {
   height: number;
 }
-export interface QueryTxByHeightResponse {
-  tx: {
-    byHeight: TxInfo[];
-  };
-}
+export type QueryTxByHeightResponse = TxResponse<{
+  byHeight: TxInfo[];
+}>;
 
 export const QUERY_TX_BY_HEIGHT = gql`
-      query QUERY_TX_BY_ACCOUNT($height: Float!) {
+      query QUERY_TX_BY_ACCOUNT($height: Float!, $chainId: String!) {
           ${FRAGMENT_TX}
-          tx {
+          tx(chainId: $chainId) {
               byHeight(height: $height) {
                   ...Tx
               }
@@ -179,6 +196,11 @@ export const QUERY_TX_BY_HEIGHT = gql`
       }
   `;
 
+/**
+ * Queries all transactions for a given height
+ * @param height
+ * @returns
+ */
 export async function queryTxByHeight(height: number): Promise<TxInfo[]> {
   const resp = await query<QueryTxByHeight, QueryTxByHeightResponse>(
     QUERY_TX_BY_HEIGHT,
@@ -188,19 +210,17 @@ export async function queryTxByHeight(height: number): Promise<TxInfo[]> {
   return resp.tx.byHeight;
 }
 
-export interface QueryTxByHash {
+export interface QueryTxByHash extends ChainIdQuery {
   hash: string;
 }
-export interface QueryTxByHashResponse {
-  tx: {
-    byHash: TxInfo;
-  };
-}
+export type QueryTxByHashResponse = TxResponse<{
+  byHash: TxInfo;
+}>;
 
 export const QUERY_TX_BY_HASH = gql`
-        query QUERY_TX_BY_ACCOUNT($hash: String!) {
+        query QUERY_TX_BY_ACCOUNT($hash: String!, $chainId: String!) {
             ${FRAGMENT_TX}
-            tx {
+            tx(chainId: $chainId) {
                 byHash(hash: $hash) {
                     ...Tx
                 }
@@ -208,10 +228,19 @@ export const QUERY_TX_BY_HASH = gql`
         }
     `;
 
-export async function queryTxByHash(hash: string): Promise<TxInfo> {
+/**
+ * Queries a transaction by tx hash
+ * @param chainId
+ * @param hash
+ * @returns
+ */
+export async function queryTxByHash(
+  chainId: string,
+  hash: string
+): Promise<TxInfo> {
   const resp = await query<QueryTxByHash, QueryTxByHashResponse>(
     QUERY_TX_BY_HASH,
-    { hash }
+    { hash, chainId }
   );
 
   return resp.tx.byHash;
@@ -252,6 +281,13 @@ export const QUERY_ASSETS = gql`
   }
 `;
 
+/**
+ * Queries all assets owned by a wallet address
+ * @param walletAddress
+ * @param limit
+ * @param offset
+ * @returns
+ */
 export async function queryAssets(
   walletAddress: string,
   limit: number,

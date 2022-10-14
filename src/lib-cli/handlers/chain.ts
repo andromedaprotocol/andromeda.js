@@ -3,7 +3,7 @@ import {
   queryAllChainConfigs,
   queryChainConfig,
 } from "@andromeda/andromeda-js";
-import chalk from "chalk";
+import pc from "picocolors";
 import Table from "cli-table";
 import inquirer from "inquirer";
 
@@ -25,19 +25,19 @@ type ConfigKey = keyof ChainConfig;
 const commands: Commands = {
   config: {
     handler: configPrintHandler,
-    color: chalk.white,
+    color: pc.white,
     description: "Displays current chain config",
     usage: "chain config",
   },
   list: {
     handler: listConfigsHandler,
-    color: chalk.blue,
+    color: pc.blue,
     description: "Lists all the currently saved configs",
     usage: "chain list",
   },
   use: {
     handler: useConfigHandler,
-    color: chalk.yellow,
+    color: pc.yellow,
     description: "Swap to a saved config",
     usage: "chain use <chain ID>",
     inputs: [
@@ -55,13 +55,13 @@ const commands: Commands = {
   },
   get: {
     handler: configGetHandler,
-    color: chalk.rgb(23, 125, 90),
+    color: pc.cyan,
     description: "Displays current value for a given key",
     usage: "chain get <key?>",
   },
   set: {
     handler: configSetHandler,
-    color: chalk.black,
+    color: pc.black,
     description: "Sets the value for a given config key",
     usage: "chain set <key> <value>",
     disabled: async () =>
@@ -77,7 +77,7 @@ const commands: Commands = {
   },
   new: {
     handler: newConfigHandler,
-    color: chalk.green,
+    color: pc.green,
     description: "Creates a new config",
     usage: "chain new <name>",
     inputs: [
@@ -88,7 +88,7 @@ const commands: Commands = {
           const config = await getCLIChainConfig(input);
           if (config) {
             console.log();
-            console.log(chalk.red("Config already exists with that name"));
+            console.log(pc.red("Config already exists with that name"));
             return false;
           }
 
@@ -99,7 +99,7 @@ const commands: Commands = {
   },
   copy: {
     handler: copyConfigHandler,
-    color: chalk.magenta,
+    color: pc.magenta,
     description: "Creates a copy of a current config",
     usage: "chain copy <current config name> <new config name>",
     inputs: [
@@ -109,7 +109,7 @@ const commands: Commands = {
           const config = getCLIChainConfig(input);
           if (!config) {
             console.log();
-            console.log(chalk.red("Config does not exist"));
+            console.log(pc.red("Config does not exist"));
             return false;
           }
 
@@ -127,7 +127,7 @@ const commands: Commands = {
           const config = await getCLIChainConfig(input);
           if (config) {
             console.log();
-            console.log(chalk.red("Config already exists with that name"));
+            console.log(pc.red("Config already exists with that name"));
             return false;
           }
 
@@ -138,7 +138,7 @@ const commands: Commands = {
   },
   rm: {
     handler: removeConfigHandler,
-    color: chalk.red,
+    color: pc.red,
     description: "Removes a config by name or chain ID",
     usage: "chain rm <config name>",
     inputs: [
@@ -148,7 +148,7 @@ const commands: Commands = {
           const config = getCLIChainConfig(input);
           if (!config) {
             console.log();
-            console.log(chalk.red(`Config ${input} not found`));
+            console.log(pc.red(`Config ${input} not found`));
             return false;
           }
 
@@ -168,7 +168,7 @@ async function queryAllConfigsSafe(): Promise<ChainConfig[]> {
   try {
     return await queryAllChainConfigs();
   } catch (error) {
-    console.error(chalk.red("Something went wrong fetching chain configs"));
+    console.error(pc.red("Something went wrong fetching chain configs"));
     return [];
   }
 }
@@ -240,17 +240,13 @@ async function getCLIChainConfig(
  */
 async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
   const configTable = new Table(logTableConfig);
-  configTable.push([
-    chalk.bold("Key"),
-    chalk.bold("Value"),
-    chalk.bold("Description"),
-  ]);
+  configTable.push([pc.bold("Key"), pc.bold("Value"), pc.bold("Description")]);
   const trimmedKey = (keyToPrint as string)?.trim();
   let keys = Object.keys(config) as ConfigKey[];
   if (trimmedKey && trimmedKey.length > 0) {
     if (!keys.includes(trimmedKey as ConfigKey)) {
       throw new Error(
-        `Invalid config key, try ${chalk.white(
+        `Invalid config key, try ${pc.white(
           "chain get"
         )} to see a list of valid keys`
       );
@@ -262,13 +258,15 @@ async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
     if ((key as any) === "nullable") return;
     const val = config[key];
     configTable.push([
-      key,
-      val && (typeof val !== "string" || val.length > 0) ? val : "<unset>",
+      key as string,
+      val && (typeof val !== "string" || val.length > 0)
+        ? (val as string)
+        : "<unset>",
       getConfigDoc(key),
     ]);
   });
 
-  console.log(chalk.green("Current chain config"));
+  console.log(pc.green("Current chain config"));
   console.log();
   console.log(configTable.toString());
 }
@@ -283,7 +281,7 @@ async function setKey(key: string, value: string) {
   const trimmedValue = value.trim();
   if (!config.has(`chain.${trimmedKey}` as any)) {
     throw new Error(
-      `Invalid config key, try ${chalk.white(
+      `Invalid config key, try ${pc.white(
         "chain list"
       )} to see a list of valid keys`
     );
@@ -310,12 +308,12 @@ async function setKey(key: string, value: string) {
  */
 async function listConfigsHandler() {
   const configTable = new Table(logTableConfig);
-  configTable.push([chalk.bold("Name"), chalk.bold("Chain ID")]);
+  configTable.push([pc.bold("Name"), pc.bold("Chain ID")]);
   [...(await queryAllConfigsSafe()), ...localConfigs].forEach((chainConfig) =>
     config.get("chain.name") === chainConfig.name
       ? configTable.push([
-          chalk.green(chainConfig.name),
-          chalk.green(chainConfig.chainId),
+          pc.green(chainConfig.name),
+          pc.green(chainConfig.chainId),
         ])
       : configTable.push([chainConfig.name, chainConfig.chainId])
   );
@@ -342,7 +340,7 @@ async function useConfigHandler(input: string[]) {
   }
 
   config.set("chain", chainConfig);
-  console.log(chalk.green(`Config loaded!`));
+  console.log(pc.green(`Config loaded!`));
   const wallet = State.wallets.currentWallet;
   if (wallet) {
     // Set current wallet also connects the client

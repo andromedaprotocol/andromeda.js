@@ -39,7 +39,11 @@ export interface RecipientAddress {
 
 export type Recipient = RecipientADO | RecipientAddress;
 
-export interface TxQuery {
+export interface ChainIdQuery {
+  chainId: string;
+}
+
+export interface TxQuery extends ChainIdQuery {
   minHeight?: number;
   maxHeight?: number;
 }

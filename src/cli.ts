@@ -11,7 +11,6 @@ import {
   loadDefaultConfig,
   parseInput,
   State,
-  subTitle,
   title,
 } from "./lib-cli";
 
@@ -40,7 +39,6 @@ async function start() {
   const inputs = process.argv.slice(2);
   if (inputs.length === 0) {
     await title();
-    await subTitle();
     while (true) {
       let input = await ask();
       const { _: cmd, ...flags } = minimist(parseInput(input.command));

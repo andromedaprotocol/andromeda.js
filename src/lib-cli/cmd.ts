@@ -1,5 +1,4 @@
-import chalk from "chalk";
-import chalkAnimation from "chalk-animation";
+import pc from "picocolors";
 import Table from "cli-table";
 import figlet from "figlet";
 import gradient from "gradient-string";
@@ -30,7 +29,7 @@ export const baseCommands: Commands = {
   exit: {
     handler: () => process.exit(0),
     description: "Exits the CLI",
-    color: chalk.red,
+    color: pc.red,
     usage: "exit",
   },
   help: {
@@ -38,7 +37,7 @@ export const baseCommands: Commands = {
       return await listCommands(baseCommands);
     },
     description: "Lists all valid commands",
-    color: chalk.green,
+    color: pc.green,
     usage: "help",
   },
   clear: {
@@ -47,53 +46,53 @@ export const baseCommands: Commands = {
       await title();
     },
     description: "Clears the terminal",
-    color: chalk.white,
+    color: pc.white,
     usage: "clear",
   },
   wallets: {
     handler: walletHandler,
     description: "Manage wallets",
-    color: chalk.rgb(1, 2, 254),
+    color: pc.blue,
     usage: "wallets <cmd>",
   },
   chain: {
     handler: chainHandler,
     description: "Manage Chain Config",
-    color: chalk.yellow,
+    color: pc.yellow,
     usage: "chain <cmd>",
   },
   wasm: {
     handler: wasmHandler,
     description: "Send CosmWasm messages to the chain",
-    color: chalk.rgb(0, 233, 233),
+    color: pc.cyan,
     usage: "wasm <cmd>",
     disabled: () => !State.client.isConnected,
   },
   tx: {
     handler: txHandler,
     description: "Query transactions",
-    color: chalk.blueBright,
+    color: pc.magenta,
     usage: "tx <cmd>",
     disabled: () => !State.client.isConnected,
   },
   ado: {
     handler: adoHandler,
     description: "Query and execute on an ADO",
-    color: chalk.rgb(23, 125, 90),
+    color: pc.red,
     usage: "ado <cmd>",
     disabled: () => !State.client.isConnected,
   },
   bank: {
     handler: bankHandler,
     description: "Send tokens or query balances",
-    color: chalk.greenBright,
+    color: pc.green,
     usage: "bank <cmd>",
     disabled: () => !State.client.isConnected,
   },
   gql: {
     handler: gqlHandler,
     description: "Query using the Andromeda GraphQL service",
-    color: chalk.magenta,
+    color: pc.magenta,
     usage: "gql <cmd>",
     disabled: () => !State.client.isConnected,
   },
@@ -110,15 +109,6 @@ export async function title() {
     console.log(gradient("blue", "purple", "red", "orange").multiline(data));
   });
   await sleep(20);
-}
-
-export async function subTitle() {
-  const rainbowTitle = chalkAnimation.karaoke(
-    "Andromeda Command Line Interface"
-  );
-
-  await sleep(20);
-  rainbowTitle.stop();
 }
 
 /**
@@ -189,7 +179,7 @@ export async function listCommands(commands: Commands, prefix?: string) {
   log(`Valid commands:`);
   log(commandTable.toString());
   //Log any errors produced when generating command list
-  errors.forEach((error) => console.error(chalk.red(error)));
+  errors.forEach((error) => console.error(pc.red(error as string)));
   log();
 }
 
@@ -199,10 +189,10 @@ export async function listCommands(commands: Commands, prefix?: string) {
  */
 export function printCommandHelp(cmd: Command) {
   const { description, usage } = cmd;
-  log(chalk.bold(description));
+  log(pc.bold(description));
   log();
   log("Usage:");
-  log(chalk.green(usage));
+  log(pc.green(usage));
   if (cmd.flags) {
     log();
     log("Valid flags:");
@@ -211,13 +201,13 @@ export function printCommandHelp(cmd: Command) {
     const flags = Object.keys(cmd.flags);
     flags.forEach((flag) => {
       flagTable.push([
-        chalk.green(flag),
+        pc.green(flag),
         cmd.flags![flag].description,
         cmd.flags![flag].usage ?? "",
       ]);
     });
     flagTable.push([
-      chalk.green("help"),
+      pc.green("help"),
       "Displays info about the current command",
       "",
     ]);
@@ -225,7 +215,7 @@ export function printCommandHelp(cmd: Command) {
   }
   log();
   log(
-    chalk.bold(
+    pc.bold(
       `Any request inputs can be exited using one of the following inputs: ${exitInputs.join(
         ", "
       )}`

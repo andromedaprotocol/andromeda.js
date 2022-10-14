@@ -1,5 +1,5 @@
 import { queryApp, queryAssets } from "@andromeda/andromeda-js";
-import chalk from "chalk";
+import pc from "picocolors";
 import Table from "cli-table";
 import config from "../config";
 import { displaySpinnerAsync, logTableConfig } from "../common";
@@ -11,7 +11,7 @@ const commands: Commands = {
   app: {
     handler: appHandler,
     usage: "gql app <contract address?>",
-    color: chalk.green,
+    color: pc.green,
     description: "Queries details about an app",
     inputs: [
       {
@@ -23,7 +23,7 @@ const commands: Commands = {
   assets: {
     handler: assetsHandler,
     usage: "gql assets",
-    color: chalk.blue,
+    color: pc.blue,
     description:
       "Queries details about your deployed apps and ADOs for the current chain",
     flags: {
@@ -59,11 +59,11 @@ async function appHandler(input: string[]) {
       return comp ? comp.ado_type : "<unknown>";
     };
 
-    console.log(`${chalk.bold("Owner:")} ${owner}`);
-    console.log(`${chalk.bold("App Name:")} ${name}`);
+    console.log(`${pc.bold("Owner:")} ${owner}`);
+    console.log(`${pc.bold("App Name:")} ${name}`);
     console.log();
     const componentTable = new Table(logTableConfig);
-    console.log(chalk.bold("Components"));
+    console.log(pc.bold("Components"));
     addresses.forEach((comp) => {
       componentTable.push([comp.name, getAdoType(comp.name), comp.address]);
     });
@@ -71,9 +71,9 @@ async function appHandler(input: string[]) {
   } catch (error) {
     const { message } = error as Error;
     if (message.includes(":")) {
-      console.error(chalk.red(message.split(":")[0]));
+      console.error(pc.red(message.split(":")[0]));
     } else {
-      console.error(chalk.red(error));
+      console.error(pc.red(message));
     }
   }
 }
@@ -99,9 +99,9 @@ async function assetsHandler(_input: string[], flags: Flags) {
     ...logTableConfig,
   });
   assetsTable.push([
-    chalk.bold("Address"),
-    chalk.bold("ADO Type"),
-    chalk.bold("App Contract"),
+    pc.bold("Address"),
+    pc.bold("ADO Type"),
+    pc.bold("App Contract"),
   ]);
   assets.forEach((asset) => {
     if (type && asset.adoType !== type) return;

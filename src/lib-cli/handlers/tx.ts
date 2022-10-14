@@ -4,7 +4,7 @@ import {
   getAttribute,
   getTxExplorerURL,
 } from "@andromeda/andromeda-js";
-import chalk from "chalk";
+import pc from "picocolors";
 import Table from "cli-table";
 import _ from "lodash";
 import { logTableConfig } from "../common";
@@ -18,7 +18,7 @@ const { client } = State;
 export const commands: Commands = {
   info: {
     handler: txInfoHandler,
-    color: chalk.blue,
+    color: pc.blue,
     description: "Gets transaction info from provided hash",
     usage: "tx info <hash>",
     inputs: [
@@ -29,7 +29,7 @@ export const commands: Commands = {
   },
   byaddress: {
     handler: txAddressHandler,
-    color: chalk.green,
+    color: pc.green,
     description: "Gets a history of transactions for a given address",
     usage: "tx byaddress <address>",
     inputs: [
@@ -41,7 +41,7 @@ export const commands: Commands = {
   },
   history: {
     handler: txHistoryHandler,
-    color: chalk.rgb(23, 125, 90),
+    color: pc.magenta,
     description: "Gets a history of transactions for your current wallet",
     usage: "tx history",
     disabled: () => typeof State.wallets.currentWallet === "undefined",
@@ -57,7 +57,7 @@ async function txInfoHandler(input: string[]) {
 
   const txInfo = await client.getTx(hash);
   if (!txInfo) {
-    console.log(chalk.red("Transaction info not found"));
+    console.log(pc.red("Transaction info not found"));
     return;
   }
   console.log("Transaction Info:");
@@ -78,15 +78,14 @@ async function txAddressHandler(inputs: string[]) {
   const urls = config.get("chain.blockExplorerTxPages");
 
   const txTable = new Table(logTableConfig);
-  txTable.push(
-    ["Hash", "Height", "Type", "Link"].map((str) => chalk.bold(str))
-  );
+  txTable.push(["Hash", "Height", "Type", "Link"].map((str) => pc.bold(str)));
   txInfo.map(cleanTx).forEach((tx: CleanedTx) => {
     const [txTypeAttr] = getAttribute("message.action", tx.rawLog);
-    const txType = txTypeAttr ? _.last(txTypeAttr.value.split(".")) : "";
+    const txType =
+      (txTypeAttr ? _.last(txTypeAttr.value.split(".")) : "") ?? "";
     txTable.push([
       tx.hash,
-      tx.height,
+      `${tx.height}`,
       txType,
       urls.length > 0 ? getTxExplorerURL(tx.hash, urls[0]) : "",
     ]);
