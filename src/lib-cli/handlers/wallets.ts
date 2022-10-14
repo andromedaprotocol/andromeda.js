@@ -1,81 +1,13 @@
-import { Wallet, WalletStore } from "@andromeda/andromeda-js";
+import { Wallet } from "@andromeda/andromeda-js";
 import chalk from "chalk";
 import Table from "cli-table";
 import inquirer from "inquirer";
 import { logTableConfig } from "../common";
-import config, { storage } from "../config";
+import config from "../config";
+import State from "../state";
 import { Commands, Flags } from "../types";
-import { connectClient } from "./client";
 
-const store = new WalletStore();
-const STORAGE_FILE = "wallets.json";
-
-/**
- * Loads all wallets in the stored config and assigns the default wallet on startup
- */
-export async function loadWallets() {
-  try {
-    if (!storage.storageFileExists(STORAGE_FILE)) return;
-    const savedWalletsData = storage.loadStorageFile(STORAGE_FILE);
-    try {
-      const savedWallets = JSON.parse(savedWalletsData.toString());
-      const { wallets, defaults } = savedWallets;
-      wallets.forEach(
-        ({
-          mnemonic,
-          chainId,
-          name,
-        }: {
-          mnemonic: string;
-          name: string;
-          chainId: string;
-        }) => {
-          store.addWallet(chainId, name, mnemonic);
-        }
-      );
-      const chainIds = Object.keys(defaults);
-      chainIds.forEach((chainId) => {
-        const walletData = defaults[chainId];
-        store.setDefaultWallet(
-          chainId,
-          new Wallet(walletData.name, walletData.mnemonic)
-        );
-      });
-      const chainId = config.get("chain.chainId");
-      const currentWallet = store.getDefaultWallet(chainId);
-      if (currentWallet) {
-        await setCurrentWallet(currentWallet, false);
-        const signer = await currentWallet.getWallet(chainId);
-        return signer;
-      }
-      return;
-    } catch (error) {
-      console.error(error);
-      process.exit(1);
-    }
-  } catch (error) {
-    console.error(error);
-    return;
-  }
-}
-
-/**
- * Store all current wallets on exit
- */
-storage.addExitHandler(() => {
-  const storedConfig = {
-    wallets: store.getAllWallets().map(({ chainId, wallet }) => ({
-      mnemonic: wallet.mnemonic,
-      name: wallet.name,
-      chainId,
-    })),
-    defaults: store.defaultWallets,
-  };
-
-  const currentWallet = store.getDefaultWallet(config.get("chain.chainId"));
-  if (currentWallet)
-    storage.writeStorageFile(STORAGE_FILE, JSON.stringify(storedConfig));
-});
+const store = State.wallets;
 
 const commands: Commands = {
   add: {
@@ -311,6 +243,7 @@ async function listWalletsHandler() {
  * @param wallets
  */
 async function listWallets(wallets: Wallet[]) {
+  const chainId = config.get("chain.chainId");
   if (wallets.length === 0) {
     throw new Error(`No wallets to display
 
@@ -322,14 +255,13 @@ You can add a wallet by using the add command:
     ...logTableConfig,
     colWidths: [2],
   });
+  const current = store.getDefaultWallet(chainId);
+
   for (let i = 0; i < wallets.length; i++) {
     const wallet = wallets[i];
     // Highlight the currently selected wallet
-    const isCurrent =
-      getCurrentWallet() && wallet.name === getCurrentWallet().name;
-    const addr = await wallet.getFirstOfflineSigner(
-      config.get("chain.chainId")
-    );
+    const isCurrent = current && wallet.name === current.name;
+    const addr = await wallet.getFirstOfflineSigner(chainId);
     walletTable.push([
       isCurrent ? "*" : "",
       isCurrent ? chalk.green(wallet.name ?? i) : wallet.name ?? i,
@@ -339,6 +271,9 @@ You can add a wallet by using the add command:
   console.log(walletTable.toString());
 }
 
+/**
+ * Sets the default wallet for the current chain
+ */
 async function useWalletHandler(input: string[]) {
   const [walletName] = input;
   const chainId = config.get("chain.chainId");
@@ -361,25 +296,15 @@ export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
   const signer = await wallet.getWallet(chainId);
   store.setDefaultWallet(chainId, wallet);
   if (!autoConnect) return signer;
+
   try {
-    await connectClient(signer);
+    await State.connectClient();
     return signer;
   } catch (error) {
     console.warn();
     console.warn(error);
     return;
   }
-}
-
-/**
- * Gets the current default wallet for the current chain
- * @returns The current default wallet
- */
-export function getCurrentWallet() {
-  const chainId = config.get("chain.chainId");
-  const wallet = store.getDefaultWallet(chainId);
-
-  return wallet;
 }
 
 export default commands;

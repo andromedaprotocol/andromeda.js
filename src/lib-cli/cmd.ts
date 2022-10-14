@@ -5,20 +5,18 @@ import figlet from "figlet";
 import gradient from "gradient-string";
 import inquirer from "inquirer";
 import { logTableConfig, sleep } from "./common";
-import config from "./config";
-import { getCurrentWallet } from "./handlers/wallets";
-import client from "./handlers/client";
-import { Command, Commands } from "./types";
 import {
   adoHandler,
+  allCommands,
+  bankHandler,
   chainHandler,
   gqlHandler,
+  txHandler,
   walletHandler,
   wasmHandler,
-  bankHandler,
-  txHandler,
-  allCommands,
 } from "./handlers";
+import State from "./state";
+import { Command, Commands } from "./types";
 
 /**
  * Valid inputs to exit a prompt
@@ -69,35 +67,35 @@ export const baseCommands: Commands = {
     description: "Send CosmWasm messages to the chain",
     color: chalk.rgb(0, 233, 233),
     usage: "wasm <cmd>",
-    disabled: () => !client.isConnected,
+    disabled: () => !State.client.isConnected,
   },
   tx: {
     handler: txHandler,
     description: "Query transactions",
     color: chalk.blueBright,
     usage: "tx <cmd>",
-    disabled: () => !client.isConnected,
+    disabled: () => !State.client.isConnected,
   },
   ado: {
     handler: adoHandler,
     description: "Query and execute on an ADO",
     color: chalk.rgb(23, 125, 90),
     usage: "ado <cmd>",
-    disabled: () => !client.isConnected,
+    disabled: () => !State.client.isConnected,
   },
   bank: {
     handler: bankHandler,
     description: "Send tokens or query balances",
     color: chalk.greenBright,
     usage: "bank <cmd>",
-    disabled: () => !client.isConnected,
+    disabled: () => !State.client.isConnected,
   },
   gql: {
     handler: gqlHandler,
     description: "Query using the Andromeda GraphQL service",
     color: chalk.magenta,
     usage: "gql <cmd>",
-    disabled: () => !client.isConnected,
+    disabled: () => !State.client.isConnected,
   },
 };
 
@@ -129,16 +127,10 @@ export async function subTitle() {
  * @returns The user's input
  */
 export async function ask(defaultValue: string = "") {
-  const chainId = config.get("chain.chainId");
-  const wallet = getCurrentWallet();
   const question: any = {
     name: "command",
     type: "command",
-    message: `$${wallet ? `${wallet.name}@` : ""}${
-      chainId
-        ? `${chainId}${client.isConnected ? "" : chalk.red(":DISCONNECTED")}`
-        : chalk.red("<DISCONNECTED>")
-    }>`,
+    message: `${State.CLIPrefix}>`,
     default: defaultValue,
     context: 10,
     short: true,

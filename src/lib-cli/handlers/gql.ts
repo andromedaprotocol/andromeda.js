@@ -4,8 +4,8 @@ import Table from "cli-table";
 import config from "../config";
 import { displaySpinnerAsync, logTableConfig } from "../common";
 import { Commands, Flags } from "../types";
-import { getCurrentWallet } from "./wallets";
 import { validateAddressInput } from "./utils";
+import State from "../state";
 
 const commands: Commands = {
   app: {
@@ -84,7 +84,7 @@ async function appHandler(input: string[]) {
  * @param flags
  */
 async function assetsHandler(_input: string[], flags: Flags) {
-  const wallet = getCurrentWallet();
+  const wallet = State.wallets.currentWallet;
   const walletAddr = await wallet.getFirstOfflineSigner(
     config.get("chain.chainId")
   );

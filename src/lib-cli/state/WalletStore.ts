@@ -1,4 +1,12 @@
-import Wallet from "./Wallet";
+import { Wallet } from "@andromeda/andromeda-js";
+import config from "../config";
+import {
+  loadStorageFile,
+  storageFileExists,
+  writeStorageFile,
+} from "../config/storage";
+
+const STORAGE_FILE = "wallets.json";
 
 /**
  * Used to store wallets based on Chain IDs and Mnemonics
@@ -6,6 +14,15 @@ import Wallet from "./Wallet";
 export default class WalletStore {
   wallets: Record<string, Wallet[]> = {};
   defaultWallets: Record<string, Wallet> = {};
+
+  /**
+   * Gets the default wallet for the current chain ID
+   */
+  get currentWallet() {
+    const chainId = config.get("chain.chainId");
+
+    return this.getDefaultWallet(chainId);
+  }
 
   /**
    * Adds a wallet by mnemonic and chain ID
@@ -200,5 +217,64 @@ export default class WalletStore {
     if (wallets.length > 0) {
       this.setDefaultWallet(chainId, wallets[0]);
     }
+  }
+
+  /**
+   * Loads all stored wallets from storage and assigns defaults
+   */
+  async loadWalletsFromStorage() {
+    try {
+      // If there are no stored wallets then return
+      if (!storageFileExists(STORAGE_FILE)) return;
+
+      const savedWalletsData = loadStorageFile(STORAGE_FILE);
+      const savedWallets = JSON.parse(savedWalletsData.toString());
+
+      const { wallets, defaults } = savedWallets;
+      // Add all stored wallets to store
+      wallets.forEach(
+        ({
+          mnemonic,
+          chainId,
+          name,
+        }: {
+          mnemonic: string;
+          name: string;
+          chainId: string;
+        }) => {
+          this.addWallet(chainId, name, mnemonic);
+        }
+      );
+
+      // Get all chain ids with a default wallet
+      const chainIds = Object.keys(defaults);
+      // Assign default wallets
+      chainIds.forEach((chainId) => {
+        const walletData = defaults[chainId];
+        this.setDefaultWallet(
+          chainId,
+          new Wallet(walletData.name, walletData.mnemonic)
+        );
+      });
+    } catch (error) {
+      console.error(error);
+      process.exit(1);
+    }
+  }
+
+  saveWallets() {
+    // If there are no wallets to save then return
+    if (this.getAllWallets().length === 0) return;
+
+    const storedConfig = {
+      wallets: this.getAllWallets().map(({ chainId, wallet }) => ({
+        mnemonic: wallet.mnemonic,
+        name: wallet.name,
+        chainId,
+      })),
+      defaults: this.defaultWallets,
+    };
+
+    writeStorageFile(STORAGE_FILE, JSON.stringify(storedConfig));
   }
 }

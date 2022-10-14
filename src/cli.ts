@@ -2,19 +2,18 @@
 require("module-alias/register");
 
 import inquirer from "inquirer";
+import minimist from "minimist";
 import {
-  baseCommands,
-  handle,
-  parseInput,
   ask,
+  baseCommands,
+  displaySpinnerAsync,
+  handle,
+  loadDefaultConfig,
+  parseInput,
+  State,
   subTitle,
   title,
-  displaySpinnerAsync,
-  wallets,
-  loadDefaultConfig,
 } from "./lib-cli";
-import { connectClient } from "./lib-cli/handlers/client";
-import minimist from "minimist";
 
 // Register command type prompt
 const inquirerCommandPrompt = require("inquirer-command-prompt");
@@ -23,11 +22,14 @@ inquirer.registerPrompt("command", inquirerCommandPrompt);
 async function onStartup() {
   try {
     await displaySpinnerAsync("Loading config...", loadDefaultConfig);
-    const signer = await displaySpinnerAsync(
+    await displaySpinnerAsync(
       "Loading wallets...",
-      async () => await wallets.loadWallets()
+      async () => await State.wallets.loadWalletsFromStorage()
     );
-    await connectClient(signer);
+    await displaySpinnerAsync(
+      "Connecting client...",
+      async () => await State.connectClient()
+    );
   } catch (error) {
     console.error(error);
   }

@@ -3,8 +3,9 @@ import config from "../../config";
 import { executeFlags } from "../../common";
 import { Commands, Flags } from "../../types";
 import { executeMessage, queryMessage } from "../wasm";
-import client from "../client";
-import { getCurrentWallet } from "../wallets";
+import State from "../../state";
+
+const { client, wallets } = State;
 
 const commands: Commands = {
   updatecodeid: {
@@ -60,7 +61,7 @@ async function isOperatorOrOwnerOfFactory() {
   if (!client.factory.address)
     throw new Error("No factory address for current chain");
 
-  const wallet = getCurrentWallet();
+  const wallet = wallets.currentWallet;
   const walletAddr = await wallet.getFirstOfflineSigner(
     config.get("chain.chainId")
   );

@@ -14,9 +14,9 @@ import {
   storageFileExists,
   writeStorageFile,
 } from "../config/storage";
+import State from "../state";
 import { Commands } from "../types";
-import { connectClient } from "./client";
-import { getCurrentWallet, setCurrentWallet } from "./wallets";
+import { setCurrentWallet } from "./wallets";
 
 const STORAGE_FILE = "chainConfigs.json";
 
@@ -343,13 +343,13 @@ async function useConfigHandler(input: string[]) {
 
   config.set("chain", chainConfig);
   console.log(chalk.green(`Config loaded!`));
-  const wallet = getCurrentWallet();
+  const wallet = State.wallets.currentWallet;
   if (wallet) {
     // Set current wallet also connects the client
     await setCurrentWallet(wallet);
   } else {
     // If no wallet, connect the client without a signer
-    await connectClient();
+    await State.connectClient();
   }
 }
 

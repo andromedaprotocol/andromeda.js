@@ -1,4 +1,5 @@
 import {
+  CleanedTx,
   cleanTx,
   getAttribute,
   getTxExplorerURL,
@@ -9,9 +10,10 @@ import _ from "lodash";
 import { logTableConfig } from "../common";
 import config from "../config";
 import { Commands } from "../types";
-import client from "./client";
 import { validateAddressInput } from "./utils";
-import { getCurrentWallet } from "./wallets";
+import State from "../state";
+
+const { client } = State;
 
 export const commands: Commands = {
   info: {
@@ -42,7 +44,7 @@ export const commands: Commands = {
     color: chalk.rgb(23, 125, 90),
     description: "Gets a history of transactions for your current wallet",
     usage: "tx history",
-    disabled: () => typeof getCurrentWallet() === "undefined",
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
   },
 };
 
@@ -79,7 +81,7 @@ async function txAddressHandler(inputs: string[]) {
   txTable.push(
     ["Hash", "Height", "Type", "Link"].map((str) => chalk.bold(str))
   );
-  txInfo.map(cleanTx).forEach((tx) => {
+  txInfo.map(cleanTx).forEach((tx: CleanedTx) => {
     const [txTypeAttr] = getAttribute("message.action", tx.rawLog);
     const txType = txTypeAttr ? _.last(txTypeAttr.value.split(".")) : "";
     txTable.push([
@@ -98,7 +100,7 @@ async function txAddressHandler(inputs: string[]) {
  * Prints all transactions and their types for the current wallet
  */
 async function txHistoryHandler() {
-  const wallet = getCurrentWallet();
+  const wallet = State.wallets.currentWallet;
   if (!wallet) throw new Error("No wallet currently assigned");
 
   const walletAddr = await wallet.getFirstOfflineSigner(

@@ -483,7 +483,6 @@ export default class AndromedaClient {
     if (!gas) {
       throw new Error("Could not simulate transaction");
     }
-
     return this.calculcateFee(gas);
   }
 
@@ -498,8 +497,8 @@ export default class AndromedaClient {
       throw new Error(
         "No gas prices provided for client. Cannot simulate Tx fee."
       );
-
-    return calculateFee(gas, gasPrice);
+    const multiplier = 1.3; // Unsure why this is necessary but is added during simulateTx in cosmjs
+    return calculateFee(gas * multiplier, gasPrice);
   }
 
   /**
