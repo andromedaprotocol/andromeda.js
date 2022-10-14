@@ -3,13 +3,15 @@ import {
   queryADOPackageDefinition,
   encode,
 } from "@andromeda/andromeda-js";
-import chalk from "chalk";
+import pc from "picocolors";
 import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
-import client from "../handlers/client";
 import _ from "lodash";
 import config from "../config";
 import { validateAddressInput } from "..";
+import State from "../state";
+
+const { client } = State;
 
 // The standard message for sending an NFT
 const SEND_NFT_MESSAGE_TYPE = "send_nft";
@@ -248,7 +250,7 @@ export default class SchemaPrompt {
             return true;
           } catch (error) {
             const { message } = error as Error;
-            console.log(chalk.red(message));
+            console.log(pc.red(message));
             return false;
           }
         },
@@ -400,7 +402,7 @@ export default class SchemaPrompt {
       if (validTypes.length === 1) type = validTypes[0];
     }
 
-    // if (property.description) console.log(chalk.blue(property.description));
+    // if (property.description) console.log(pc.blue(property.description));
     if (property.allOf) {
       for (let i = 0; i < property.allOf.length; i++) {
         const val = property.allOf[i];
@@ -461,7 +463,7 @@ export default class SchemaPrompt {
           if (!isValid.valid) {
             isValid.errors.forEach((err) => {
               console.log();
-              console.log(chalk.red(err));
+              console.log(pc.red(err.message));
             });
             return "Invalid input";
           }

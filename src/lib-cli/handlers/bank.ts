@@ -1,15 +1,17 @@
 import { Coin, parseCoins } from "@cosmjs/amino";
-import chalk from "chalk";
+import pc from "picocolors";
 import inquirer from "inquirer";
 import { displaySpinnerAsync, printTransactionUrl } from "../common";
 import { Commands } from "../types";
-import client from "./client";
 import { validateAddressInput } from "./utils";
+import State from "../state";
+
+const { client } = State;
 
 export const commands: Commands = {
   send: {
     handler: handleSend,
-    color: chalk.green,
+    color: pc.green,
     description: "Send tokens to another address",
     usage: "bank send <recipient address?> <amount?>",
     inputs: [
@@ -25,7 +27,7 @@ export const commands: Commands = {
             return true;
           } catch (error) {
             console.log();
-            console.log(chalk.red("Invalid amount to send"));
+            console.log(pc.red("Invalid amount to send"));
             return false;
           }
         },
@@ -37,7 +39,7 @@ export const commands: Commands = {
   },
   balance: {
     handler: handleBalance,
-    color: chalk.blue,
+    color: pc.blue,
     description: "Request a token balance for a given address",
     usage: "bank balance <denom?> <address?>",
     inputs: [
@@ -85,7 +87,7 @@ async function handleSend(input: string[]) {
   );
 
   console.log();
-  console.log(chalk.green(`Sent ${coinsString} to ${recipient}!`));
+  console.log(pc.green(`Sent ${coinsString} to ${recipient}!`));
   printTransactionUrl(resp?.transactionHash!);
 }
 
@@ -99,8 +101,8 @@ async function handleBalance(inputs: string[]) {
   const resp = await client.getBalance(denom, addr);
 
   console.log();
-  console.log(chalk.bold("Balance"));
-  console.log(`${denom}: ${resp ? `${chalk.green(resp.amount)}` : 0}`);
+  console.log(pc.bold("Balance"));
+  console.log(`${denom}: ${resp ? `${pc.green(resp.amount)}` : 0}`);
 }
 
 export default commands;

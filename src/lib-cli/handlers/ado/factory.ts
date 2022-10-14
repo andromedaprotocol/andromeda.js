@@ -1,17 +1,18 @@
-import chalk from "chalk";
+import pc from "picocolors";
 import config from "../../config";
 import { executeFlags } from "../../common";
 import { Commands, Flags } from "../../types";
 import { executeMessage, queryMessage } from "../wasm";
-import client from "../client";
-import { getCurrentWallet } from "../wallets";
+import State from "../../state";
+
+const { client, wallets } = State;
 
 const commands: Commands = {
   updatecodeid: {
     description: "Updates the code ID for a given ADO",
     usage: "ado factory updatecodeid <ado key?> <code id?>",
     handler: updateCodeIdHandler,
-    color: chalk.blue,
+    color: pc.blue,
     flags: executeFlags,
     inputs: [
       {
@@ -37,7 +38,7 @@ const commands: Commands = {
     description: "Fetches the code ID for a given ADO",
     usage: "ado factory getcodeid <ado key?>",
     handler: getCodeIdHandler,
-    color: chalk.green,
+    color: pc.green,
     inputs: [
       {
         requestMessage: "Input the key for the ADO:",
@@ -48,7 +49,7 @@ const commands: Commands = {
     description: "Gets the current address for the factory",
     usage: "ado factory address",
     handler: getAddressHandler,
-    color: chalk.white,
+    color: pc.white,
   },
 };
 
@@ -60,7 +61,9 @@ async function isOperatorOrOwnerOfFactory() {
   if (!client.factory.address)
     throw new Error("No factory address for current chain");
 
-  const wallet = getCurrentWallet();
+  const wallet = wallets.currentWallet;
+  if (!wallet) return false;
+
   const walletAddr = await wallet.getFirstOfflineSigner(
     config.get("chain.chainId")
   );
@@ -109,7 +112,7 @@ async function getCodeIdHandler(input: string[]) {
 
   const resp = await queryMessage(client.factory.address, msg);
 
-  console.log(`Code ID: ${chalk.bold(resp)}`);
+  console.log(`Code ID: ${pc.bold(resp)}`);
 }
 
 /**

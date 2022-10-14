@@ -1,7 +1,7 @@
 import { Msg } from "@andromeda/andromeda-js";
 import { parseCoins } from "@cosmjs/proto-signing";
 import { StdFee } from "@cosmjs/stargate";
-import chalk from "chalk";
+import pc from "picocolors";
 import fs from "fs";
 import inquirer from "inquirer";
 import path from "path";
@@ -12,13 +12,15 @@ import {
   printTransactionUrl,
 } from "../common";
 import { Commands, Flags } from "../types";
-import client from "./client";
 import { parseJSONInput, validateAddressInput } from "./utils";
+import State from "../state";
+
+const { client } = State;
 
 export const commands: Commands = {
   query: {
     handler: queryHandler,
-    color: chalk.green,
+    color: pc.green,
     description: "Queries a contract",
     usage: "wasm query <contract address> <query object>",
     inputs: [
@@ -34,7 +36,7 @@ export const commands: Commands = {
             return true;
           } catch (error) {
             console.log();
-            console.log(chalk.red("Invalid JSON Input"));
+            console.log(pc.red("Invalid JSON Input"));
             return false;
           }
         },
@@ -43,7 +45,7 @@ export const commands: Commands = {
   },
   execute: {
     handler: executeHandler,
-    color: chalk.yellow,
+    color: pc.yellow,
     description: "Executes a wasm message",
     usage: "wasm execute <contract address> <message>",
     flags: executeFlags,
@@ -60,7 +62,7 @@ export const commands: Commands = {
             return true;
           } catch (error) {
             console.log();
-            console.log(chalk.red("Invalid JSON Input"));
+            console.log(pc.red("Invalid JSON Input"));
             return false;
           }
         },
@@ -69,7 +71,7 @@ export const commands: Commands = {
   },
   instantiate: {
     handler: instantiateHandler,
-    color: chalk.magenta,
+    color: pc.magenta,
     description: "Instantiates a contract by code ID",
     usage: "wasm instantiate <codeid?> <instantiatemsg?>",
     flags: instantiateFlags,
@@ -82,7 +84,7 @@ export const commands: Commands = {
             return true;
           } catch (error) {
             console.log();
-            console.log(chalk.red("Please input a valid code ID"));
+            console.log(pc.red("Please input a valid code ID"));
             return false;
           }
         },
@@ -95,7 +97,7 @@ export const commands: Commands = {
             return true;
           } catch (error) {
             console.log();
-            console.log(chalk.red("Invalid JSON Input"));
+            console.log(pc.red("Invalid JSON Input"));
             return false;
           }
         },
@@ -104,7 +106,7 @@ export const commands: Commands = {
   },
   upload: {
     handler: uploadHandler,
-    color: chalk.blue,
+    color: pc.blue,
     description: "Upload a contract wasm",
     usage: "wasm upload <wasm file>",
     inputs: [
@@ -115,7 +117,7 @@ export const commands: Commands = {
           const exists = fs.existsSync(filePath);
           if (!exists) {
             console.log();
-            console.log(chalk.red(`No file found at path ${filePath}`));
+            console.log(pc.red(`No file found at path ${filePath}`));
             return false;
           } else {
             return true;
@@ -129,7 +131,7 @@ export const commands: Commands = {
   },
   migrate: {
     handler: migrateHandler,
-    color: chalk.rgb(23, 125, 90),
+    color: pc.cyan,
     description: "Migrate a contract",
     usage: "wasm migrate <contract address> <new code id> <migrate msg>",
     inputs: [
@@ -146,7 +148,7 @@ export const commands: Commands = {
             return true;
           } catch (error) {
             console.log();
-            console.log(chalk.red("Invalid Code ID"));
+            console.log(pc.red("Invalid Code ID"));
             console.log();
             return false;
           }
@@ -163,7 +165,7 @@ export const commands: Commands = {
             return true;
           } catch (error) {
             console.log();
-            console.log(chalk.red("Invalid JSON Input"));
+            console.log(pc.red("Invalid JSON Input"));
             console.log();
             return false;
           }
@@ -257,12 +259,12 @@ export async function executeMessage(
 ) {
   const { funds, memo, fee, simulate, print } = flags;
   if (print) {
-    console.log(chalk.bold("Message:"));
+    console.log(pc.bold("Message:"));
     console.log(JSON.stringify(msg, null, 2));
     console.log();
   }
   const feeEstimate = await simulateExecuteMessage(address, msg, flags);
-  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log(successMessage ?? pc.green("Transaction simulated!"));
   console.log();
   logFeeEstimation(feeEstimate);
   if (simulate) {
@@ -274,7 +276,7 @@ export async function executeMessage(
     name: "confirmtx",
   });
   if (!confirmation.confirmtx) {
-    console.log(chalk.red("Transaction cancelled"));
+    console.log(pc.red("Transaction cancelled"));
     return;
   }
 
@@ -285,7 +287,7 @@ export async function executeMessage(
       await client.execute(address, msg, fee ?? "auto", memo, msgFunds)
   );
   console.log();
-  console.log(successMessage ?? chalk.green("Transaction executed!"));
+  console.log(successMessage ?? pc.green("Transaction executed!"));
   console.log();
   printTransactionUrl(resp.transactionHash);
 }
@@ -306,7 +308,7 @@ export async function uploadWasm(
   const { fee } = flags;
 
   // const feeEstimate = await simulateUploadMessage(binary);
-  // console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  // console.log(successMessage ?? pc.green("Transaction simulated!"));
   // console.log();
   // logFeeEstimation(feeEstimate);
   // if (simulate) {
@@ -318,7 +320,7 @@ export async function uploadWasm(
   //   name: "confirmtx",
   // });
   // if (!confirmation.confirmtx) {
-  //   console.log(chalk.red("Transaction cancelled"));
+  //   console.log(pc.red("Transaction cancelled"));
   //   return;
   // }
 
@@ -326,10 +328,10 @@ export async function uploadWasm(
     "Uploading contract binary...",
     async () => await client.upload(binary, fee ?? "auto")
   );
-  console.log(successMessage ?? chalk.green("Wasm uploaded!"));
+  console.log(successMessage ?? pc.green("Wasm uploaded!"));
   console.log();
   printTransactionUrl(result.transactionHash);
-  console.log(chalk.green(`Code ID: ${result.codeId}`));
+  console.log(pc.green(`Code ID: ${result.codeId}`));
 }
 
 /**
@@ -365,7 +367,7 @@ export async function instantiateMessage(
 ) {
   const { label, admin, simulate, print } = flags;
   if (print) {
-    console.log(chalk.bold("Message:"));
+    console.log(pc.bold("Message:"));
     console.log(JSON.stringify(msg, null, 2));
     console.log();
   }
@@ -374,7 +376,7 @@ export async function instantiateMessage(
     msg,
     label ?? "Instantiation"
   );
-  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log(successMessage ?? pc.green("Transaction simulated!"));
   console.log();
   logFeeEstimation(feeEstimate);
   if (simulate) {
@@ -386,7 +388,7 @@ export async function instantiateMessage(
     name: "confirmtx",
   });
   if (!confirmation.confirmtx) {
-    console.log(chalk.red("Transaction cancelled"));
+    console.log(pc.red("Transaction cancelled"));
     return;
   }
 
@@ -402,10 +404,10 @@ export async function instantiateMessage(
       )
   );
   console.log();
-  console.log(successMessage ?? chalk.green("Contract instantiated!"));
+  console.log(successMessage ?? pc.green("Contract instantiated!"));
   console.log();
   printTransactionUrl(resp.transactionHash);
-  console.log(`Address: ${chalk.bold(resp.contractAddress)}`);
+  console.log(`Address: ${pc.bold(resp.contractAddress)}`);
 }
 
 /**
@@ -426,7 +428,7 @@ export async function migrateMessage(
 ) {
   const { memo, simulate } = flags;
   const feeEstimate = await simulateMigrate(contractAddress, codeId, msg);
-  console.log(successMessage ?? chalk.green("Transaction simulated!"));
+  console.log(successMessage ?? pc.green("Transaction simulated!"));
   console.log();
   logFeeEstimation(feeEstimate);
 
@@ -440,7 +442,7 @@ export async function migrateMessage(
     name: "confirmtx",
   });
   if (!confirmation.confirmtx) {
-    console.log(chalk.red("Transaction cancelled"));
+    console.log(pc.red("Transaction cancelled"));
     return;
   }
 
@@ -449,10 +451,10 @@ export async function migrateMessage(
     async () => await client.migrate(contractAddress, codeId, msg, "auto", memo)
   );
   console.log();
-  console.log(successMessage ?? chalk.green("Contract migrated!"));
+  console.log(successMessage ?? pc.green("Contract migrated!"));
   console.log();
   printTransactionUrl(resp.transactionHash);
-  console.log(`Address: ${chalk.bold(contractAddress)}`);
+  console.log(`Address: ${pc.bold(contractAddress)}`);
 }
 
 /**
@@ -460,12 +462,12 @@ export async function migrateMessage(
  * @param fee
  */
 function logFeeEstimation(fee: StdFee) {
-  console.log(chalk.bold("Cost Estimates"));
+  console.log(pc.bold("Cost Estimates"));
   console.log(`Gas Used: ${fee.gas}`);
   console.log("Fee estimates:");
   for (let i = 0; i < fee.amount.length; i++) {
     const feeCoin = fee.amount[i];
-    console.log(`   ${chalk.green(`${feeCoin.amount}${feeCoin.denom}`)}`);
+    console.log(`   ${pc.green(`${feeCoin.amount}${feeCoin.denom}`)}`);
   }
   console.log();
 }

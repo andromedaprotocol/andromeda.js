@@ -1,86 +1,18 @@
-import { Wallet, WalletStore } from "@andromeda/andromeda-js";
-import chalk from "chalk";
+import { Wallet } from "@andromeda/andromeda-js";
+import pc from "picocolors";
 import Table from "cli-table";
 import inquirer from "inquirer";
-import { logTableConfig } from "../common";
-import config, { storage } from "../config";
+import { displaySpinnerAsync, logTableConfig } from "../common";
+import config from "../config";
+import State from "../state";
 import { Commands, Flags } from "../types";
-import { connectClient } from "./client";
 
-const store = new WalletStore();
-const STORAGE_FILE = "wallets.json";
-
-/**
- * Loads all wallets in the stored config and assigns the default wallet on startup
- */
-export async function loadWallets() {
-  try {
-    if (!storage.storageFileExists(STORAGE_FILE)) return;
-    const savedWalletsData = storage.loadStorageFile(STORAGE_FILE);
-    try {
-      const savedWallets = JSON.parse(savedWalletsData.toString());
-      const { wallets, defaults } = savedWallets;
-      wallets.forEach(
-        ({
-          mnemonic,
-          chainId,
-          name,
-        }: {
-          mnemonic: string;
-          name: string;
-          chainId: string;
-        }) => {
-          store.addWallet(chainId, name, mnemonic);
-        }
-      );
-      const chainIds = Object.keys(defaults);
-      chainIds.forEach((chainId) => {
-        const walletData = defaults[chainId];
-        store.setDefaultWallet(
-          chainId,
-          new Wallet(walletData.name, walletData.mnemonic)
-        );
-      });
-      const chainId = config.get("chain.chainId");
-      const currentWallet = store.getDefaultWallet(chainId);
-      if (currentWallet) {
-        await setCurrentWallet(currentWallet, false);
-        const signer = await currentWallet.getWallet(chainId);
-        return signer;
-      }
-      return;
-    } catch (error) {
-      console.error(error);
-      process.exit(1);
-    }
-  } catch (error) {
-    console.error(error);
-    return;
-  }
-}
-
-/**
- * Store all current wallets on exit
- */
-storage.addExitHandler(() => {
-  const storedConfig = {
-    wallets: store.getAllWallets().map(({ chainId, wallet }) => ({
-      mnemonic: wallet.mnemonic,
-      name: wallet.name,
-      chainId,
-    })),
-    defaults: store.defaultWallets,
-  };
-
-  const currentWallet = store.getDefaultWallet(config.get("chain.chainId"));
-  if (currentWallet)
-    storage.writeStorageFile(STORAGE_FILE, JSON.stringify(storedConfig));
-});
+const store = State.wallets;
 
 const commands: Commands = {
   add: {
     handler: addWalletHandler,
-    color: chalk.green,
+    color: pc.green,
     description:
       "Adds a new wallet. Can be used with the --recover flag to add a wallet by mnemonic.",
     usage: "wallets add <name?>",
@@ -98,7 +30,7 @@ const commands: Commands = {
   },
   rm: {
     handler: removeWalletHandler,
-    color: chalk.red,
+    color: pc.red,
     description: "Remove a wallet by address",
     usage: "wallets rm <name?>",
     inputs: [
@@ -111,7 +43,7 @@ const commands: Commands = {
   },
   use: {
     handler: useWalletHandler,
-    color: chalk.blue,
+    color: pc.blue,
     description: "Sets the default wallet to use",
     usage: "wallets use <name>",
     inputs: [
@@ -124,7 +56,7 @@ const commands: Commands = {
   },
   list: {
     handler: listWalletsHandler,
-    color: chalk.white,
+    color: pc.white,
     description: "Lists all added wallets",
     usage: "wallets list",
   },
@@ -147,7 +79,7 @@ async function validateMnemonic(input: string) {
     const newWallet = new Wallet("", input);
     await newWallet.getWallet(config.get("chain.chainId"));
   } catch (error) {
-    console.error(chalk.red(error));
+    console.error(pc.red(error as string));
     return false;
   }
 
@@ -162,7 +94,7 @@ async function validateMnemonic(input: string) {
 function parseWalletName(name: string) {
   const parsedName = name.trim().split(" ").join("");
   if (parsedName.length === 0) {
-    console.log(chalk.red("Invalid wallet name"));
+    console.log(pc.red("Invalid wallet name"));
     return "";
   }
 
@@ -181,7 +113,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
   const chainId = config.get("chain.chainId");
   const wallets = store.getWallets(chainId);
   while (flags.recover && !(await validateMnemonic(mnemonic))) {
-    if (mnemonic) console.error(chalk.red("Invalid mnemonic"));
+    if (mnemonic) console.error(pc.red("Invalid mnemonic"));
     const mnemonicInput = await inquirer.prompt({
       type: "input",
       message: "Input the wallet mnemonic:",
@@ -203,10 +135,10 @@ async function addWalletHandler(input: string[], flags: Flags) {
   try {
     await newWallet.getWallet(config.get("chain.chainId"));
   } catch (error) {
-    console.error(chalk.red(error));
+    console.error(pc.red(error as string));
     return;
   }
-  console.log(chalk.green(`Wallet ${name} added!`));
+  console.log(pc.green(`Wallet ${name} added!`));
 
   if (!mnemonic || mnemonic.length === 0) {
     newWalletConfirmation(newWallet.mnemonic);
@@ -224,11 +156,11 @@ async function addWalletHandler(input: string[], flags: Flags) {
 function newWalletConfirmation(seed: string) {
   console.log();
   console.log("Your seed phrase is:");
-  console.log(chalk.bold(seed));
+  console.log(pc.bold(seed));
   console.log();
   console.log(
-    chalk.red(
-      chalk.bold(
+    pc.red(
+      pc.bold(
         "Do not share this with anyone. Please make sure to store this for future reference, without it you cannot recover your wallet."
       )
     )
@@ -311,34 +243,37 @@ async function listWalletsHandler() {
  * @param wallets
  */
 async function listWallets(wallets: Wallet[]) {
+  const chainId = config.get("chain.chainId");
   if (wallets.length === 0) {
     throw new Error(`No wallets to display
 
 You can add a wallet by using the add command:
-  ${chalk.green("wallets add")}
+  ${pc.green("wallets add")}
       `);
   }
   const walletTable = new Table({
     ...logTableConfig,
     colWidths: [2],
   });
+  const current = store.getDefaultWallet(chainId);
+
   for (let i = 0; i < wallets.length; i++) {
     const wallet = wallets[i];
     // Highlight the currently selected wallet
-    const isCurrent =
-      getCurrentWallet() && wallet.name === getCurrentWallet().name;
-    const addr = await wallet.getFirstOfflineSigner(
-      config.get("chain.chainId")
-    );
+    const isCurrent = current && wallet.name === current.name;
+    const addr = await wallet.getFirstOfflineSigner(chainId);
     walletTable.push([
       isCurrent ? "*" : "",
-      isCurrent ? chalk.green(wallet.name ?? i) : wallet.name ?? i,
-      isCurrent ? chalk.green(addr ?? i) : addr ?? i,
+      isCurrent ? pc.green(wallet.name ?? i) : wallet.name ?? i,
+      isCurrent ? pc.green(addr ?? i) : addr ?? i,
     ]);
   }
   console.log(walletTable.toString());
 }
 
+/**
+ * Sets the default wallet for the current chain
+ */
 async function useWalletHandler(input: string[]) {
   const [walletName] = input;
   const chainId = config.get("chain.chainId");
@@ -361,25 +296,18 @@ export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
   const signer = await wallet.getWallet(chainId);
   store.setDefaultWallet(chainId, wallet);
   if (!autoConnect) return signer;
+
   try {
-    await connectClient(signer);
+    await displaySpinnerAsync(
+      "Connecting client...",
+      async () => await State.connectClient()
+    );
     return signer;
   } catch (error) {
     console.warn();
     console.warn(error);
     return;
   }
-}
-
-/**
- * Gets the current default wallet for the current chain
- * @returns The current default wallet
- */
-export function getCurrentWallet() {
-  const chainId = config.get("chain.chainId");
-  const wallet = store.getDefaultWallet(chainId);
-
-  return wallet;
 }
 
 export default commands;

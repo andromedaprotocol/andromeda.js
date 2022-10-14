@@ -1,4 +1,4 @@
-import { Chalk } from "chalk";
+import type { Formatter } from "picocolors/types";
 
 /**
  * Interface used to define an input parameter for a command
@@ -19,13 +19,13 @@ export interface CommandInput {
  */
 export interface Command {
   //A description for the command
-  description?: String;
+  description?: string;
   //The handler for the command
   handler: HandlerFunc;
   //Example usage of the command
   usage: string;
   //The color used when listing commands
-  color: Chalk;
+  color: Formatter;
   //Any flags the command uses
   flags?: Record<string, Flag>;
   //The input parameters required by the command

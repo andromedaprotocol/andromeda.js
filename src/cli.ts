@@ -2,19 +2,17 @@
 require("module-alias/register");
 
 import inquirer from "inquirer";
-import {
-  baseCommands,
-  handle,
-  parseInput,
-  ask,
-  subTitle,
-  title,
-  displaySpinnerAsync,
-  wallets,
-  loadDefaultConfig,
-} from "./lib-cli";
-import { connectClient } from "./lib-cli/handlers/client";
 import minimist from "minimist";
+import {
+  ask,
+  baseCommands,
+  displaySpinnerAsync,
+  handle,
+  loadDefaultConfig,
+  parseInput,
+  State,
+  title,
+} from "./lib-cli";
 
 // Register command type prompt
 const inquirerCommandPrompt = require("inquirer-command-prompt");
@@ -23,11 +21,14 @@ inquirer.registerPrompt("command", inquirerCommandPrompt);
 async function onStartup() {
   try {
     await displaySpinnerAsync("Loading config...", loadDefaultConfig);
-    const signer = await displaySpinnerAsync(
+    await displaySpinnerAsync(
       "Loading wallets...",
-      async () => await wallets.loadWallets()
+      async () => await State.wallets.loadWalletsFromStorage()
     );
-    await connectClient(signer);
+    await displaySpinnerAsync(
+      "Connecting client...",
+      async () => await State.connectClient()
+    );
   } catch (error) {
     console.error(error);
   }
@@ -38,7 +39,6 @@ async function start() {
   const inputs = process.argv.slice(2);
   if (inputs.length === 0) {
     await title();
-    await subTitle();
     while (true) {
       let input = await ask();
       const { _: cmd, ...flags } = minimist(parseInput(input.command));

@@ -1,6 +1,6 @@
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { generateMnemonic } from "bip39";
-import { queryChainConfig } from "@andromeda/andromeda-js";
+import { queryChainConfig } from "../graphql";
 
 /**
  * Used to generate a client wallet by Mnemonic
