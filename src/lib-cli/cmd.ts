@@ -240,5 +240,12 @@ export function printCommandHelp(cmd: Command) {
       )}`
     )
   );
+  log(
+    pc.bold(
+      pc.cyan(
+        "Documentation can be found here: https://docs.andromedaprotocol.io/andromeda/andromeda-cli/"
+      )
+    )
+  );
   log();
 }
