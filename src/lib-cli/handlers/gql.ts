@@ -10,7 +10,7 @@ import State from "../state";
 const commands: Commands = {
   app: {
     handler: appHandler,
-    usage: "gql app <contract address?>",
+    usage: "gql app <contract address>",
     color: pc.green,
     description: "Queries details about an app",
     inputs: [
@@ -87,9 +87,7 @@ async function assetsHandler(_input: string[], flags: Flags) {
   const wallet = State.wallets.currentWallet;
   if (!wallet) throw new Error("No wallet currently assigned");
 
-  const walletAddr = await wallet.getFirstOfflineSigner(
-    config.get("chain.chainId")
-  );
+  const walletAddr = await wallet.getAddress(config.get("chain.chainId"));
   const { type } = flags;
 
   const assets = await displaySpinnerAsync(

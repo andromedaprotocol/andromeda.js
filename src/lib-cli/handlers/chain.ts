@@ -57,7 +57,7 @@ const commands: Commands = {
     handler: configGetHandler,
     color: pc.cyan,
     description: "Displays current value for a given key",
-    usage: "chain get <key?>",
+    usage: "chain get <key>",
   },
   set: {
     handler: configSetHandler,

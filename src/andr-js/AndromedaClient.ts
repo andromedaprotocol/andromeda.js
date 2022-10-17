@@ -498,7 +498,7 @@ export default class AndromedaClient {
         "No gas prices provided for client. Cannot simulate Tx fee."
       );
     const multiplier = 1.3; // Unsure why this is necessary but is added during simulateTx in cosmjs
-    return calculateFee(gas * multiplier, gasPrice);
+    return calculateFee(Math.round(gas * multiplier), gasPrice);
   }
 
   /**

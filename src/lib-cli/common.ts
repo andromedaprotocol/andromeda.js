@@ -42,7 +42,8 @@ export async function validateOrRequest(
   message: string,
   input?: string,
   validate?: (input: string) => Promise<boolean> | boolean,
-  choices?: string[]
+  choices?: string[],
+  hiddenInput?: boolean
 ): Promise<string> {
   //If the user provided input then validate
   if (input) {
@@ -67,7 +68,7 @@ export async function validateOrRequest(
         choices: [...choices, "exit"],
       })
     : inquirer.prompt({
-        type: "input",
+        type: hiddenInput ? "password" : "input",
         message,
         name: `requestinput`,
         validate: (input: string) => {

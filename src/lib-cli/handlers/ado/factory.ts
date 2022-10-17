@@ -10,7 +10,7 @@ const { client, wallets } = State;
 const commands: Commands = {
   updatecodeid: {
     description: "Updates the code ID for a given ADO",
-    usage: "ado factory updatecodeid <ado key?> <code id?>",
+    usage: "ado factory updatecodeid <ado key> <code id>",
     handler: updateCodeIdHandler,
     color: pc.blue,
     flags: executeFlags,
@@ -36,7 +36,7 @@ const commands: Commands = {
   },
   getcodeid: {
     description: "Fetches the code ID for a given ADO",
-    usage: "ado factory getcodeid <ado key?>",
+    usage: "ado factory getcodeid <ado key>",
     handler: getCodeIdHandler,
     color: pc.green,
     inputs: [
@@ -64,9 +64,7 @@ async function isOperatorOrOwnerOfFactory() {
   const wallet = wallets.currentWallet;
   if (!wallet) return false;
 
-  const walletAddr = await wallet.getFirstOfflineSigner(
-    config.get("chain.chainId")
-  );
+  const walletAddr = await wallet.getAddress(config.get("chain.chainId"));
   const isAuthorized = await client.ado.isOperatorOrOwner(
     client.factory.address,
     walletAddr

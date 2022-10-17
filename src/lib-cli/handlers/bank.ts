@@ -13,7 +13,7 @@ export const commands: Commands = {
     handler: handleSend,
     color: pc.green,
     description: "Send tokens to another address",
-    usage: "bank send <recipient address?> <amount?>",
+    usage: "bank send <recipient address> <amount>",
     inputs: [
       {
         requestMessage: "Input Recipient Address:",
@@ -41,7 +41,7 @@ export const commands: Commands = {
     handler: handleBalance,
     color: pc.blue,
     description: "Request a token balance for a given address",
-    usage: "bank balance <denom?> <address?>",
+    usage: "bank balance <denom> <address>",
     inputs: [
       {
         requestMessage: "Input Denom:",

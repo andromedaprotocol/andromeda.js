@@ -12,6 +12,8 @@ export interface CommandInput {
   options?: string[] | (() => Promise<string[]> | string[]);
   // Any transformations applied to the input (post validation)
   transform?: (input: string) => Promise<any> | any;
+  // Whether to hide the user input
+  hiddenInput?: boolean;
 }
 
 /**

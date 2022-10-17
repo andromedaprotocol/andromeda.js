@@ -102,9 +102,7 @@ async function txHistoryHandler() {
   const wallet = State.wallets.currentWallet;
   if (!wallet) throw new Error("No wallet currently assigned");
 
-  const walletAddr = await wallet.getFirstOfflineSigner(
-    config.get("chain.chainId")
-  );
+  const walletAddr = await wallet.getAddress(config.get("chain.chainId"));
 
   await txAddressHandler([walletAddr]);
 }

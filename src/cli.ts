@@ -22,10 +22,6 @@ async function onStartup() {
   try {
     await displaySpinnerAsync("Loading config...", loadDefaultConfig);
     await displaySpinnerAsync(
-      "Loading wallets...",
-      async () => await State.wallets.loadWalletsFromStorage()
-    );
-    await displaySpinnerAsync(
       "Connecting client...",
       async () => await State.connectClient()
     );

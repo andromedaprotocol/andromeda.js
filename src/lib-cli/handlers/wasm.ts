@@ -73,7 +73,7 @@ export const commands: Commands = {
     handler: instantiateHandler,
     color: pc.magenta,
     description: "Instantiates a contract by code ID",
-    usage: "wasm instantiate <codeid?> <instantiatemsg?>",
+    usage: "wasm instantiate <codeid> <instantiatemsg>",
     flags: instantiateFlags,
     inputs: [
       {
