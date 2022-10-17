@@ -65,7 +65,8 @@ const commands: Commands = {
     description: "Sets the value for a given config key",
     usage: "chain set <key> <value>",
     disabled: async () =>
-      typeof (await queryChainConfig(config.get("chain.name"))) !== "undefined",
+      typeof (await queryChainConfigSafe(config.get("chain.name"))) !==
+      "undefined",
     inputs: [
       {
         requestMessage: "Input Config Key:",
@@ -83,17 +84,7 @@ const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Config Name:",
-        validate: async (input: string) => {
-          if (input.length === 0) return false;
-          const config = await getCLIChainConfig(input);
-          if (config) {
-            console.log();
-            console.log(pc.red("Config already exists with that name"));
-            return false;
-          }
-
-          return true;
-        },
+        validate: validateNewConfigName,
       },
     ],
   },
@@ -105,8 +96,8 @@ const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Current Config Name:",
-        validate: (input: string) => {
-          const config = getCLIChainConfig(input);
+        validate: async (input: string) => {
+          const config = await getCLIChainConfig(input);
           if (!config) {
             console.log();
             console.log(pc.red("Config does not exist"));
@@ -122,17 +113,7 @@ const commands: Commands = {
       },
       {
         requestMessage: "Input New Config Name:",
-        validate: async (input: string) => {
-          if (input.length === 0) return false;
-          const config = await getCLIChainConfig(input);
-          if (config) {
-            console.log();
-            console.log(pc.red("Config already exists with that name"));
-            return false;
-          }
-
-          return true;
-        },
+        validate: validateNewConfigName,
       },
     ],
   },
@@ -144,8 +125,8 @@ const commands: Commands = {
     inputs: [
       {
         requestMessage: "Select config to remove:",
-        validate: (input: string) => {
-          const config = getCLIChainConfig(input);
+        validate: async (input: string) => {
+          const config = await getCLIChainConfig(input);
           if (!config) {
             console.log();
             console.log(pc.red(`Config ${input} not found`));
@@ -161,6 +142,30 @@ const commands: Commands = {
 };
 
 /**
+ * Validates a new config name, ensures that the config name is not already taken
+ * @param input
+ * @returns
+ */
+async function validateNewConfigName(input: string) {
+  if (input.length === 0) return false;
+  try {
+    const config = await getCLIChainConfig(input);
+    if (config) {
+      console.log();
+      console.log(pc.red("Config already exists with that name"));
+      return false;
+    }
+  } catch (error) {
+    const { message } = error as Error;
+    if (message.includes("not found")) return true;
+    console.error(message);
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * A safe query for all chain configs, returns an empty array and prints a message if something went wrong fetching the chain configs
  * @returns
  */
@@ -170,6 +175,26 @@ async function queryAllConfigsSafe(): Promise<ChainConfig[]> {
   } catch (error) {
     console.error(pc.red("Something went wrong fetching chain configs"));
     return [];
+  }
+}
+
+/**
+ * A safe query for getting a chain config
+ * @returns The relevant chain config if it exists
+ */
+async function queryChainConfigSafe(
+  identifier: string
+): Promise<ChainConfig | undefined> {
+  try {
+    const config = await queryChainConfig(identifier);
+    return config;
+  } catch (error) {
+    const { message } = error as Error;
+    if (message.includes("not found")) {
+      return;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -220,15 +245,12 @@ async function getCLIChainConfig(
 ): Promise<ChainConfig | undefined> {
   try {
     const config =
-      (await queryChainConfig(identifier)) ??
+      (await queryChainConfigSafe(identifier)) ??
       localConfigs.find(
         (config) => config.name === identifier || config.chainId === identifier
       );
     return config;
   } catch (error) {
-    const { message } = error as Error;
-    if (message.includes("config not found"))
-      throw new Error("Config not found");
     throw error;
   }
 }
@@ -460,7 +482,6 @@ async function copyConfigHandler(input: string[]) {
   if (!oldConfig) throw new Error(`Config '${oldConfigName}' not found`);
 
   const newConfig = { ...oldConfig!, name: newConfigName };
-
   localConfigs.push(newConfig);
   writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
 
@@ -473,7 +494,7 @@ async function copyConfigHandler(input: string[]) {
  */
 async function removeConfigHandler(input: string[]) {
   const [configName] = input;
-  const defaultConfig = await queryChainConfig(configName);
+  const defaultConfig = await queryChainConfigSafe(configName);
   if (defaultConfig) throw new Error("Cannot remove a default config");
 
   const localConfig = localConfigs.find(

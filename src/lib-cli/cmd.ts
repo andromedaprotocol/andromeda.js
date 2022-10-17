@@ -17,6 +17,9 @@ import {
 import State from "./state";
 import { Command, Commands } from "./types";
 
+// Require package.json to print version
+const npmPackage = require("../../package.json");
+
 /**
  * Valid inputs to exit a prompt
  */
@@ -95,6 +98,14 @@ export const baseCommands: Commands = {
     color: pc.magenta,
     usage: "gql <cmd>",
     disabled: () => !State.client.isConnected,
+  },
+  version: {
+    handler: async () => {
+      console.log(`Version: ${npmPackage.version}`);
+    },
+    description: "Prints the current CLI version",
+    color: pc.cyan,
+    usage: "version",
   },
 };
 
@@ -227,6 +238,13 @@ export function printCommandHelp(cmd: Command) {
       `Any request inputs can be exited using one of the following inputs: ${exitInputs.join(
         ", "
       )}`
+    )
+  );
+  log(
+    pc.bold(
+      pc.cyan(
+        "Documentation can be found here: https://docs.andromedaprotocol.io/andromeda/andromeda-cli/"
+      )
     )
   );
   log();
