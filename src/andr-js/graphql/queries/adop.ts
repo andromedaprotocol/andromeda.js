@@ -37,7 +37,7 @@ export type QueryADOPackageDefinitionResponse = ADOPResponse<{
 }>;
 
 export const QUERY_ADO_PACKAGE_DEFINITION = gql`
-  query QUERY_ADO_PACKAGE_DEFINITION($adoType: AdoType!) {
+  query QUERY_ADO_PACKAGE_DEFINITION($adoType: String!) {
     ADOP {
       package(adoType: $adoType) {
         name

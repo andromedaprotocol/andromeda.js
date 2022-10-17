@@ -42,12 +42,11 @@ const commands: Commands = {
         requestMessage: "Input the ADO type:",
         validate: async (input: string) => {
           try {
-            await queryADOPackageDefinition(input);
+            await queryADOPackageDefinition(input.toLowerCase());
             return true;
           } catch (error) {
             const { message } = error as Error;
-            console.log();
-            if (message.includes("does not exist in")) {
+            if (message.includes("unknown adoType")) {
               console.log(pc.red("Invalid ADO Type"));
             } else {
               console.log(pc.red(message));
@@ -55,6 +54,7 @@ const commands: Commands = {
             return false;
           }
         },
+        transform: (input: string) => input.toLowerCase(),
       },
     ],
   },

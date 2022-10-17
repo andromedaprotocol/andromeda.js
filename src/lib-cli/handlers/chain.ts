@@ -83,17 +83,7 @@ const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Config Name:",
-        validate: async (input: string) => {
-          if (input.length === 0) return false;
-          const config = await getCLIChainConfig(input);
-          if (config) {
-            console.log();
-            console.log(pc.red("Config already exists with that name"));
-            return false;
-          }
-
-          return true;
-        },
+        validate: validateNewConfigName,
       },
     ],
   },
@@ -105,8 +95,8 @@ const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Current Config Name:",
-        validate: (input: string) => {
-          const config = getCLIChainConfig(input);
+        validate: async (input: string) => {
+          const config = await getCLIChainConfig(input);
           if (!config) {
             console.log();
             console.log(pc.red("Config does not exist"));
@@ -122,17 +112,7 @@ const commands: Commands = {
       },
       {
         requestMessage: "Input New Config Name:",
-        validate: async (input: string) => {
-          if (input.length === 0) return false;
-          const config = await getCLIChainConfig(input);
-          if (config) {
-            console.log();
-            console.log(pc.red("Config already exists with that name"));
-            return false;
-          }
-
-          return true;
-        },
+        validate: validateNewConfigName,
       },
     ],
   },
@@ -159,6 +139,30 @@ const commands: Commands = {
     ],
   },
 };
+
+/**
+ * Validates a new config name, ensures that the config name is not already taken
+ * @param input
+ * @returns
+ */
+async function validateNewConfigName(input: string) {
+  if (input.length === 0) return false;
+  try {
+    const config = await getCLIChainConfig(input);
+    if (config) {
+      console.log();
+      console.log(pc.red("Config already exists with that name"));
+      return false;
+    }
+  } catch (error) {
+    const { message } = error as Error;
+    if (message.includes("Config not found")) return true;
+    console.error(message);
+    return false;
+  }
+
+  return true;
+}
 
 /**
  * A safe query for all chain configs, returns an empty array and prints a message if something went wrong fetching the chain configs
