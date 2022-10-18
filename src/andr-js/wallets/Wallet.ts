@@ -1,30 +1,45 @@
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-// import { generateMnemonic } from "bip39";
-// import { queryChainConfig } from "../graphql";
 
 /**
  * Used to generate a client wallet by Mnemonic
  */
 export default class Wallet {
   constructor(public name: string, public key: string) {
-    // this.mnemonic =
-    //   mnemonic && mnemonic.length > 0 ? mnemonic : generateMnemonic(256);
     this.name = name;
     this.key = key;
   }
 
+  /**
+   * Gets the mnemonic phrase for the wallet
+   * @param passphrase The passphrase must be used to deserialize the wallet
+   * @returns
+   */
   async getMnemonic(passphrase: string) {
     const wallet = await this.getWallet(passphrase);
 
     return wallet.mnemonic;
   }
 
+  /**
+   * Generates a new wallet and serializes it
+   * @param name
+   * @param passphrase
+   * @returns
+   */
   static async generate(name: string, passphrase: string) {
     const wallet = await DirectSecp256k1HdWallet.generate(24);
     const key = await wallet.serialize(passphrase);
     return new Wallet(name, key);
   }
 
+  /**
+   * Generates a new wallet from a given mnemonic
+   * @param name
+   * @param mnemonic
+   * @param passphrase
+   * @param prefix
+   * @returns
+   */
   static async fromMnemonic(
     name: string,
     mnemonic: string,
