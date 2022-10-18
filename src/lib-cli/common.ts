@@ -3,6 +3,7 @@ import inquirer from "inquirer";
 import config from "./config";
 import { getTxExplorerURL } from "@andromeda/andromeda-js";
 import { exitInputs } from "./cmd";
+import State from "./state";
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -157,4 +158,54 @@ export function printTransactionUrl(hash: string, urlIdx = 0) {
   if (urls.length === 0) return;
   const txUrls = urls.map((url) => getTxExplorerURL(hash, url));
   console.log(txUrls[urlIdx]);
+}
+
+/**
+ * Prompts the user for a passphrase
+ * @param walletName Optional wallet name for validation
+ * @param message Override for the prompt message
+ * @returns The input passphrase
+ */
+export async function promptPassphrase(
+  walletName?: string,
+  message?: string
+): Promise<string> {
+  const passphraseValue = await inquirer.prompt({
+    message:
+      message ??
+      (walletName
+        ? `Input passphrase for wallet ${walletName}:`
+        : `Input passphrase:`),
+    validate: async (input: string) => {
+      try {
+        // Allow prompt exiting
+        if (exitInputs.includes(input)) return true;
+
+        if (walletName) {
+          try {
+            const wallet = State.wallets.getWallet(walletName);
+
+            // Validate the passphrase
+            await wallet.getAddress(input);
+          } catch (error) {
+            return "Incorrect passphrase";
+          }
+        }
+        return input.length > 0 ? true : "Passphrase cannot be empty";
+      } catch (error) {
+        return false;
+      }
+    },
+    type: "password",
+    name: "passphrase",
+  });
+
+  // Allow exiting the prompt
+  if (
+    passphraseValue.passphrase &&
+    exitInputs.includes(passphraseValue.passphrase)
+  )
+    throw new Error("Prompt exited");
+
+  return passphraseValue.passphrase ?? "";
 }

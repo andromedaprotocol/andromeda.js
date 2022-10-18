@@ -1,9 +1,8 @@
 import pc from "picocolors";
-import config from "../../config";
 import { executeFlags } from "../../common";
+import State from "../../state";
 import { Commands, Flags } from "../../types";
 import { executeMessage, queryMessage } from "../wasm";
-import State from "../../state";
 
 const { client, wallets } = State;
 
@@ -61,10 +60,9 @@ async function isOperatorOrOwnerOfFactory() {
   if (!client.factory.address)
     throw new Error("No factory address for current chain");
 
-  const wallet = wallets.currentWallet;
-  if (!wallet) return false;
+  const walletAddr = wallets.currentWalletAddress;
+  if (!walletAddr) return false;
 
-  const walletAddr = await wallet.getAddress(config.get("chain.chainId"));
   const isAuthorized = await client.ado.isOperatorOrOwner(
     client.factory.address,
     walletAddr

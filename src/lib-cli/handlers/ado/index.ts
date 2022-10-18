@@ -1,6 +1,7 @@
 import {
   fetchSchema,
   queryADOPackageDefinition,
+  queryADOTypes,
 } from "@andromeda/andromeda-js";
 import pc from "picocolors";
 import {
@@ -37,6 +38,7 @@ const commands: Commands = {
     description: "Creates an ADO by given type",
     flags: instantiateFlags,
     color: pc.green,
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
     inputs: [
       {
         requestMessage: "Input the ADO type:",
@@ -54,6 +56,18 @@ const commands: Commands = {
             return false;
           }
         },
+        options: async () => {
+          try {
+            const adoTypes = displaySpinnerAsync(
+              "Fetching ADO types...",
+              async () => await queryADOTypes()
+            );
+
+            return adoTypes ?? [];
+          } catch (error) {
+            return [];
+          }
+        },
         transform: (input: string) => input.toLowerCase(),
       },
     ],
@@ -64,6 +78,7 @@ const commands: Commands = {
     description: "Executes a message on an ADO by given address",
     flags: executeFlags,
     color: pc.blue,
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
     inputs: [
       {
         requestMessage: "Input the ADO Address:",
@@ -98,6 +113,7 @@ const commands: Commands = {
   list: {
     ...gqlCommands.assets,
     usage: "ado list",
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
     color: pc.cyan,
   },
 };

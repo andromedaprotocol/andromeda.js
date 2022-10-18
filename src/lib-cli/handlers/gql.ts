@@ -1,11 +1,10 @@
 import { queryApp, queryAssets } from "@andromeda/andromeda-js";
-import pc from "picocolors";
 import Table from "cli-table";
-import config from "../config";
+import pc from "picocolors";
 import { displaySpinnerAsync, logTableConfig } from "../common";
+import State from "../state";
 import { Commands, Flags } from "../types";
 import { validateAddressInput } from "./utils";
-import State from "../state";
 
 const commands: Commands = {
   app: {
@@ -24,6 +23,7 @@ const commands: Commands = {
     handler: assetsHandler,
     usage: "gql assets",
     color: pc.blue,
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
     description:
       "Queries details about your deployed apps and ADOs for the current chain",
     flags: {
@@ -84,10 +84,8 @@ async function appHandler(input: string[]) {
  * @param flags
  */
 async function assetsHandler(_input: string[], flags: Flags) {
-  const wallet = State.wallets.currentWallet;
-  if (!wallet) throw new Error("No wallet currently assigned");
-
-  const walletAddr = await wallet.getAddress(config.get("chain.chainId"));
+  const walletAddr = State.wallets.currentWalletAddress;
+  if (!walletAddr) throw new Error("No wallet currently assigned");
   const { type } = flags;
 
   const assets = await displaySpinnerAsync(

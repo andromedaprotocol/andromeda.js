@@ -47,9 +47,17 @@ export const commands: Commands = {
         requestMessage: "Input Denom:",
       },
       {
-        requestMessage: "Input Address (Leave empty to see your balance):",
+        requestMessage: `Input Address${
+          typeof State.wallets.currentWallet !== "undefined"
+            ? " (Leave empty to see your balance)"
+            : ""
+        }:`,
         validate: (input: string) => {
-          if (input.length === 0) return true;
+          if (
+            input.length === 0 &&
+            typeof State.wallets.currentWallet !== "undefined"
+          )
+            return true;
           return validateAddressInput(input);
         },
       },
