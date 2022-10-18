@@ -1,16 +1,15 @@
 import pc from "picocolors";
-import config from "../../config";
 import { executeFlags } from "../../common";
+import State from "../../state";
 import { Commands, Flags } from "../../types";
 import { executeMessage, queryMessage } from "../wasm";
-import State from "../../state";
 
 const { client, wallets } = State;
 
 const commands: Commands = {
   updatecodeid: {
     description: "Updates the code ID for a given ADO",
-    usage: "ado factory updatecodeid <ado key?> <code id?>",
+    usage: "ado factory updatecodeid <ado key> <code id>",
     handler: updateCodeIdHandler,
     color: pc.blue,
     flags: executeFlags,
@@ -36,7 +35,7 @@ const commands: Commands = {
   },
   getcodeid: {
     description: "Fetches the code ID for a given ADO",
-    usage: "ado factory getcodeid <ado key?>",
+    usage: "ado factory getcodeid <ado key>",
     handler: getCodeIdHandler,
     color: pc.green,
     inputs: [
@@ -61,12 +60,9 @@ async function isOperatorOrOwnerOfFactory() {
   if (!client.factory.address)
     throw new Error("No factory address for current chain");
 
-  const wallet = wallets.currentWallet;
-  if (!wallet) return false;
+  const walletAddr = wallets.currentWalletAddress;
+  if (!walletAddr) return false;
 
-  const walletAddr = await wallet.getFirstOfflineSigner(
-    config.get("chain.chainId")
-  );
   const isAuthorized = await client.ado.isOperatorOrOwner(
     client.factory.address,
     walletAddr

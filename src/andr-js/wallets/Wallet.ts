@@ -1,45 +1,78 @@
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { generateMnemonic } from "bip39";
-import { queryChainConfig } from "../graphql";
 
 /**
  * Used to generate a client wallet by Mnemonic
  */
 export default class Wallet {
-  /** The Mnemonic of the Wallet */
-  mnemonic: string;
-  name: string;
-
-  constructor(name: string, mnemonic?: string) {
-    this.mnemonic =
-      mnemonic && mnemonic.length > 0 ? mnemonic : generateMnemonic(256);
+  constructor(public name: string, public key: string) {
     this.name = name;
+    this.key = key;
+  }
+
+  /**
+   * Gets the mnemonic phrase for the wallet
+   * @param passphrase The passphrase must be used to deserialize the wallet
+   * @returns
+   */
+  async getMnemonic(passphrase: string) {
+    const wallet = await this.getWallet(passphrase);
+
+    return wallet.mnemonic;
+  }
+
+  /**
+   * Generates a new wallet and serializes it
+   * @param name
+   * @param passphrase
+   * @returns
+   */
+  static async generate(name: string, passphrase: string) {
+    const wallet = await DirectSecp256k1HdWallet.generate(24);
+    const key = await wallet.serialize(passphrase);
+    return new Wallet(name, key);
+  }
+
+  /**
+   * Generates a new wallet from a given mnemonic
+   * @param name
+   * @param mnemonic
+   * @param passphrase
+   * @param prefix
+   * @returns
+   */
+  static async fromMnemonic(
+    name: string,
+    mnemonic: string,
+    passphrase: string,
+    prefix: string
+  ) {
+    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
+      prefix,
+    });
+    const key = await wallet.serialize(passphrase);
+    return new Wallet(name, key);
   }
 
   /**
    * Get wallet associated with the provided mnemonic
    */
-  async getWallet(chainId: string) {
-    const config = await queryChainConfig(chainId);
-    if (!config) throw new Error("No config for provided chain ID");
-    return await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic, {
-      prefix: config.addressPrefix,
-    });
+  async getWallet(passphrase: string) {
+    return await DirectSecp256k1HdWallet.deserialize(this.key, passphrase);
   }
 
   /**
    * Get all accounts associated with the wallet
    */
-  async getAccounts(chainId: string) {
-    const wallet = await this.getWallet(chainId);
+  async getAccounts(passphrase: string) {
+    const wallet = await this.getWallet(passphrase);
     return await wallet.getAccounts();
   }
 
   /**
    * Provides the first OfflineSigner object associated with the wallet. Can be used for signing messages.
    */
-  async getFirstOfflineSigner(chainId: string) {
-    const [firstAccount] = await this.getAccounts(chainId);
+  async getAddress(passphrase: string) {
+    const [firstAccount] = await this.getAccounts(passphrase);
     return firstAccount.address;
   }
 }

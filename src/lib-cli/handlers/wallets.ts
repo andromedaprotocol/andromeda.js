@@ -1,11 +1,12 @@
 import { Wallet } from "@andromeda/andromeda-js";
 import pc from "picocolors";
-import Table from "cli-table";
+// import Table from "cli-table";
 import inquirer from "inquirer";
 import { displaySpinnerAsync, logTableConfig } from "../common";
 import config from "../config";
-import State from "../state";
+import State, { StoredWalletData } from "../state";
 import { Commands, Flags } from "../types";
+import Table from "cli-table";
 
 const store = State.wallets;
 
@@ -15,7 +16,7 @@ const commands: Commands = {
     color: pc.green,
     description:
       "Adds a new wallet. Can be used with the --recover flag to add a wallet by mnemonic.",
-    usage: "wallets add <name?>",
+    usage: "wallets add <name>",
     flags: {
       recover: {
         description: "Recovers a wallet by mnemonic",
@@ -26,13 +27,18 @@ const commands: Commands = {
         requestMessage: "Input Wallet Name:",
         transform: parseWalletName,
       },
+      {
+        requestMessage: "Input Passphrase:",
+        validate: (input: string) => input.length > 0,
+        hiddenInput: true,
+      },
     ],
   },
   rm: {
     handler: removeWalletHandler,
     color: pc.red,
     description: "Remove a wallet by address",
-    usage: "wallets rm <name?>",
+    usage: "wallets rm <name>",
     inputs: [
       {
         requestMessage: "Select wallet to remove:",
@@ -75,14 +81,6 @@ async function validateMnemonic(input: string) {
   )
     return false;
 
-  try {
-    const newWallet = new Wallet("", input);
-    await newWallet.getWallet(config.get("chain.chainId"));
-  } catch (error) {
-    console.error(pc.red(error as string));
-    return false;
-  }
-
   return true;
 }
 
@@ -108,7 +106,21 @@ function parseWalletName(name: string) {
  * @returns
  */
 async function addWalletHandler(input: string[], flags: Flags) {
-  let [name] = input;
+  let [name, passphrase] = input;
+
+  if (passphrase.length > 0) {
+    await inquirer.prompt({
+      name: "repeatphrase",
+      validate: (input: string) => {
+        if (passphrase !== input) return "Passphrases do not match";
+
+        return true;
+      },
+      message: "Repeat your passphrase:",
+      type: "password",
+    });
+  }
+
   let mnemonic;
   const chainId = config.get("chain.chainId");
   const wallets = store.getWallets(chainId);
@@ -126,22 +138,26 @@ async function addWalletHandler(input: string[], flags: Flags) {
     mnemonic = mnemonicInput.addwalletmnemonic.trim();
     if (mnemonic === "exit") return;
   }
-
-  const newWallet = store.addWallet(
+  console.log("");
+  const newWallet = await store.generateWallet(
     config.get("chain.chainId"),
     name,
+    passphrase,
     mnemonic
   );
+
   try {
-    await newWallet.getWallet(config.get("chain.chainId"));
+    await newWallet.getWallet(passphrase);
   } catch (error) {
     console.error(pc.red(error as string));
     return;
   }
+
   console.log(pc.green(`Wallet ${name} added!`));
 
   if (!mnemonic || mnemonic.length === 0) {
-    newWalletConfirmation(newWallet.mnemonic);
+    mnemonic = await newWallet.getMnemonic(passphrase);
+    newWalletConfirmation(mnemonic);
   }
 
   if (wallets.length === 0) {
@@ -173,39 +189,7 @@ function newWalletConfirmation(seed: string) {
  */
 async function removeWalletHandler(input: string[]) {
   const [walletId] = input;
-  try {
-    const idx = parseInt(walletId);
-    await removeWalletByIndex(idx);
-  } catch (error) {
-    await removeWalletByNameOrAddress(walletId);
-  }
-}
-
-/**
- * Removes a wallet by index
- * @param idx The index of the wallet to remove
- */
-async function removeWalletByIndex(idx: number) {
-  const chainId = config.get("chain.chainId");
-  const wallets = store.getWallets(chainId);
-  if (idx >= wallets.length) {
-    throw new Error(
-      `Invalid input. Wallet index must be between 0 and ${wallets.length - 1}.`
-    );
-  }
-
-  const wallet = wallets[idx];
-  const confirmed = await inquirer.prompt({
-    name: "rmwalletconfirm",
-    type: "confirm",
-    message: `Are you sure you want to remove wallet ${
-      wallet.name ?? wallet.mnemonic.trim()
-    }?`,
-  });
-
-  if (confirmed) {
-    store.removeWalletByIndex(idx, chainId);
-  }
+  await removeWalletByNameOrAddress(walletId);
 }
 
 /**
@@ -213,20 +197,17 @@ async function removeWalletByIndex(idx: number) {
  * @param input
  */
 async function removeWalletByNameOrAddress(input: string) {
-  const chainId = config.get("chain.chainId");
-  const wallet = await store.getWallet(chainId, input.trim());
+  const wallet = store.getWallet(input.trim());
   if (!wallet) {
     throw new Error(`Could not find wallet with name/address ${input.trim()}`);
   }
   const confirmed = await inquirer.prompt({
     name: "rmwalletconfirm",
     type: "confirm",
-    message: `Are you sure you want to remove wallet ${
-      wallet.name ?? wallet.mnemonic.trim()
-    }?`,
+    message: `Are you sure you want to remove wallet ${wallet.name}?`,
   });
   if (confirmed) {
-    await store.removeWallet(input, chainId);
+    await store.removeWallet(input);
   }
 }
 
@@ -242,8 +223,7 @@ async function listWalletsHandler() {
  * Prints all provided wallets in table format
  * @param wallets
  */
-async function listWallets(wallets: Wallet[]) {
-  const chainId = config.get("chain.chainId");
+async function listWallets(wallets: StoredWalletData[]) {
   if (wallets.length === 0) {
     throw new Error(`No wallets to display
 
@@ -255,13 +235,13 @@ You can add a wallet by using the add command:
     ...logTableConfig,
     colWidths: [2],
   });
-  const current = store.getDefaultWallet(chainId);
+  const current = store.currentWallet;
 
   for (let i = 0; i < wallets.length; i++) {
     const wallet = wallets[i];
     // Highlight the currently selected wallet
     const isCurrent = current && wallet.name === current.name;
-    const addr = await wallet.getFirstOfflineSigner(chainId);
+    const addr = wallet.address;
     walletTable.push([
       isCurrent ? "*" : "",
       isCurrent ? pc.green(wallet.name ?? i) : wallet.name ?? i,
@@ -276,8 +256,7 @@ You can add a wallet by using the add command:
  */
 async function useWalletHandler(input: string[]) {
   const [walletName] = input;
-  const chainId = config.get("chain.chainId");
-  const wallet = await store.getWallet(chainId, walletName);
+  const wallet = store.getWallet(walletName);
   if (!wallet) {
     throw new Error("Wallet not found");
   } else {
@@ -292,9 +271,11 @@ async function useWalletHandler(input: string[]) {
  * @returns A signer if the wallet is valid
  */
 export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
+  const passphrase = await store.getWalletPassphrase(wallet.name);
+  const signer = await wallet.getWallet(passphrase);
   const chainId = config.get("chain.chainId");
-  const signer = await wallet.getWallet(chainId);
-  store.setDefaultWallet(chainId, wallet);
+
+  store.setDefaultWallet(chainId, wallet.name);
   if (!autoConnect) return signer;
 
   try {

@@ -3,6 +3,7 @@ import inquirer from "inquirer";
 import config from "./config";
 import { getTxExplorerURL } from "@andromeda/andromeda-js";
 import { exitInputs } from "./cmd";
+import State from "./state";
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -42,7 +43,8 @@ export async function validateOrRequest(
   message: string,
   input?: string,
   validate?: (input: string) => Promise<boolean> | boolean,
-  choices?: string[]
+  choices?: string[],
+  hiddenInput?: boolean
 ): Promise<string> {
   //If the user provided input then validate
   if (input) {
@@ -67,7 +69,7 @@ export async function validateOrRequest(
         choices: [...choices, "exit"],
       })
     : inquirer.prompt({
-        type: "input",
+        type: hiddenInput ? "password" : "input",
         message,
         name: `requestinput`,
         validate: (input: string) => {
@@ -156,4 +158,54 @@ export function printTransactionUrl(hash: string, urlIdx = 0) {
   if (urls.length === 0) return;
   const txUrls = urls.map((url) => getTxExplorerURL(hash, url));
   console.log(txUrls[urlIdx]);
+}
+
+/**
+ * Prompts the user for a passphrase
+ * @param walletName Optional wallet name for validation
+ * @param message Override for the prompt message
+ * @returns The input passphrase
+ */
+export async function promptPassphrase(
+  walletName?: string,
+  message?: string
+): Promise<string> {
+  const passphraseValue = await inquirer.prompt({
+    message:
+      message ??
+      (walletName
+        ? `Input passphrase for wallet ${walletName}:`
+        : `Input passphrase:`),
+    validate: async (input: string) => {
+      try {
+        // Allow prompt exiting
+        if (exitInputs.includes(input)) return true;
+
+        if (walletName) {
+          try {
+            const wallet = State.wallets.getWallet(walletName);
+
+            // Validate the passphrase
+            await wallet.getAddress(input);
+          } catch (error) {
+            return "Incorrect passphrase";
+          }
+        }
+        return input.length > 0 ? true : "Passphrase cannot be empty";
+      } catch (error) {
+        return false;
+      }
+    },
+    type: "password",
+    name: "passphrase",
+  });
+
+  // Allow exiting the prompt
+  if (
+    passphraseValue.passphrase &&
+    exitInputs.includes(passphraseValue.passphrase)
+  )
+    throw new Error("Prompt exited");
+
+  return passphraseValue.passphrase ?? "";
 }

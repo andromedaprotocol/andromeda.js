@@ -49,6 +49,7 @@ export const commands: Commands = {
     description: "Executes a wasm message",
     usage: "wasm execute <contract address> <message>",
     flags: executeFlags,
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
     inputs: [
       {
         requestMessage: "Input Contract Address:",
@@ -73,7 +74,8 @@ export const commands: Commands = {
     handler: instantiateHandler,
     color: pc.magenta,
     description: "Instantiates a contract by code ID",
-    usage: "wasm instantiate <codeid?> <instantiatemsg?>",
+    usage: "wasm instantiate <codeid> <instantiatemsg>",
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
     flags: instantiateFlags,
     inputs: [
       {
@@ -109,6 +111,7 @@ export const commands: Commands = {
     color: pc.blue,
     description: "Upload a contract wasm",
     usage: "wasm upload <wasm file>",
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
     inputs: [
       {
         requestMessage: "Input Wasm File Path:",
@@ -134,6 +137,7 @@ export const commands: Commands = {
     color: pc.cyan,
     description: "Migrate a contract",
     usage: "wasm migrate <contract address> <new code id> <migrate msg>",
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
     inputs: [
       {
         requestMessage: "Input Contract Address:",

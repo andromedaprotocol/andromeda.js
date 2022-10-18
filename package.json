@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.0.60",
+  "version": "0.0.61",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -29,6 +29,7 @@
     "@cosmjs/math": "^0.29.2",
     "@cosmjs/proto-signing": "^0.29.2",
     "@cosmjs/stargate": "^0.29.2",
+    "@inquirer/password": "^0.0.27-alpha.0",
     "axios": "^1.1.2",
     "bech32": "^2.0.0",
     "bip39": "^3.0.4",
@@ -46,6 +47,7 @@
     "inquirer-command-prompt": "^0.1.0",
     "is-my-json-valid": "^2.20.6",
     "jsonschema": "^1.4.1",
+    "keytar": "^7.9.0",
     "lodash": "^4.17.21",
     "minimist": "^1.2.7",
     "module-alias": "^2.2.2",
