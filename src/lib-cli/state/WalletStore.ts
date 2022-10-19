@@ -188,7 +188,7 @@ export default class WalletStore {
     const addressPrefix = config.get("chain.addressPrefix");
     const newWallet = mnemonic
       ? await Wallet.fromMnemonic(name, mnemonic, passphrase, addressPrefix)
-      : await Wallet.generate(name, passphrase);
+      : await Wallet.generate(name, passphrase, addressPrefix);
 
     await keychain.setPassword(KEYCHAIN_SERVICE, name, passphrase);
     const address = await newWallet.getAddress(passphrase);
@@ -258,7 +258,23 @@ export default class WalletStore {
    * @param identifier The identifier for the wallet (name or address)
    * @returns
    */
-  getWallet(identifier: string) {
+  getWallet(identifier: string, chainId = config.get("chain.chainId")) {
+    const walletData = this.wallets.find(
+      ({ name, address, chainId: walletChainId }) =>
+        chainId === walletChainId &&
+        (name === identifier.trim() || address === identifier.trim())
+    );
+    if (!walletData) return;
+
+    return new Wallet(walletData.name, walletData.key);
+  }
+
+  /**
+   * Get a wallet by identifier, identifier being a name or address. Ignores chain IDs.
+   * @param identifier The identifier for the wallet (name or address)
+   * @returns
+   */
+  getWalletRaw(identifier: string) {
     const wallet = this.getWalletByName(identifier);
     if (!wallet) return this.getWalletByAddress(identifier);
     return wallet;

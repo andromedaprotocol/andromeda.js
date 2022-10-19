@@ -26,8 +26,8 @@ export default class Wallet {
    * @param passphrase
    * @returns
    */
-  static async generate(name: string, passphrase: string) {
-    const wallet = await DirectSecp256k1HdWallet.generate(24);
+  static async generate(name: string, passphrase: string, prefix?: string) {
+    const wallet = await DirectSecp256k1HdWallet.generate(24, { prefix });
     const key = await wallet.serialize(passphrase);
     return new Wallet(name, key);
   }
