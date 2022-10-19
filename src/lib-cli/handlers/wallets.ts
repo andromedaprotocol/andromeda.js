@@ -1,12 +1,18 @@
 import { Wallet } from "@andromeda/andromeda-js";
 import pc from "picocolors";
 // import Table from "cli-table";
+import Table from "cli-table";
 import inquirer from "inquirer";
-import { displaySpinnerAsync, logTableConfig } from "../common";
+import {
+  clearPreviousLines,
+  displaySpinnerAsync,
+  logTableConfig,
+  ordinalSuffix,
+} from "../common";
 import config from "../config";
 import State, { StoredWalletData } from "../state";
 import { Commands, Flags } from "../types";
-import Table from "cli-table";
+import { exitInputs } from "..";
 
 const store = State.wallets;
 
@@ -138,6 +144,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
     mnemonic = mnemonicInput.addwalletmnemonic.trim();
     if (mnemonic === "exit") return;
   }
+
   console.log("");
   const newWallet = await store.generateWallet(
     config.get("chain.chainId"),
@@ -157,7 +164,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
 
   if (!mnemonic || mnemonic.length === 0) {
     mnemonic = await newWallet.getMnemonic(passphrase);
-    newWalletConfirmation(mnemonic);
+    await newWalletConfirmation(mnemonic);
   }
 
   if (wallets.length === 0) {
@@ -169,7 +176,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
  * Prompts the user to save their newly generated wallet menmonic
  * @param seed The seed phrase for the wallet
  */
-function newWalletConfirmation(seed: string) {
+async function newWalletConfirmation(seed: string) {
   console.log();
   console.log("Your seed phrase is:");
   console.log(pc.bold(seed));
@@ -181,6 +188,42 @@ function newWalletConfirmation(seed: string) {
       )
     )
   );
+
+  let confirmed = false;
+  while (!confirmed) {
+    const confirmSaved = await inquirer.prompt({
+      name: "confirm",
+      type: "confirm",
+      message: "Have you saved your seed phrase?",
+    });
+    confirmed = confirmSaved.confirm;
+  }
+
+  clearPreviousLines(5);
+  const mnemonicLength = seed.split(" ").length;
+  const inputIndices: number[] = [];
+  while (inputIndices.length < 3) {
+    const index = Math.floor(Math.random() * mnemonicLength);
+    if (!inputIndices.includes(index)) inputIndices.push(index);
+  }
+
+  for (let i = 0; i < inputIndices.length; i++) {
+    const index = inputIndices.sort((a, b) => a - b)[i];
+    const answer = seed.split(" ")[index];
+    const input = await inquirer.prompt({
+      name: "input",
+      message: `Input the ${ordinalSuffix(
+        index + 1
+      )} word of your seed phrase:`,
+      validate: (input: string) => {
+        if (exitInputs.includes(input)) return true;
+
+        return input.trim() === answer ? true : "Incorrect answer";
+      },
+    });
+
+    if (exitInputs.includes(input.input)) throw new Error("Prompt exited");
+  }
 }
 
 /**

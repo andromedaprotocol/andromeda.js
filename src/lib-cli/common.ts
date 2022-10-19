@@ -209,3 +209,35 @@ export async function promptPassphrase(
 
   return passphraseValue.passphrase ?? "";
 }
+
+/**
+ * Removes the previous output lines
+ * @param linesToClear Amount of lines to clear, defauls to 1
+ */
+export function clearPreviousLines(linesToClear = 1) {
+  for (let i = 0; i < linesToClear; i++) {
+    process.stdout.moveCursor(0, -1);
+    process.stdout.clearLine(1);
+  }
+}
+
+/**
+ * Attaches an ordinal suffix to a given number and returns it as a string.
+ * Taken from: https://stackoverflow.com/questions/13627308/add-st-nd-rd-and-th-ordinal-suffix-to-a-number
+ * @param number
+ * @returns
+ */
+export function ordinalSuffix(number: number) {
+  const j = number % 10,
+    k = number % 100;
+  if (j == 1 && k != 11) {
+    return number + "st";
+  }
+  if (j == 2 && k != 12) {
+    return number + "nd";
+  }
+  if (j == 3 && k != 13) {
+    return number + "rd";
+  }
+  return number + "th";
+}

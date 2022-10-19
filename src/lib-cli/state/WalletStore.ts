@@ -188,7 +188,7 @@ export default class WalletStore {
     const addressPrefix = config.get("chain.addressPrefix");
     const newWallet = mnemonic
       ? await Wallet.fromMnemonic(name, mnemonic, passphrase, addressPrefix)
-      : await Wallet.generate(name, passphrase);
+      : await Wallet.generate(name, passphrase, addressPrefix);
 
     await keychain.setPassword(KEYCHAIN_SERVICE, name, passphrase);
     const address = await newWallet.getAddress(passphrase);
