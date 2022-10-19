@@ -1,60 +1,81 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.0.1",
+  "version": "0.0.63",
   "repository": {
-    "url": "https://github.com/andromedaprotocol/andromeda-cli"
+    "type": "git",
+    "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
   },
   "description": "",
   "main": "./dist/index.js",
   "bin": {
-    "andr": "./dist/cli.js"
+    "andr": "dist/cli.js"
   },
   "scripts": {
     "start": "nodemon -I --watch 'src/**/*.ts' --exec 'ts-node' src/cli.ts",
     "start:windows": "nodemon --watch 'src/**/*.ts' --exec \"npm run\" build",
     "create": "npm run build && npm run test",
-    "build": "tsc -p .",
-    "install:local": "rm -rf ./dist && npm run build && sudo npm i -g --force && andr",
-    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
+    "build": "tsc -p tsconfig.json",
+    "install:local": "npm run build && sudo npm i -g && andr",
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
+    "prepare": "npm run build",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@cosmjs/cli": "^0.28.0",
-    "@cosmjs/cosmwasm-stargate": "^0.28.0",
-    "@cosmjs/proto-signing": "^0.28.7",
-    "@cosmjs/stargate": "^0.28.7",
-    "@types/convict-format-with-validator": "^6.0.2",
+    "@cosmjs/cli": "^0.29.2",
+    "@cosmjs/cosmwasm-stargate": "^0.29.2",
+    "@cosmjs/math": "^0.29.2",
+    "@cosmjs/proto-signing": "^0.29.2",
+    "@cosmjs/stargate": "^0.29.2",
+    "@inquirer/password": "^0.0.27-alpha.0",
+    "axios": "^1.1.2",
+    "bech32": "^2.0.0",
     "bip39": "^3.0.4",
-    "chalk": "^4.1.1",
-    "chalk-animation": "^1.6.0",
+    "chalk": "4.1.1",
+    "cli-spinner": "^0.2.10",
     "cli-table": "^0.3.11",
     "convict": "^6.2.3",
     "convict-format-with-validator": "^6.2.0",
+    "fetch": "^1.1.0",
     "figlet": "^1.5.2",
-    "inquirer": "^8.2.4",
+    "gradient-string": "^2.0.2",
+    "graphql": "^16.6.0",
+    "graphql-request": "^5.0.0",
+    "inquirer": "8.2.4",
     "inquirer-command-prompt": "^0.1.0",
-    "minimist": "^1.2.6",
-    "nanospinner": "^1.1.0"
+    "is-my-json-valid": "^2.20.6",
+    "jsonschema": "^1.4.1",
+    "keytar": "^7.9.0",
+    "lodash": "^4.17.21",
+    "minimist": "^1.2.7",
+    "module-alias": "^2.2.2",
+    "nanospinner": "^1.1.0",
+    "node-fetch": "^3.2.10",
+    "ora": "^6.1.2",
+    "picocolors": "^1.0.0",
+    "ts-jest": "^29.0.3"
   },
   "devDependencies": {
     "@types/chalk-animation": "^1.6.1",
-    "@types/cli-table": "^0.3.0",
+    "@types/cli-spinner": "^0.2.1",
+    "@types/cli-table": "^0.3.1",
     "@types/convict": "^6.1.1",
-    "@types/figlet": "^1.5.4",
+    "@types/convict-format-with-validator": "^6.0.2",
+    "@types/figlet": "^1.5.5",
     "@types/gradient-string": "^1.1.2",
-    "@types/inquirer": "^8.2.1",
+    "@types/inquirer": "^9.0.2",
+    "@types/jest": "^29.1.2",
+    "@types/lodash": "^4.14.186",
     "@types/minimist": "^1.2.2",
-    "module-alias": "^2.2.2",
-    "nodemon": "^1.3.3",
-    "ts-node": "^10.8.0",
-    "typescript": "^4.7.3"
+    "@types/node": "^18.8.5",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.4"
   },
   "_moduleAliases": {
-    "@andromeda/andromeda-js": "dist/andr-js/index.js"
-  },
-  "files": [
-    "./dist/**/*"
-  ]
+    "@andromeda/andromeda-js": "dist/andr-js/index.js",
+    "@andromeda/cli": "dist/lib-cli/index.js"
+  }
 }

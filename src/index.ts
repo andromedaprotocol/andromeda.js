@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/prefer-default-export
-export function myFunc(): void {
-  console.info("libary");
-}
+import AndromedaClient from "./andr-js";
+
+export * from "./andr-js";
+export default AndromedaClient;

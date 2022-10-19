@@ -9,7 +9,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
-
+    "skipLibCheck": true,
     "strict": true /* Enable all strict type-checking options. */,
 
     /* Additional Checks */
@@ -21,7 +21,8 @@
 
     "lib": ["esnext"],
     "paths": {
-      "@andromeda/andromeda-js": ["andr-js"]
+      "@andromeda/andromeda-js": ["andr-js"],
+      "@andromeda/cli": ["lib-cli"]
     },
     "baseUrl": "./src"
   },
