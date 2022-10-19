@@ -184,9 +184,10 @@ export async function promptPassphrase(
         if (walletName) {
           try {
             const wallet = State.wallets.getWallet(walletName);
-
-            // Validate the passphrase
-            await wallet.getAddress(input);
+            if (wallet) {
+              // Validate the passphrase
+              await wallet.getAddress(input);
+            }
           } catch (error) {
             return "Incorrect passphrase";
           }
