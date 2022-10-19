@@ -212,7 +212,7 @@ export async function promptPassphrase(
 
 /**
  * Removes the previous output lines
- * @param linesToClear Amount of lines to clear, defauls to 1
+ * @param linesToClear Amount of lines to clear, defaults to 1
  */
 export function clearPreviousLines(linesToClear = 1) {
   for (let i = 0; i < linesToClear; i++) {
