@@ -175,6 +175,7 @@ export function generateHandler(
  * @returns Whether the address is valid or not
  */
 export function validateAddressInput(addr: string) {
+  if (exitInputs.includes(addr)) return true;
   try {
     const isValid = validateAddress(addr, config.get("chain.addressPrefix"));
     if (!isValid) {

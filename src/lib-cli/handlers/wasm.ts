@@ -268,7 +268,7 @@ export async function executeMessage(
     console.log();
   }
   const feeEstimate = await simulateExecuteMessage(address, msg, flags);
-  console.log(successMessage ?? pc.green("Transaction simulated!"));
+  console.log("Transaction simulated!");
   console.log();
   logFeeEstimation(feeEstimate);
   if (simulate) {
@@ -291,7 +291,7 @@ export async function executeMessage(
       await client.execute(address, msg, fee ?? "auto", memo, msgFunds)
   );
   console.log();
-  console.log(successMessage ?? pc.green("Transaction executed!"));
+  console.log(pc.green(successMessage ?? "Transaction executed!"));
   console.log();
   printTransactionUrl(resp.transactionHash);
 }
@@ -346,10 +346,11 @@ export async function uploadWasm(
  */
 export async function queryMessage<T = any>(
   address: string,
-  msg: Record<string, any>
+  msg: Record<string, any>,
+  loadingMessage = "Querying contract..."
 ): Promise<T> {
   const resp = await displaySpinnerAsync(
-    "Querying contract...",
+    loadingMessage,
     async () => await client.queryContract<T>(address, msg)
   );
   return resp;

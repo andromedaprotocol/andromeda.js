@@ -149,7 +149,9 @@ export default class ADOAPI {
    * @returns
    */
   deregisterModuleMsg(id: number) {
-    return this.andromedaReceive({ deregister_module: { module_idx: id } });
+    return this.andromedaReceive({
+      deregister_module: { module_idx: `${id}` },
+    });
   }
 
   /**
@@ -181,7 +183,9 @@ export default class ADOAPI {
    * @returns
    */
   alterModuleMsg(id: number, module: Module) {
-    return this.andromedaReceive({ alter_module: { module, module_idx: id } });
+    return this.andromedaReceive({
+      alter_module: { module, module_idx: `${id}` },
+    });
   }
 
   /**
@@ -291,7 +295,7 @@ export default class ADOAPI {
    * @returns
    */
   operatorsQuery() {
-    return this.andromedaQuery({ operators: [] });
+    return this.andromedaQuery({ operators: {} });
   }
 
   /**
@@ -454,7 +458,7 @@ export default class ADOAPI {
     const query = this.moduleQuery(id);
     const resp = await this.client.queryContract<Module>(addr, query);
 
-    return resp;
+    return { ...resp, idx: parseInt(`${id}`) };
   }
 
   /**
