@@ -89,4 +89,6 @@ export interface Module {
   address: AndrAddress;
   /** Whether the module is mutable */
   is_mutable: boolean;
+  /** The module idx (if it is already stored within a contract) */
+  idx?: number;
 }

@@ -13,23 +13,29 @@ import {
   promptInstantiateMsg,
   promptQueryOrExecuteMessage,
 } from "../../schema";
+import State from "../../state";
 import { Commands, Flags } from "../../types";
 import gqlCommands from "../gql";
 import { generateHandler, validateAddressInput } from "../utils";
 import { executeMessage, instantiateMessage, queryMessage } from "../wasm";
-import factoryCommands from "./factory";
-import State from "../../state";
+import dbCommands from "./db";
+import moduleCommands from "./modules";
+import operatorCommands from "./operators";
 
-const { client } = State;
+const { client, wallets } = State;
 
-// Factory has several subcommands, see `factory.ts`
-const factoryHandler = generateHandler(factoryCommands);
+// The ADO DB has several subcommands, see `db.ts`
+const dbHandler = generateHandler(dbCommands);
+// Operators have several subcommands, see 'operators.ts'
+const operatorsHandler = generateHandler(operatorCommands);
+// Modules have several subcommands, see 'modules.ts'
+const modulesHandler = generateHandler(moduleCommands);
 
 const commands: Commands = {
-  factory: {
-    handler: factoryHandler,
-    usage: "ado factory",
-    description: "Allows executing and querying for a Factory ADO",
+  db: {
+    handler: dbHandler,
+    usage: "ado db",
+    description: "Allows querying the on chain ADO DB",
     color: pc.white,
   },
   create: {
@@ -98,10 +104,10 @@ const commands: Commands = {
       },
     ],
   },
-  type: {
-    handler: queryTypeHandler,
-    usage: "ado type <address>",
-    description: "Queries the type of ADO for a given address",
+  info: {
+    handler: queryInfoHandler,
+    usage: "ado info <address>",
+    description: "Queries the info of ADO for a given address",
     color: pc.yellow,
     inputs: [
       {
@@ -115,6 +121,34 @@ const commands: Commands = {
     usage: "ado list",
     disabled: () => typeof State.wallets.currentWallet === "undefined",
     color: pc.cyan,
+  },
+  transfer: {
+    handler: transferHandler,
+    usage: "ado transfer <address> <new owner address>",
+    description: "Transfers ownership of an ADO",
+    color: pc.green,
+    inputs: [
+      {
+        requestMessage: "Input the ADO Address:",
+        validate: validateAddressInput,
+      },
+      {
+        requestMessage: "Input the address of the new owner:",
+        validate: validateAddressInput,
+      },
+    ],
+  },
+  operators: {
+    handler: operatorsHandler,
+    usage: "ado operators",
+    description: "Allows management of operators for an ADO",
+    color: pc.blue,
+  },
+  modules: {
+    handler: modulesHandler,
+    usage: "ado modules",
+    description: "Allows management of modules for an ADO",
+    color: pc.yellow,
   },
 };
 
@@ -215,14 +249,56 @@ async function queryHandler(input: string[]) {
 }
 
 /**
- * Queries an ADO for its type by address
+ * Queries an ADO for its info by address
  * @param input
  */
-async function queryTypeHandler(input: string[]) {
+async function queryInfoHandler(input: string[]) {
   const [address] = input;
-  const type = await queryADOType(address);
+  const { type, version, owner, publisher, createdHeight } =
+    await displaySpinnerAsync("Querying ADO info...", async () => {
+      const info = [
+        client.ado.getType(address),
+        client.ado.getVersion(address),
+        client.ado.getOwner(address),
+        client.ado.getPublisher(address),
+        client.ado.getCreatedHeight(address),
+      ];
+      const [type, version, owner, publisher, createdHeight] =
+        await Promise.all(info);
+      return {
+        type,
+        version,
+        owner,
+        publisher,
+        createdHeight,
+      };
+    });
 
-  console.log(type);
+  console.log();
+  console.log(pc.bold("ADO Info"));
+  console.log(`${pc.bold("Type:")} ${type}`);
+  console.log(`${pc.bold("Version:")} v${version}`);
+  console.log(`${pc.bold("Owner:")} ${owner}`);
+  console.log(`${pc.bold("Publisher:")} ${publisher}`);
+  console.log(`${pc.bold("Created Height:")} ${createdHeight}`);
+}
+
+/**
+ * Transfers ownership of an ADO
+ * @param input
+ * @param flags
+ */
+async function transferHandler(input: string[], flags: Flags) {
+  const [address, recipient] = input;
+
+  const owner = await client.ado.getOwner(address);
+  const currWallet = wallets.currentWalletAddress;
+
+  if (!currWallet || owner !== currWallet)
+    throw new Error("Cannot transfer an ADO you do not own");
+
+  const msg = client.ado.updateOwnerMsg(recipient);
+  await executeMessage(address, msg, flags, "ADO Transferred!");
 }
 
 export default commands;
