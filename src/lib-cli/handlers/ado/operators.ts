@@ -42,7 +42,7 @@ const commands: Commands = {
   },
   rm: {
     description: "Removes an operator from an ADO",
-    usage: "ado operators rm <address> <new operator address>",
+    usage: "ado operators rm <address> <operator address to remove>",
     handler: removeOperatorHandler,
     color: pc.red,
     flags: executeFlags,
