@@ -10,7 +10,7 @@ import {
 } from "@cosmjs/cosmwasm-stargate";
 import { calculateFee, DeliverTxResponse, GasPrice } from "@cosmjs/stargate";
 import Long from "long";
-import { ADOAPI, RegistryAPI, FactoryAPI } from "./api";
+import { ADOAPI, RegistryAPI, ADODBAPI } from "./api";
 
 import type { Fee, Msg } from "./types";
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
@@ -42,8 +42,8 @@ export default class AndromedaClient {
   public ado = new ADOAPI(this);
   // API for registry specific messages
   public registry = new RegistryAPI(this);
-  // API for factory specific messages
-  public factory = new FactoryAPI(this);
+  // API for ADO DB specific messages
+  public adoDB = new ADODBAPI(this);
 
   /**
    * A pre-message hook to check that the client is connected and functioning
@@ -100,7 +100,7 @@ export default class AndromedaClient {
       return;
     }
     this.registry.address = registryAddress;
-    await this.factory.getAddressFromRegistry(this.registry);
+    await this.adoDB.getAddressFromRegistry(this.registry);
   }
 
   /**
@@ -116,7 +116,7 @@ export default class AndromedaClient {
     delete this.gasPrice;
 
     this.registry = new RegistryAPI(this);
-    this.factory = new FactoryAPI(this);
+    this.adoDB = new ADODBAPI(this);
   }
 
   /**

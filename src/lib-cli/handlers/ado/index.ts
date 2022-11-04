@@ -169,7 +169,7 @@ async function createHandler(input: string[], flags: Flags) {
 
   const msg = await promptInstantiateMsg(schema, type);
 
-  const codeId = await client.factory.getCodeId(type);
+  const codeId = await client.adoDB.getCodeId(type);
 
   await instantiateMessage(codeId, msg, flags);
 }

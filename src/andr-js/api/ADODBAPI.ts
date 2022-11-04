@@ -3,27 +3,27 @@ import type { Fee } from "../types";
 import type RegistryAPI from "./RegistryAPI";
 import ADOAPI from "./ADOAPI";
 
-export default class FactoryAPI extends ADOAPI {
+export default class ADODBAPI extends ADOAPI {
   constructor(client: AndromedaClient, public address: string = "") {
     super(client, address);
   }
 
   /**
-   * Fetches the factory address from the on chain registry
+   * Fetches the ADO DB address from the on chain registry
    * @param registryAPI
    */
   async getAddressFromRegistry(registryAPI: RegistryAPI) {
     try {
-      const factoryAddress = await registryAPI.getAddress("factory");
-      this.address = factoryAddress;
+      const adoDBAddress = await registryAPI.getAddress("factory"); //TODO: CHANGE TO ADODB WITH v1.1
+      this.address = adoDBAddress;
     } catch (e) {
       console.error(e);
-      console.warn("Could not fetch factory address");
+      console.warn("Could not fetch ADO DB address");
     }
   }
 
   /**
-   * Provides a message object for the factory's `UpdateCodeId` message
+   * Provides a message object for the ADO DB's `UpdateCodeId` message
    * @param code_id_key
    * @param code_id
    * @returns
@@ -38,7 +38,7 @@ export default class FactoryAPI extends ADOAPI {
   }
 
   /**
-   * Updates the Code ID for a given key within the factory
+   * Updates the Code ID for a given key within the ADO DB
    * @param code_id_key
    * @param code_id
    * @param fee
@@ -55,7 +55,7 @@ export default class FactoryAPI extends ADOAPI {
   ) {
     const msg = this.updateCodeIdMsg(code_id_key, code_id);
     if (!address && !this.address)
-      throw new Error("Please provide a valid factory address");
+      throw new Error("Please provide a valid ADO DB address");
 
     return this.client.execute(
       address ?? this.address!,
@@ -66,7 +66,7 @@ export default class FactoryAPI extends ADOAPI {
   }
 
   /**
-   * Provides a message object for the factory's `GetCodeId` query
+   * Provides a message object for the ADO DB's `GetCodeId` query
    * @param name
    * @returns
    */
@@ -79,14 +79,14 @@ export default class FactoryAPI extends ADOAPI {
   }
 
   /**
-   * Gets the code ID for an ADO type from the factory
+   * Gets the code ID for an ADO type from the ADO DB
    * @param name
    * @param address
    * @returns
    */
   async getCodeId(name: string, address?: string) {
     if (!this.address && !address)
-      throw new Error("No provided factory address to retrieve code ID");
+      throw new Error("No provided ADO DB address to retrieve code ID");
 
     const msg = this.getCodeIdQuery(name);
 

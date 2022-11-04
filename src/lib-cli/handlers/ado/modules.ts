@@ -212,10 +212,12 @@ async function removeModuleHandler(input: string[], flags: Flags) {
   const rmChoice = await inquirer.prompt({
     type: "list",
     name: "rm",
-    choices: modules.map((mod) => ({
-      name: `(${mod.idx}) ${mod.module_type} ${mod.address.identifier}`,
-      value: mod.idx,
-    })),
+    choices: modules
+      .filter((mod) => mod.is_mutable)
+      .map((mod) => ({
+        name: `(${mod.idx}) ${mod.module_type} ${mod.address.identifier}`,
+        value: mod.idx,
+      })),
     message: "Choose which module to remove:",
   });
   await executeMessage(
@@ -241,26 +243,33 @@ async function editModuleHandler(input: string[], flags: Flags) {
     throw new Error("Address does not implement ADO Modules");
 
   const modules = await getADOModules(address);
+  if (modules.filter((mod) => mod.is_mutable).length === 0)
+    throw new Error("This ADO does not have any mutable modules");
 
-  const editChoice: { edit: Module } = await inquirer.prompt({
+  const editChoice: { edit: Module | string } = await inquirer.prompt({
     type: "list",
     name: "edit",
-    choices: modules
-      .filter((mod) => mod.is_mutable)
-      .map((mod) => ({
-        name: `(${mod.idx}) ${mod.module_type} ${mod.address.identifier}`,
-        value: mod,
-      })),
+    choices: [
+      ...modules
+        .filter((mod) => mod.is_mutable)
+        .map((mod) => ({
+          name: `(${mod.idx}) ${mod.module_type} ${mod.address.identifier}`,
+          value: mod,
+        })),
+      "exit",
+    ],
     message: "Choose which module to edit:",
   });
 
-  const updated = await promptForModule(editChoice.edit);
+  if (exitInputs.includes(editChoice.edit as string))
+    throw new Error("Prompt exited");
+  const updated = await promptForModule(editChoice.edit as Module);
 
   await executeMessage(
     address,
-    client.ado.alterModuleMsg(editChoice.edit.idx!, updated),
+    client.ado.alterModuleMsg((editChoice.edit as Module).idx!, updated),
     flags,
-    "Module removed!"
+    "Module updated!"
   );
 }
 
