@@ -9,7 +9,7 @@ const { client, wallets } = State;
 const commands: Commands = {
   updatecodeid: {
     description: "Updates the code ID for a given ADO",
-    usage: "ado factory updatecodeid <ado key> <code id>",
+    usage: "ado db updatecodeid <ado key> <code id>",
     handler: updateCodeIdHandler,
     color: pc.blue,
     flags: executeFlags,
@@ -31,11 +31,11 @@ const commands: Commands = {
         },
       },
     ],
-    disabled: async () => !(await isOperatorOrOwnerOfFactory()),
+    disabled: async () => !(await isOperatorOrOwnerOfADODB()),
   },
   getcodeid: {
     description: "Fetches the code ID for a given ADO",
-    usage: "ado factory getcodeid <ado key>",
+    usage: "ado db getcodeid <ado key>",
     handler: getCodeIdHandler,
     color: pc.green,
     inputs: [
@@ -45,26 +45,26 @@ const commands: Commands = {
     ],
   },
   address: {
-    description: "Gets the current address for the factory",
-    usage: "ado factory address",
+    description: "Gets the current address for the db",
+    usage: "ado db address",
     handler: getAddressHandler,
     color: pc.white,
   },
 };
 
 /**
- * Checks whether the currently selected wallet is an owner/operator of the current chain's factory contract
- * @returns Whether the current wallet is an owner or operator of the current chain's factory contract
+ * Checks whether the currently selected wallet is an owner/operator of the current chain's ADO db contract
+ * @returns Whether the current wallet is an owner or operator of the current chain's ADO db contract
  */
-async function isOperatorOrOwnerOfFactory() {
-  if (!client.factory.address)
-    throw new Error("No factory address for current chain");
+async function isOperatorOrOwnerOfADODB() {
+  if (!client.adoDB.address)
+    throw new Error("No ADO DB address for current chain");
 
   const walletAddr = wallets.currentWalletAddress;
   if (!walletAddr) return false;
 
   const isAuthorized = await client.ado.isOperatorOrOwner(
-    client.factory.address,
+    client.adoDB.address,
     walletAddr
   );
   return isAuthorized;
@@ -76,8 +76,8 @@ async function isOperatorOrOwnerOfFactory() {
  * @param flags
  */
 async function updateCodeIdHandler(input: string[], flags: Flags) {
-  if (!client.factory.address)
-    throw new Error("No factory address for current chain");
+  if (!client.adoDB.address)
+    throw new Error("No ADO DB address for current chain");
 
   const [adoKey, codeId] = input;
 
@@ -89,9 +89,9 @@ async function updateCodeIdHandler(input: string[], flags: Flags) {
     throw new Error("Invalid Code ID");
   }
 
-  const msg = client.factory.updateCodeIdMsg(adoKey, parsedCodeId);
+  const msg = client.adoDB.updateCodeIdMsg(adoKey, parsedCodeId);
 
-  await executeMessage(client.factory.address, msg, flags);
+  await executeMessage(client.adoDB.address, msg, flags);
 }
 
 /**
@@ -99,23 +99,23 @@ async function updateCodeIdHandler(input: string[], flags: Flags) {
  * @param input
  */
 async function getCodeIdHandler(input: string[]) {
-  if (!client.factory.address)
-    throw new Error("No factory address for current chain");
+  if (!client.adoDB.address)
+    throw new Error("No ADO DB address for current chain");
 
   const [adoKey] = input;
 
-  const msg = client.factory.getCodeIdQuery(adoKey);
+  const msg = client.adoDB.getCodeIdQuery(adoKey);
 
-  const resp = await queryMessage(client.factory.address, msg);
+  const resp = await queryMessage(client.adoDB.address, msg);
 
   console.log(`Code ID: ${pc.bold(resp)}`);
 }
 
 /**
- * Prints the current chain's factory contract address
+ * Prints the current chain's ADO DB contract address
  */
 async function getAddressHandler() {
-  console.log(client.factory.address ?? "<unset>");
+  console.log(client.adoDB.address ?? "<unset>");
 }
 
 export default commands;
