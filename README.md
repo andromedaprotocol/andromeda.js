@@ -1,6 +1,6 @@
 <p>&nbsp;</p>
 <p align="center">
-<img src="https://github.com/andromedaprotocol/andromeda.js/blob/Readme-Changes/image/andromeda-js-logo-dark.png" width=800>
+<img src="https://github.com/andromedaprotocol/andromeda.js/blob/development/image/andromeda-js-logo-light.png" width=800>
 </p>
 
 ## About
