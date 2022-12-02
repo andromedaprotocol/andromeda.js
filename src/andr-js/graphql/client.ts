@@ -3,7 +3,8 @@ import { request, RequestDocument } from "graphql-request";
 /**
  * The URI to send the GQL queries to
  */
-let uri: string = "https://andr-graphql.herokuapp.com/graphql";
+let uri: string =
+  process.env.GQL_URL ?? "https://andr-gql.herokuapp.com/graphql";
 
 /**
  * Queries the GraphQL server
