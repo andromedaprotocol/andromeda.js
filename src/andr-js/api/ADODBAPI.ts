@@ -14,7 +14,7 @@ export default class ADODBAPI extends ADOAPI {
    */
   async getAddressFromRegistry(registryAPI: RegistryAPI) {
     try {
-      const adoDBAddress = await registryAPI.getAddress("factory"); //TODO: CHANGE TO ADODB WITH v1.1
+      const adoDBAddress = await registryAPI.getAddress("adodb");
       this.address = adoDBAddress;
     } catch (e) {
       console.error(e);

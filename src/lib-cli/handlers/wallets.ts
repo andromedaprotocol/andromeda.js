@@ -83,7 +83,10 @@ async function validateMnemonic(input: string) {
   if (
     !input ||
     input.length === 0 ||
-    input.split(" ").filter((str) => str.trim().length > 0).length !== 24
+    !(
+      input.split(" ").filter((str) => str.trim().length > 0).length === 24 ||
+      input.split(" ").filter((str) => str.trim().length > 0).length === 12
+    )
   )
     return false;
 

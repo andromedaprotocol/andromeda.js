@@ -11,5 +11,6 @@ export * from "./splitter";
 export * from "./cw721";
 export * from "./rates";
 export * from "./timelock";
+export * from "./keplr";
 
 export * from "./types";

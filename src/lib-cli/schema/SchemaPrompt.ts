@@ -107,8 +107,7 @@ export async function promptQueryOrExecuteMessage(
         required.includes("andr_hook")
       )
   );
-  if (validOptions.length === 0)
-    throw new Error("ADO has no valid execute messages");
+  if (validOptions.length === 0) throw new Error("ADO has no valid messages");
 
   const messageChoice = await requestMessageType(validOptions);
   const messageSchema: Schema = validOptions[parseInt(messageChoice)];

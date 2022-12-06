@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -33,6 +33,18 @@
     "@cosmjs/proto-signing": "^0.29.4",
     "@cosmjs/stargate": "^0.29.4",
     "@inquirer/password": "^0.0.28-alpha.0",
+    "@keplr-wallet/types": "^0.11.21",
+    "@types/cli-spinner": "^0.2.1",
+    "@types/cli-table": "^0.3.1",
+    "@types/convict": "^6.1.1",
+    "@types/convict-format-with-validator": "^6.0.2",
+    "@types/figlet": "^1.5.5",
+    "@types/gradient-string": "^1.1.2",
+    "@types/inquirer": "^9.0.3",
+    "@types/jest": "^29.2.3",
+    "@types/lodash": "^4.14.190",
+    "@types/minimist": "^1.2.2",
+    "@types/node": "^18.11.9",
     "axios": "^1.2.0",
     "bech32": "^2.0.0",
     "bip39": "^3.0.4",
@@ -57,18 +69,7 @@
     "node-fetch": "^3.3.0",
     "ora": "^6.1.2",
     "picocolors": "^1.0.0",
-    "ts-jest": "^29.0.3",
-    "@types/cli-spinner": "^0.2.1",
-    "@types/cli-table": "^0.3.1",
-    "@types/convict": "^6.1.1",
-    "@types/convict-format-with-validator": "^6.0.2",
-    "@types/figlet": "^1.5.5",
-    "@types/gradient-string": "^1.1.2",
-    "@types/inquirer": "^9.0.3",
-    "@types/jest": "^29.2.3",
-    "@types/lodash": "^4.14.190",
-    "@types/minimist": "^1.2.2",
-    "@types/node": "^18.11.9"
+    "ts-jest": "^29.0.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.20",

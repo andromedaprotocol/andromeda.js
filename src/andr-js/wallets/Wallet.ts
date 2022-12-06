@@ -1,4 +1,5 @@
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import { stringToPath } from "@cosmjs/crypto";
 
 /**
  * Used to generate a client wallet by Mnemonic
@@ -27,7 +28,11 @@ export default class Wallet {
    * @returns
    */
   static async generate(name: string, passphrase: string, prefix?: string) {
-    const wallet = await DirectSecp256k1HdWallet.generate(24, { prefix });
+    const wallet = await DirectSecp256k1HdWallet.generate(24, {
+      prefix,
+      hdPaths:
+        prefix === "terra" ? [stringToPath("m/44'/330'/0'/0/0")] : undefined,
+    });
     const key = await wallet.serialize(passphrase);
     return new Wallet(name, key);
   }
@@ -47,6 +52,8 @@ export default class Wallet {
     prefix: string
   ) {
     const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
+      hdPaths:
+        prefix === "terra" ? [stringToPath("m/44'/330'/0'/0/0")] : undefined,
       prefix,
     });
     const key = await wallet.serialize(passphrase);
