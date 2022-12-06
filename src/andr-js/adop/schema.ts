@@ -1,14 +1,14 @@
 import axios from "axios";
-import type { Schema } from "jsonschema";
+import { ContractSchema } from "./types";
 
 /**
  * Fetches schemas from a given URL
  * @param url
  * @returns
  */
-export async function fetchSchema(url: string): Promise<Schema> {
+export async function fetchSchema<T = ContractSchema>(url: string): Promise<T> {
   if (!url || url.length === 0) throw new Error(`Invalid schema URL: ${url}`);
 
   const resp = await axios.get(url);
-  return resp.data as unknown as Schema;
+  return resp.data as unknown as T;
 }

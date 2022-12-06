@@ -8,7 +8,7 @@ import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
 import _ from "lodash";
 import config from "../config";
-import { validateAddressInput } from "..";
+import { displaySpinnerAsync, validateAddressInput } from "..";
 import State from "../state";
 
 const { client } = State;
@@ -41,7 +41,7 @@ async function requestSendNFT(): Promise<SendNftMsg> {
     if (!schemas) throw new Error("Not a registered ADO type");
     if (!schemas.receive || !schemas.receive.cw721)
       throw new Error("Contract address cannot receive NFTs");
-    const schema = await fetchSchema(schemas.receive.cw721);
+    const schema = await fetchSchema<Schema>(schemas.receive.cw721);
     msg = await promptQueryOrExecuteMessage(schema, type);
   } catch (error) {
     console.error(error);
@@ -198,11 +198,14 @@ export default class SchemaPrompt {
     );
 
     const {
-      schemas: { instantiate },
+      schemas: { contract_schema },
     } = await queryADOPackageDefinition(adoType);
-    const schema = await fetchSchema(instantiate);
+    const adoSchema = await displaySpinnerAsync(
+      "Fetching Schema...",
+      async () => await fetchSchema(contract_schema)
+    );
 
-    const msg = await promptInstantiateMsg(schema, adoType, [
+    const msg = await promptInstantiateMsg(adoSchema.instantiate, adoType, [
       `${name} - Instantiation`,
     ]);
     const instantiateMsg = encode(msg);
@@ -259,10 +262,13 @@ export default class SchemaPrompt {
     }
 
     const {
-      schemas: { execute },
+      schemas: { contract_schema },
     } = await queryADOPackageDefinition(type);
-    const schema = await fetchSchema(execute);
-    const msg = await promptQueryOrExecuteMessage(schema, type);
+    const adoSchema = await displaySpinnerAsync(
+      "Fetching schema...",
+      async () => await fetchSchema(contract_schema)
+    );
+    const msg = await promptQueryOrExecuteMessage(adoSchema.execute, type);
 
     return {
       address: {

@@ -1,4 +1,5 @@
 import {
+  ContractSchema,
   fetchSchema,
   queryADOPackageDefinition,
   queryADOTypes,
@@ -160,14 +161,14 @@ const commands: Commands = {
 async function createHandler(input: string[], flags: Flags) {
   const [type] = input;
   const {
-    schemas: { instantiate },
+    schemas: { contract_schema },
   } = await queryADOPackageDefinition(type);
-  const schema = await displaySpinnerAsync(
+  const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () => await fetchSchema(instantiate)
+    async () => await fetchSchema(contract_schema)
   );
 
-  const msg = await promptInstantiateMsg(schema, type);
+  const msg = await promptInstantiateMsg(adoSchema.instantiate, type);
 
   const codeId = await client.adoDB.getCodeId(type);
 
@@ -208,14 +209,14 @@ async function executeHandler(input: string[], flags: Flags) {
   }
 
   const {
-    schemas: { execute },
+    schemas: { contract_schema },
   } = await queryADOPackageDefinition(type);
-  const schema = await displaySpinnerAsync(
+  const adoSchema: ContractSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () => await fetchSchema(execute)
+    async () => await fetchSchema(contract_schema)
   );
 
-  const msg = await promptQueryOrExecuteMessage(schema, type);
+  const msg = await promptQueryOrExecuteMessage(adoSchema.execute, type);
   await executeMessage(address, msg, flags);
 }
 
@@ -235,14 +236,14 @@ async function queryHandler(input: string[]) {
   }
 
   const {
-    schemas: { query },
+    schemas: { contract_schema },
   } = await queryADOPackageDefinition(type);
-  const schema = await displaySpinnerAsync(
+  const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () => await fetchSchema(query)
+    async () => await fetchSchema(contract_schema)
   );
 
-  const msg = await promptQueryOrExecuteMessage(schema, type);
+  const msg = await promptQueryOrExecuteMessage(adoSchema.query, type);
   const resp = await queryMessage(address, msg);
 
   console.log(JSON.stringify(resp, null, 2));
