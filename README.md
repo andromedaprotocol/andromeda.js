@@ -53,6 +53,7 @@ These are the chains currently supported by Andromeda.js and the CLI.
 - [Juno](https://docs.junonetwork.io/juno/readme)
 - [Stargaze](https://www.stargaze.zone)
 - [Terra](https://docs.terra.money)
+- [Sei](https://docs.seinetwork.io/introduction/overview)
 
 
 Many more chains will be added soon. 
