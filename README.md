@@ -56,3 +56,8 @@ These are the chains currently supported by Andromeda.js and the CLI.
 
 
 Many more chains will be added soon. 
+
+##Licensing
+
+https://github.com/andromedaprotocol/andromeda-core/blob/Add-Licensing/LICENSE/LICENSE.md
+
