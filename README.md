@@ -16,7 +16,7 @@ Andr.js is a JavaScript SDK for writing applications that interact with the cosm
 
 ## Installation
 
-Grab the latest version off [NPM](https://www.npmjs.com/package/@andromedaprotocol/andromeda.js):
+Grab the latest version off [NPM](https://www.npmjs.com/package/@andromedaprotocol/andromeda.js/v/latest):
 
 ```sh
 sudo npm i -g @andromedaprotocol/andromeda.js
