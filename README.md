@@ -1,6 +1,6 @@
 <p>&nbsp;</p>
 <p align="center">
-<img src="https://github.com/andromedaprotocol/andromeda.js/blob/development/image/andromeda-js-logo-light.png" width=800>
+<img src="https://github.com/andromedaprotocol/andromeda.js/blob/development/image/andromeda-js-logo.png" width=800>
 </p>
 
 ## About
@@ -16,10 +16,10 @@ Andr.js is a JavaScript SDK for writing applications that interact with the cosm
 
 ## Installation
 
-Grab the latest version off [NPM](https://www.npmjs.com/package/@andromedaprotocol/andromeda.js):
+Grab the latest version off [NPM](https://www.npmjs.com/package/@andromedaprotocol/andromeda.js/v/latest):
 
 ```sh
-npm i -g @andromedaprotocol/andromeda.js
+sudo npm i -g @andromedaprotocol/andromeda.js
 ```
 
 ## Usage
@@ -32,23 +32,33 @@ Please check the [docs](https://docs.andromedaprotocol.io/andromeda.js/) for not
 |----------------------------------------------------------|-------------------------------------------------|------------------------------|
 | AndromedaClient | A helper class to interact with the Andromeda ecosystem | [Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/andromedaclient-class) |
 | Wallet | Generate and interact wallets for the connected chain | [Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/wallet-class) |
-| WalletStore | Used to store wallets based on chain id and mnemonics |[Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/walletstore-class)|
-| ADO | Used to create and interact with andromeda ADOs | [Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/ado-class)|
+| ADOAPI | API for shared ADO messages|[Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/api-classes)|
+| FactoryAPI| API for factory specific messages | [Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/api-classes/factoryapi)|
+| RegistyAPI| API for registry specific messages | [Gitbook](https://docs.andromedaprotocol.io/andromeda.js/classes/api-classes/registryapi)|
+
 
 # CLI
 
-The andromeda CLI can be used to interact with the andromeda ecosytem on any of the chains andromeda is deployed on.
+The andromeda CLI can be used to interact with the Andromeda ecosytem on any of the chains Andromeda is deployed on.
 
 Run  `andr`  to start the CLI. 
 
-Documentation on the CLI commands is coming soon.
+Documentation on the CLI commands can be found [here](https://docs.andromedaprotocol.io/andromeda/andromeda-cli/introduction).
 
 ## Supported Chains
 
-These are the chains currently supperted by andromeda.js and the CLI.
+These are the chains currently supported by Andromeda.js and the CLI.
 
+- Andromeda 
 - [Juno](https://docs.junonetwork.io/juno/readme)
 - [Stargaze](https://www.stargaze.zone)
-- Andromeda (Docs coming soon)
+- [Terra](https://docs.terra.money)
+- [Sei](https://docs.seinetwork.io/introduction/overview)
+
 
 Many more chains will be added soon. 
+
+## Licensing
+
+[Terms and Conditions](https://github.com/andromedaprotocol/andromeda-core/blob/development/LICENSE/LICENSE.md)
+
