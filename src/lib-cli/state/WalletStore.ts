@@ -1,4 +1,4 @@
-import { Wallet } from "@andromeda/andromeda-js";
+import { generateWalletFromMnemonic, Wallet } from "@andromeda/andromeda-js";
 import keychain from "keytar";
 import { promptPassphrase } from "..";
 import config from "../config";
@@ -186,7 +186,7 @@ export default class WalletStore {
     if (trimmedChainId.length === 0) throw new Error("Invalid Chain ID");
 
     const addressPrefix = config.get("chain.addressPrefix");
-    const newWallet = await Wallet.fromMnemonic(
+    const newWallet = await generateWalletFromMnemonic(
       name,
       mnemonic,
       passphrase,

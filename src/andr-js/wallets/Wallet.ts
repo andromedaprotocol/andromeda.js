@@ -1,7 +1,5 @@
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { DirectEthSecp256k1Wallet } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/OfflineDirectSigner";
-import EtherWallet from "./EtherWallet";
-import TerraWallet from "./TerraWallet";
 
 /**
  * Used to generate a client wallet by Mnemonic
@@ -27,18 +25,11 @@ export default class Wallet {
     passphrase: string,
     prefix: string
   ) {
-    switch (prefix) {
-      case "inj":
-        return EtherWallet.fromMnemonic(name, mnemonic, passphrase);
-      case "terra":
-        return TerraWallet.fromMnemonic(name, mnemonic, passphrase);
-      default:
-        const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
-          prefix,
-        });
-        const key = await wallet.serialize(passphrase);
-        return new Wallet(name, key, prefix);
-    }
+    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
+      prefix,
+    });
+    const key = await wallet.serialize(passphrase);
+    return new Wallet(name, key, prefix);
   }
 
   /**
