@@ -257,11 +257,12 @@ export default class WalletStore {
   }
 
   /**
-   * Get a wallet by Chain ID/Identifier, identifier being a name or address
+   * Get a wallet by Identifier, identifier being a name or address
    * @param identifier The identifier for the wallet (name or address)
    * @returns
    */
-  getWallet(identifier: string, chainId = config.get("chain.chainId")) {
+  getWallet(identifier: string) {
+    const chainId = config.get("chain.chainId");
     const walletData = this.wallets.find(
       ({ name, address, chainId: walletChainId }) =>
         chainId === walletChainId &&

@@ -1,8 +1,7 @@
-import { stringToPath } from "@cosmjs/crypto";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { DirectEthSecp256k1Wallet } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/OfflineDirectSigner";
-import Crypto from "crypto-js";
-import { Wallet as EthersWallet } from "ethers";
+import EtherWallet from "./EtherWallet";
+import TerraWallet from "./TerraWallet";
 
 /**
  * Used to generate a client wallet by Mnemonic
@@ -13,38 +12,6 @@ export default class Wallet {
     public key: string,
     public prefix?: string
   ) {}
-
-  /**
-   * Generates a new wallet and serializes it
-   * @param name
-   * @param passphrase
-   * @returns
-   */
-  static async generate(
-    name: string,
-    passphrase: string,
-    mnemonic: string,
-    prefix?: string
-  ) {
-    const key = await (async () => {
-      switch (prefix) {
-        case "inj":
-          const wallet = EthersWallet.fromMnemonic(mnemonic);
-          return Crypto.AES.encrypt(wallet.privateKey, passphrase).toString();
-        default:
-          return (
-            await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
-              prefix,
-              hdPaths:
-                prefix === "terra"
-                  ? [stringToPath("m/44'/330'/0'/0/0")]
-                  : undefined,
-            })
-          ).serialize(passphrase);
-      }
-    })();
-    return new Wallet(name, key, prefix);
-  }
 
   /**
    * Generates a new wallet from a given mnemonic
@@ -60,43 +27,26 @@ export default class Wallet {
     passphrase: string,
     prefix: string
   ) {
-    const key = await (async () => {
-      switch (prefix) {
-        case "inj":
-          const ethersWallet = EthersWallet.fromMnemonic(mnemonic);
-          return Crypto.AES.encrypt(
-            ethersWallet.privateKey,
-            passphrase
-          ).toString();
-        default:
-          const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
-            hdPaths:
-              prefix === "terra"
-                ? [stringToPath("m/44'/330'/0'/0/0")]
-                : undefined,
-            prefix,
-          });
-          const key = await wallet.serialize(passphrase);
-          return key;
-      }
-    })();
-
-    return new Wallet(name, key, prefix);
+    switch (prefix) {
+      case "inj":
+        return EtherWallet.fromMnemonic(name, mnemonic, passphrase);
+      case "terra":
+        return TerraWallet.fromMnemonic(name, mnemonic, passphrase);
+      default:
+        const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
+          prefix,
+        });
+        const key = await wallet.serialize(passphrase);
+        return new Wallet(name, key, prefix);
+    }
   }
 
   /**
    * Get wallet associated with the provided mnemonic
    */
-  async getWallet(passphrase: string) {
-    if (this.prefix === "inj") {
-      const storedKey = Crypto.AES.decrypt(this.key, passphrase).toString(
-        Crypto.enc.Utf8
-      );
-      const privKeyArray = Uint8Array.from(
-        Buffer.from(storedKey.replace("0x", ""), "hex")
-      );
-      return await DirectEthSecp256k1Wallet.fromKey(privKeyArray);
-    }
+  async getWallet(
+    passphrase: string
+  ): Promise<DirectSecp256k1HdWallet | DirectEthSecp256k1Wallet> {
     return await DirectSecp256k1HdWallet.deserialize(this.key, passphrase);
   }
 
