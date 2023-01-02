@@ -15,6 +15,7 @@ import { ADOAPI, RegistryAPI, ADODBAPI } from "./api";
 import type { Fee, Msg } from "./types";
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import { isUndefined } from "lodash";
+import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
@@ -64,7 +65,7 @@ export default class AndromedaClient {
   async connect(
     endpoint: string,
     registryAddress: string,
-    signer?: OfflineSigner,
+    signer?: OfflineSigner | OfflineDirectSigner,
     options?: SigningCosmWasmClientOptions
   ) {
     delete this.cosmWasmClient;
@@ -75,7 +76,7 @@ export default class AndromedaClient {
     if (signer) {
       this.cosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
         endpoint,
-        signer,
+        signer as OfflineSigner,
         { broadcastTimeoutMs: 30000, ...options }
       );
       this.queryClient = this.cosmWasmClient;

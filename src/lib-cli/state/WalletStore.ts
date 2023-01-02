@@ -175,7 +175,7 @@ export default class WalletStore {
     chainId: string,
     name: string,
     passphrase: string,
-    mnemonic?: string
+    mnemonic: string
   ) {
     const wallets = this.wallets;
     if (wallets.some(({ name: walletName }) => walletName === name))
@@ -186,9 +186,12 @@ export default class WalletStore {
     if (trimmedChainId.length === 0) throw new Error("Invalid Chain ID");
 
     const addressPrefix = config.get("chain.addressPrefix");
-    const newWallet = mnemonic
-      ? await Wallet.fromMnemonic(name, mnemonic, passphrase, addressPrefix)
-      : await Wallet.generate(name, passphrase, addressPrefix);
+    const newWallet = await Wallet.fromMnemonic(
+      name,
+      mnemonic,
+      passphrase,
+      addressPrefix
+    );
 
     await keychain.setPassword(KEYCHAIN_SERVICE, name, passphrase);
     const address = await newWallet.getAddress(passphrase);
@@ -266,7 +269,11 @@ export default class WalletStore {
     );
     if (!walletData) return;
 
-    return new Wallet(walletData.name, walletData.key);
+    return new Wallet(
+      walletData.name,
+      walletData.key,
+      config.get("chain.addressPrefix")
+    );
   }
 
   /**
@@ -291,7 +298,7 @@ export default class WalletStore {
     );
     if (!walletData) return;
 
-    return new Wallet(name, walletData.key);
+    return new Wallet(name, walletData.key, config.get("chain.addressPrefix"));
   }
 
   /**
@@ -305,7 +312,11 @@ export default class WalletStore {
     );
     if (!walletData)
       throw new Error(`Wallet not found with address ${address}`);
-    return new Wallet(walletData.name, walletData.key);
+    return new Wallet(
+      walletData.name,
+      walletData.key,
+      config.get("chain.addressPrefix")
+    );
   }
 
   /**

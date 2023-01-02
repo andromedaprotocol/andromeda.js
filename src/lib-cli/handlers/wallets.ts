@@ -13,6 +13,7 @@ import config from "../config";
 import State, { StoredWalletData } from "../state";
 import { Commands, Flags } from "../types";
 import { exitInputs } from "..";
+import { Random, Bip39 } from "@cosmjs/crypto";
 
 const store = State.wallets;
 
@@ -149,6 +150,13 @@ async function addWalletHandler(input: string[], flags: Flags) {
   }
 
   console.log("");
+  if (!mnemonic || mnemonic.length === 0) {
+    const length = 4 * Math.floor((11 * 24) / 33);
+    const entropy = Random.getBytes(length);
+    mnemonic = Bip39.encode(entropy).toString();
+    await newWalletConfirmation(mnemonic);
+  }
+
   const newWallet = await store.generateWallet(
     config.get("chain.chainId"),
     name,
@@ -164,11 +172,6 @@ async function addWalletHandler(input: string[], flags: Flags) {
   }
 
   console.log(pc.green(`Wallet ${name} added!`));
-
-  if (!mnemonic || mnemonic.length === 0) {
-    mnemonic = await newWallet.getMnemonic(passphrase);
-    await newWalletConfirmation(mnemonic);
-  }
 
   if (wallets.length === 0) {
     await setCurrentWallet(newWallet);

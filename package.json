@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -27,11 +27,13 @@
     "dist/**/*"
   ],
   "dependencies": {
-    "@cosmjs/cli": "^0.29.4",
-    "@cosmjs/cosmwasm-stargate": "^0.29.4",
-    "@cosmjs/math": "^0.29.4",
-    "@cosmjs/proto-signing": "^0.29.4",
-    "@cosmjs/stargate": "^0.29.4",
+    "@cosmjs/cli": "^0.29.5",
+    "@cosmjs/cosmwasm-stargate": "^0.29.5",
+    "@cosmjs/crypto": "^0.29.5",
+    "@cosmjs/math": "^0.29.5",
+    "@cosmjs/proto-signing": "^0.29.5",
+    "@cosmjs/stargate": "^0.29.5",
+    "@injectivelabs/sdk-ts": "^1.0.326",
     "@inquirer/password": "^0.0.28-alpha.0",
     "@keplr-wallet/types": "^0.11.21",
     "@types/cli-spinner": "^0.2.1",
@@ -47,11 +49,13 @@
     "@types/node": "^18.11.9",
     "axios": "^1.2.0",
     "bech32": "^2.0.0",
-    "bip39": "^3.0.4",
+    "bip39": "3.0.4",
     "cli-spinner": "^0.2.10",
     "cli-table": "^0.3.11",
     "convict": "^6.2.3",
     "convict-format-with-validator": "^6.2.0",
+    "crypto-js": "^4.1.1",
+    "ethers": "^5.7.2",
     "fetch": "^1.1.0",
     "figlet": "^1.5.2",
     "gradient-string": "^2.0.2",
@@ -72,6 +76,7 @@
     "ts-jest": "^29.0.3"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.3"

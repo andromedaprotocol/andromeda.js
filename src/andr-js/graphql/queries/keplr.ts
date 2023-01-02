@@ -65,9 +65,9 @@ export const QUERY_KEPLR_CONFIG = gql`
       config(identifier: $identifier) {
         ...KeplrConfigData
       }
-      ${KEPLR_CONFIG_DATA}
     }
   }
+  ${KEPLR_CONFIG_DATA}
 `;
 
 /**
@@ -97,9 +97,9 @@ export const QUERY_KEPLR_ALL_CONFIGS = gql`
       allConfigs {
         ...KeplrConfigData
       }
-      ${KEPLR_CONFIG_DATA}
     }
   }
+  ${KEPLR_CONFIG_DATA}
 `;
 
 /**
