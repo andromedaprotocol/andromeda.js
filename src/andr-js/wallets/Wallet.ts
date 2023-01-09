@@ -38,6 +38,7 @@ export default class Wallet {
   async getWallet(
     passphrase: string
   ): Promise<DirectSecp256k1HdWallet | DirectEthSecp256k1Wallet> {
+    console.log("wrong function");
     return await DirectSecp256k1HdWallet.deserialize(this.key, passphrase);
   }
 

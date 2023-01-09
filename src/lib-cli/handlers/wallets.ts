@@ -323,7 +323,6 @@ export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
   const passphrase = await store.getWalletPassphrase(wallet.name);
   const signer = await wallet.getWallet(passphrase);
   const chainId = config.get("chain.chainId");
-
   store.setDefaultWallet(chainId, wallet.name);
   if (!autoConnect) return signer;
 

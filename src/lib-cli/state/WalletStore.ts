@@ -1,4 +1,8 @@
-import { generateWalletFromMnemonic, Wallet } from "@andromeda/andromeda-js";
+import {
+  generateWalletFromMnemonic,
+  Wallet,
+  newWallet,
+} from "@andromeda/andromeda-js";
 import keychain from "keytar";
 import { promptPassphrase } from "..";
 import config from "../config";
@@ -270,7 +274,7 @@ export default class WalletStore {
     );
     if (!walletData) return;
 
-    return new Wallet(
+    return newWallet(
       walletData.name,
       walletData.key,
       config.get("chain.addressPrefix")
@@ -299,7 +303,7 @@ export default class WalletStore {
     );
     if (!walletData) return;
 
-    return new Wallet(name, walletData.key, config.get("chain.addressPrefix"));
+    return newWallet(name, walletData.key, config.get("chain.addressPrefix"));
   }
 
   /**
@@ -313,7 +317,7 @@ export default class WalletStore {
     );
     if (!walletData)
       throw new Error(`Wallet not found with address ${address}`);
-    return new Wallet(
+    return newWallet(
       walletData.name,
       walletData.key,
       config.get("chain.addressPrefix")
