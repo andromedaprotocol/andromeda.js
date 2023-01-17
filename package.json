@@ -35,7 +35,7 @@
     "@cosmjs/proto-signing": "^0.29.5",
     "@cosmjs/stargate": "^0.29.5",
     "@injectivelabs/networks": "^1.0.55",
-    "@injectivelabs/sdk-ts": "^1.0.327",
+    "@injectivelabs/sdk-ts": "^1.0.356",
     "@injectivelabs/utils": "^1.0.47",
     "@inquirer/password": "^0.0.28-alpha.0",
     "@keplr-wallet/types": "^0.11.21",

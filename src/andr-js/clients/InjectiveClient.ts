@@ -48,13 +48,18 @@ function mapObjToEnjClass(type: MsgType, value: any) {
   switch (type) {
     case "MsgStoreCode":
     default:
-      return MsgStoreCode.fromJSON(value);
+      console.log(value.sender);
+      return MsgStoreCode.fromJSON({
+        sender: value.sender,
+        wasmBytes: value.wasmByteCode,
+      });
   }
 }
 
 function encodeObjectToMsgArgs(msgs: EncodeObject[]): MsgArg[] {
   return msgs.map((msg) => {
     const type = _.last(msg.typeUrl.split("."));
+    console.log(mapObjToEnjClass(type as MsgType, msg.value).toDirectSign());
     return mapObjToEnjClass(type as MsgType, msg.value).toDirectSign();
   });
 }
@@ -176,7 +181,7 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
     timeoutMs = 60000,
     pollIntervalMs = 3000
   ): Promise<DeliverTxResponse> {
-    const resp = await this.signingClient!.broadcastBlock(tx);
+    const resp = await this.signingClient!.broadcast(tx);
     console.log(resp);
     //This code is duplicated from the CosmWasmClient to correct return types
     let timedOut = false;
@@ -305,6 +310,7 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
   ): ReturnType<ChainClient["upload"]> {
     const compressed = gzip(code, { level: 9 });
     const message = this.encodeUploadMessage(compressed);
+    console.log(message);
     const resp = await this.signAndBroadcast([message], fee, memo);
 
     const parsedLogs = parseRawLog(resp.rawLog);
