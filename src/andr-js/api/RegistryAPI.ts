@@ -65,7 +65,7 @@ export default class RegistryAPI extends ADOAPI {
   getQuery(key: string) {
     return {
       andr_query: {
-        Get: encode(key),
+        get: encode(key),
       },
     };
   }

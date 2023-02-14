@@ -166,7 +166,6 @@ export async function promptInstantiateMsg(
       bread
     );
   }
-
   return answers;
 }
 
@@ -386,8 +385,9 @@ export default class SchemaPrompt {
     required = false,
     bread?: string[]
   ): Promise<any> {
-    if (name === "primitive_contract")
+    if (name === "primitive_contract") {
       return config.get("chain.registryAddress");
+    }
     if (!required) {
       const addProperty = await inquirer.prompt({
         prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
