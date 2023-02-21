@@ -25,6 +25,10 @@ import {
   ChainRestTendermintApi,
   createTransaction,
   MsgArg,
+  MsgExecuteContract,
+  MsgInstantiateContract,
+  MsgMigrateContract,
+  MsgSend,
   MsgStoreCode,
   TxGrpcClient,
   TxRaw as InjTxRaw,
@@ -51,8 +55,45 @@ type MsgType =
   | "MsgStoreCode"
   | "MsgMigrateContract";
 
+function arrayToJson(array: Uint8Array) {
+  const jsonString = Buffer.from(array).toString("utf8");
+
+  const parsedData = JSON.parse(jsonString);
+  return parsedData;
+}
+
 function mapObjToEnjClass(type: MsgType, value: any) {
   switch (type) {
+    case "MsgInstantiateContract":
+      return MsgInstantiateContract.fromJSON({
+        sender: value.sender,
+        admin: value.sender,
+        codeId: value.codeId,
+        label: value.label,
+        // Msg is encoded as Uint8Array, convert back to JSON here
+        msg: arrayToJson(value.msg),
+        amount: value.amount,
+      });
+    case "MsgExecuteContract":
+      return MsgExecuteContract.fromJSON({
+        funds: value.funds,
+        sender: value.sender,
+        contractAddress: value.contract,
+        msg: arrayToJson(value.msg),
+      });
+    case "MsgMigrateContract":
+      return MsgMigrateContract.fromJSON({
+        sender: value.sender,
+        contract: value.contract,
+        codeId: value.codeId,
+        msg: arrayToJson(value.msg),
+      });
+    case "MsgSend":
+      return MsgSend.fromJSON({
+        amount: value.amount[0],
+        srcInjectiveAddress: value.fromAddress,
+        dstInjectiveAddress: value.toAddress,
+      });
     case "MsgStoreCode":
     default:
       return MsgStoreCode.fromJSON({
@@ -151,13 +192,12 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
   private async signInj(
     messages: EncodeObject[],
     fee: StdFee = getStdFee((DEFAULT_GAS_LIMIT * 50).toString()),
-    memo?: string
+    memo: string = ""
   ) {
     this.preMessage();
     const timeoutHeight = await this.getTimeoutHeight();
     const baseAccount = await this.getBaseAccount();
     const pubKey = await this.getPubKey();
-
     const { signDoc, txRaw } = createTransaction({
       pubKey,
       chainId: this.chainId!,
@@ -168,16 +208,13 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
       accountNumber: baseAccount.accountNumber,
       memo,
     });
-
     const signed = await this.directSigner!.signDirect(this.signer!, {
       ...signDoc,
       chainId: signDoc.getChainId(),
       bodyBytes: signDoc.getBodyBytes_asU8(),
       authInfoBytes: signDoc.getAuthInfoBytes_asU8(),
       accountNumber: Long.fromInt(signDoc.getAccountNumber()),
-    }); //Typing issue here
-    // this.directSigner?.signDirect(this.signer!, signDoc);
-
+    });
     txRaw.setSignaturesList([signed.signature.signature]);
     return txRaw;
   }
@@ -342,15 +379,18 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
     codeId: number,
     msg: Msg,
     label: string,
-    fee?: StdFee | undefined,
-    options?: InstantiateOptions | undefined
+    fee?: StdFee,
+    options?: InstantiateOptions
   ): Promise<InstantiateResult> {
     const message = this.encodeInstantiateMsg(codeId, msg, label);
-    const resp = await this.signAndBroadcast([message], fee, options?.memo);
-
+    const resp = await this.signAndBroadcast(
+      [message],
+      fee,
+      options ? options.memo : ""
+    );
     const contractAddressAttr = findAttribute(
       resp.logs,
-      "instantiate",
+      "wasm",
       "_contract_address"
     );
 
@@ -400,6 +440,11 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
     fee?: StdFee,
     memo?: string
   ): Promise<DeliverTxResponse> {
+    if (amount.length > 1)
+      throw new Error(
+        "Injective only enables the sending of one amount at a time, please only send one token type."
+      );
+
     const message = this.encodeSendMessage(receivingAddress, [...amount]);
 
     return this.signAndBroadcast([message], fee, memo);

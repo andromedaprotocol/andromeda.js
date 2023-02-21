@@ -403,7 +403,7 @@ export async function instantiateMessage(
         codeId,
         msg,
         label ?? "Instantiation",
-        "auto",
+        flags.fee,
         admin ? { admin } : undefined
       )
   );
@@ -452,7 +452,8 @@ export async function migrateMessage(
 
   const resp = await displaySpinnerAsync(
     "Migrating your contract...",
-    async () => await client.migrate(contractAddress, codeId, msg, "auto", memo)
+    async () =>
+      await client.migrate(contractAddress, codeId, msg, flags.fee, memo)
   );
   console.log();
   console.log(successMessage ?? pc.green("Contract migrated!"));

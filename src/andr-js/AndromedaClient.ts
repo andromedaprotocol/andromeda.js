@@ -1,9 +1,5 @@
 import {
   InstantiateOptions,
-  MsgExecuteContractEncodeObject,
-  MsgInstantiateContractEncodeObject,
-  MsgMigrateContractEncodeObject,
-  MsgStoreCodeEncodeObject,
   SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
 import {
@@ -12,7 +8,6 @@ import {
   GasPrice,
   StdFee,
 } from "@cosmjs/stargate";
-import Long from "long";
 import { ADOAPI, ADODBAPI, RegistryAPI } from "./api";
 
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
@@ -145,7 +140,7 @@ export default class AndromedaClient {
     return await this.chainClient!.execute(
       contractAddress,
       msg,
-      fee ?? "auto",
+      fee,
       memo,
       funds
     );
@@ -179,12 +174,12 @@ export default class AndromedaClient {
     codeId: number,
     msg: Msg,
     label: string,
-    fee: Fee,
+    fee?: Fee,
     options?: InstantiateOptions
   ) {
     this.preMessage();
     return await this.chainClient!.instantiate(codeId, msg, label, fee, {
-      admin: this.signer,
+      admin: this.chainClient!.signer,
       ...options,
     });
   }
@@ -248,7 +243,7 @@ export default class AndromedaClient {
   ) {
     this.preMessage();
     return this.simulateMsgs(
-      [this.encodeExecuteMsg(address, msg, funds)],
+      [this.chainClient!.encodeExecuteMsg(address, msg, funds)],
       fee,
       memo
     );
@@ -271,7 +266,7 @@ export default class AndromedaClient {
   ) {
     this.preMessage();
     return this.estimateFee(
-      [this.encodeExecuteMsg(address, msg, funds)],
+      [this.chainClient!.encodeExecuteMsg(address, msg, funds)],
       fee,
       memo
     );
@@ -291,8 +286,9 @@ export default class AndromedaClient {
     memo?: string
   ) {
     this.preMessage();
+    console.log(msg);
     return this.simulateMsgs(
-      [this.encodeInstantiateMsg(codeId, msg, label)],
+      [this.chainClient!.encodeInstantiateMsg(codeId, msg, label)],
       fee,
       memo
     );
@@ -314,7 +310,7 @@ export default class AndromedaClient {
   ) {
     this.preMessage();
     return this.estimateFee(
-      [this.encodeInstantiateMsg(codeId, msg, label)],
+      [this.chainClient!.encodeInstantiateMsg(codeId, msg, label)],
       fee,
       memo
     );
@@ -326,7 +322,7 @@ export default class AndromedaClient {
    * @returns A gas fee estimation
    */
   async simulateUpload(wasmByteCode: Uint8Array) {
-    // return this.simulateMsgs([this.encodeUploadMessage(wasmByteCode)]);
+    // return this.simulateMsgs([this.chainClient!.encodeUploadMessage(wasmByteCode)]);
     return this.chainClient?.simulateUpload(wasmByteCode);
   }
 
@@ -337,7 +333,9 @@ export default class AndromedaClient {
    */
   async estimateUploadFee(wasmByteCode: Uint8Array) {
     this.preMessage();
-    return this.estimateFee([this.encodeUploadMessage(wasmByteCode)]);
+    return this.estimateFee([
+      this.chainClient!.encodeUploadMessage(wasmByteCode),
+    ]);
   }
 
   /**
@@ -355,7 +353,7 @@ export default class AndromedaClient {
   ) {
     this.preMessage();
     return this.simulateMsgs(
-      [this.encodeMigrateMessage(address, codeId, msg)],
+      [this.chainClient!.encodeMigrateMessage(address, codeId, msg)],
       fee
     );
   }
@@ -369,91 +367,9 @@ export default class AndromedaClient {
    */
   async estimateMigrateFee(address: string, codeId: number, msg: Msg) {
     this.preMessage();
-    return this.estimateFee([this.encodeMigrateMessage(address, codeId, msg)]);
-  }
-
-  /**
-   * Converts an execute message to an EncodeObject for signing or simulating
-   * @param address
-   * @param msg
-   * @param funds
-   * @returns
-   */
-  encodeExecuteMsg(
-    address: string,
-    msg: Msg,
-    funds: Coin[]
-  ): MsgExecuteContractEncodeObject {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
-      value: {
-        sender: this.signer,
-        contract: address,
-        msg: JsonToArray(msg),
-        funds,
-      },
-    };
-  }
-
-  /**
-   * Converts an instantiate message to an EncodeObject for signing or simulating
-   * @param codeId
-   * @param msg
-   * @param funds
-   * @returns
-   */
-  encodeInstantiateMsg(
-    codeId: number,
-    msg: Msg,
-    label: string
-  ): MsgInstantiateContractEncodeObject {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.MsgInstantiateContract",
-      value: {
-        sender: this.signer,
-        codeId: Long.fromInt(codeId),
-        msg: JsonToArray(msg),
-        label,
-      },
-    };
-  }
-
-  /**
-   * Converts an upload message to an EncodeObject for signing or simulating
-   * @param wasmByteCode
-   * @returns
-   */
-  encodeUploadMessage(wasmByteCode: Uint8Array): MsgStoreCodeEncodeObject {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.MsgStoreCode",
-      value: {
-        sender: this.signer,
-        wasmByteCode,
-      },
-    };
-  }
-
-  /**
-   * Converts a migrate message to an EncodeObject for signing or simulating
-   * @param address
-   * @param codeId
-   * @param msg
-   * @returns
-   */
-  encodeMigrateMessage(
-    address: string,
-    codeId: number,
-    msg: Msg
-  ): MsgMigrateContractEncodeObject {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.MsgMigrateContract",
-      value: {
-        sender: this.signer,
-        codeId: Long.fromNumber(codeId),
-        contract: address,
-        msg: JsonToArray(msg),
-      },
-    };
+    return this.estimateFee([
+      this.chainClient!.encodeMigrateMessage(address, codeId, msg),
+    ]);
   }
 
   /**
@@ -529,12 +445,7 @@ export default class AndromedaClient {
     memo?: string
   ) {
     this.preMessage();
-    return this.chainClient?.sendTokens(
-      receivingAddress,
-      amount,
-      fee ?? "auto",
-      memo
-    );
+    return this.chainClient?.sendTokens(receivingAddress, amount, fee, memo);
   }
   /**
    * Gets the balance for a given address and denom. Defaults to the signing wallet address if none provided.
@@ -602,17 +513,3 @@ export default class AndromedaClient {
     ].sort((txA, txB) => (txA.height < txB.height ? 1 : -1));
   }
 }
-
-/**
- * Helper function to convert JSON to Uint8Array
- * @param json JSON object to convert to Uint8Array
- * @returns
- */
-const JsonToArray = function (json: Record<string, any>) {
-  var str = JSON.stringify(json, null, 0);
-  var ret = new Uint8Array(str.length);
-  for (var i = 0; i < str.length; i++) {
-    ret[i] = str.charCodeAt(i);
-  }
-  return ret;
-};
