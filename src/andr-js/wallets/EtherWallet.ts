@@ -2,6 +2,7 @@ import Wallet from "./Wallet";
 import { Wallet as EthersWallet } from "ethers";
 import Crypto from "crypto-js";
 import { DirectEthSecp256k1Wallet } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/OfflineDirectSigner";
+import { DEFAULT_DERIVATION_PATH } from "@injectivelabs/sdk-ts";
 
 /**
  * Used to generate an Ethereum wallet for use with Injective chain
@@ -13,7 +14,7 @@ export default class EtherWallet extends Wallet {
     passphrase: string
   ): Promise<Wallet> {
     // Injective wallets use Ethers wallet for generation
-    const wallet = EthersWallet.fromMnemonic(mnemonic);
+    const wallet = EthersWallet.fromMnemonic(mnemonic, DEFAULT_DERIVATION_PATH);
     const key = Crypto.AES.encrypt(wallet.privateKey, passphrase).toString();
     return new EtherWallet(name, key, "inj");
   }

@@ -1,4 +1,10 @@
-import { CosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
+import {
+  CosmWasmClient,
+  ExecuteResult,
+  InstantiateOptions,
+  InstantiateResult,
+  MigrateResult,
+} from "@cosmjs/cosmwasm-stargate";
 import { sha256 } from "@cosmjs/crypto";
 import { toHex } from "@cosmjs/encoding";
 import {
@@ -7,7 +13,7 @@ import {
   OfflineDirectSigner as CosmosOfflineDirectSigner,
 } from "@cosmjs/proto-signing";
 import { DeliverTxResponse, GasPrice, StdFee } from "@cosmjs/stargate";
-import { findAttribute, parseRawLog } from "@cosmjs/stargate/build/logs";
+import { findAttribute, Log, parseRawLog } from "@cosmjs/stargate/build/logs";
 import {
   getNetworkChainInfo,
   getNetworkEndpoints,
@@ -18,20 +24,21 @@ import {
   ChainRestAuthApi,
   ChainRestTendermintApi,
   createTransaction,
-  createTxRawFromSigResponse,
   MsgArg,
   MsgStoreCode,
+  TxGrpcClient,
   TxRaw as InjTxRaw,
-  TxRestClient,
 } from "@injectivelabs/sdk-ts";
 import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
 import {
   BigNumberInBase,
   DEFAULT_BLOCK_TIMEOUT_HEIGHT,
-  DEFAULT_STD_FEE,
+  DEFAULT_GAS_LIMIT,
+  getStdFee,
   sleep,
 } from "@injectivelabs/utils";
 import _ from "lodash";
+import Long from "long";
 import { gzip } from "pako";
 import type { Msg } from "../types";
 import BaseClient from "./BaseClient";
@@ -48,7 +55,6 @@ function mapObjToEnjClass(type: MsgType, value: any) {
   switch (type) {
     case "MsgStoreCode":
     default:
-      console.log(value.sender);
       return MsgStoreCode.fromJSON({
         sender: value.sender,
         wasmBytes: value.wasmByteCode,
@@ -59,13 +65,12 @@ function mapObjToEnjClass(type: MsgType, value: any) {
 function encodeObjectToMsgArgs(msgs: EncodeObject[]): MsgArg[] {
   return msgs.map((msg) => {
     const type = _.last(msg.typeUrl.split("."));
-    console.log(mapObjToEnjClass(type as MsgType, msg.value).toDirectSign());
     return mapObjToEnjClass(type as MsgType, msg.value).toDirectSign();
   });
 }
 
 export default class InjectiveClient extends BaseClient implements ChainClient {
-  public signingClient?: TxRestClient;
+  public signingClient?: TxGrpcClient;
   public queryClient?: CosmWasmClient;
 
   private directSigner?: OfflineDirectSigner | CosmosOfflineDirectSigner;
@@ -91,20 +96,19 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
       ? Network.TestnetK8s
       : Network.MainnetK8s;
     this.chainId = getNetworkChainInfo(network).chainId;
-    const endpoints = getNetworkEndpoints(network);
-    const restEndpoint = endpoints.rest;
-    const rpcEndpoint = endpoints.rpc!;
+    const { rest, rpc, grpc } = getNetworkEndpoints(network);
+
+    this.queryClient = await CosmWasmClient.connect(rpc!);
+    this.chainRestTendermintApi = new ChainRestTendermintApi(rest);
+    this.chainRestAuthApi = new ChainRestAuthApi(rest);
+
     if (signer) {
-      this.signingClient = new TxRestClient(restEndpoint);
+      this.signingClient = new TxGrpcClient(grpc);
       this.directSigner = signer;
 
       const [account] = await signer.getAccounts();
       this.signer = account.address;
     }
-
-    this.queryClient = await CosmWasmClient.connect(rpcEndpoint);
-    this.chainRestTendermintApi = new ChainRestTendermintApi(restEndpoint);
-    this.chainRestAuthApi = new ChainRestAuthApi(restEndpoint);
   }
 
   async disconnect(): Promise<void> {
@@ -141,15 +145,20 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
   private async getPubKey() {
     const [account] = await this.directSigner!.getAccounts();
 
-    return account.pubkey.toString();
+    return Buffer.from(account.pubkey).toString("base64");
   }
 
-  private async signInj(messages: EncodeObject[], fee: StdFee, memo?: string) {
+  private async signInj(
+    messages: EncodeObject[],
+    fee: StdFee = getStdFee((DEFAULT_GAS_LIMIT * 50).toString()),
+    memo?: string
+  ) {
     this.preMessage();
     const timeoutHeight = await this.getTimeoutHeight();
     const baseAccount = await this.getBaseAccount();
     const pubKey = await this.getPubKey();
-    const { signDoc } = createTransaction({
+
+    const { signDoc, txRaw } = createTransaction({
       pubKey,
       chainId: this.chainId!,
       message: encodeObjectToMsgArgs(messages),
@@ -159,15 +168,21 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
       accountNumber: baseAccount.accountNumber,
       memo,
     });
-    const signed = await this.directSigner!.signDirect(
-      this.signer!,
-      signDoc as any
-    ); //Typing issue here
-    const injTxRaw = createTxRawFromSigResponse(signed);
-    return injTxRaw;
+
+    const signed = await this.directSigner!.signDirect(this.signer!, {
+      ...signDoc,
+      chainId: signDoc.getChainId(),
+      bodyBytes: signDoc.getBodyBytes_asU8(),
+      authInfoBytes: signDoc.getAuthInfoBytes_asU8(),
+      accountNumber: Long.fromInt(signDoc.getAccountNumber()),
+    }); //Typing issue here
+    // this.directSigner?.signDirect(this.signer!, signDoc);
+
+    txRaw.setSignaturesList([signed.signature.signature]);
+    return txRaw;
   }
 
-  async sign(messages: EncodeObject[], fee: StdFee, memo?: string) {
+  async sign(messages: EncodeObject[], fee?: StdFee, memo?: string) {
     const injTxRaw = await this.signInj(messages, fee, memo);
     return {
       bodyBytes: injTxRaw.getBodyBytes_asU8(),
@@ -181,8 +196,7 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
     timeoutMs = 60000,
     pollIntervalMs = 3000
   ): Promise<DeliverTxResponse> {
-    const resp = await this.signingClient!.broadcast(tx);
-    console.log(resp);
+    const resp = await this.signingClient!.broadcastBlock(tx);
     //This code is duplicated from the CosmWasmClient to correct return types
     let timedOut = false;
     const txPollTimeout = setTimeout(() => {
@@ -201,15 +215,7 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
       await sleep(pollIntervalMs);
       const result = await this.queryClient!.getTx(txId);
       return result
-        ? {
-            code: result.code,
-            height: result.height,
-            rawLog: result.rawLog,
-            transactionHash: txId,
-            events: result.events,
-            gasUsed: result.gasUsed,
-            gasWanted: result.gasWanted,
-          }
+        ? ({ ...result, transactionHash: result.hash } as DeliverTxResponse)
         : pollTx(txId);
     };
 
@@ -229,11 +235,15 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
 
   async signAndBroadcast(
     messages: EncodeObject[],
-    fee: StdFee,
+    fee?: StdFee,
     memo?: string
-  ): Promise<DeliverTxResponse> {
+  ): Promise<DeliverTxResponse & { logs: readonly Log[] }> {
     const signed = await this.signInj(messages, fee, memo);
-    return await this.broadcast(signed);
+    const resp = await this.broadcast(signed);
+    return {
+      ...resp,
+      logs: parseRawLog(resp.rawLog),
+    };
   }
 
   // Saving this here for potential refactor for extra functionality
@@ -262,41 +272,33 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
   //   };
   // }
 
-  async simulateMulti(messages: EncodeObject[], fee: StdFee, memo = "") {
+  async simulateMulti(messages: EncodeObject[], fee?: StdFee, memo = "") {
     const txRaw = await this.signInj(messages, fee, memo);
     const resp = await this.signingClient!.simulate(txRaw);
     // TODO: CHECK THIS RESPONSE OBJECT AS IT MAY BE INVALID
     return resp.gasInfo.gasUsed;
   }
 
-  async simulate(
-    message: EncodeObject,
-    fee: StdFee = DEFAULT_STD_FEE,
-    memo = ""
-  ) {
+  async simulate(message: EncodeObject, fee?: StdFee, memo = "") {
     return this.simulateMulti([message], fee, memo);
   }
 
   async execute(
     contractAddress: string,
     msg: Msg,
-    fee: StdFee = DEFAULT_STD_FEE,
+    fee?: StdFee,
     memo?: string | undefined,
     funds: Coin[] = []
   ): Promise<ExecuteResult> {
     const message = this.encodeExecuteMsg(contractAddress, msg, funds);
-    const resp = await this.signAndBroadcast([message], fee, memo);
-    return {
-      ...resp,
-      logs: parseRawLog(resp.rawLog),
-    };
+    return await this.signAndBroadcast([message], fee, memo);
   }
 
   async simulateExecute(
     address: string,
     msg: Msg,
     funds: Coin[],
-    fee = DEFAULT_STD_FEE,
+    fee?: StdFee,
     memo?: string | undefined
   ) {
     const message = this.encodeExecuteMsg(address, msg, funds);
@@ -305,22 +307,19 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
 
   async upload(
     code: Uint8Array,
-    fee: StdFee = DEFAULT_STD_FEE,
+    fee?: StdFee,
     memo = ""
   ): ReturnType<ChainClient["upload"]> {
     const compressed = gzip(code, { level: 9 });
     const message = this.encodeUploadMessage(compressed);
-    console.log(message);
     const resp = await this.signAndBroadcast([message], fee, memo);
 
-    const parsedLogs = parseRawLog(resp.rawLog);
-    const codeIdAttr = findAttribute(parsedLogs, "store_code", "code_id");
+    const codeIdAttr = findAttribute(resp.logs, "store_code", "code_id");
 
     const originalChecksum = toHex(sha256(code));
     const compressedChecksum = toHex(sha256(compressed));
     return {
       ...resp,
-      logs: parsedLogs,
       codeId: parseInt(codeIdAttr.value, 10),
       originalSize: code.length,
       originalChecksum,
@@ -331,11 +330,78 @@ export default class InjectiveClient extends BaseClient implements ChainClient {
 
   async simulateUpload(
     code: Uint8Array,
-    fee = DEFAULT_STD_FEE,
+    fee?: StdFee,
     memo?: string | undefined
   ): Promise<number | undefined> {
     const compressed = gzip(code, { level: 9 });
     const message = this.encodeUploadMessage(compressed);
     return this.simulate(message, fee, memo);
+  }
+
+  async instantiate(
+    codeId: number,
+    msg: Msg,
+    label: string,
+    fee?: StdFee | undefined,
+    options?: InstantiateOptions | undefined
+  ): Promise<InstantiateResult> {
+    const message = this.encodeInstantiateMsg(codeId, msg, label);
+    const resp = await this.signAndBroadcast([message], fee, options?.memo);
+
+    const contractAddressAttr = findAttribute(
+      resp.logs,
+      "instantiate",
+      "_contract_address"
+    );
+
+    return {
+      ...resp,
+      contractAddress: contractAddressAttr.value,
+    };
+  }
+
+  async simulateInstantiate(
+    codeId: number,
+    msg: Msg,
+    label: string,
+    fee?: StdFee,
+    options?: InstantiateOptions
+  ): Promise<number | undefined> {
+    const message = this.encodeInstantiateMsg(codeId, msg, label);
+    return this.simulate(message, fee, options?.memo);
+  }
+
+  async migrate(
+    contractAddress: string,
+    codeId: number,
+    msg: Msg,
+    fee?: StdFee,
+    memo?: string
+  ): Promise<MigrateResult> {
+    const message = this.encodeMigrateMessage(contractAddress, codeId, msg);
+    const resp = await this.signAndBroadcast([message], fee, memo);
+    return resp;
+  }
+
+  async simulateMigrate(
+    contractAddress: string,
+    codeId: number,
+    msg: Msg,
+    fee?: StdFee,
+    memo?: string | undefined
+  ): Promise<number | undefined> {
+    const message = this.encodeMigrateMessage(contractAddress, codeId, msg);
+    return this.simulate(message, fee, memo);
+  }
+
+  async sendTokens(
+    receivingAddress: string,
+    amount: readonly Coin[],
+    fee?: StdFee,
+    memo?: string
+  ): Promise<DeliverTxResponse> {
+    const message = this.encodeSendMessage(receivingAddress, [...amount]);
+
+    return this.signAndBroadcast([message], fee, memo);
   }
 }

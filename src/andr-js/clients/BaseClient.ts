@@ -5,10 +5,11 @@ import {
   MsgStoreCodeEncodeObject,
 } from "@cosmjs/cosmwasm-stargate";
 import { Coin } from "@cosmjs/proto-signing";
+import { MsgSendEncodeObject } from "@cosmjs/stargate";
 import { isUndefined } from "lodash";
+import Long from "long";
 import { Msg } from "..";
 import ChainClient from "./ChainClient";
-import Long from "long";
 
 /**
  * Helper function to convert JSON to Uint8Array
@@ -97,6 +98,20 @@ export default class BaseClient implements Partial<ChainClient> {
         codeId: Long.fromNumber(codeId),
         contract: address,
         msg: JsonToArray(msg),
+      },
+    };
+  }
+
+  encodeSendMessage(
+    receivingAddress: string,
+    amount: Coin[]
+  ): MsgSendEncodeObject {
+    return {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+      value: {
+        fromAddress: this.signer,
+        toAddress: receivingAddress,
+        amount,
       },
     };
   }

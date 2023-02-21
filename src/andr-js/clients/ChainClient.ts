@@ -1,7 +1,10 @@
-import {
+import type {
   CosmWasmClient,
   DeliverTxResponse,
   ExecuteResult,
+  InstantiateOptions,
+  InstantiateResult,
+  MigrateResult,
   MsgExecuteContractEncodeObject,
   MsgInstantiateContractEncodeObject,
   MsgMigrateContractEncodeObject,
@@ -10,47 +13,89 @@ import {
   SigningCosmWasmClientOptions,
   UploadResult,
 } from "@cosmjs/cosmwasm-stargate";
-import { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
-import { TxRaw as InjTxRaw, TxRestClient } from "@injectivelabs/sdk-ts";
-import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
-import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
+import type { MsgSendEncodeObject } from "@cosmjs/stargate";
+import type { TxGrpcClient, TxRaw as InjTxRaw } from "@injectivelabs/sdk-ts";
+import type { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
+import type { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import type { Fee, Msg } from "../types";
 
+/**
+ * When interacting with any Cosmos chain there may be differences in how they sign messages or how the messages themselves are constructed.
+ * This class is used to provide a generic interface for interacting with any Cosmos chain and is used by our AndromedaClient class.
+ * Most of the methods are simply wrappers however some require specific implementations.
+ */
 export default interface ChainClient {
-  signingClient?: SigningCosmWasmClient | TxRestClient;
+  // The client used to sign any transactions braodcast to the chain
+  signingClient?: SigningCosmWasmClient | TxGrpcClient;
+  // The client used to query the chain
   queryClient?: CosmWasmClient;
+  // The current signer address
   signer: string;
+  // Whether the current chain is connected
   isConnected: boolean;
 
+  /**
+   * Connects to the given chain. Assigns all clients used within the chain client, if a signer is provided a signing client is assigned
+   * @param endpoint
+   * @param signer
+   * @param options
+   */
   connect(
     endpoint: string,
     signer?: OfflineSigner | OfflineDirectSigner,
     options?: SigningCosmWasmClientOptions
   ): Promise<void>;
+  /**
+   * Disconnects from the current chain completely
+   */
   disconnect(): Promise<void>;
+  /**
+   * Signs a given message with the connected signer
+   * @param messages
+   * @param fee
+   * @param memo
+   */
   sign(
     messages: EncodeObject[],
-    fee: Fee,
+    fee?: Fee,
     memo?: string
   ): ReturnType<SigningCosmWasmClient["sign"]>;
+  /**
+   * Broadcasts a given transaction to the connected chain
+   * @param tx
+   */
   broadcast(
     tx: TxRaw | InjTxRaw
   ): ReturnType<SigningCosmWasmClient["broadcastTx"]>;
+  /**
+   * Signs a given message before broadcasting it to the connected chain
+   * @param messages
+   * @param fee
+   * @param memo
+   */
   signAndBroadcast(
     messages: EncodeObject[],
-    fee: Fee,
+    fee?: Fee,
     memo?: string
   ): Promise<DeliverTxResponse>;
-  // simulateMulti(
-  //   messages: EncodeObject[],
-  //   fee: Fee,
-  //   memo?: string
-  // ): ReturnType<TxExtension["tx"]["simulate"]>;
+  /**
+   * Simulates all given messages and returns a gas fee estimate
+   * @param messages
+   * @param fee
+   * @param memo
+   */
   simulateMulti(
-    messages: EncodeObject[],
-    fee: Fee,
+    messages: readonly EncodeObject[],
+    fee?: Fee,
     memo?: string
   ): ReturnType<SigningCosmWasmClient["simulate"]>;
+  /**
+   * Simulates a given message and returns a gas fee estimate
+   * @param message
+   * @param fee
+   * @param memo
+   */
   simulate(
     message: EncodeObject,
     fee?: Fee,
@@ -63,6 +108,14 @@ export default interface ChainClient {
     memo?: string,
     funds?: readonly Coin[]
   ): Promise<ExecuteResult>;
+  /**
+   * Simulates an execute message and returns a gas fee estimate
+   * @param address
+   * @param msg
+   * @param funds
+   * @param fee
+   * @param memo
+   */
   simulateExecute(
     address: string,
     msg: Msg,
@@ -70,27 +123,84 @@ export default interface ChainClient {
     fee?: Fee,
     memo?: string
   ): Promise<number | undefined>;
+  /**
+   * Uploads given contract code (Uint8Array) to the chain
+   * @param code
+   * @param fee
+   * @param memo
+   */
   upload(code: Uint8Array, fee?: Fee, memo?: string): Promise<UploadResult>;
+  /**
+   * Simulates a migrate message and returns a gas fee estimate
+   * @param code
+   * @param fee
+   * @param memo
+   */
   simulateUpload(
     code: Uint8Array,
     fee?: Fee,
     memo?: string
   ): Promise<number | undefined>;
-  // instantiate(
-  //   codeId: number,
-  //   msg: Msg,
-  //   label: string,
-  //   fee: Fee,
-  //   options?: InstantiateOptions
-  // ): Promise<InstantiateResult>;
-  // query<T = any>(address: string, query: Msg): Promise<T>;
-  // migrate(
-  //   contractAddress: string,
-  //   codeId: number,
-  //   msg: Msg,
-  //   fee: Fee,
-  //   memo?: string
-  // ): Promise<MigrateResult>;
+  /**
+   * Instantiates a contract with the given code id using the provided instantiate message
+   * @param codeId
+   * @param msg
+   * @param label
+   * @param fee
+   * @param options
+   */
+  instantiate(
+    codeId: number,
+    msg: Msg,
+    label: string,
+    fee?: Fee,
+    options?: InstantiateOptions
+  ): Promise<InstantiateResult>;
+  /**
+   * Simulates an instantiation message and returns a gas fee estimate
+   * @param codeId
+   * @param msg
+   * @param label
+   * @param fee
+   * @param options
+   */
+  simulateInstantiate(
+    codeId: number,
+    msg: Msg,
+    label: string,
+    fee?: Fee,
+    options?: InstantiateOptions
+  ): Promise<number | undefined>;
+  /**
+   * Migrates a contract to a given code id
+   * @param contractAddress
+   * @param codeId
+   * @param msg
+   * @param fee
+   * @param memo
+   */
+  migrate(
+    contractAddress: string,
+    codeId: number,
+    msg: Msg,
+    fee?: Fee,
+    memo?: string
+  ): Promise<MigrateResult>;
+  /**
+   * Simulates a migrate message for a given contract address, code id and migrate message and returns a gas estimate
+   * @param contractAddress
+   * @param codeId
+   * @param msg
+   * @param fee
+   * @param memo
+   */
+  simulateMigrate(
+    contractAddress: string,
+    codeId: number,
+    msg: Msg,
+    fee?: Fee,
+    memo?: string
+  ): Promise<number | undefined>;
   /**
    * Converts an execute message to an EncodeObject for signing or simulating
    * @param address
@@ -133,4 +243,28 @@ export default interface ChainClient {
     codeId: number,
     msg: Msg
   ): MsgMigrateContractEncodeObject;
+  /**
+   * Converts a migrate message to an EncodeObject for signing or simulating
+   * @param address
+   * @param codeId
+   * @param msg
+   * @returns
+   */
+  encodeSendMessage(
+    receivingAddress: string,
+    amount: Coin[]
+  ): MsgSendEncodeObject;
+  /**
+   * Sends tokens from the signing address to the provided receiving address
+   * @param receivingAddress
+   * @param amount
+   * @param fee
+   * @param memo
+   */
+  sendTokens(
+    receivingAddress: string,
+    amount: readonly Coin[],
+    fee?: Fee,
+    memo?: string
+  ): Promise<DeliverTxResponse>;
 }

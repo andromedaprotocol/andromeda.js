@@ -1,6 +1,9 @@
 import {
   CosmWasmClient,
   ExecuteResult,
+  InstantiateOptions,
+  InstantiateResult,
+  MigrateResult,
   SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
@@ -65,7 +68,7 @@ export default class CosmClient extends BaseClient implements ChainClient {
 
   async signAndBroadcast(
     messages: EncodeObject[],
-    fee: Fee,
+    fee: Fee = "auto",
     memo?: string | undefined
   ): Promise<DeliverTxResponse> {
     this.preMessage(true);
@@ -80,7 +83,7 @@ export default class CosmClient extends BaseClient implements ChainClient {
 
   async simulateMulti(
     messages: EncodeObject[],
-    _fee: Fee,
+    _fee: Fee = "auto",
     memo?: string | undefined
   ): Promise<number> {
     this.preMessage();
@@ -138,5 +141,78 @@ export default class CosmClient extends BaseClient implements ChainClient {
   ): Promise<number | undefined> {
     const message = this.encodeUploadMessage(code);
     return this.simulate(message, undefined, memo);
+  }
+
+  async instantiate(
+    codeId: number,
+    msg: Msg,
+    label: string,
+    fee: Fee = "auto",
+    options?: InstantiateOptions
+  ): Promise<InstantiateResult> {
+    this.preMessage(true);
+    return this.signingClient!.instantiate(
+      this.signer,
+      codeId,
+      msg,
+      label,
+      fee,
+      options
+    );
+  }
+
+  async simulateInstantiate(
+    codeId: number,
+    msg: Msg,
+    label: string,
+    fee?: StdFee,
+    options?: InstantiateOptions
+  ): Promise<number | undefined> {
+    const message = this.encodeInstantiateMsg(codeId, msg, label);
+    return this.simulate(message, fee, options?.memo);
+  }
+
+  async migrate(
+    contractAddress: string,
+    codeId: number,
+    msg: Msg,
+    fee: Fee = "auto",
+    memo?: string | undefined
+  ): Promise<MigrateResult> {
+    this.preMessage(true);
+    return this.signingClient!.migrate(
+      this.signer,
+      contractAddress,
+      codeId,
+      msg,
+      fee,
+      memo
+    );
+  }
+
+  async simulateMigrate(
+    contractAddress: string,
+    codeId: number,
+    msg: Msg,
+    fee?: Fee | undefined,
+    memo?: string | undefined
+  ): Promise<number | undefined> {
+    const message = this.encodeMigrateMessage(contractAddress, codeId, msg);
+    return this.simulate(message, fee, memo);
+  }
+
+  async sendTokens(
+    receivingAddress: string,
+    amount: readonly Coin[],
+    fee: Fee = "auto",
+    memo?: string | undefined
+  ): Promise<any> {
+    return this.signingClient?.sendTokens(
+      this.signer,
+      receivingAddress,
+      amount,
+      fee,
+      memo
+    );
   }
 }

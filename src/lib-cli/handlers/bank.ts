@@ -107,7 +107,7 @@ async function handleBalance(inputs: string[]) {
   const [denom, addr] = inputs;
 
   const resp = await client.getBalance(denom, addr);
-
+  console.log(resp);
   console.log();
   console.log(pc.bold("Balance"));
   console.log(`${denom}: ${resp ? `${pc.green(resp.amount)}` : 0}`);
