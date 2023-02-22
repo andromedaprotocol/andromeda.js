@@ -17,6 +17,7 @@ import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import type { MsgSendEncodeObject } from "@cosmjs/stargate";
 import type { TxGrpcClient, TxRaw as InjTxRaw } from "@injectivelabs/sdk-ts";
 import type { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
+import type { LCDClient, Tx as TerraTx } from "@terra-money/terra.js";
 import type { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import type { Fee, Msg } from "../types";
 
@@ -27,7 +28,7 @@ import type { Fee, Msg } from "../types";
  */
 export default interface ChainClient {
   // The client used to sign any transactions braodcast to the chain
-  signingClient?: SigningCosmWasmClient | TxGrpcClient;
+  signingClient?: SigningCosmWasmClient | TxGrpcClient | LCDClient;
   // The client used to query the chain
   queryClient?: CosmWasmClient;
   // The current signer address
@@ -60,13 +61,13 @@ export default interface ChainClient {
     messages: EncodeObject[],
     fee?: Fee,
     memo?: string
-  ): ReturnType<SigningCosmWasmClient["sign"]>;
+  ): ReturnType<SigningCosmWasmClient["sign"]> | TerraTx;
   /**
    * Broadcasts a given transaction to the connected chain
    * @param tx
    */
   broadcast(
-    tx: TxRaw | InjTxRaw
+    tx: TxRaw | InjTxRaw | TerraTx
   ): ReturnType<SigningCosmWasmClient["broadcastTx"]>;
   /**
    * Signs a given message before broadcasting it to the connected chain

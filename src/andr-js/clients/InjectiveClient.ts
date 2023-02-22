@@ -45,7 +45,7 @@ import _ from "lodash";
 import Long from "long";
 import { gzip } from "pako";
 import type { Msg } from "../types";
-import BaseClient from "./BaseClient";
+import BaseChainClient from "./BaseChainClient";
 import ChainClient from "./ChainClient";
 
 type MsgType =
@@ -110,7 +110,10 @@ function encodeObjectToMsgArgs(msgs: EncodeObject[]): MsgArg[] {
   });
 }
 
-export default class InjectiveClient extends BaseClient implements ChainClient {
+export default class InjectiveClient
+  extends BaseChainClient
+  implements ChainClient
+{
   public signingClient?: TxGrpcClient;
   public queryClient?: CosmWasmClient;
 

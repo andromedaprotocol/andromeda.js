@@ -11,10 +11,10 @@ import { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import { DeliverTxResponse, GasPrice, StdFee } from "@cosmjs/stargate";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { Fee, Msg } from "..";
-import BaseClient from "./BaseClient";
+import BaseChainClient from "./BaseChainClient";
 import ChainClient from "./ChainClient";
 
-export default class CosmClient extends BaseClient implements ChainClient {
+export default class CosmClient extends BaseChainClient implements ChainClient {
   public signingClient?: SigningCosmWasmClient;
   public queryClient?: CosmWasmClient;
   private gasPrice?: GasPrice;
@@ -51,11 +51,7 @@ export default class CosmClient extends BaseClient implements ChainClient {
     delete this.gasPrice;
   }
 
-  async sign(
-    messages: EncodeObject[],
-    fee: StdFee,
-    memo = ""
-  ): ReturnType<ChainClient["sign"]> {
+  async sign(messages: EncodeObject[], fee: StdFee, memo = ""): Promise<TxRaw> {
     this.preMessage(true);
     return await this.signingClient!.sign(this.signer, messages, fee, memo);
   }

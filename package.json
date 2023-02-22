@@ -40,6 +40,7 @@
     "@injectivelabs/utils": "^1.0.79",
     "@inquirer/password": "^0.0.28-alpha.0",
     "@keplr-wallet/types": "^0.11.21",
+    "@terra-money/terra.js": "^3.1.7",
     "@types/cli-spinner": "^0.2.1",
     "@types/cli-table": "^0.3.1",
     "@types/convict": "^6.1.1",

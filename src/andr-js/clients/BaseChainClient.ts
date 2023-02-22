@@ -25,7 +25,7 @@ const JsonToArray = function (json: Record<string, any>) {
   return ret;
 };
 
-export default class BaseClient implements Partial<ChainClient> {
+export default class BaseChainClient implements Partial<ChainClient> {
   public signingClient?: ChainClient["signingClient"];
   public queryClient?: ChainClient["queryClient"];
   public signer = "";
