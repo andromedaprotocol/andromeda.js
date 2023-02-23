@@ -1,39 +1,32 @@
 import {
-  CosmWasmClient,
   InstantiateOptions,
-  MsgExecuteContractEncodeObject,
-  MsgInstantiateContractEncodeObject,
-  MsgMigrateContractEncodeObject,
-  MsgStoreCodeEncodeObject,
-  SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
-import { calculateFee, DeliverTxResponse, GasPrice } from "@cosmjs/stargate";
-import Long from "long";
-import { ADOAPI, RegistryAPI, ADODBAPI } from "./api";
+import {
+  calculateFee,
+  DeliverTxResponse,
+  GasPrice,
+  StdFee,
+} from "@cosmjs/stargate";
+import { ADOAPI, ADODBAPI, RegistryAPI } from "./api";
 
-import type { Fee, Msg } from "./types";
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
-import { isUndefined } from "lodash";
 import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
+import { isUndefined } from "lodash";
+import type { ChainClient } from "./clients";
+import createClient from "./clients";
+import type { Fee, Msg } from "./types";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
  */
 export default class AndromedaClient {
-  /** CosmWasm Signing Client
-   * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html
-   */
-  public cosmWasmClient?: SigningCosmWasmClient;
-  /** CosmWasm Client
-   * Used if no signer assigned
-   * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/CosmWasmClient.html
-   */
-  public queryClient?: CosmWasmClient;
   // Signer used for broadcasting messages
   public signer: string = "";
   // The gas price assigned for broadcasting messages
   private gasPrice?: GasPrice;
+  // Client used to interact with the chain, includes a query client when connected and a signing client when connected with a signer
+  public chainClient?: ChainClient;
 
   /**
    * Instantiate all provided APIs
@@ -50,10 +43,8 @@ export default class AndromedaClient {
    * A pre-message hook to check that the client is connected and functioning
    * @param signed Whether the message is signed
    */
-  private preMessage(signed = true) {
+  private preMessage() {
     if (!this.isConnected) throw new Error("Client not connected");
-    if (signed && (!this.signer || this.signer.length === 0))
-      throw new Error("No signing wallet assigned");
   }
 
   /**
@@ -65,28 +56,16 @@ export default class AndromedaClient {
   async connect(
     endpoint: string,
     registryAddress: string,
+    addressPrefix: string,
     signer?: OfflineSigner | OfflineDirectSigner,
     options?: SigningCosmWasmClientOptions
   ) {
-    delete this.cosmWasmClient;
-    delete this.queryClient;
+    delete this.chainClient;
 
     this.gasPrice = options?.gasPrice;
 
-    if (signer) {
-      this.cosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
-        endpoint,
-        signer as OfflineSigner,
-        { broadcastTimeoutMs: 30000, ...options }
-      );
-      this.queryClient = this.cosmWasmClient;
-
-      const [account] = await signer.getAccounts();
-      this.signer = account.address;
-    } else {
-      this.queryClient = await CosmWasmClient.connect(endpoint);
-    }
-
+    this.chainClient = createClient(addressPrefix);
+    await this.chainClient.connect(endpoint, signer, options);
     await this.assignKeyAddresses(registryAddress);
   }
 
@@ -108,10 +87,8 @@ export default class AndromedaClient {
    * Disconnects the assigned clients
    */
   disconnect() {
-    this.cosmWasmClient?.disconnect();
-    delete this.cosmWasmClient;
-    this.queryClient?.disconnect();
-    delete this.queryClient;
+    this.chainClient!.disconnect();
+    delete this.chainClient;
 
     this.signer = "";
     delete this.gasPrice;
@@ -124,7 +101,7 @@ export default class AndromedaClient {
    * Whether the client is currently connected
    */
   get isConnected() {
-    return !(isUndefined(this.cosmWasmClient) && isUndefined(this.queryClient));
+    return !isUndefined(this.chainClient) && this.chainClient!.isConnected;
   }
 
   /**
@@ -140,12 +117,7 @@ export default class AndromedaClient {
     memo?: string
   ): Promise<DeliverTxResponse> {
     this.preMessage();
-    return this.cosmWasmClient!.signAndBroadcast(
-      this.signer,
-      messages,
-      fee,
-      memo
-    );
+    return this.chainClient!.signAndBroadcast(messages, fee, memo);
   }
 
   /**
@@ -165,11 +137,10 @@ export default class AndromedaClient {
     funds?: readonly Coin[]
   ) {
     this.preMessage();
-    return await this.cosmWasmClient!.execute(
-      this.signer,
+    return await this.chainClient!.execute(
       contractAddress,
       msg,
-      fee ?? "auto",
+      fee,
       memo,
       funds
     );
@@ -183,9 +154,10 @@ export default class AndromedaClient {
    * @param memo
    * @returns
    */
-  async upload(code: Uint8Array, fee: Fee, memo?: string) {
+  async upload(code: Uint8Array, fee?: Fee, memo?: string) {
     this.preMessage();
-    return await this.cosmWasmClient!.upload(this.signer, code, fee, memo);
+    // return await this.cosmWasmClient!.upload(this.signer, code, fee, memo);]
+    return this.chainClient!.upload(code, fee, memo);
   }
 
   /**
@@ -202,18 +174,14 @@ export default class AndromedaClient {
     codeId: number,
     msg: Msg,
     label: string,
-    fee: Fee,
+    fee?: Fee,
     options?: InstantiateOptions
   ) {
     this.preMessage();
-    return await this.cosmWasmClient!.instantiate(
-      this.signer,
-      codeId,
-      msg,
-      label,
-      fee,
-      { admin: this.signer, ...options }
-    );
+    return await this.chainClient!.instantiate(codeId, msg, label, fee, {
+      admin: this.chainClient!.signer,
+      ...options,
+    });
   }
 
   /**
@@ -224,8 +192,11 @@ export default class AndromedaClient {
    * @returns
    */
   async queryContract<T = any>(address: string, query: Msg) {
-    this.preMessage(false);
-    return (await this.queryClient!.queryContractSmart(address, query)) as T;
+    this.preMessage();
+    return (await this.chainClient!.queryClient!!.queryContractSmart(
+      address,
+      query
+    )) as T;
   }
 
   /**
@@ -242,12 +213,11 @@ export default class AndromedaClient {
     contractAddress: string,
     codeId: number,
     msg: Msg,
-    fee: Fee,
+    fee?: Fee,
     memo?: string
   ) {
     this.preMessage();
-    return await this.cosmWasmClient!.migrate(
-      this.signer,
+    return await this.chainClient!.migrate(
       contractAddress,
       codeId,
       msg,
@@ -268,11 +238,13 @@ export default class AndromedaClient {
     address: string,
     msg: Msg,
     funds: Coin[],
+    fee?: StdFee,
     memo: string = ""
   ) {
     this.preMessage();
     return this.simulateMsgs(
-      [this.encodeExecuteMsg(address, msg, funds)],
+      [this.chainClient!.encodeExecuteMsg(address, msg, funds)],
+      fee,
       memo
     );
   }
@@ -289,10 +261,15 @@ export default class AndromedaClient {
     address: string,
     msg: Msg,
     funds: Coin[],
+    fee?: StdFee,
     memo: string = ""
   ) {
     this.preMessage();
-    return this.estimateFee([this.encodeExecuteMsg(address, msg, funds)], memo);
+    return this.estimateFee(
+      [this.chainClient!.encodeExecuteMsg(address, msg, funds)],
+      fee,
+      memo
+    );
   }
 
   /**
@@ -305,11 +282,14 @@ export default class AndromedaClient {
     codeId: number,
     msg: Msg,
     label: string,
+    fee?: StdFee,
     memo?: string
   ) {
     this.preMessage();
+    console.log(msg);
     return this.simulateMsgs(
-      [this.encodeInstantiateMsg(codeId, msg, label)],
+      [this.chainClient!.encodeInstantiateMsg(codeId, msg, label)],
+      fee,
       memo
     );
   }
@@ -325,11 +305,13 @@ export default class AndromedaClient {
     codeId: number,
     msg: Msg,
     label: string,
+    fee?: StdFee,
     memo?: string
   ) {
     this.preMessage();
     return this.estimateFee(
-      [this.encodeInstantiateMsg(codeId, msg, label)],
+      [this.chainClient!.encodeInstantiateMsg(codeId, msg, label)],
+      fee,
       memo
     );
   }
@@ -340,8 +322,8 @@ export default class AndromedaClient {
    * @returns A gas fee estimation
    */
   async simulateUpload(wasmByteCode: Uint8Array) {
-    this.preMessage();
-    return this.simulateMsgs([this.encodeUploadMessage(wasmByteCode)]);
+    // return this.simulateMsgs([this.chainClient!.encodeUploadMessage(wasmByteCode)]);
+    return this.chainClient?.simulateUpload(wasmByteCode);
   }
 
   /**
@@ -351,7 +333,9 @@ export default class AndromedaClient {
    */
   async estimateUploadFee(wasmByteCode: Uint8Array) {
     this.preMessage();
-    return this.estimateFee([this.encodeUploadMessage(wasmByteCode)]);
+    return this.estimateFee([
+      this.chainClient!.encodeUploadMessage(wasmByteCode),
+    ]);
   }
 
   /**
@@ -361,9 +345,17 @@ export default class AndromedaClient {
    * @param msg
    * @returns A gas fee estimation
    */
-  async simulateMigrate(address: string, codeId: number, msg: Msg) {
+  async simulateMigrate(
+    address: string,
+    codeId: number,
+    msg: Msg,
+    fee?: StdFee
+  ) {
     this.preMessage();
-    return this.simulateMsgs([this.encodeMigrateMessage(address, codeId, msg)]);
+    return this.simulateMsgs(
+      [this.chainClient!.encodeMigrateMessage(address, codeId, msg)],
+      fee
+    );
   }
 
   /**
@@ -375,91 +367,9 @@ export default class AndromedaClient {
    */
   async estimateMigrateFee(address: string, codeId: number, msg: Msg) {
     this.preMessage();
-    return this.estimateFee([this.encodeMigrateMessage(address, codeId, msg)]);
-  }
-
-  /**
-   * Converts an execute message to an EncodeObject for signing or simulating
-   * @param address
-   * @param msg
-   * @param funds
-   * @returns
-   */
-  encodeExecuteMsg(
-    address: string,
-    msg: Msg,
-    funds: Coin[]
-  ): MsgExecuteContractEncodeObject {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
-      value: {
-        sender: this.signer,
-        contract: address,
-        msg: JsonToArray(msg),
-        funds,
-      },
-    };
-  }
-
-  /**
-   * Converts an instantiate message to an EncodeObject for signing or simulating
-   * @param codeId
-   * @param msg
-   * @param funds
-   * @returns
-   */
-  encodeInstantiateMsg(
-    codeId: number,
-    msg: Msg,
-    label: string
-  ): MsgInstantiateContractEncodeObject {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.MsgInstantiateContract",
-      value: {
-        sender: this.signer,
-        codeId: Long.fromInt(codeId),
-        msg: JsonToArray(msg),
-        label,
-      },
-    };
-  }
-
-  /**
-   * Converts an upload message to an EncodeObject for signing or simulating
-   * @param wasmByteCode
-   * @returns
-   */
-  encodeUploadMessage(wasmByteCode: Uint8Array): MsgStoreCodeEncodeObject {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.MsgStoreCode",
-      value: {
-        sender: this.signer,
-        wasmByteCode,
-      },
-    };
-  }
-
-  /**
-   * Converts a migrate message to an EncodeObject for signing or simulating
-   * @param address
-   * @param codeId
-   * @param msg
-   * @returns
-   */
-  encodeMigrateMessage(
-    address: string,
-    codeId: number,
-    msg: Msg
-  ): MsgMigrateContractEncodeObject {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.MsgMigrateContract",
-      value: {
-        sender: this.signer,
-        codeId: Long.fromNumber(codeId),
-        contract: address,
-        msg: JsonToArray(msg),
-      },
-    };
+    return this.estimateFee([
+      this.chainClient!.encodeMigrateMessage(address, codeId, msg),
+    ]);
   }
 
   /**
@@ -468,8 +378,12 @@ export default class AndromedaClient {
    * @param memo
    * @returns
    */
-  async simulateMsgs(msgs: readonly EncodeObject[], memo?: string) {
-    const gas = await this.cosmWasmClient?.simulate(this.signer, msgs, memo);
+  async simulateMsgs(
+    msgs: readonly EncodeObject[],
+    fee?: StdFee,
+    memo?: string
+  ) {
+    const gas = await this.chainClient?.simulateMulti(msgs, fee, memo);
     return gas;
   }
 
@@ -479,8 +393,12 @@ export default class AndromedaClient {
    * @param memo
    * @returns
    */
-  async estimateFee(msgs: readonly EncodeObject[], memo?: string) {
-    const gas = await this.simulateMsgs(msgs, memo);
+  async estimateFee(
+    msgs: readonly EncodeObject[],
+    fee?: StdFee,
+    memo?: string
+  ) {
+    const gas = await this.simulateMsgs(msgs, fee, memo);
     if (!gas) {
       throw new Error("Could not simulate transaction");
     }
@@ -508,8 +426,8 @@ export default class AndromedaClient {
    * @returns
    */
   async getTx(hash: string) {
-    this.preMessage(false);
-    return this.queryClient?.getTx(hash);
+    this.preMessage();
+    return this.chainClient!.queryClient!.getTx(hash);
   }
 
   /**
@@ -527,13 +445,7 @@ export default class AndromedaClient {
     memo?: string
   ) {
     this.preMessage();
-    return this.cosmWasmClient?.sendTokens(
-      this.signer,
-      receivingAddress,
-      amount,
-      fee ?? "auto",
-      memo
-    );
+    return this.chainClient?.sendTokens(receivingAddress, amount, fee, memo);
   }
   /**
    * Gets the balance for a given address and denom. Defaults to the signing wallet address if none provided.
@@ -542,11 +454,11 @@ export default class AndromedaClient {
    * @returns
    */
   async getBalance(denom: string, address?: string) {
-    this.preMessage(false);
+    this.preMessage();
     const _address = address && address.length > 0 ? address : this.signer;
     if (!_address || _address.length === 0) throw new Error("Invalid address");
 
-    return this.cosmWasmClient?.getBalance(_address, denom);
+    return this.chainClient!.queryClient!.getBalance(_address, denom);
   }
 
   /**
@@ -555,8 +467,8 @@ export default class AndromedaClient {
    * @returns
    */
   async getSentTxsByAddress(addr: string) {
-    this.preMessage(false);
-    return this.queryClient?.searchTx({
+    this.preMessage();
+    return this.chainClient!.queryClient!?.searchTx({
       tags: [{ key: "message.sender", value: addr }],
     });
   }
@@ -567,8 +479,8 @@ export default class AndromedaClient {
    * @returns
    */
   async getTxsByContract(addr: string) {
-    this.preMessage(false);
-    return this.queryClient?.searchTx({
+    this.preMessage();
+    return this.chainClient!.queryClient!?.searchTx({
       tags: [{ key: "execute._contract_address", value: addr }],
     });
   }
@@ -579,8 +491,8 @@ export default class AndromedaClient {
    * @returns
    */
   async getBankTxsByAddress(addr: string) {
-    this.preMessage(false);
-    return this.queryClient?.searchTx({
+    this.preMessage();
+    return this.chainClient!.queryClient!?.searchTx({
       sentFromOrTo: addr,
     });
   }
@@ -601,17 +513,3 @@ export default class AndromedaClient {
     ].sort((txA, txB) => (txA.height < txB.height ? 1 : -1));
   }
 }
-
-/**
- * Helper function to convert JSON to Uint8Array
- * @param json JSON object to convert to Uint8Array
- * @returns
- */
-const JsonToArray = function (json: Record<string, any>) {
-  var str = JSON.stringify(json, null, 0);
-  var ret = new Uint8Array(str.length);
-  for (var i = 0; i < str.length; i++) {
-    ret[i] = str.charCodeAt(i);
-  }
-  return ret;
-};

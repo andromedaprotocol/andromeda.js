@@ -19,3 +19,14 @@ export async function generateWalletFromMnemonic(
       return Wallet.fromMnemonic(name, mnemonic, passphrase, prefix);
   }
 }
+
+export function newWallet(name: string, key: string, prefix: string) {
+  switch (prefix) {
+    case "inj":
+      return new EtherWallet(name, key, prefix);
+    case "terra":
+      return new TerraWallet(name, key, prefix);
+    default:
+      return new Wallet(name, key, prefix);
+  }
+}

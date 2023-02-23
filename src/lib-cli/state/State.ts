@@ -30,7 +30,8 @@ export class State {
    * Connects the Andromeda Client to chain. Has a default timeout to prevent infinite awaiting.
    */
   public async connectClient() {
-    const { chainUrl, registryAddress, defaultFee } = config.get("chain");
+    const { chainUrl, registryAddress, defaultFee, addressPrefix } =
+      config.get("chain");
     const { client, wallets } = this;
 
     const currentWallet = wallets.currentWallet;
@@ -43,7 +44,7 @@ export class State {
 
     return await new Promise((resolve, reject) => {
       client
-        .connect(chainUrl, registryAddress, signer, {
+        .connect(chainUrl, registryAddress, addressPrefix, signer, {
           gasPrice: GasPrice.fromString(defaultFee),
         })
         .then(() => resolve(undefined))
