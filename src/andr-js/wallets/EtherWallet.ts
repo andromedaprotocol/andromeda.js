@@ -20,7 +20,6 @@ export default class EtherWallet extends Wallet {
   }
 
   async getWallet(passphrase: string) {
-    console.log("GET WALLET");
     const storedKey = Crypto.AES.decrypt(this.key, passphrase).toString(
       Crypto.enc.Utf8
     );
