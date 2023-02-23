@@ -1,6 +1,6 @@
 <p>&nbsp;</p>
 <p align="center">
-<img src="https://github.com/andromedaprotocol/andromeda.js/blob/development/image/andromeda-js-logo-light.png" width=800>
+<img src="https://github.com/andromedaprotocol/andromeda.js/blob/development/image/andromeda-js-logo.png" width=800>
 </p>
 
 ## About
@@ -19,7 +19,7 @@ Andr.js is a JavaScript SDK for writing applications that interact with the cosm
 Grab the latest version off [NPM](https://www.npmjs.com/package/@andromedaprotocol/andromeda.js):
 
 ```sh
-npm i -g @andromedaprotocol/andromeda.js
+sudo npm i -g @andromedaprotocol/andromeda.js
 ```
 
 ## Usage
