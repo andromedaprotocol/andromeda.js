@@ -1,4 +1,4 @@
-import { Msg } from "@andromeda/andromeda-js";
+import { Msg } from "@andromeda/lib-js";
 import { parseCoins } from "@cosmjs/proto-signing";
 import { StdFee } from "@cosmjs/stargate";
 import pc from "picocolors";

@@ -1,4 +1,4 @@
-import { Wallet } from "@andromeda/andromeda-js";
+import { Wallet } from "@andromeda/lib-js";
 import pc from "picocolors";
 // import Table from "cli-table";
 import Table from "cli-table";

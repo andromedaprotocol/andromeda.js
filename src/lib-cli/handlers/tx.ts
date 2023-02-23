@@ -3,7 +3,7 @@ import {
   cleanTx,
   getAttribute,
   getTxExplorerURL,
-} from "@andromeda/andromeda-js";
+} from "@andromeda/lib-js";
 import pc from "picocolors";
 import Table from "cli-table";
 import _ from "lodash";

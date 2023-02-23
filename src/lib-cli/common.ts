@@ -1,7 +1,7 @@
 import { Spinner } from "cli-spinner";
 import inquirer from "inquirer";
 import config from "./config";
-import { getTxExplorerURL } from "@andromeda/andromeda-js";
+import { getTxExplorerURL } from "@andromeda/lib-js";
 import { exitInputs } from "./cmd";
 import State from "./state";
 

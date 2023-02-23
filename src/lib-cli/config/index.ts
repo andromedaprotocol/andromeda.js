@@ -1,4 +1,4 @@
-import { queryChainConfig } from "@andromeda/andromeda-js";
+import { queryChainConfig } from "@andromeda/lib-js";
 import convict from "convict";
 import convictFormatWithValidator from "convict-format-with-validator";
 import { addExitHandler, loadStorageFile, writeStorageFile } from "./storage";

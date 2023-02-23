@@ -2,7 +2,7 @@ import {
   fetchSchema,
   queryADOPackageDefinition,
   encode,
-} from "@andromeda/andromeda-js";
+} from "@andromeda/lib-js";
 import pc from "picocolors";
 import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";

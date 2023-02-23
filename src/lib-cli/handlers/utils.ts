@@ -1,4 +1,4 @@
-import { validateAddress } from "@andromeda/andromeda-js";
+import { validateAddress } from "@andromeda/lib-js";
 import pc from "picocolors";
 import { exitInputs, listCommands, printCommandHelp } from "../cmd";
 import { validateOrRequest } from "../common";

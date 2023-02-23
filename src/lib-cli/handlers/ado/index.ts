@@ -3,7 +3,7 @@ import {
   fetchSchema,
   queryADOPackageDefinition,
   queryADOTypes,
-} from "@andromeda/andromeda-js";
+} from "@andromeda/lib-js";
 import pc from "picocolors";
 import {
   displaySpinnerAsync,

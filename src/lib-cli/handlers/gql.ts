@@ -1,4 +1,4 @@
-import { queryApp, queryAssets } from "@andromeda/andromeda-js";
+import { queryApp, queryAssets } from "@andromeda/lib-js";
 import Table from "cli-table";
 import pc from "picocolors";
 import { displaySpinnerAsync, logTableConfig } from "../common";

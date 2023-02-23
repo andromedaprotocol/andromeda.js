@@ -1,4 +1,4 @@
-import AndromedaClient from "@andromeda/andromeda-js";
+import AndromedaClient from "@andromeda/lib-js";
 import { GasPrice } from "@cosmjs/stargate";
 import WalletStore from "./WalletStore";
 import pc from "picocolors";

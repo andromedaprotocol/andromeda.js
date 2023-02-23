@@ -2,7 +2,7 @@ import {
   ChainConfig,
   queryAllChainConfigs,
   queryChainConfig,
-} from "@andromeda/andromeda-js";
+} from "@andromeda/lib-js";
 import pc from "picocolors";
 import Table from "cli-table";
 import inquirer from "inquirer";

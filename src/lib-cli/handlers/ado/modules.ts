@@ -1,4 +1,4 @@
-import { Module } from "@andromeda/andromeda-js";
+import { Module } from "@andromeda/lib-js";
 import inquirer from "inquirer";
 import { exitInputs } from "../../cmd";
 import pc from "picocolors";

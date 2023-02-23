@@ -2,7 +2,7 @@ import {
   generateWalletFromMnemonic,
   Wallet,
   newWallet,
-} from "@andromeda/andromeda-js";
+} from "@andromeda/lib-js";
 import keychain from "keytar";
 import { promptPassphrase } from "..";
 import config from "../config";
@@ -117,7 +117,6 @@ export default class WalletStore {
   get currentWallet() {
     const walletName = this.defaultWallets[config.get("chain.chainId")];
     const wallet = this.getWalletByName(walletName);
-
     return wallet;
   }
 
@@ -273,12 +272,12 @@ export default class WalletStore {
         (name === identifier.trim() || address === identifier.trim())
     );
     if (!walletData) return;
-
-    return newWallet(
+    const wallet = newWallet(
       walletData.name,
       walletData.key,
       config.get("chain.addressPrefix")
     );
+    return wallet;
   }
 
   /**
