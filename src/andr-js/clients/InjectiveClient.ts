@@ -205,11 +205,11 @@ export default class InjectiveClient
       pubKey,
       chainId: this.chainId!,
       message: encodeObjectToMsgArgs(messages),
-      fee,
       timeoutHeight,
       sequence: baseAccount.sequence,
       accountNumber: baseAccount.accountNumber,
       memo,
+      fee,
     });
     const signed = await this.directSigner!.signDirect(this.signer!, {
       ...signDoc,
@@ -275,10 +275,14 @@ export default class InjectiveClient
 
   async signAndBroadcast(
     messages: EncodeObject[],
-    fee?: StdFee,
+    fee?: StdFee | "auto",
     memo?: string
   ): Promise<DeliverTxResponse & { logs: readonly Log[] }> {
-    const signed = await this.signInj(messages, fee, memo);
+    const signed = await this.signInj(
+      messages,
+      fee === "auto" ? undefined : fee,
+      memo
+    );
     const resp = await this.broadcast(signed);
     return {
       ...resp,
