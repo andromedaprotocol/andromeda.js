@@ -4,6 +4,7 @@ import {
   queryADOPackageDefinition,
   queryADOTypes,
 } from "@andromeda/lib-js";
+import { Schema } from "jsonschema";
 import pc from "picocolors";
 import {
   displaySpinnerAsync,
@@ -209,14 +210,19 @@ async function executeHandler(input: string[], flags: Flags) {
   }
 
   const {
-    schemas: { contract_schema },
+    schemas: { contract_schema, execute },
   } = await queryADOPackageDefinition(type);
   const adoSchema: ContractSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () => await fetchSchema(contract_schema)
+    async () => await fetchSchema(execute ?? contract_schema)
   );
 
-  const msg = await promptQueryOrExecuteMessage(adoSchema.execute, type);
+  const msg = await promptQueryOrExecuteMessage(
+    (adoSchema as ContractSchema).execute
+      ? (adoSchema as ContractSchema).execute
+      : (adoSchema as Schema),
+    type
+  );
   await executeMessage(address, msg, flags);
 }
 
@@ -236,14 +242,20 @@ async function queryHandler(input: string[]) {
   }
 
   const {
-    schemas: { contract_schema },
+    schemas: { contract_schema, query },
   } = await queryADOPackageDefinition(type);
   const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () => await fetchSchema(contract_schema)
+    async () =>
+      await fetchSchema<ContractSchema | Schema>(query ?? contract_schema)
   );
 
-  const msg = await promptQueryOrExecuteMessage(adoSchema.query, type);
+  const msg = await promptQueryOrExecuteMessage(
+    (adoSchema as ContractSchema).query
+      ? (adoSchema as ContractSchema).query
+      : (adoSchema as Schema),
+    type
+  );
   const resp = await queryMessage(address, msg);
 
   console.log(JSON.stringify(resp, null, 2));
