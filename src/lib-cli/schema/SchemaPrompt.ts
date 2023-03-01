@@ -357,7 +357,7 @@ export default class SchemaPrompt {
   ) {
     const response: any[] = [];
     while (true) {
-      if (required) {
+      if (required || response.length > 0) {
         const addElement = await inquirer.prompt({
           prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
           message: `Would you like to add ${
