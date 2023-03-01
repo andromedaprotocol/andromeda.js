@@ -193,8 +193,11 @@ export async function listCommands(commands: Commands, prefix?: string) {
     }
   }
 
-  log(`Usage:`);
-  log(`${prefix ? `${prefix} ` : ""}[cmd]`);
+  if (prefix) {
+    log(`Usage:`);
+    log(pc.green(`${prefix ? `${prefix} ` : ""}[cmd]`));
+    log();
+  }
   log(`Valid commands:`);
   log(commandTable.toString());
   //Log any errors produced when generating command list
@@ -206,7 +209,7 @@ export async function listCommands(commands: Commands, prefix?: string) {
  * Prints help information for a given command
  * @param cmd
  */
-export function printCommandHelp(cmd: Command) {
+export async function printCommandHelp(cmd: Command, commands: Commands = {}) {
   const { description, usage } = cmd;
   log(pc.bold(description));
   log();
@@ -233,6 +236,8 @@ export function printCommandHelp(cmd: Command) {
     log(flagTable.toString());
   }
   log();
+  if (Object.keys(commands).length > 0) await listCommands(commands);
+
   log(
     pc.bold(
       `Any request inputs can be exited using one of the following inputs: ${exitInputs.join(
