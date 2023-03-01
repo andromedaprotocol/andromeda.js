@@ -28,13 +28,13 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     delete this.queryClient;
     this.gasPrice = options?.gasPrice;
 
+    this.queryClient = await CosmWasmClient.connect(endpoint);
     if (signer) {
       this.signingClient = await SigningCosmWasmClient.connectWithSigner(
         endpoint,
         signer,
         { broadcastTimeoutMs: 30000, ...options }
       );
-      this.queryClient = this.signingClient;
 
       const [account] = await signer.getAccounts();
       this.signer = account.address;

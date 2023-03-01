@@ -41,7 +41,7 @@ export default class BaseChainClient implements Partial<ChainClient> {
   }
 
   get isConnected() {
-    return !(isUndefined(this.signingClient) && isUndefined(this.queryClient));
+    return !isUndefined(this.queryClient) || !isUndefined(this.signingClient);
   }
 
   encodeExecuteMsg(
