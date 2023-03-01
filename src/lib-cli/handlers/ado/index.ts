@@ -162,14 +162,19 @@ const commands: Commands = {
 async function createHandler(input: string[], flags: Flags) {
   const [type] = input;
   const {
-    schemas: { contract_schema },
+    schemas: { contract_schema, instantiate },
   } = await queryADOPackageDefinition(type);
   const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () => await fetchSchema(contract_schema)
+    async () => await fetchSchema(instantiate ?? contract_schema)
   );
 
-  const msg = await promptInstantiateMsg(adoSchema.instantiate, type);
+  const msg = await promptInstantiateMsg(
+    (adoSchema as ContractSchema).instantiate
+      ? (adoSchema as ContractSchema).instantiate
+      : (adoSchema as Schema),
+    type
+  );
 
   const codeId = await client.adoDB.getCodeId(type);
 
