@@ -398,9 +398,7 @@ export default class SchemaPrompt {
 
       if (!addProperty.confirm) return undefined;
     }
-
     property = await this.replaceRefs(property);
-    // console.log(JSON.stringify(property, null, 2));
     let type = property.type;
     if (Array.isArray(type)) {
       let validTypes = type.filter((ty) => ty !== "null");
@@ -529,7 +527,7 @@ export default class SchemaPrompt {
     }
   }
 
-  async replaceRefs(obj: Record<string, any>) {
+  async replaceRefs(obj: Record<string, any>, refs?: string[]) {
     const keys = Object.keys(obj);
     let newObj = { ...obj };
     for (let i = 0; i < keys.length; i++) {
@@ -540,18 +538,23 @@ export default class SchemaPrompt {
           const newArray = [];
           for (let j = 0; j < val.length; j++) {
             if (typeof val[j] === "object") {
-              newArray.push(await this.replaceRefs(val[j]));
+              newArray.push(await this.replaceRefs(val[j], refs));
             } else {
               newArray.push(val[j]);
             }
           }
           newObj[key] = newArray;
         } else {
-          newObj[key] = await this.replaceRefs(val);
+          newObj[key] = await this.replaceRefs(val, refs);
         }
       } else if (key === "$ref") {
         newObj = await this.getRef(val);
-        newObj = await this.replaceRefs(newObj);
+
+        if (refs?.includes(val)) {
+          console.info("Circular reference detected, exiting...");
+          break;
+        }
+        newObj = await this.replaceRefs(newObj, [...(refs ?? []), val]);
       }
     }
 
