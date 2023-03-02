@@ -127,6 +127,13 @@ export async function title() {
       )
     )
   );
+  console.log(
+    pc.blue(
+      `Terms & Agreements: ${pc.bold(
+        "https://github.com/andromedaprotocol/andromeda-core/blob/development/LICENSE/LICENSE.md"
+      )}`
+    )
+  );
   await sleep(20);
 }
 
