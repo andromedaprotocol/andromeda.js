@@ -8,6 +8,11 @@
     "lib": ["esnext"],
     "baseUrl": "./src"
   },
-  "include": ["src/**/*.ts", "src/**/*.json", "tests/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "scripts/**/*.ts",
+    "src/**/*.json",
+    "tests/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist", "test/**/*.ts"]
 }

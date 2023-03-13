@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { CONFIG_DIRECTORY } from "./config/storage";
 import inquirer from "inquirer";
 import minimist from "minimist";
 import {
@@ -18,7 +19,7 @@ inquirer.registerPrompt("command", inquirerCommandPrompt);
 
 async function onStartup() {
   try {
-    await displaySpinnerAsync("Loading config...", loadDefaultConfig);
+    await displaySpinnerAsync(`Loading config from ${CONFIG_DIRECTORY}...`, loadDefaultConfig);
     await displaySpinnerAsync(
       "Connecting client...",
       async () => await State.connectClient()

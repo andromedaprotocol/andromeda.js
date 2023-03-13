@@ -8,19 +8,20 @@
   "description": "",
   "main": "./dist/index.js",
   "bin": {
-    "local:andr": "dist/cli.js"
+    "andr": "dist/cli.js"
   },
   "scripts": {
     "start": "nodemon --exec \"npm run\" dev",
-    "start:windows": "nodemon --watch 'src/**/*.ts' --exec \"npm run\" build",
+    "start:windows": "nodemon --exec \"npm run\" build",
     "create": "npm run build && npm run test",
-    "build": "rimraf ./dist && tsc -p tsconfig.json && tsc-alias tsc -p tsconfig.json",
-    "install:local": "npm run build && pnpm pack && npm i -g && andr",
-    "refresh": "rimraf ./node_modules ./package-lock.json && pnpm i",
+    "build": "rimraf ./dist && tsc -p tsconfig.build.json && tsc-alias tsc -p tsconfig.build.json",
+    "install:local": "ts-node ./scripts/install.ts",
+    "uninstall:local": "ts-node ./scripts/uninstall.ts",
     "test": "jest",
     "tsc": "tsc -p tsconfig.json --noEmit",
     "depcheck": "depcheck",
-    "dev": "ts-node src/cli.ts"
+    "dev": "ts-node src/cli.ts",
+    "list-global": "npm --global ls"
   },
   "keywords": [],
   "author": "",
@@ -51,6 +52,7 @@
     "picocolors": "^1.0.0"
   },
   "devDependencies": {
+    "@types/async": "^3.2.18",
     "@types/cli-spinner": "^0.2.1",
     "@types/cli-table": "^0.3.1",
     "@types/convict": "^6.1.1",
@@ -62,6 +64,7 @@
     "@types/lodash": "^4.14.191",
     "@types/minimist": "^1.2.2",
     "@types/node": "^18.14.1",
+    "async": "^3.2.4",
     "depcheck": "^1.4.3",
     "jest": "^29.5.0",
     "nodemon": "^2.0.20",

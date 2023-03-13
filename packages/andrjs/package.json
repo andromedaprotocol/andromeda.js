@@ -10,7 +10,7 @@
   "scripts": {
     "start": "nodemon --watch 'src/**/*.ts' --ext 'ts,json' --exec \"npm run\" build",
     "create": "npm run build && npm run test",
-    "build": "rimraf ./dist && tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+    "build": "rimraf ./dist && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "jest",
     "tsc": "tsc --noEmit",
     "depcheck": "depcheck"
