@@ -14,6 +14,7 @@ import State from "../state";
 const { client } = State;
 
 // The standard message for sending an NFT
+// This is used for referencing by a specific handler for this message type
 const SEND_NFT_MESSAGE_TYPE = "send_nft";
 
 interface SendNftMsg {
@@ -243,6 +244,7 @@ export default class SchemaPrompt {
       type = resp.ado_type;
     } catch (error) {
       const typeInput = await inquirer.prompt({
+        message: "What type of ADO are you sending to?",
         name: "adoType",
         type: "input",
         validate: async (input: string) => {
@@ -251,6 +253,8 @@ export default class SchemaPrompt {
             return true;
           } catch (error) {
             const { message } = error as Error;
+            console.log();
+            console.log(pc.red("Something went wrong!"));
             console.log(pc.red(message));
             return false;
           }
@@ -271,8 +275,8 @@ export default class SchemaPrompt {
     return {
       address: {
         identifier: address,
-        msg: encode(msg),
       },
+      msg: encode(msg),
     };
   }
 

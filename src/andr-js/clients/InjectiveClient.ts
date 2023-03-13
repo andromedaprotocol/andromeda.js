@@ -32,6 +32,7 @@ import {
   MsgStoreCode,
   TxGrpcClient,
   TxRaw as InjTxRaw,
+  createTxRawFromSigResponse,
 } from "@injectivelabs/sdk-ts";
 import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
 import {
@@ -194,8 +195,9 @@ export default class InjectiveClient
 
   private async signInj(
     messages: EncodeObject[],
-    fee: StdFee = getStdFee((DEFAULT_GAS_LIMIT * 50).toString()),
-    memo: string = ""
+    fee: StdFee = getStdFee(DEFAULT_GAS_LIMIT.toString()),
+    memo: string = "",
+    simulation = false
   ) {
     this.preMessage();
     const timeoutHeight = await this.getTimeoutHeight();
@@ -211,15 +213,18 @@ export default class InjectiveClient
       memo,
       fee,
     });
+
+    if (simulation) return txRaw;
+
     const signed = await this.directSigner!.signDirect(this.signer!, {
       ...signDoc,
       chainId: signDoc.getChainId(),
       bodyBytes: signDoc.getBodyBytes_asU8(),
       authInfoBytes: signDoc.getAuthInfoBytes_asU8(),
-      accountNumber: Long.fromInt(signDoc.getAccountNumber()),
+      accountNumber: Long.fromInt(baseAccount.accountNumber),
     });
-    txRaw.setSignaturesList([signed.signature.signature]);
-    return txRaw;
+
+    return createTxRawFromSigResponse(signed);
   }
 
   async sign(messages: EncodeObject[], fee?: StdFee, memo?: string) {
@@ -317,7 +322,7 @@ export default class InjectiveClient
   // }
 
   async simulateMulti(messages: EncodeObject[], fee?: StdFee, memo = "") {
-    const txRaw = await this.signInj(messages, fee, memo);
+    const txRaw = await this.signInj(messages, fee, memo, true);
     const resp = await this.signingClient!.simulate(txRaw);
     // TODO: CHECK THIS RESPONSE OBJECT AS IT MAY BE INVALID
     return resp.gasInfo.gasUsed;
