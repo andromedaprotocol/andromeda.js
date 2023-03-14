@@ -413,7 +413,7 @@ async function configPrintHandler() {
  */
 export async function newConfigHandler(input: string[]) {
   const [name] = input;
-  const config = await inquirer.prompt([
+  const questions: (inquirer.InputQuestion | inquirer.ListQuestion)[] = [
     {
       name: "chainName",
       message: "Input the chain name:",
@@ -457,8 +457,20 @@ export async function newConfigHandler(input: string[]) {
       type: "input",
       validate: (input: string) => input.length > 0,
     },
-  ]);
-  if (config.chainType === "exit") return;
+  ];
+  // Any type to allow construction
+  let config: any = {};
+  for (let i = 0; i < questions.length; i++) {
+    const question = questions[i];
+    const val = await inquirer.prompt(question);
+    if (val[question.name!] === "exit") throw new Error("Command exited");
+    config[
+      question.name! as keyof Omit<
+        ChainConfig,
+        "name" | "blockExplorerAddressPages" | "blockExplorerTxPages"
+      >
+    ] = val[question.name!];
+  }
 
   const fullConfig: ChainConfig = {
     ...config,
