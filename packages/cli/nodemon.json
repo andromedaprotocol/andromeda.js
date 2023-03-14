@@ -1,0 +1,14 @@
+{
+    "ignoreRoot": [
+        ".git",
+        "**/*.test.*",
+        "**/node_modules/!(@andromedaprotocol)/**",
+        "**/node_modules/@andromedaprotocol/*/!(dist)/**"
+    ],
+    "watch": [
+        "src",
+        "node_modules/@andromedaprotocol"
+    ],
+    "ext": "ts,js,json",
+    "delay": "2500"
+}

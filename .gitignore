@@ -4,3 +4,4 @@ dist
 contracts
 .graphqlrc.yml
 .DS_Store
+*.tgz
