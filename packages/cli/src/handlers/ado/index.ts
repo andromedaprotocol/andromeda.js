@@ -4,6 +4,7 @@ import {
   queryADOPackageDefinition,
   queryADOTypes,
 } from "@andromedaprotocol/andromeda.js";
+import { Schema } from "jsonschema";
 import pc from "picocolors";
 import {
   displaySpinnerAsync,

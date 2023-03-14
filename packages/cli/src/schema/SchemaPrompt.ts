@@ -555,7 +555,7 @@ export default class SchemaPrompt {
         newObj = await this.getRef(val);
 
         if (refs?.includes(val)) {
-          console.info("Circular reference detected, exiting...");
+          console.log("Circular reference detected, exiting...");
           break;
         }
         newObj = await this.replaceRefs(newObj, [...(refs ?? []), val]);
