@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/cli",
-  "version": "0.2.4",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
