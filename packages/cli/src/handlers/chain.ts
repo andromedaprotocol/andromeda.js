@@ -422,15 +422,21 @@ export async function newConfigHandler(input: string[]) {
     },
     {
       name: "chainId",
-      message: "Input the chain ID:",
+      message: "Input the Chain ID:",
       type: "input",
-      validate: (input: string) => input.length > 0,
+      validate: (input: string) => input.length > 4,
     },
     {
       name: "chainUrl",
-      message: "Input the chain URL:",
+      message: "Input the Chain URL:",
       type: "input",
-      validate: (input: string) => input.length > 0,
+      validate: (input: string) => {
+        if (input === "exit") return true;
+        const regex =
+          /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+
+        return regex.test(input) ? true : "Invalid URL";
+      },
     },
     {
       name: "chainType",
@@ -449,13 +455,17 @@ export async function newConfigHandler(input: string[]) {
       name: "addressPrefix",
       message: "Input the prefix for any addresses on this chain:",
       type: "input",
-      validate: (input: string) => input.length > 0,
+      validate: (input: string) => input.length >= 4,
     },
     {
       name: "defaultFee",
       message: "Input the default fee for the chain (e.g. 0.025ujunox):",
       type: "input",
-      validate: (input: string) => input.length > 0,
+      validate: (input: string) => {
+        if (input === "exit") return true;
+        const regex = /^[0-9]+\.[0-9]+[a-z]{2,}$/gm;
+        return regex.test(input) ? true : "Invalid fee";
+      },
     },
   ];
   // Any type to allow construction
