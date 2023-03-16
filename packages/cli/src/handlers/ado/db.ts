@@ -62,10 +62,9 @@ async function isOperatorOrOwnerOfADODB() {
 
   const walletAddr = wallets.currentWalletAddress;
   if (!walletAddr) return false;
-
   const isAuthorized = await client.ado.isOperatorOrOwner(
-    client.adoDB.address,
-    walletAddr
+    walletAddr,
+    client.adoDB.address
   );
   return isAuthorized;
 }
