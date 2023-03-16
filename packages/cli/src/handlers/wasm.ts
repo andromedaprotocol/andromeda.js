@@ -1,5 +1,5 @@
 import { Msg } from "@andromedaprotocol/andromeda.js";
-import { parseCoins } from "@cosmjs/proto-signing";
+import { Coin, parseCoins } from "@cosmjs/proto-signing";
 import { StdFee } from "@cosmjs/stargate";
 import pc from "picocolors";
 import fs from "fs";
@@ -248,6 +248,39 @@ async function migrateHandler(input: string[], flags: Flags) {
 }
 
 /**
+ * Prompts a user to attach funds to their current message
+ * @returns {Coin[]}
+ */
+async function promptForFunds() {
+  const confirmationPrompt = await inquirer.prompt({
+    type: "confirm",
+    message: "Would you like to add funds to this message?",
+    name: "confirm",
+  });
+  if (confirmationPrompt?.confirm) {
+    const fundsPrompt = await inquirer.prompt({
+      type: "input",
+      message: "Input funds to attach to this message:",
+      name: "funds",
+      validate: (input: string) => {
+        if (input === "exit") return true;
+        try {
+          parseCoins(input);
+
+          return true;
+        } catch (error) {
+          return "Invalid coin input";
+        }
+      },
+    });
+    if (fundsPrompt.funds === "exit") return [];
+    return parseCoins(fundsPrompt.funds);
+  }
+
+  return [];
+}
+
+/**
  * Handler for executing a message. Prints all cost estimates and any flag related data. Prompts the user to confirm the message before sending.
  * Logs a transaction URL upon completion.
  * @param address
@@ -267,7 +300,14 @@ export async function executeMessage(
     console.log(JSON.stringify(msg, null, 2));
     console.log();
   }
-  const feeEstimate = await simulateExecuteMessage(address, msg, flags);
+  const msgFunds =
+    funds && funds.length > 0 ? parseCoins(funds) : await promptForFunds();
+  const feeEstimate = await simulateExecuteMessage(
+    address,
+    msg,
+    memo,
+    msgFunds
+  );
   console.log("Transaction simulated!");
   console.log();
   logFeeEstimation(feeEstimate);
@@ -284,7 +324,6 @@ export async function executeMessage(
     return;
   }
 
-  const msgFunds = parseCoins(funds ?? "");
   const resp = await displaySpinnerAsync(
     "Executing Tx...",
     async () => await client.execute(address, msg, fee, memo, msgFunds)
@@ -487,13 +526,13 @@ function logFeeEstimation(fee: StdFee) {
 export async function simulateExecuteMessage(
   address: string,
   msg: Record<string, any>,
-  flags: Flags
+  memo: string = "",
+  msgFunds: Coin[] = []
 ) {
-  const { funds, memo } = flags;
-  const msgFunds = parseCoins(funds ?? "");
   const feeEstimate = displaySpinnerAsync(
     "Simulating Tx...",
-    async () => await client.estimateExecuteFee(address, msg, msgFunds, memo)
+    async () =>
+      await client.estimateExecuteFee(address, msg, msgFunds, undefined, memo)
   );
   return feeEstimate;
 }
