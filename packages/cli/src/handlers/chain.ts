@@ -3,10 +3,11 @@ import {
   queryAllChainConfigs,
   queryChainConfig,
 } from "@andromedaprotocol/andromeda.js";
-import pc from "picocolors";
 import Table from "cli-table";
 import inquirer from "inquirer";
+import pc from "picocolors";
 
+import { promptWithExit } from "cmd";
 import { displaySpinnerAsync, logTableConfig } from "../common";
 import config from "../config";
 import {
@@ -17,7 +18,6 @@ import {
 import State from "../state";
 import { Commands } from "../types";
 import { setCurrentWallet } from "./wallets";
-import { promptWithExit } from "cmd";
 
 const STORAGE_FILE = "chainConfigs.json";
 

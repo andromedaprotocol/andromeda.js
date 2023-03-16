@@ -70,7 +70,6 @@ export async function validateOrRequest(
         name: `requestinput`,
         validate,
       }));
-
   return prompt.requestinput;
 }
 

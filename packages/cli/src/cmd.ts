@@ -307,7 +307,7 @@ export async function promptWithExit(
     // If the user selects exit then throw exit error
     if (exitInputs.includes(resp[question.name!]))
       throw new Error("Command exited");
-    answers[resp[question.name!]] = resp[question.name!];
+    answers[question.name!] = resp[question.name!];
   }
 
   return answers;
