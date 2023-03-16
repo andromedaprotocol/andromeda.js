@@ -1,10 +1,10 @@
 import { Coin, parseCoins } from "@cosmjs/amino";
+import { promptWithExit } from "cmd";
 import pc from "picocolors";
-import inquirer from "inquirer";
 import { displaySpinnerAsync, printTransactionUrl } from "../common";
+import State from "../state";
 import { Commands } from "../types";
 import { validateAddressInput } from "./utils";
-import State from "../state";
 
 const { client } = State;
 
@@ -47,10 +47,11 @@ export const commands: Commands = {
         requestMessage: "Input Denom:",
       },
       {
-        requestMessage: `Input Address${typeof State.wallets.currentWallet !== "undefined"
+        requestMessage: `Input Address${
+          typeof State.wallets.currentWallet !== "undefined"
             ? " (Leave empty to see your balance)"
             : ""
-          }:`,
+        }:`,
         validate: (input: string) => {
           if (
             input.length === 0 &&
@@ -80,7 +81,7 @@ async function handleSend(input: string[]) {
     .map((coin) => `${coin.amount}${coin.denom}`)
     .join(", ");
 
-  const confirm = await inquirer.prompt({
+  const confirm = await promptWithExit({
     type: "confirm",
     name: "confirmsend",
     message: `Are you sure you want to send ${coinsString} to ${recipient}?`,

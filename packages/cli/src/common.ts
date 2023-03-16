@@ -1,8 +1,7 @@
-import { Spinner } from "cli-spinner";
-import inquirer from "inquirer";
-import config from "./config";
 import { getTxExplorerURL } from "@andromedaprotocol/andromeda.js";
-import { exitInputs } from "./cmd";
+import { Spinner } from "cli-spinner";
+import { exitInputs, promptWithExit } from "./cmd";
+import config from "./config";
 import State from "./state";
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -58,24 +57,18 @@ export async function validateOrRequest(
   }
 
   const prompt = await (choices
-    ? inquirer.prompt({
+    ? promptWithExit({
         type: "list",
         message,
         name: `requestinput`,
-        validate: (input: string) => {
-          if (exitInputs.includes(input.trim()) || !validate) return true;
-          return validate(input);
-        },
-        choices: [...choices, "exit"],
+        validate,
+        choices,
       })
-    : inquirer.prompt({
+    : promptWithExit({
         type: hiddenInput ? "password" : "input",
         message,
         name: `requestinput`,
-        validate: (input: string) => {
-          if (exitInputs.includes(input.trim()) || !validate) return true;
-          return validate(input);
-        },
+        validate,
       }));
 
   return prompt.requestinput;
@@ -170,7 +163,7 @@ export async function promptPassphrase(
   walletName?: string,
   message?: string
 ): Promise<string> {
-  const passphraseValue = await inquirer.prompt({
+  const passphraseValue = await promptWithExit({
     message:
       message ??
       (walletName
@@ -178,9 +171,6 @@ export async function promptPassphrase(
         : `Input passphrase:`),
     validate: async (input: string) => {
       try {
-        // Allow prompt exiting
-        if (exitInputs.includes(input)) return true;
-
         if (walletName) {
           try {
             const wallet = State.wallets.getWallet(walletName);
@@ -200,13 +190,6 @@ export async function promptPassphrase(
     type: "password",
     name: "passphrase",
   });
-
-  // Allow exiting the prompt
-  if (
-    passphraseValue.passphrase &&
-    exitInputs.includes(passphraseValue.passphrase)
-  )
-    throw new Error("Prompt exited");
 
   return passphraseValue.passphrase ?? "";
 }

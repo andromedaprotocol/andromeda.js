@@ -1,8 +1,9 @@
 import { Wallet } from "@andromedaprotocol/andromeda.js";
 import pc from "picocolors";
 // import Table from "cli-table";
+import { Bip39, Random } from "@cosmjs/crypto";
 import Table from "cli-table";
-import inquirer from "inquirer";
+import { promptWithExit } from "..";
 import {
   clearPreviousLines,
   displaySpinnerAsync,
@@ -12,8 +13,6 @@ import {
 import config from "../config";
 import State, { StoredWalletData } from "../state";
 import { Commands, Flags } from "../types";
-import { exitInputs } from "..";
-import { Random, Bip39 } from "@cosmjs/crypto";
 
 const store = State.wallets;
 
@@ -119,7 +118,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
   let [name, passphrase] = input;
 
   if (passphrase.length > 0) {
-    await inquirer.prompt({
+    await promptWithExit({
       name: "repeatphrase",
       validate: (input: string) => {
         if (passphrase !== input) return "Passphrases do not match";
@@ -136,7 +135,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
   const wallets = store.getWallets(chainId);
   while (flags.recover && !(await validateMnemonic(mnemonic))) {
     if (mnemonic) console.error(pc.red("Invalid mnemonic"));
-    const mnemonicInput = await inquirer.prompt({
+    const mnemonicInput = await promptWithExit({
       type: "input",
       message: "Input the wallet mnemonic:",
       name: "addwalletmnemonic",
@@ -197,7 +196,7 @@ async function newWalletConfirmation(seed: string) {
 
   let confirmed = false;
   while (!confirmed) {
-    const confirmSaved = await inquirer.prompt({
+    const confirmSaved = await promptWithExit({
       name: "confirm",
       type: "confirm",
       message: "Have you saved your seed phrase?",
@@ -216,19 +215,15 @@ async function newWalletConfirmation(seed: string) {
   for (let i = 0; i < inputIndices.length; i++) {
     const index = inputIndices.sort((a, b) => a - b)[i];
     const answer = seed.split(" ")[index];
-    const input = await inquirer.prompt({
+    await promptWithExit({
       name: "input",
       message: `Input the ${ordinalSuffix(
         index + 1
       )} word of your seed phrase:`,
       validate: (input: string) => {
-        if (exitInputs.includes(input)) return true;
-
         return input.trim() === answer ? true : "Incorrect answer";
       },
     });
-
-    if (exitInputs.includes(input.input)) throw new Error("Prompt exited");
   }
 }
 
@@ -250,7 +245,7 @@ async function removeWalletByNameOrAddress(input: string) {
   if (!wallet) {
     throw new Error(`Could not find wallet with name/address ${input.trim()}`);
   }
-  const confirmed = await inquirer.prompt({
+  const confirmed = await promptWithExit({
     name: "rmwalletconfirm",
     type: "confirm",
     message: `Are you sure you want to remove wallet ${wallet.name}?`,

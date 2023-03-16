@@ -1,19 +1,19 @@
 import { Msg } from "@andromedaprotocol/andromeda.js";
 import { Coin, parseCoins } from "@cosmjs/proto-signing";
 import { StdFee } from "@cosmjs/stargate";
-import pc from "picocolors";
+import { promptWithExit } from "cmd";
 import fs from "fs";
-import inquirer from "inquirer";
 import path from "path";
+import pc from "picocolors";
 import {
   displaySpinnerAsync,
   executeFlags,
   instantiateFlags,
   printTransactionUrl,
 } from "../common";
+import State from "../state";
 import { Commands, Flags } from "../types";
 import { parseJSONInput, validateAddressInput } from "./utils";
-import State from "../state";
 
 const { client } = State;
 
@@ -252,18 +252,17 @@ async function migrateHandler(input: string[], flags: Flags) {
  * @returns {Coin[]}
  */
 async function promptForFunds() {
-  const confirmationPrompt = await inquirer.prompt({
+  const confirmationPrompt = await promptWithExit({
     type: "confirm",
     message: "Would you like to add funds to this message?",
     name: "confirm",
   });
   if (confirmationPrompt?.confirm) {
-    const fundsPrompt = await inquirer.prompt({
+    const fundsPrompt = await promptWithExit({
       type: "input",
       message: "Input funds to attach to this message:",
       name: "funds",
       validate: (input: string) => {
-        if (input === "exit") return true;
         try {
           parseCoins(input);
 
@@ -273,7 +272,6 @@ async function promptForFunds() {
         }
       },
     });
-    if (fundsPrompt.funds === "exit") return [];
     return parseCoins(fundsPrompt.funds);
   }
 
@@ -314,7 +312,7 @@ export async function executeMessage(
   if (simulate) {
     return;
   }
-  const confirmation = await inquirer.prompt({
+  const confirmation = await promptWithExit({
     type: "confirm",
     message: `Do you want to proceed?`,
     name: "confirmtx",
@@ -356,7 +354,7 @@ export async function uploadWasm(
   // if (simulate) {
   //   return;
   // }
-  // const confirmation = await inquirer.prompt({
+  // const confirmation = await promptWithExit({
   //   type: "confirm",
   //   message: `Do you want to proceed?`,
   //   name: "confirmtx",
@@ -425,7 +423,7 @@ export async function instantiateMessage(
   if (simulate) {
     return;
   }
-  const confirmation = await inquirer.prompt({
+  const confirmation = await promptWithExit({
     type: "confirm",
     message: `Do you want to proceed?`,
     name: "confirmtx",
@@ -479,7 +477,7 @@ export async function migrateMessage(
     return;
   }
 
-  const confirmation = await inquirer.prompt({
+  const confirmation = await promptWithExit({
     type: "confirm",
     message: `Do you want to proceed?`,
     name: "confirmtx",

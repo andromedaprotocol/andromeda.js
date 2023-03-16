@@ -1,14 +1,13 @@
 import {
+  encode,
   fetchSchema,
   queryADOPackageDefinition,
-  encode,
 } from "@andromedaprotocol/andromeda.js";
-import pc from "picocolors";
-import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
 import _ from "lodash";
+import pc from "picocolors";
+import { displaySpinnerAsync, promptWithExit, validateAddressInput } from "..";
 import config from "../config";
-import { displaySpinnerAsync, validateAddressInput } from "..";
 import State from "../state";
 
 const { client } = State;
@@ -22,13 +21,13 @@ interface SendNftMsg {
 }
 
 async function requestSendNFT(): Promise<SendNftMsg> {
-  const tokenIdInput = await inquirer.prompt({
+  const tokenIdInput = await promptWithExit({
     type: "input",
     message: "[Sending NFT] Input token ID:",
     validate: (input: string) => input.length > 0,
     name: "tokenid",
   });
-  const addressInput = await inquirer.prompt({
+  const addressInput = await promptWithExit({
     type: "input",
     message: `[Sending NFT ${tokenIdInput.tokenid}] Input receiving address:`,
     validate: validateAddressInput,
@@ -46,7 +45,7 @@ async function requestSendNFT(): Promise<SendNftMsg> {
     msg = await promptQueryOrExecuteMessage(schema, type);
   } catch (error) {
     console.error(error);
-    const messageInput = await inquirer.prompt({
+    const messageInput = await promptWithExit({
       type: "input",
       message: `[Sending NFT ${tokenIdInput.tokenid}] Input message to send (base64 encoded):`,
       validate: (input: string) => input.length > 0,
@@ -73,28 +72,21 @@ export async function requestMessageType(options: Schema[]): Promise<string> {
       required && Array.isArray(required) && !required.includes("andr_receive")
   );
 
-  const input = await inquirer.prompt({
+  const input = await promptWithExit({
     message: `Select a message type:`,
     type: "list",
-    choices: [
-      ...validOptions.map(({ properties }, idx) => {
-        const propertyKeys = properties ? Object.keys(properties) : [];
-        const messageName =
-          propertyKeys.length > 0 ? propertyKeys[0] : "Unnamed";
-        const name = `[Option ${idx + 1}] ${messageName
-          .split("_")
-          .map(_.upperFirst)
-          .join(" ")}`;
-        return {
-          name,
-          value: idx,
-        };
-      }),
-      {
-        name: "Exit",
-        value: "exit",
-      },
-    ],
+    choices: validOptions.map(({ properties }, idx) => {
+      const propertyKeys = properties ? Object.keys(properties) : [];
+      const messageName = propertyKeys.length > 0 ? propertyKeys[0] : "Unnamed";
+      const name = `[Option ${idx + 1}] ${messageName
+        .split("_")
+        .map(_.upperFirst)
+        .join(" ")}`;
+      return {
+        name,
+        value: idx,
+      };
+    }),
     name: "oneOfChoice",
   });
   if (input.oneOfChoice === "exit") throw new Error("Command exited");
@@ -225,7 +217,7 @@ export default class SchemaPrompt {
       ["ADO Recipient"]
     );
 
-    const addMessage = await inquirer.prompt({
+    const addMessage = await promptWithExit({
       name: "addMessage",
       type: "confirm",
       message: "Would you like to add a message to this recipient?",
@@ -244,7 +236,7 @@ export default class SchemaPrompt {
       });
       type = resp.ado_type;
     } catch (error) {
-      const typeInput = await inquirer.prompt({
+      const typeInput = await promptWithExit({
         message: "What type of ADO are you sending to?",
         name: "adoType",
         type: "input",
@@ -284,7 +276,7 @@ export default class SchemaPrompt {
   async requestRecipient(name: string) {
     const typeChoices = ["External Address", "ADO"];
 
-    const typeChoiceInput = await inquirer.prompt({
+    const typeChoiceInput = await promptWithExit({
       message: `What recipient type would you like to use for ${name}?`,
       type: "list",
       choices: typeChoices,
@@ -317,7 +309,7 @@ export default class SchemaPrompt {
       .filter((type) => type !== "null");
     if (selectableTypes.length === 1) return selectableTypes[0];
 
-    const input = await inquirer.prompt({
+    const input = await promptWithExit({
       message: `What type would you like to use for ${name}?`,
       type: "list",
       choices: selectableTypes,
@@ -330,7 +322,7 @@ export default class SchemaPrompt {
   async requestOneOf(name: string, options: Schema[]): Promise<string> {
     if (options.length === 1) return "0";
 
-    const input = await inquirer.prompt({
+    const input = await promptWithExit({
       message: `What type would you like to use for ${name}?`,
       type: "list",
       choices: options.map(({ description, properties, type }, idx) => {
@@ -363,7 +355,7 @@ export default class SchemaPrompt {
     const response: any[] = [];
     while (true) {
       if (required || response.length > 0) {
-        const addElement = await inquirer.prompt({
+        const addElement = await promptWithExit({
           prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
           message: `Would you like to add ${
             response.length === 0 ? name : "another"
@@ -394,7 +386,7 @@ export default class SchemaPrompt {
       return config.get("chain.registryAddress");
     }
     if (!required) {
-      const addProperty = await inquirer.prompt({
+      const addProperty = await promptWithExit({
         prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
         message: `Would you like to add ${name}?`,
         type: "confirm",
@@ -524,9 +516,7 @@ export default class SchemaPrompt {
         }
       }
 
-      const value = await inquirer.prompt(question);
-
-      if (value[name] === "exit") throw new Error("Prompt exited");
+      const value = await promptWithExit(question);
 
       return value[name];
     }

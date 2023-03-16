@@ -261,3 +261,54 @@ export async function printCommandHelp(cmd: Command, commands: Commands = {}) {
   );
   log();
 }
+
+/**
+ * A wrapped around inquirer that allows the user to exit a prompt
+ * @param questionDefinition
+ * @returns
+ */
+export async function promptWithExit(
+  questionDefinition: inquirer.QuestionCollection<inquirer.Answers>
+) {
+  const transformQuestion = (
+    question: inquirer.DistinctQuestion
+  ): inquirer.DistinctQuestion => {
+    const mappedQuestion = {
+      ...question,
+      validate: async (input: string) => {
+        // Always allow exit
+        if (exitInputs.includes(input)) return true;
+        return question.validate ? question.validate(input) : true;
+      },
+    };
+    // If the question is multiple choice include an exit choice
+    if (mappedQuestion.type === "list" || mappedQuestion.type === "rawlist") {
+      mappedQuestion.choices = [
+        ...(mappedQuestion.choices as Array<any>),
+        { name: pc.red("exit"), value: "exit" },
+      ];
+    }
+    return mappedQuestion;
+  };
+
+  // Map questions to include exit prompt
+  const questions = (
+    Array.isArray(questionDefinition)
+      ? questionDefinition
+      : [questionDefinition]
+  ).map(transformQuestion);
+
+  // Store all answers
+  const answers: Record<string, any> = {};
+  for (let i = 0; i < questions.length; i++) {
+    const question = questions[i];
+
+    const resp = await inquirer.prompt(question);
+    // If the user selects exit then throw exit error
+    if (exitInputs.includes(resp[question.name!]))
+      throw new Error("Command exited");
+    answers[resp[question.name!]] = resp[question.name!];
+  }
+
+  return answers;
+}

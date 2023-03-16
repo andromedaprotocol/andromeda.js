@@ -17,6 +17,7 @@ import {
 import State from "../state";
 import { Commands } from "../types";
 import { setCurrentWallet } from "./wallets";
+import { promptWithExit } from "cmd";
 
 const STORAGE_FILE = "chainConfigs.json";
 
@@ -424,14 +425,14 @@ export async function newConfigHandler(input: string[]) {
       name: "chainId",
       message: "Input the Chain ID:",
       type: "input",
-      validate: (input: string) => input.length > 4,
+      validate: (input: string) =>
+        input.length > 4 ? true : "Invalid Chain ID",
     },
     {
       name: "chainUrl",
       message: "Input the Chain URL:",
       type: "input",
       validate: (input: string) => {
-        if (input === "exit") return true;
         const regex =
           /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
@@ -442,7 +443,7 @@ export async function newConfigHandler(input: string[]) {
       name: "chainType",
       message: "Select the chain type:",
       type: "list",
-      choices: ["mainnet", "testnet", "exit"],
+      choices: ["mainnet", "testnet"],
       validate: (input: string) => input.length > 0,
     },
     {
@@ -455,32 +456,21 @@ export async function newConfigHandler(input: string[]) {
       name: "addressPrefix",
       message: "Input the prefix for any addresses on this chain:",
       type: "input",
-      validate: (input: string) => input.length >= 4,
+      validate: (input: string) =>
+        input.length >= 4 ? true : "Invalid Address Prefix",
     },
     {
       name: "defaultFee",
       message: "Input the default fee for the chain (e.g. 0.025ujunox):",
       type: "input",
       validate: (input: string) => {
-        if (input === "exit") return true;
         const regex = /^[0-9]+\.[0-9]+[a-z]{2,}$/gm;
         return regex.test(input) ? true : "Invalid fee";
       },
     },
   ];
   // Any type to allow construction
-  let config: any = {};
-  for (let i = 0; i < questions.length; i++) {
-    const question = questions[i];
-    const val = await inquirer.prompt(question);
-    if (val[question.name!] === "exit") throw new Error("Command exited");
-    config[
-      question.name! as keyof Omit<
-        ChainConfig,
-        "name" | "blockExplorerAddressPages" | "blockExplorerTxPages"
-      >
-    ] = val[question.name!];
-  }
+  let config: any = await promptWithExit(questions);
 
   const fullConfig: ChainConfig = {
     ...config,
@@ -530,7 +520,7 @@ async function removeConfigHandler(input: string[]) {
   writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
 
   if (localConfig.name === config.get("chain.name")) {
-    const replacementConfig = await inquirer.prompt({
+    const replacementConfig = await promptWithExit({
       type: "list",
       choices: [
         ...localConfigs.map(({ name }) => name),
