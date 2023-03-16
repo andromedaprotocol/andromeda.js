@@ -76,21 +76,28 @@ export async function requestMessageType(options: Schema[]): Promise<string> {
   const input = await inquirer.prompt({
     message: `Select a message type:`,
     type: "list",
-    choices: validOptions.map(({ properties }, idx) => {
-      const propertyKeys = properties ? Object.keys(properties) : [];
-      const messageName = propertyKeys.length > 0 ? propertyKeys[0] : "Unnamed";
-      const name = `[Option ${idx + 1}] ${messageName
-        .split("_")
-        .map(_.upperFirst)
-        .join(" ")}`;
-      return {
-        name,
-        value: idx,
-      };
-    }),
+    choices: [
+      ...validOptions.map(({ properties }, idx) => {
+        const propertyKeys = properties ? Object.keys(properties) : [];
+        const messageName =
+          propertyKeys.length > 0 ? propertyKeys[0] : "Unnamed";
+        const name = `[Option ${idx + 1}] ${messageName
+          .split("_")
+          .map(_.upperFirst)
+          .join(" ")}`;
+        return {
+          name,
+          value: idx,
+        };
+      }),
+      {
+        name: "Exit",
+        value: "exit",
+      },
+    ],
     name: "oneOfChoice",
   });
-
+  if (input.oneOfChoice === "exit") throw new Error("Command exited");
   return input.oneOfChoice;
 }
 
@@ -100,13 +107,7 @@ export async function promptQueryOrExecuteMessage(
 ) {
   const validOptions = (schema.oneOf ?? []).filter(
     ({ required }) =>
-      required &&
-      Array.isArray(required) &&
-      !(
-        required.includes("andr_receive") ||
-        required.includes("andr_query") ||
-        required.includes("andr_hook")
-      )
+      required && Array.isArray(required) && !required.includes("andr_hook")
   );
   if (validOptions.length === 0) throw new Error("ADO has no valid messages");
 
