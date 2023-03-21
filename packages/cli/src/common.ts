@@ -41,7 +41,7 @@ export const logTableConfig = {
 export async function validateOrRequest(
   message: string,
   input?: string,
-  validate?: (input: string) => Promise<boolean> | boolean,
+  validate?: (input: string) => Promise<boolean | string> | (boolean | string),
   choices?: string[],
   hiddenInput?: boolean
 ): Promise<string> {

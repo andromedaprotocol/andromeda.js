@@ -31,6 +31,12 @@ const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Wallet Name:",
+        validate: (input: string) => {
+          const wallet = store.getWallet(input);
+          return typeof wallet === "undefined"
+            ? true
+            : "Wallet name already in use for this chain";
+        },
         transform: parseWalletName,
       },
       {
