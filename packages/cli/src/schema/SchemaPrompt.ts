@@ -66,16 +66,11 @@ async function requestSendNFT(): Promise<SendNftMsg> {
 }
 
 export async function requestMessageType(options: Schema[]): Promise<string> {
-  // Filter out Andromeda Receive message as it is unnecessary
-  const validOptions = options.filter(
-    ({ required }) =>
-      required && Array.isArray(required) && !required.includes("andr_receive")
-  );
-
   const input = await promptWithExit({
     message: `Select a message type:`,
     type: "list",
-    choices: validOptions.map(({ properties }, idx) => {
+    // Choices are mapped to human readable form but the value returned is the index of the choice
+    choices: options.map(({ properties }, idx) => {
       const propertyKeys = properties ? Object.keys(properties) : [];
       const messageName = propertyKeys.length > 0 ? propertyKeys[0] : "Unnamed";
       const name = `[Option ${idx + 1}] ${messageName
@@ -89,6 +84,7 @@ export async function requestMessageType(options: Schema[]): Promise<string> {
     }),
     name: "oneOfChoice",
   });
+
   if (input.oneOfChoice === "exit") throw new Error("Command exited");
   return input.oneOfChoice;
 }
@@ -99,16 +95,21 @@ export async function promptQueryOrExecuteMessage(
 ) {
   const validOptions = (schema.oneOf ?? []).filter(
     ({ required }) =>
-      required && Array.isArray(required) && !required.includes("andr_hook")
+      required &&
+      Array.isArray(required) &&
+      !required.includes("andr_hook") &&
+      !required.includes("andr_receive")
   );
   if (validOptions.length === 0) throw new Error("ADO has no valid messages");
 
   const messageChoice = await requestMessageType(validOptions);
   const messageSchema: Schema = validOptions[parseInt(messageChoice)];
 
+  // Early exit if nothing to be prompted
   const { required, properties } = messageSchema;
   if (!properties) return {};
 
+  // Exception case for sending NFTs
   if (
     Array.isArray(required) &&
     required.length > 0 &&
