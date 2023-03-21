@@ -230,13 +230,13 @@ export async function printCommandHelp(cmd: Command, commands: Commands = {}) {
     const flags = Object.keys(cmd.flags);
     flags.forEach((flag) => {
       flagTable.push([
-        pc.green(flag),
+        pc.green(`--${flag}`),
         cmd.flags![flag].description,
         cmd.flags![flag].usage ?? "",
       ]);
     });
     flagTable.push([
-      pc.green("help"),
+      pc.green("--help"),
       "Displays info about the current command",
       "",
     ]);
