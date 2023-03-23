@@ -24,6 +24,7 @@ export const QUERY_CHAIN_CONFIG = gql`
         chainType
         addressPrefix
         registryAddress
+        kernelAddress
         blockExplorerAddressPages
         blockExplorerTxPages
         defaultFee
@@ -68,6 +69,7 @@ export const QUERY_ALL_CHAIN_CONFIGS = gql`
         chainType
         addressPrefix
         registryAddress
+        kernelAddress
         blockExplorerAddressPages
         blockExplorerTxPages
         defaultFee

@@ -383,8 +383,13 @@ export default class SchemaPrompt {
     required = false,
     bread?: string[]
   ): Promise<any> {
+    // Automatically assign registry address
     if (name === "primitive_contract") {
       return config.get("chain.registryAddress");
+    }
+    // Automatically assign kernel address
+    if (name === "kernel_address") {
+      return config.get("chain.kernelAddress");
     }
     if (!required) {
       const addProperty = await promptWithExit({

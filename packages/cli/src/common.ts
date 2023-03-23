@@ -129,7 +129,7 @@ export const instantiateFlags = {
   admin: {
     description:
       "Used to provide an alternative admin address for the contract",
-    usage: "--admin juno1...",
+    usage: "--admin andr1...",
   },
   simulate: {
     description:

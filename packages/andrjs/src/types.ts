@@ -58,6 +58,8 @@ export interface ChainConfig {
   chainUrl: string;
   /** The address of the Andromeda Registry */
   registryAddress: string;
+  /** The address of the Andromeda Kernel */
+  kernelAddress: string;
   /** The prefix for any addresses on this chain */
   addressPrefix: string;
   /** The default fee value for the chain, e.g. "0.025ujunox" */
@@ -91,4 +93,13 @@ export interface Module {
   is_mutable: boolean;
   /** The module idx (if it is already stored within a contract) */
   idx?: number;
+}
+
+/**
+ * Object used to define optional parameters that can be used for an execute message.
+ */
+export interface OptionalExecuteParams {
+  funds?: readonly Coin[] | Coin[];
+  memo?: string;
+  fee?: StdFee;
 }

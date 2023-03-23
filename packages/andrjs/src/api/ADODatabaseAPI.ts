@@ -3,7 +3,7 @@ import type { Fee } from "../types";
 import type RegistryAPI from "./RegistryAPI";
 import ADOAPI from "./ADOAPI";
 
-export default class ADODBAPI extends ADOAPI {
+export default class ADODatabaseAPI extends ADOAPI {
   constructor(client: AndromedaClient, public address: string = "") {
     super(client, address);
   }

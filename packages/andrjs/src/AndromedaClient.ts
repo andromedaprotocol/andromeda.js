@@ -16,13 +16,12 @@ import { isUndefined } from "lodash";
 import type { ChainClient } from "./clients";
 import createClient from "./clients";
 import type { Fee, Msg } from "./types";
+import OperatingSystemAPI from "api/OperatingSystemAPI";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
  */
 export default class AndromedaClient {
-  // Signer used for broadcasting messages
-  public signer: string = "";
   // The gas price assigned for broadcasting messages
   private gasPrice?: GasPrice;
   // Client used to interact with the chain, includes a query client when connected and a signing client when connected with a signer
@@ -38,6 +37,8 @@ export default class AndromedaClient {
   public registry = new RegistryAPI(this);
   // API for ADO DB specific messages
   public adoDB = new ADODBAPI(this);
+  // API for aOS
+  public os = new OperatingSystemAPI(this);
 
   /**
    * A pre-message hook to check that the client is connected and functioning
@@ -56,6 +57,7 @@ export default class AndromedaClient {
   async connect(
     endpoint: string,
     registryAddress: string,
+    kernelAddress: string,
     addressPrefix: string,
     signer?: OfflineSigner | OfflineDirectSigner,
     // Only used for Cosmos Clients
@@ -67,7 +69,7 @@ export default class AndromedaClient {
 
     this.chainClient = createClient(addressPrefix);
     await this.chainClient.connect(endpoint, signer, options);
-    await this.assignKeyAddresses(registryAddress);
+    await this.assignKeyAddresses(registryAddress, kernelAddress);
   }
 
   /**
@@ -75,13 +77,20 @@ export default class AndromedaClient {
    * @param registryAddress
    * @returns
    */
-  private async assignKeyAddresses(registryAddress: string) {
+  private async assignKeyAddresses(
+    registryAddress: string,
+    kernelAddress: string
+  ) {
     if (!registryAddress || registryAddress.length === 0) {
       console.warn("No registry address provided");
       return;
     }
     this.registry.address = registryAddress;
     await this.adoDB.getAddressFromRegistry(this.registry);
+
+    if (kernelAddress && kernelAddress.length > 0) {
+      await this.os.assignKernelAddress(kernelAddress);
+    }
   }
 
   /**
@@ -91,7 +100,6 @@ export default class AndromedaClient {
     this.chainClient!.disconnect();
     delete this.chainClient;
 
-    this.signer = "";
     delete this.gasPrice;
 
     this.registry = new RegistryAPI(this);
@@ -157,7 +165,6 @@ export default class AndromedaClient {
    */
   async upload(code: Uint8Array, fee?: Fee, memo?: string) {
     this.preMessage();
-    // return await this.cosmWasmClient!.upload(this.signer, code, fee, memo);]
     return this.chainClient!.upload(code, fee, memo);
   }
 

@@ -1,7 +1,7 @@
 import { encode, validateAddress } from "..";
 import type AndromedaClient from "../AndromedaClient";
 import type { Fee, PrimitiveValue, PrimitiveValueType } from "../types";
-import ADOAPI from "./ADOAPI";
+import ADOAPI from "./ADODatabaseAPI";
 
 export default class RegistryAPI extends ADOAPI {
   constructor(client: AndromedaClient, public address: string = "") {
