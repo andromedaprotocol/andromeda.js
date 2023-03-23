@@ -361,7 +361,6 @@ async function useConfigHandler(input: string[]) {
   if (!chainConfig) {
     throw new Error(`No chain config for chain ID: ${chainId}`);
   }
-
   config.set("chain", chainConfig);
   console.log(pc.green(`Config loaded!`));
   const wallet = State.wallets.currentWallet;

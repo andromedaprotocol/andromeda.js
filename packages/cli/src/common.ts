@@ -3,6 +3,7 @@ import { Spinner } from "cli-spinner";
 import { exitInputs, promptWithExit } from "./cmd";
 import config from "./config";
 import State from "./state";
+import pc from "picocolors";
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -110,8 +111,9 @@ export const executeFlags = {
     usage: "--memo 'Wow what a great transaction!'",
   },
   simulate: {
-    description:
-      "Simulates the transaction without broadcasting it. Useful to estimate gas costs.",
+    description: `Simulates the transaction without broadcasting it. Useful to estimate gas costs. ${pc.bold(
+      "Without this flag the message is simulated before broadcasting."
+    )}`,
   },
   print: {
     description: "Prints the constructed message before simulating.",
@@ -132,8 +134,9 @@ export const instantiateFlags = {
     usage: "--admin andr1...",
   },
   simulate: {
-    description:
-      "Simulates the transaction without broadcasting it. Useful to estimate gas costs.",
+    description: `Simulates the transaction without broadcasting it. Useful to estimate gas costs. ${pc.bold(
+      "Without this flag the message is simulated before broadcasting."
+    )}`,
   },
   print: {
     description: "Prints the constructed message before simulating.",

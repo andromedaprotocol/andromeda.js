@@ -8,8 +8,8 @@ export default class OperatingSystemAPI extends ADOAPI {
   public vfs?: VirtualFileSystemAPI;
   public adoDB?: ADODBAPI;
 
-  constructor(client: AndromedaClient, public kernelAddress: string = "") {
-    super(client, kernelAddress);
+  constructor(client: AndromedaClient, public address: string = "") {
+    super(client, address);
   }
 
   /**
@@ -17,9 +17,9 @@ export default class OperatingSystemAPI extends ADOAPI {
    */
   private preMessage() {
     if (
-      !this.kernelAddress ||
-      this.kernelAddress.length === 0 ||
-      !validateAddress(this.kernelAddress)
+      !this.address ||
+      this.address.length === 0 ||
+      !validateAddress(this.address)
     )
       throw new Error("Kernel has no assigned address");
   }
@@ -77,7 +77,7 @@ export default class OperatingSystemAPI extends ADOAPI {
       throw new Error("Cannot fetch empty key address from kernel");
 
     return this.client.queryContract(
-      this.kernelAddress,
+      this.address,
       this.getKeyAddressMessage(key)
     );
   }

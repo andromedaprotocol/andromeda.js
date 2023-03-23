@@ -60,7 +60,7 @@ export class State {
           }
         )
         .then(() => resolve(undefined))
-        .catch((err) => {
+        .catch((err: any) => {
           console.error(err);
           resolve(undefined);
         });
