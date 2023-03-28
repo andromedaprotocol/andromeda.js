@@ -165,7 +165,7 @@ export async function promptInstantiateMsg(
 }
 
 enum AndromedaSchemaTypes {
-  Recipient = "Recipient",
+  AMPRecipient = "AMPRecipient",
   AndrAddress = "AndrAddress",
   Binary = "Binary",
   AppComponent = "AppComponent",
@@ -383,14 +383,11 @@ export default class SchemaPrompt {
     required = false,
     bread?: string[]
   ): Promise<any> {
-    // Automatically assign registry address
-    if (name === "primitive_contract") {
-      return config.get("chain.registryAddress");
-    }
     // Automatically assign kernel address
     if (name === "kernel_address") {
       return config.get("chain.kernelAddress");
     }
+
     if (!required) {
       const addProperty = await promptWithExit({
         prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
@@ -505,7 +502,7 @@ export default class SchemaPrompt {
           case "boolean":
             question.type = "confirm";
             break;
-          case AndromedaSchemaTypes.Recipient:
+          case AndromedaSchemaTypes.AMPRecipient:
             return this.requestRecipient(name);
           case AndromedaSchemaTypes.AndrAddress:
             const identifier = await this.promptQuestion(
