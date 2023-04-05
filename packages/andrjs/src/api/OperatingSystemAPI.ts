@@ -1,12 +1,12 @@
 import { validateAddress } from "..";
 import type AndromedaClient from "../AndromedaClient";
 import ADOAPI from "./ADOAPI";
-import ADODBAPI from "./ADODatabaseAPI";
+import ADODatabaseAPI from "./ADODatabaseAPI";
 import VirtualFileSystemAPI from "./VirtualFileSystemAPI";
 
 export default class OperatingSystemAPI extends ADOAPI {
   public vfs?: VirtualFileSystemAPI;
-  public adoDB?: ADODBAPI;
+  public adoDB?: ADODatabaseAPI;
 
   constructor(client: AndromedaClient, public address: string = "") {
     super(client, address);
@@ -50,7 +50,7 @@ export default class OperatingSystemAPI extends ADOAPI {
   async fetchADODBAddress() {
     const adoDBKey = "adodb";
     const adoDBAddress = await this.fetchKeyAddress(adoDBKey);
-    this.adoDB = new ADODBAPI(this.client, adoDBAddress);
+    this.adoDB = new ADODatabaseAPI(this.client, adoDBAddress);
   }
 
   /**
