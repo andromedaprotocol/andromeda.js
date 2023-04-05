@@ -1,7 +1,7 @@
 import { Module } from "@andromedaprotocol/andromeda.js";
-import inquirer from "inquirer";
-import { exitInputs } from "../../cmd";
+import Table from "cli-table";
 import pc from "picocolors";
+import { promptWithExit } from "../../cmd";
 import {
   displaySpinnerAsync,
   executeFlags,
@@ -11,7 +11,6 @@ import State from "../../state";
 import { Commands, Flags } from "../../types";
 import { validateAddressInput } from "../utils";
 import { executeMessage, queryMessage } from "../wasm";
-import Table from "cli-table";
 import { isADOOwner } from "./common";
 
 const { client, wallets } = State;
@@ -107,7 +106,7 @@ async function getADOModules(address: string): Promise<Module[]> {
  * @returns The created Module
  */
 async function promptForModule(module?: Module): Promise<Module> {
-  const { module_type } = await inquirer.prompt({
+  const { module_type } = await promptWithExit({
     type: "input",
     default: module ? module.module_type : undefined,
     message: `Input the module type${
@@ -116,8 +115,7 @@ async function promptForModule(module?: Module): Promise<Module> {
     name: "module_type",
   });
 
-  if (exitInputs.includes(module_type)) throw new Error("Prompt exited");
-  const { address } = await inquirer.prompt({
+  const { address } = await promptWithExit({
     type: "input",
     default: module ? module.address.identifier : undefined,
     message: `Input the module address${
@@ -126,8 +124,7 @@ async function promptForModule(module?: Module): Promise<Module> {
     name: "address",
     validate: validateAddressInput,
   });
-  if (exitInputs.includes(address)) throw new Error("Prompt exited");
-  const { is_mutable } = await inquirer.prompt({
+  const { is_mutable } = await promptWithExit({
     type: "confirm",
     default: module ? module.is_mutable : undefined,
     message: `Should this module be mutable?${
@@ -209,7 +206,7 @@ async function removeModuleHandler(input: string[], flags: Flags) {
 
   const modules = await getADOModules(address);
 
-  const rmChoice = await inquirer.prompt({
+  const rmChoice = await promptWithExit({
     type: "list",
     name: "rm",
     choices: modules
@@ -246,7 +243,7 @@ async function editModuleHandler(input: string[], flags: Flags) {
   if (modules.filter((mod) => mod.is_mutable).length === 0)
     throw new Error("This ADO does not have any mutable modules");
 
-  const editChoice: { edit: Module | string } = await inquirer.prompt({
+  const editChoice = await promptWithExit({
     type: "list",
     name: "edit",
     choices: [
@@ -261,8 +258,6 @@ async function editModuleHandler(input: string[], flags: Flags) {
     message: "Choose which module to edit:",
   });
 
-  if (exitInputs.includes(editChoice.edit as string))
-    throw new Error("Prompt exited");
   const updated = await promptForModule(editChoice.edit as Module);
 
   await executeMessage(

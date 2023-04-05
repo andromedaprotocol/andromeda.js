@@ -5,7 +5,7 @@ import type { Formatter } from "picocolors/types";
  */
 export interface CommandInput {
   // Validation function
-  validate?: (input: string) => Promise<boolean> | boolean;
+  validate?: (input: string) => Promise<boolean | string> | (boolean | string);
   // Message to display when requesting input
   requestMessage: string;
   // The options used (for when restricted choice is required)

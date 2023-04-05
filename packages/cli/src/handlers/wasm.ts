@@ -1,19 +1,19 @@
 import { Msg } from "@andromedaprotocol/andromeda.js";
-import { parseCoins } from "@cosmjs/proto-signing";
+import { Coin, parseCoins } from "@cosmjs/proto-signing";
 import { StdFee } from "@cosmjs/stargate";
-import pc from "picocolors";
+import { promptWithExit } from "cmd";
 import fs from "fs";
-import inquirer from "inquirer";
 import path from "path";
+import pc from "picocolors";
 import {
   displaySpinnerAsync,
   executeFlags,
   instantiateFlags,
   printTransactionUrl,
 } from "../common";
+import State from "../state";
 import { Commands, Flags } from "../types";
 import { parseJSONInput, validateAddressInput } from "./utils";
-import State from "../state";
 
 const { client } = State;
 
@@ -248,6 +248,37 @@ async function migrateHandler(input: string[], flags: Flags) {
 }
 
 /**
+ * Prompts a user to attach funds to their current message
+ * @returns {Coin[]}
+ */
+async function promptForFunds() {
+  const confirmationPrompt = await promptWithExit({
+    type: "confirm",
+    message: "Would you like to add funds to this message?",
+    name: "confirm",
+  });
+  if (confirmationPrompt?.confirm) {
+    const fundsPrompt = await promptWithExit({
+      type: "input",
+      message: "Input funds to attach to this message:",
+      name: "funds",
+      validate: (input: string) => {
+        try {
+          parseCoins(input);
+
+          return true;
+        } catch (error) {
+          return "Invalid coin input";
+        }
+      },
+    });
+    return parseCoins(fundsPrompt.funds);
+  }
+
+  return [];
+}
+
+/**
  * Handler for executing a message. Prints all cost estimates and any flag related data. Prompts the user to confirm the message before sending.
  * Logs a transaction URL upon completion.
  * @param address
@@ -267,14 +298,21 @@ export async function executeMessage(
     console.log(JSON.stringify(msg, null, 2));
     console.log();
   }
-  const feeEstimate = await simulateExecuteMessage(address, msg, flags);
+  const msgFunds =
+    funds && funds.length > 0 ? parseCoins(funds) : await promptForFunds();
+  const feeEstimate = await simulateExecuteMessage(
+    address,
+    msg,
+    memo,
+    msgFunds
+  );
   console.log("Transaction simulated!");
   console.log();
   logFeeEstimation(feeEstimate);
   if (simulate) {
     return;
   }
-  const confirmation = await inquirer.prompt({
+  const confirmation = await promptWithExit({
     type: "confirm",
     message: `Do you want to proceed?`,
     name: "confirmtx",
@@ -284,7 +322,6 @@ export async function executeMessage(
     return;
   }
 
-  const msgFunds = parseCoins(funds ?? "");
   const resp = await displaySpinnerAsync(
     "Executing Tx...",
     async () => await client.execute(address, msg, fee, memo, msgFunds)
@@ -317,7 +354,7 @@ export async function uploadWasm(
   // if (simulate) {
   //   return;
   // }
-  // const confirmation = await inquirer.prompt({
+  // const confirmation = await promptWithExit({
   //   type: "confirm",
   //   message: `Do you want to proceed?`,
   //   name: "confirmtx",
@@ -386,7 +423,7 @@ export async function instantiateMessage(
   if (simulate) {
     return;
   }
-  const confirmation = await inquirer.prompt({
+  const confirmation = await promptWithExit({
     type: "confirm",
     message: `Do you want to proceed?`,
     name: "confirmtx",
@@ -440,7 +477,7 @@ export async function migrateMessage(
     return;
   }
 
-  const confirmation = await inquirer.prompt({
+  const confirmation = await promptWithExit({
     type: "confirm",
     message: `Do you want to proceed?`,
     name: "confirmtx",
@@ -487,13 +524,13 @@ function logFeeEstimation(fee: StdFee) {
 export async function simulateExecuteMessage(
   address: string,
   msg: Record<string, any>,
-  flags: Flags
+  memo: string = "",
+  msgFunds: Coin[] = []
 ) {
-  const { funds, memo } = flags;
-  const msgFunds = parseCoins(funds ?? "");
   const feeEstimate = displaySpinnerAsync(
     "Simulating Tx...",
-    async () => await client.estimateExecuteFee(address, msg, msgFunds, memo)
+    async () =>
+      await client.estimateExecuteFee(address, msg, msgFunds, undefined, memo)
   );
   return feeEstimate;
 }

@@ -127,6 +127,13 @@ export async function title() {
       )
     )
   );
+  console.log(
+    pc.blue(
+      `Terms & Agreements: ${pc.bold(
+        "https://github.com/andromedaprotocol/andromeda-core/blob/development/LICENSE/LICENSE.md"
+      )}`
+    )
+  );
   await sleep(20);
 }
 
@@ -193,8 +200,11 @@ export async function listCommands(commands: Commands, prefix?: string) {
     }
   }
 
-  log(`Usage:`);
-  log(`${prefix ? `${prefix} ` : ""}[cmd]`);
+  if (prefix) {
+    log(`Usage:`);
+    log(pc.green(`${prefix ? `${prefix} ` : ""}[cmd]`));
+    log();
+  }
   log(`Valid commands:`);
   log(commandTable.toString());
   //Log any errors produced when generating command list
@@ -206,7 +216,7 @@ export async function listCommands(commands: Commands, prefix?: string) {
  * Prints help information for a given command
  * @param cmd
  */
-export function printCommandHelp(cmd: Command) {
+export async function printCommandHelp(cmd: Command, commands: Commands = {}) {
   const { description, usage } = cmd;
   log(pc.bold(description));
   log();
@@ -220,19 +230,21 @@ export function printCommandHelp(cmd: Command) {
     const flags = Object.keys(cmd.flags);
     flags.forEach((flag) => {
       flagTable.push([
-        pc.green(flag),
+        pc.green(`--${flag}`),
         cmd.flags![flag].description,
         cmd.flags![flag].usage ?? "",
       ]);
     });
     flagTable.push([
-      pc.green("help"),
+      pc.green("--help"),
       "Displays info about the current command",
       "",
     ]);
     log(flagTable.toString());
   }
   log();
+  if (Object.keys(commands).length > 0) await listCommands(commands);
+
   log(
     pc.bold(
       `Any request inputs can be exited using one of the following inputs: ${exitInputs.join(
@@ -248,4 +260,55 @@ export function printCommandHelp(cmd: Command) {
     )
   );
   log();
+}
+
+/**
+ * A wrapped around inquirer that allows the user to exit a prompt
+ * @param questionDefinition
+ * @returns
+ */
+export async function promptWithExit(
+  questionDefinition: inquirer.QuestionCollection<inquirer.Answers>
+) {
+  const transformQuestion = (
+    question: inquirer.DistinctQuestion
+  ): inquirer.DistinctQuestion => {
+    const mappedQuestion = {
+      ...question,
+      validate: async (input: string) => {
+        // Always allow exit
+        if (exitInputs.includes(input)) return true;
+        return question.validate ? question.validate(input) : true;
+      },
+    };
+    // If the question is multiple choice include an exit choice
+    if (mappedQuestion.type === "list" || mappedQuestion.type === "rawlist") {
+      mappedQuestion.choices = [
+        ...(mappedQuestion.choices as Array<any>),
+        { name: pc.red("exit"), value: "exit" },
+      ];
+    }
+    return mappedQuestion;
+  };
+
+  // Map questions to include exit prompt
+  const questions = (
+    Array.isArray(questionDefinition)
+      ? questionDefinition
+      : [questionDefinition]
+  ).map(transformQuestion);
+
+  // Store all answers
+  const answers: Record<string, any> = {};
+  for (let i = 0; i < questions.length; i++) {
+    const question = questions[i];
+
+    const resp = await inquirer.prompt(question);
+    // If the user selects exit then throw exit error
+    if (exitInputs.includes(resp[question.name!]))
+      throw new Error("Command exited");
+    answers[question.name!] = resp[question.name!];
+  }
+
+  return answers;
 }

@@ -1,3 +1,8 @@
+console.info = function (input) {
+  if (input.includes("secp")) return;
+
+  console.log(input);
+};
 import { baseCommands } from "./cmd";
 
 export default baseCommands;

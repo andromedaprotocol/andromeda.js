@@ -1,19 +1,19 @@
 import {
+  encode,
   fetchSchema,
   queryADOPackageDefinition,
-  encode,
 } from "@andromedaprotocol/andromeda.js";
-import pc from "picocolors";
-import inquirer from "inquirer";
 import { Schema, Validator } from "jsonschema";
 import _ from "lodash";
+import pc from "picocolors";
+import { displaySpinnerAsync, promptWithExit, validateAddressInput } from "..";
 import config from "../config";
-import { displaySpinnerAsync, validateAddressInput } from "..";
 import State from "../state";
 
 const { client } = State;
 
 // The standard message for sending an NFT
+// This is used for referencing by a specific handler for this message type
 const SEND_NFT_MESSAGE_TYPE = "send_nft";
 
 interface SendNftMsg {
@@ -21,13 +21,13 @@ interface SendNftMsg {
 }
 
 async function requestSendNFT(): Promise<SendNftMsg> {
-  const tokenIdInput = await inquirer.prompt({
+  const tokenIdInput = await promptWithExit({
     type: "input",
     message: "[Sending NFT] Input token ID:",
     validate: (input: string) => input.length > 0,
     name: "tokenid",
   });
-  const addressInput = await inquirer.prompt({
+  const addressInput = await promptWithExit({
     type: "input",
     message: `[Sending NFT ${tokenIdInput.tokenid}] Input receiving address:`,
     validate: validateAddressInput,
@@ -45,7 +45,7 @@ async function requestSendNFT(): Promise<SendNftMsg> {
     msg = await promptQueryOrExecuteMessage(schema, type);
   } catch (error) {
     console.error(error);
-    const messageInput = await inquirer.prompt({
+    const messageInput = await promptWithExit({
       type: "input",
       message: `[Sending NFT ${tokenIdInput.tokenid}] Input message to send (base64 encoded):`,
       validate: (input: string) => input.length > 0,
@@ -66,16 +66,11 @@ async function requestSendNFT(): Promise<SendNftMsg> {
 }
 
 export async function requestMessageType(options: Schema[]): Promise<string> {
-  // Filter out Andromeda Receive message as it is unnecessary
-  const validOptions = options.filter(
-    ({ required }) =>
-      required && Array.isArray(required) && !required.includes("andr_receive")
-  );
-
-  const input = await inquirer.prompt({
+  const input = await promptWithExit({
     message: `Select a message type:`,
     type: "list",
-    choices: validOptions.map(({ properties }, idx) => {
+    // Choices are mapped to human readable form but the value returned is the index of the choice
+    choices: options.map(({ properties }, idx) => {
       const propertyKeys = properties ? Object.keys(properties) : [];
       const messageName = propertyKeys.length > 0 ? propertyKeys[0] : "Unnamed";
       const name = `[Option ${idx + 1}] ${messageName
@@ -90,6 +85,7 @@ export async function requestMessageType(options: Schema[]): Promise<string> {
     name: "oneOfChoice",
   });
 
+  if (input.oneOfChoice === "exit") throw new Error("Command exited");
   return input.oneOfChoice;
 }
 
@@ -101,20 +97,19 @@ export async function promptQueryOrExecuteMessage(
     ({ required }) =>
       required &&
       Array.isArray(required) &&
-      !(
-        required.includes("andr_receive") ||
-        required.includes("andr_query") ||
-        required.includes("andr_hook")
-      )
+      !required.includes("andr_hook") &&
+      !required.includes("andr_receive")
   );
   if (validOptions.length === 0) throw new Error("ADO has no valid messages");
 
   const messageChoice = await requestMessageType(validOptions);
   const messageSchema: Schema = validOptions[parseInt(messageChoice)];
 
+  // Early exit if nothing to be prompted
   const { required, properties } = messageSchema;
   if (!properties) return {};
 
+  // Exception case for sending NFTs
   if (
     Array.isArray(required) &&
     required.length > 0 &&
@@ -223,7 +218,7 @@ export default class SchemaPrompt {
       ["ADO Recipient"]
     );
 
-    const addMessage = await inquirer.prompt({
+    const addMessage = await promptWithExit({
       name: "addMessage",
       type: "confirm",
       message: "Would you like to add a message to this recipient?",
@@ -242,7 +237,8 @@ export default class SchemaPrompt {
       });
       type = resp.ado_type;
     } catch (error) {
-      const typeInput = await inquirer.prompt({
+      const typeInput = await promptWithExit({
+        message: "What type of ADO are you sending to?",
         name: "adoType",
         type: "input",
         validate: async (input: string) => {
@@ -251,6 +247,8 @@ export default class SchemaPrompt {
             return true;
           } catch (error) {
             const { message } = error as Error;
+            console.log();
+            console.log(pc.red("Something went wrong!"));
             console.log(pc.red(message));
             return false;
           }
@@ -271,15 +269,15 @@ export default class SchemaPrompt {
     return {
       address: {
         identifier: address,
-        msg: encode(msg),
       },
+      msg: encode(msg),
     };
   }
 
   async requestRecipient(name: string) {
     const typeChoices = ["External Address", "ADO"];
 
-    const typeChoiceInput = await inquirer.prompt({
+    const typeChoiceInput = await promptWithExit({
       message: `What recipient type would you like to use for ${name}?`,
       type: "list",
       choices: typeChoices,
@@ -312,7 +310,7 @@ export default class SchemaPrompt {
       .filter((type) => type !== "null");
     if (selectableTypes.length === 1) return selectableTypes[0];
 
-    const input = await inquirer.prompt({
+    const input = await promptWithExit({
       message: `What type would you like to use for ${name}?`,
       type: "list",
       choices: selectableTypes,
@@ -325,7 +323,7 @@ export default class SchemaPrompt {
   async requestOneOf(name: string, options: Schema[]): Promise<string> {
     if (options.length === 1) return "0";
 
-    const input = await inquirer.prompt({
+    const input = await promptWithExit({
       message: `What type would you like to use for ${name}?`,
       type: "list",
       choices: options.map(({ description, properties, type }, idx) => {
@@ -357,8 +355,8 @@ export default class SchemaPrompt {
   ) {
     const response: any[] = [];
     while (true) {
-      if (required) {
-        const addElement = await inquirer.prompt({
+      if (required || response.length > 0) {
+        const addElement = await promptWithExit({
           prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
           message: `Would you like to add ${
             response.length === 0 ? name : "another"
@@ -389,7 +387,7 @@ export default class SchemaPrompt {
       return config.get("chain.registryAddress");
     }
     if (!required) {
-      const addProperty = await inquirer.prompt({
+      const addProperty = await promptWithExit({
         prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
         message: `Would you like to add ${name}?`,
         type: "confirm",
@@ -398,9 +396,7 @@ export default class SchemaPrompt {
 
       if (!addProperty.confirm) return undefined;
     }
-
     property = await this.replaceRefs(property);
-    // console.log(JSON.stringify(property, null, 2));
     let type = property.type;
     if (Array.isArray(type)) {
       let validTypes = type.filter((ty) => ty !== "null");
@@ -521,15 +517,13 @@ export default class SchemaPrompt {
         }
       }
 
-      const value = await inquirer.prompt(question);
-
-      if (value[name] === "exit") throw new Error("Prompt exited");
+      const value = await promptWithExit(question);
 
       return value[name];
     }
   }
 
-  async replaceRefs(obj: Record<string, any>) {
+  async replaceRefs(obj: Record<string, any>, refs?: string[]) {
     const keys = Object.keys(obj);
     let newObj = { ...obj };
     for (let i = 0; i < keys.length; i++) {
@@ -540,18 +534,23 @@ export default class SchemaPrompt {
           const newArray = [];
           for (let j = 0; j < val.length; j++) {
             if (typeof val[j] === "object") {
-              newArray.push(await this.replaceRefs(val[j]));
+              newArray.push(await this.replaceRefs(val[j], refs));
             } else {
               newArray.push(val[j]);
             }
           }
           newObj[key] = newArray;
         } else {
-          newObj[key] = await this.replaceRefs(val);
+          newObj[key] = await this.replaceRefs(val, refs);
         }
       } else if (key === "$ref") {
         newObj = await this.getRef(val);
-        newObj = await this.replaceRefs(newObj);
+
+        if (refs?.includes(val)) {
+          console.log("Circular reference detected, exiting...");
+          break;
+        }
+        newObj = await this.replaceRefs(newObj, [...(refs ?? []), val]);
       }
     }
 

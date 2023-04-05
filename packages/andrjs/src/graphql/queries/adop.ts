@@ -43,6 +43,9 @@ export const QUERY_ADO_PACKAGE_DEFINITION = gql`
         name
         schemas {
           contract_schema
+          query
+          execute
+          instantiate
           receive {
             cw721
             cw20

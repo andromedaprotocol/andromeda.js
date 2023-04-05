@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.2.4",
+  "version": "0.2.12",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -28,8 +28,8 @@
     "@cosmjs/proto-signing": "^0.29.5",
     "@cosmjs/stargate": "^0.29.5",
     "@injectivelabs/networks": "^1.0.93",
-    "@injectivelabs/sdk-ts": "^1.0.452",
-    "@injectivelabs/utils": "^1.0.81",
+    "@injectivelabs/sdk-ts": "1.0.452",
+    "@injectivelabs/utils": "1.0.81",
     "@keplr-wallet/types": "^0.11.44",
     "@terra-money/terra.js": "^3.1.7",
     "axios": "^1.3.4",
@@ -41,7 +41,8 @@
     "jsonschema": "^1.4.1",
     "lodash": "^4.17.21",
     "long": "^5.2.1",
-    "pako": "^2.1.0"
+    "pako": "^2.1.0",
+    "libsodium-wrappers": "0.7.6"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",

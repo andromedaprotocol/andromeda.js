@@ -12,6 +12,9 @@ export interface ContractSchema {
 
 export interface PackageSchemaURIs {
   contract_schema: string;
+  query?: string;
+  execute?: string;
+  instantiate?: string;
   receive?: {
     cw721?: string;
     cw20?: string;

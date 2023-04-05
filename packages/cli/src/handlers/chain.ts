@@ -3,10 +3,11 @@ import {
   queryAllChainConfigs,
   queryChainConfig,
 } from "@andromedaprotocol/andromeda.js";
-import pc from "picocolors";
 import Table from "cli-table";
 import inquirer from "inquirer";
+import pc from "picocolors";
 
+import { promptWithExit } from "cmd";
 import { displaySpinnerAsync, logTableConfig } from "../common";
 import config from "../config";
 import {
@@ -413,7 +414,7 @@ async function configPrintHandler() {
  */
 export async function newConfigHandler(input: string[]) {
   const [name] = input;
-  const config = await inquirer.prompt([
+  const questions: (inquirer.InputQuestion | inquirer.ListQuestion)[] = [
     {
       name: "chainName",
       message: "Input the chain name:",
@@ -422,21 +423,27 @@ export async function newConfigHandler(input: string[]) {
     },
     {
       name: "chainId",
-      message: "Input the chain ID:",
+      message: "Input the Chain ID:",
       type: "input",
-      validate: (input: string) => input.length > 0,
+      validate: (input: string) =>
+        input.length > 4 ? true : "Invalid Chain ID",
     },
     {
       name: "chainUrl",
-      message: "Input the chain URL:",
+      message: "Input the Chain URL:",
       type: "input",
-      validate: (input: string) => input.length > 0,
+      validate: (input: string) => {
+        const regex =
+          /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+
+        return regex.test(input) ? true : "Invalid URL";
+      },
     },
     {
       name: "chainType",
       message: "Select the chain type:",
       type: "list",
-      choices: ["mainnet", "testnet", "exit"],
+      choices: ["mainnet", "testnet"],
       validate: (input: string) => input.length > 0,
     },
     {
@@ -449,16 +456,21 @@ export async function newConfigHandler(input: string[]) {
       name: "addressPrefix",
       message: "Input the prefix for any addresses on this chain:",
       type: "input",
-      validate: (input: string) => input.length > 0,
+      validate: (input: string) =>
+        input.length >= 4 ? true : "Invalid Address Prefix",
     },
     {
       name: "defaultFee",
       message: "Input the default fee for the chain (e.g. 0.025ujunox):",
       type: "input",
-      validate: (input: string) => input.length > 0,
+      validate: (input: string) => {
+        const regex = /^[0-9]+\.[0-9]+[a-z]{2,}$/gm;
+        return regex.test(input) ? true : "Invalid fee";
+      },
     },
-  ]);
-  if (config.chainType === "exit") return;
+  ];
+  // Any type to allow construction
+  let config: any = await promptWithExit(questions);
 
   const fullConfig: ChainConfig = {
     ...config,
@@ -508,7 +520,7 @@ async function removeConfigHandler(input: string[]) {
   writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
 
   if (localConfig.name === config.get("chain.name")) {
-    const replacementConfig = await inquirer.prompt({
+    const replacementConfig = await promptWithExit({
       type: "list",
       choices: [
         ...localConfigs.map(({ name }) => name),

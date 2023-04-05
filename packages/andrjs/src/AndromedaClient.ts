@@ -51,13 +51,14 @@ export default class AndromedaClient {
    * Connects to a new chain by endpoint
    * @param endpoint The endpoint of the chain to connect to
    * @param signer The signer used to sign messages
-   * @param options Any additional client options
+   * @param options Any additional client options (**Only for CosmosClients**)
    */
   async connect(
     endpoint: string,
     registryAddress: string,
     addressPrefix: string,
     signer?: OfflineSigner | OfflineDirectSigner,
+    // Only used for Cosmos Clients
     options?: SigningCosmWasmClientOptions
   ) {
     delete this.chainClient;
@@ -455,7 +456,8 @@ export default class AndromedaClient {
    */
   async getBalance(denom: string, address?: string) {
     this.preMessage();
-    const _address = address && address.length > 0 ? address : this.signer;
+    const _address =
+      address && address.length > 0 ? address : this.chainClient!.signer;
     if (!_address || _address.length === 0) throw new Error("Invalid address");
 
     return this.chainClient!.queryClient!.getBalance(_address, denom);

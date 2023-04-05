@@ -85,7 +85,6 @@ export async function handle(
   const arg = input.shift();
   let commandInput = [...input];
   const cmd = commands[arg ?? ""];
-
   if (!arg || !cmd) {
     if (!flags["help"]) {
       log(pc.red("Invalid command"));
@@ -99,7 +98,7 @@ export async function handle(
       return;
     }
     if (flags["help"] && (commandInput.length === 0 || cmd.inputs)) {
-      printCommandHelp(cmd);
+      await printCommandHelp(cmd, commands);
       return;
     }
 
@@ -110,7 +109,8 @@ export async function handle(
       const { message } = error as Error;
       logError(pc.red(message));
       log();
-      printCommandHelp(cmd);
+
+      await printCommandHelp(cmd, commands);
 
       return;
     }
@@ -175,7 +175,6 @@ export function generateHandler(
  * @returns Whether the address is valid or not
  */
 export function validateAddressInput(addr: string) {
-  if (exitInputs.includes(addr)) return true;
   try {
     const isValid = validateAddress(addr, config.get("chain.addressPrefix"));
     if (!isValid) {

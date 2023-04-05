@@ -181,7 +181,12 @@ export default class WalletStore {
     mnemonic: string
   ) {
     const wallets = this.wallets;
-    if (wallets.some(({ name: walletName }) => walletName === name))
+    if (
+      wallets.some(
+        ({ name: walletName, chainId: walletChainId }) =>
+          walletName === name && walletChainId === chainId
+      )
+    )
       throw new Error("Wallet name already in use");
 
     // Trim passed chain ID before checking
