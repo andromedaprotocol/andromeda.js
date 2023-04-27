@@ -17,7 +17,7 @@ import {
 } from "../config/storage";
 import State from "../state";
 import { Commands } from "../types";
-import { setCurrentWallet } from "./wallets";
+import { setCurrentWallet } from "./wallet";
 
 const STORAGE_FILE = "chainConfigs.json";
 

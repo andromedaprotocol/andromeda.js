@@ -52,11 +52,11 @@ export const baseCommands: Commands = {
     color: pc.white,
     usage: "clear",
   },
-  wallets: {
+  wallet: {
     handler: walletHandler,
     description: "Manage wallets",
     color: pc.blue,
-    usage: "wallets <cmd>",
+    usage: "wallet <cmd>",
   },
   chain: {
     handler: chainHandler,
