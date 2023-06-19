@@ -24,7 +24,6 @@ import {
   ChainRestAuthApi,
   ChainRestTendermintApi,
   createTransaction,
-  MsgArg,
   MsgExecuteContract,
   MsgInstantiateContract,
   MsgMigrateContract,
@@ -33,14 +32,14 @@ import {
   TxGrpcClient,
   TxRaw as InjTxRaw,
   createTxRawFromSigResponse,
+  Msgs
 } from "@injectivelabs/sdk-ts";
-import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
+import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
 import {
   BigNumberInBase,
   DEFAULT_BLOCK_TIMEOUT_HEIGHT,
   DEFAULT_GAS_LIMIT,
   getStdFee,
-  sleep,
 } from "@injectivelabs/utils";
 import _ from "lodash";
 import Long from "long";
@@ -104,17 +103,16 @@ function mapObjToEnjClass(type: MsgType, value: any) {
   }
 }
 
-function encodeObjectToMsgArgs(msgs: EncodeObject[]): MsgArg[] {
+function encodeObjectToMsgArgs(msgs: EncodeObject[]): Msgs[] {
   return msgs.map((msg) => {
     const type = _.last(msg.typeUrl.split("."));
-    return mapObjToEnjClass(type as MsgType, msg.value).toDirectSign();
+    return mapObjToEnjClass(type as MsgType, msg.value);
   });
 }
 
 export default class InjectiveClient
   extends BaseChainClient
-  implements ChainClient
-{
+  implements ChainClient {
   public signingClient?: TxGrpcClient;
   public queryClient?: CosmWasmClient;
 
@@ -218,9 +216,9 @@ export default class InjectiveClient
 
     const signed = await this.directSigner!.signDirect(this.signer!, {
       ...signDoc,
-      chainId: signDoc.getChainId(),
-      bodyBytes: signDoc.getBodyBytes_asU8(),
-      authInfoBytes: signDoc.getAuthInfoBytes_asU8(),
+      chainId: signDoc.chainId,
+      bodyBytes: signDoc.bodyBytes,
+      authInfoBytes: signDoc.authInfoBytes,
       accountNumber: Long.fromInt(baseAccount.accountNumber),
     });
 
@@ -230,52 +228,23 @@ export default class InjectiveClient
   async sign(messages: EncodeObject[], fee?: StdFee, memo?: string) {
     const injTxRaw = await this.signInj(messages, fee, memo);
     return {
-      bodyBytes: injTxRaw.getBodyBytes_asU8(),
-      authInfoBytes: injTxRaw.getAuthInfoBytes_asU8(),
-      signatures: injTxRaw.getSignaturesList_asU8(),
+      bodyBytes: injTxRaw.bodyBytes,
+      authInfoBytes: injTxRaw.authInfoBytes,
+      signatures: injTxRaw.signatures,
     };
   }
 
   async broadcast(
     tx: InjTxRaw,
     timeoutMs = 60000,
-    pollIntervalMs = 3000
   ): Promise<DeliverTxResponse> {
-    const resp = await this.signingClient!.broadcastBlock(tx);
-    //This code is duplicated from the CosmWasmClient to correct return types
-    let timedOut = false;
-    const txPollTimeout = setTimeout(() => {
-      timedOut = true;
-    }, timeoutMs);
-
-    const pollTx: (
-      txId: string
-    ) => ReturnType<ChainClient["broadcast"]> = async (txId) => {
-      if (timedOut)
-        throw new Error(
-          `Transaction with ID ${txId} was submitted but was not yet found on the chain. You might want to check later. There was a wait of ${
-            timeoutMs / 1000
-          } seconds`
-        );
-      await sleep(pollIntervalMs);
-      const result = await this.queryClient!.getTx(txId);
-      return result
-        ? ({ ...result, transactionHash: result.hash } as DeliverTxResponse)
-        : pollTx(txId);
-    };
-
-    return new Promise((resolve, reject) =>
-      pollTx(resp.txHash).then(
-        (val) => {
-          clearTimeout(txPollTimeout);
-          resolve(val);
-        },
-        (err) => {
-          clearTimeout(txPollTimeout);
-          reject(err);
-        }
-      )
-    );
+    const resp = await this.signingClient!.broadcastBlock(tx, 3);
+    const result = await this.signingClient!.fetchTxPoll(resp.txHash, timeoutMs);
+    return {
+      // BUG: Fix types here
+      ...result as any,
+      transactionHash: result.txHash,
+    }
   }
 
   async signAndBroadcast(

@@ -1,5 +1,5 @@
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
-import { DirectEthSecp256k1Wallet } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/OfflineDirectSigner";
+import { InjectiveDirectEthSecp256k1Wallet } from "@injectivelabs/sdk-ts";
 
 /**
  * Used to generate a client wallet by Mnemonic
@@ -37,7 +37,7 @@ export default class Wallet {
    */
   async getWallet(
     passphrase: string
-  ): Promise<DirectSecp256k1HdWallet | DirectEthSecp256k1Wallet> {
+  ): Promise<DirectSecp256k1HdWallet | InjectiveDirectEthSecp256k1Wallet> {
     return await DirectSecp256k1HdWallet.deserialize(this.key, passphrase);
   }
 

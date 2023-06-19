@@ -28,7 +28,7 @@
     "@cosmjs/proto-signing": "^0.29.5",
     "@cosmjs/stargate": "^0.29.5",
     "@injectivelabs/networks": "^1.0.93",
-    "@injectivelabs/sdk-ts": "1.0.452",
+    "@injectivelabs/sdk-ts": "1.11.0",
     "@injectivelabs/utils": "1.0.81",
     "@keplr-wallet/types": "^0.11.44",
     "@terra-money/terra.js": "^3.1.7",
@@ -39,10 +39,10 @@
     "ethers": "^5.7.2",
     "graphql-request": "^5.1.0",
     "jsonschema": "^1.4.1",
+    "libsodium-wrappers": "0.7.6",
     "lodash": "^4.17.21",
     "long": "^5.2.1",
-    "pako": "^2.1.0",
-    "libsodium-wrappers": "0.7.6"
+    "pako": "^2.1.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
