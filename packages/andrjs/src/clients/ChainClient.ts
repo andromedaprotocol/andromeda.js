@@ -16,7 +16,7 @@ import type {
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import type { MsgSendEncodeObject } from "@cosmjs/stargate";
 import type { TxGrpcClient, TxRaw as InjTxRaw } from "@injectivelabs/sdk-ts";
-import type { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
+import type { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
 import type { LCDClient, Tx as TerraTx } from "@terra-money/terra.js";
 import type { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import type { Fee, Msg } from "../types";

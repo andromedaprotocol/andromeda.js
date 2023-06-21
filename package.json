@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "pnpm --filter \"./packages/*\" run build",
-    "start": "pnpm --filter \"./packages/*\" run start"
+    "build": "pnpm --filter \"./packages/*\" run build"
   },
   "keywords": [],
   "author": "",

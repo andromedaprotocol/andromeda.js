@@ -11,12 +11,12 @@ import {
 import { ADOAPI, ADODBAPI, RegistryAPI } from "./api";
 
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
+import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
 import { isUndefined } from "lodash";
 import type { ChainClient } from "./clients";
 import createClient from "./clients";
 import type { Fee, Msg } from "./types";
 import OperatingSystemAPI from "api/OperatingSystemAPI";
-import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem

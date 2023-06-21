@@ -24,6 +24,7 @@ import {
   ChainRestAuthApi,
   ChainRestTendermintApi,
   createTransaction,
+  MsgArg,
   MsgExecuteContract,
   MsgInstantiateContract,
   MsgMigrateContract,
@@ -32,9 +33,8 @@ import {
   TxGrpcClient,
   TxRaw as InjTxRaw,
   createTxRawFromSigResponse,
-  Msgs
 } from "@injectivelabs/sdk-ts";
-import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
+import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
 import {
   BigNumberInBase,
   DEFAULT_BLOCK_TIMEOUT_HEIGHT,
@@ -103,16 +103,17 @@ function mapObjToEnjClass(type: MsgType, value: any) {
   }
 }
 
-function encodeObjectToMsgArgs(msgs: EncodeObject[]): Msgs[] {
+function encodeObjectToMsgArgs(msgs: EncodeObject[]): MsgArg[] {
   return msgs.map((msg) => {
     const type = _.last(msg.typeUrl.split("."));
-    return mapObjToEnjClass(type as MsgType, msg.value);
+    return mapObjToEnjClass(type as MsgType, msg.value).toDirectSign();
   });
 }
 
 export default class InjectiveClient
   extends BaseChainClient
-  implements ChainClient {
+  implements ChainClient
+{
   public signingClient?: TxGrpcClient;
   public queryClient?: CosmWasmClient;
 
@@ -216,9 +217,9 @@ export default class InjectiveClient
 
     const signed = await this.directSigner!.signDirect(this.signer!, {
       ...signDoc,
-      chainId: signDoc.chainId,
-      bodyBytes: signDoc.bodyBytes,
-      authInfoBytes: signDoc.authInfoBytes,
+      chainId: signDoc.getChainId(),
+      bodyBytes: signDoc.getBodyBytes_asU8(),
+      authInfoBytes: signDoc.getAuthInfoBytes_asU8(),
       accountNumber: Long.fromInt(baseAccount.accountNumber),
     });
 
@@ -228,9 +229,9 @@ export default class InjectiveClient
   async sign(messages: EncodeObject[], fee?: StdFee, memo?: string) {
     const injTxRaw = await this.signInj(messages, fee, memo);
     return {
-      bodyBytes: injTxRaw.bodyBytes,
-      authInfoBytes: injTxRaw.authInfoBytes,
-      signatures: injTxRaw.signatures,
+      bodyBytes: injTxRaw.getBodyBytes_asU8(),
+      authInfoBytes: injTxRaw.getAuthInfoBytes_asU8(),
+      signatures: injTxRaw.getSignaturesList_asU8(),
     };
   }
 
