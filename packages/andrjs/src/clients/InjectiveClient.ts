@@ -194,7 +194,7 @@ export default class InjectiveClient
 
   private async signInj(
     messages: EncodeObject[],
-    fee: StdFee = getStdFee(DEFAULT_GAS_LIMIT.toString()),
+    fee: StdFee = getStdFee((DEFAULT_GAS_LIMIT * 2).toString()),
     memo: string = "",
     simulation = false
   ) {
