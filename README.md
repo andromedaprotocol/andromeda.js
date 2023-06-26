@@ -59,7 +59,7 @@ sudo npm i -g @andromedaprotocol/cli
 ```
 Run  `andr`  to start the CLI. 
 
-Please check the [docs]([https://docs.andromedaprotocol.io/andromeda.js/](https://docs.andromedaprotocol.io/andromeda/andromeda-cli/introduction)) for the list of available commands. 
+Please check the [docs](https://docs.andromedaprotocol.io/andromeda/andromeda-cli/introduction) for the list of available commands. 
 
 ## Supported Chains
 
