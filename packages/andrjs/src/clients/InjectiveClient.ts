@@ -40,7 +40,6 @@ import {
   DEFAULT_BLOCK_TIMEOUT_HEIGHT,
   DEFAULT_GAS_LIMIT,
   getStdFee,
-  sleep,
 } from "@injectivelabs/utils";
 import _ from "lodash";
 import Long from "long";
@@ -195,7 +194,7 @@ export default class InjectiveClient
 
   private async signInj(
     messages: EncodeObject[],
-    fee: StdFee = getStdFee(DEFAULT_GAS_LIMIT.toString()),
+    fee: StdFee = getStdFee((DEFAULT_GAS_LIMIT * 2).toString()),
     memo: string = "",
     simulation = false
   ) {
@@ -239,43 +238,14 @@ export default class InjectiveClient
   async broadcast(
     tx: InjTxRaw,
     timeoutMs = 60000,
-    pollIntervalMs = 3000
   ): Promise<DeliverTxResponse> {
-    const resp = await this.signingClient!.broadcastBlock(tx);
-    //This code is duplicated from the CosmWasmClient to correct return types
-    let timedOut = false;
-    const txPollTimeout = setTimeout(() => {
-      timedOut = true;
-    }, timeoutMs);
-
-    const pollTx: (
-      txId: string
-    ) => ReturnType<ChainClient["broadcast"]> = async (txId) => {
-      if (timedOut)
-        throw new Error(
-          `Transaction with ID ${txId} was submitted but was not yet found on the chain. You might want to check later. There was a wait of ${
-            timeoutMs / 1000
-          } seconds`
-        );
-      await sleep(pollIntervalMs);
-      const result = await this.queryClient!.getTx(txId);
-      return result
-        ? ({ ...result, transactionHash: result.hash } as DeliverTxResponse)
-        : pollTx(txId);
-    };
-
-    return new Promise((resolve, reject) =>
-      pollTx(resp.txHash).then(
-        (val) => {
-          clearTimeout(txPollTimeout);
-          resolve(val);
-        },
-        (err) => {
-          clearTimeout(txPollTimeout);
-          reject(err);
-        }
-      )
-    );
+    const resp = await this.signingClient!.broadcastBlock(tx, 3);
+    const result = await this.signingClient!.fetchTxPoll(resp.txHash, timeoutMs);
+    return {
+      // BUG: Fix types here
+      ...result as any,
+      transactionHash: result.txHash,
+    }
   }
 
   async signAndBroadcast(
