@@ -8,7 +8,7 @@
 The Andromeda.js repository contains two packages: 
 
 - [Andr.js](https://github.com/andromedaprotocol/andromeda.js/tree/development/packages/andrjs): JavaScript SDK for writing applications that interact with the Andromeda ecosystem.
-- [CLI](https://github.com/andromedaprotocol/andromeda.js/tree/development/packages/cli): Used to interact with the andromeda ecosystem on any of the chains Andromeda is deployed on.
+- [CLI](https://github.com/andromedaprotocol/andromeda.js/tree/development/packages/cli): Used to interact with the Andromeda ecosystem and any of the chains Andromeda is deployed on.
 
 ## Licensing
 
