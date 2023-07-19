@@ -255,6 +255,7 @@ export interface QueryAssetsResponse {
   assets: {
     address: string;
     adoType: string;
+    name?: string;
     appContract?: string;
     chainId: string;
     instantiateHash: string;
@@ -270,6 +271,7 @@ export const QUERY_ASSETS = gql`
     assets(walletAddress: $walletAddress, limit: $limit, offset: $offset) {
       address
       adoType
+      name
       appContract
       chainId
       instantiateHash
