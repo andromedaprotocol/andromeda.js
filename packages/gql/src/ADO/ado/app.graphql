@@ -1,0 +1,19 @@
+query QUERYAPP($contractAddress: String!) {
+  ADO {
+    app(address: $contractAddress) {
+      address
+      addresses {
+        address
+        name
+      }
+      components {
+        name
+        ado_type
+      }
+      config {
+        name
+        owner
+      }
+    }
+  }
+}

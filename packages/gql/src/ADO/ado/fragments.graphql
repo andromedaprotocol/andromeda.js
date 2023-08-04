@@ -1,0 +1,15 @@
+fragment andrFragment on AndrQuery {
+  admin
+  address
+  blockHeightUponCreation
+  codeId
+  creator
+  contractVersion
+  ibcPortId
+  label
+  owner
+  operators
+  originalPublisher
+  queries_expected
+  type
+}

@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/andromeda.js",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -22,11 +22,13 @@
     "dist/**/*"
   ],
   "dependencies": {
+    "@andromedaprotocol/gql": "workspace:../gql",
     "@cosmjs/cosmwasm-stargate": "^0.29.5",
     "@cosmjs/crypto": "^0.29.5",
     "@cosmjs/encoding": "^0.29.5",
     "@cosmjs/proto-signing": "^0.29.5",
     "@cosmjs/stargate": "^0.29.5",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@injectivelabs/networks": "^1.0.93",
     "@injectivelabs/sdk-ts": "1.0.452",
     "@injectivelabs/utils": "1.0.81",
@@ -37,12 +39,12 @@
     "cosmjs-types": "^0.6.1",
     "crypto-js": "^4.1.1",
     "ethers": "^5.7.2",
-    "graphql-request": "^5.1.0",
+    "graphql-request": "^6.1.0",
     "jsonschema": "^1.4.1",
+    "libsodium-wrappers": "0.7.6",
     "lodash": "^4.17.21",
     "long": "^5.2.1",
-    "pako": "^2.1.0",
-    "libsodium-wrappers": "0.7.6"
+    "pako": "^2.1.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",

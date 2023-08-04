@@ -1,0 +1,43 @@
+{
+  "name": "@andromedaprotocol/gql",
+  "version": "0.3.3",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
+  },
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "start": "nodemon --watch 'src/**/*.ts' --ext 'ts,json' --exec \"npm run\" build",
+    "create": "npm run build && npm run test",
+    "build": "rimraf ./dist && tsc && tsc-alias",
+    "test": "jest",
+    "tsc": "tsc --noEmit",
+    "depcheck": "depcheck",
+    "codegen": "graphql-codegen --config codegen.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "files": [
+    "dist/**/*"
+  ],
+  "dependencies": {
+    "@apollo/client": "^3.7.17",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "graphql": "^16.7.1",
+    "graphql-request": "^6.1.0",
+    "graphql-tag": "^2.12.6"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "5.0.0",
+    "@graphql-codegen/typescript-apollo-client-helpers": "^2.2.6",
+    "@graphql-codegen/typescript-graphql-request": "^5.0.0",
+    "@graphql-codegen/typescript-react-apollo": "^3.3.7",
+    "depcheck": "^1.4.3",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.3",
+    "typescript": "^4.9.5"
+  }
+}
