@@ -12,4 +12,5 @@ fragment andrFragment on AndrQuery {
   originalPublisher
   queries_expected
   type
+  version
 }

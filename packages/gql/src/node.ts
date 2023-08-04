@@ -2,7 +2,7 @@ import type { GraphQLClient } from 'graphql-request';
 import type { GraphQLClientRequestHeaders } from 'graphql-request/build/cjs/types';
 import gql from 'graphql-tag';
 export type Maybe<T> = T;
-export type InputMaybe<T> = T;
+export type InputMaybe<T> = T | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -25,14 +25,14 @@ export type IAdoAddedSubscriptionInput = {
 export type IAdoInput = {
   address: Scalars['String']['input'];
   adoType: Scalars['String']['input'];
-  appContract: InputMaybe<Scalars['String']['input']>;
+  appContract?: InputMaybe<Scalars['String']['input']>;
   chainId: Scalars['String']['input'];
   instantiateHash: Scalars['String']['input'];
   instantiateHeight: Scalars['Int']['input'];
   lastUpdatedHash: Scalars['String']['input'];
   lastUpdatedHeight: Scalars['Int']['input'];
-  minter: InputMaybe<Scalars['String']['input']>;
-  name: InputMaybe<Scalars['String']['input']>;
+  minter?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
 };
 
@@ -78,9 +78,9 @@ export enum IAndrOrderBy {
 }
 
 export type IAndrSearchOptions = {
-  limit: InputMaybe<Scalars['Int']['input']>;
-  orderBy: InputMaybe<IAndrOrderBy>;
-  startAfter: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<IAndrOrderBy>;
+  startAfter?: InputMaybe<Scalars['String']['input']>;
 };
 
 export enum IAndrStrategyType {
@@ -89,7 +89,7 @@ export enum IAndrStrategyType {
 
 export type ISearchAttribute = {
   trait_type: Scalars['String']['input'];
-  value: InputMaybe<Scalars['String']['input']>;
+  value?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type IUpdateAdoOwnerInput = {
@@ -107,18 +107,18 @@ export type IQueryappQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQue
 
 export type IBaseadoQueryVariables = Exact<{
   contractAddress: Scalars['String']['input'];
-  version: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type IBaseadoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', admin: string, address: string, blockHeightUponCreation: number, codeId: number, creator: string, contractVersion: string, ibcPortId: string, label: string, owner: string, operators: Array<string>, originalPublisher: string, queries_expected: Array<string>, type: string } } } };
+export type IBaseadoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', admin: string, address: string, blockHeightUponCreation: number, codeId: number, creator: string, contractVersion: string, ibcPortId: string, label: string, owner: string, operators: Array<string>, originalPublisher: string, queries_expected: Array<string>, type: string, version: string } } } };
 
-export type IAndrFragmentFragment = { __typename?: 'AndrQuery', admin: string, address: string, blockHeightUponCreation: number, codeId: number, creator: string, contractVersion: string, ibcPortId: string, label: string, owner: string, operators: Array<string>, originalPublisher: string, queries_expected: Array<string>, type: string };
+export type IAndrFragmentFragment = { __typename?: 'AndrQuery', admin: string, address: string, blockHeightUponCreation: number, codeId: number, creator: string, contractVersion: string, ibcPortId: string, label: string, owner: string, operators: Array<string>, originalPublisher: string, queries_expected: Array<string>, type: string, version: string };
 
 
 export type IAndrFragmentFragmentVariables = Exact<{ [key: string]: never; }>;
 
-export const AndrFragmentFragmentDoc = gql`
+export const AndrFragmentFragmentDoc = /*#__PURE__*/ gql`
     fragment andrFragment on AndrQuery {
   admin
   address
@@ -133,9 +133,10 @@ export const AndrFragmentFragmentDoc = gql`
   originalPublisher
   queries_expected
   type
+  version
 }
     `;
-export const QueryappDocument = gql`
+export const QueryappDocument = /*#__PURE__*/ gql`
     query QUERYAPP($contractAddress: String!) {
   ADO {
     app(address: $contractAddress) {
@@ -156,7 +157,7 @@ export const QueryappDocument = gql`
   }
 }
     `;
-export const BaseadoDocument = gql`
+export const BaseadoDocument = /*#__PURE__*/ gql`
     query BASEADO($contractAddress: String!, $version: String) {
   ADO {
     ado(address: $contractAddress, version: $version) {
