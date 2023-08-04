@@ -1,0 +1,41 @@
+query APP_CONFIG($contractAddress: String!) {
+  ADO {
+    app(address: $contractAddress) {
+      address
+      config {
+        name
+        owner
+      }
+    }
+  }
+}
+
+query APP_COMPONENTS($contractAddress: String!) {
+  ADO {
+    app(address: $contractAddress) {
+      address
+      components {
+        ...appComponent
+      }
+    }
+  }
+}
+
+query APP_MASTER($contractAddress: String!) {
+  ADO {
+    app(address: $contractAddress) {
+      address
+      config {
+        name
+        owner
+      }
+      components {
+        ...appComponent
+      }
+      type
+      andr {
+        ...andrFragment
+      }
+    }
+  }
+}

@@ -14,3 +14,17 @@ fragment andrFragment on AndrQuery {
   type
   version
 }
+
+fragment component on Component {
+  address
+  ado_type
+  instantiate_msg
+  name
+}
+
+fragment appComponent on AppComponent {
+  address
+  ado_type
+  instantiate_msg
+  name
+}

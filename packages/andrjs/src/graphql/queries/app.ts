@@ -8,6 +8,6 @@ import { querySdk } from "../client";
 
 export async function queryApp(contractAddress: string) {
   return (
-    await querySdk.QUERYAPP({ contractAddress })
+    await querySdk.APP_MASTER({ contractAddress })
   ).ADO.app;
 }

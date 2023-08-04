@@ -1,0 +1,64 @@
+query ASSETS(
+  $walletAddress: String!
+  $limit: Int!
+  $offset: Int!
+  $search: String
+  $adoType: AdoType
+  $orderBy: AndrOrderBy
+) {
+  accounts {
+    assets(
+      walletAddress: $walletAddress
+      limit: $limit
+      offset: $offset
+      search: $search
+      adoType: $adoType
+      orderBy: $orderBy
+    ) {
+      address
+      adoType
+      appContract
+      chainId
+      instantiateHash
+      instantiateHeight
+      lastUpdatedHash
+      lastUpdatedHeight
+      name
+      owner
+    }
+  }
+}
+
+query ASSETS_MASTER(
+  $walletAddress: String!
+  $limit: Int!
+  $offset: Int!
+  $search: String
+  $adoType: AdoType
+  $orderBy: AndrOrderBy
+) {
+  accounts {
+    assets(
+      walletAddress: $walletAddress
+      limit: $limit
+      offset: $offset
+      search: $search
+      adoType: $adoType
+      orderBy: $orderBy
+    ) {
+      address
+      adoType
+      appContract
+      chainId
+      components {
+        ...component
+      }
+      instantiateHash
+      instantiateHeight
+      lastUpdatedHash
+      lastUpdatedHeight
+      name
+      owner
+    }
+  }
+}

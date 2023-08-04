@@ -49,23 +49,16 @@ async function appHandler(input: string[]) {
 
     const {
       config: { name, owner },
-      addresses,
       components,
     } = app;
-
-    const getAdoType = (name: string) => {
-      const comp = components.find((comp) => comp.name === name);
-
-      return comp ? comp.ado_type : "<unknown>";
-    };
 
     console.log(`${pc.bold("Owner:")} ${owner}`);
     console.log(`${pc.bold("App Name:")} ${name}`);
     console.log();
     const componentTable = new Table(logTableConfig);
     console.log(pc.bold("Components"));
-    addresses.forEach((comp) => {
-      componentTable.push([comp.name, getAdoType(comp.name), comp.address]);
+    components.forEach((comp) => {
+      componentTable.push([comp.name, comp.ado_type, comp.address]);
     });
     console.log(componentTable.toString());
   } catch (error) {
