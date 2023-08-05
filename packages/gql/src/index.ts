@@ -26,7 +26,10 @@ export const TypedFieldPolicy: StrictTypedTypePolicies = {
     TxInfo: {
         keyFields: ['hash']
     },
-    Query: {
+    AssetResult: {
+        keyFields: ['address', 'name']
+    },
+    AccountsQuery: {
         fields: {
             assets: {
                 // Don't cache separate results based on
