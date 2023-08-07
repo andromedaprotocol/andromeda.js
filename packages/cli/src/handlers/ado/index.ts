@@ -1,6 +1,7 @@
 import {
   ContractSchema,
   fetchSchema,
+  Msg,
   queryADOPackageDefinition,
   queryADOTypes,
 } from "@andromedaprotocol/andromeda.js";
@@ -151,6 +152,22 @@ const commands: Commands = {
     usage: "ado modules",
     description: "Allows management of modules for an ADO",
     color: pc.yellow,
+  },
+  resolvepath: {
+    handler: resolvePathHandler,
+    color: pc.blue,
+    description: "Gets the address of the specified path",
+    usage: "ado resolvepath",
+    inputs: [
+      {
+        requestMessage: "Input path:",
+        validate: (input: string) => {
+          if (input.length === 0) return false;
+          return true;
+        },
+      },
+    ],
+    flags: executeFlags,
   },
 };
 
@@ -317,6 +334,26 @@ async function transferHandler(input: string[], flags: Flags) {
 
   const msg = client.ado.updateOwnerMsg(recipient);
   await executeMessage(address, msg, flags, "ADO Transferred!");
+}
+
+/**
+ * Queries to get the address of the specified path
+ * @param input
+ * @param flags
+ */
+async function resolvePathHandler(input: string[]) {
+  const [path] = input;
+  const msg: Msg = {
+    resolve_path: {
+      path: path,
+    }
+  };
+  if (client.os.vfs?.address) {
+    const resp = await queryMessage(client.os.vfs?.address, msg);
+    console.log(JSON.stringify(resp, null, 2));
+  } else {
+    console.log("Unable to figure out the vfs address");
+  }
 }
 
 export default commands;

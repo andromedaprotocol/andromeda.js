@@ -11,6 +11,7 @@ import {
   chainHandler,
   gqlHandler,
   txHandler,
+  userHandler,
   walletHandler,
   wasmHandler,
 } from "./handlers";
@@ -106,6 +107,13 @@ export const baseCommands: Commands = {
     description: "Prints the current CLI version",
     color: pc.cyan,
     usage: "version",
+  },
+  user: {
+    handler: userHandler,
+    description: "Manage user",
+    color: pc.blue,
+    usage: "user <cmd>",
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
   },
 };
 
