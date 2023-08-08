@@ -2030,6 +2030,20 @@ export type ICodegenGeneratedTxQueryVariables = Exact<{
 
 export type ICodegenGeneratedTxQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', chainId: string } };
 
+export type ICodegenGeneratedAdoaddedSubscriptionVariables = Exact<{
+  filter: IAdoAddedSubscriptionInput;
+}>;
+
+
+export type ICodegenGeneratedAdoaddedSubscription = { __typename?: 'Subscription', adoAdded: { __typename?: 'Ado', address: string, adoType: string, appContract: string, chainId: string, instantiateHash: string, instantiateHeight: number, lastUpdatedHash: string, lastUpdatedHeight: number, minter: string, name: string, owner: string } };
+
+export type ICodegenGeneratedAdoownerupdatedSubscriptionVariables = Exact<{
+  filter: IAdoOwnerUpdatedSubscriptionInput;
+}>;
+
+
+export type ICodegenGeneratedAdoownerupdatedSubscription = { __typename?: 'Subscription', adoOwnerUpdated: { __typename?: 'Ado', address: string, adoType: string, appContract: string, chainId: string, instantiateHash: string, instantiateHeight: number, lastUpdatedHash: string, lastUpdatedHeight: number, minter: string, name: string, owner: string } };
+
 export type ITxInfoFragment = { __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any };
 
 
@@ -14476,6 +14490,86 @@ export type CodegenGeneratedTxQueryResult = Apollo.QueryResult<ICodegenGenerated
 export function refetchCodegenGeneratedTxQuery(variables: ICodegenGeneratedTxQueryVariables) {
       return { query: CodegenGeneratedTxDocument, variables: variables }
     }
+export const CodegenGeneratedAdoaddedDocument = /*#__PURE__*/ gql`
+    subscription CODEGEN_GENERATED_ADOADDED($filter: AdoAddedSubscriptionInput!) {
+  adoAdded(filter: $filter) {
+    address
+    adoType
+    appContract
+    chainId
+    instantiateHash
+    instantiateHeight
+    lastUpdatedHash
+    lastUpdatedHeight
+    minter
+    name
+    owner
+  }
+}
+    `;
+
+/**
+ * __useCodegenGeneratedAdoaddedSubscription__
+ *
+ * To run a query within a React component, call `useCodegenGeneratedAdoaddedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useCodegenGeneratedAdoaddedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCodegenGeneratedAdoaddedSubscription({
+ *   variables: {
+ *      filter: // value for 'filter'
+ *   },
+ * });
+ */
+export function useCodegenGeneratedAdoaddedSubscription(baseOptions: Apollo.SubscriptionHookOptions<ICodegenGeneratedAdoaddedSubscription, ICodegenGeneratedAdoaddedSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<ICodegenGeneratedAdoaddedSubscription, ICodegenGeneratedAdoaddedSubscriptionVariables>(CodegenGeneratedAdoaddedDocument, options);
+      }
+export type CodegenGeneratedAdoaddedSubscriptionHookResult = ReturnType<typeof useCodegenGeneratedAdoaddedSubscription>;
+export type CodegenGeneratedAdoaddedSubscriptionResult = Apollo.SubscriptionResult<ICodegenGeneratedAdoaddedSubscription>;
+export const CodegenGeneratedAdoownerupdatedDocument = /*#__PURE__*/ gql`
+    subscription CODEGEN_GENERATED_ADOOWNERUPDATED($filter: AdoOwnerUpdatedSubscriptionInput!) {
+  adoOwnerUpdated(filter: $filter) {
+    address
+    adoType
+    appContract
+    chainId
+    instantiateHash
+    instantiateHeight
+    lastUpdatedHash
+    lastUpdatedHeight
+    minter
+    name
+    owner
+  }
+}
+    `;
+
+/**
+ * __useCodegenGeneratedAdoownerupdatedSubscription__
+ *
+ * To run a query within a React component, call `useCodegenGeneratedAdoownerupdatedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useCodegenGeneratedAdoownerupdatedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCodegenGeneratedAdoownerupdatedSubscription({
+ *   variables: {
+ *      filter: // value for 'filter'
+ *   },
+ * });
+ */
+export function useCodegenGeneratedAdoownerupdatedSubscription(baseOptions: Apollo.SubscriptionHookOptions<ICodegenGeneratedAdoownerupdatedSubscription, ICodegenGeneratedAdoownerupdatedSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<ICodegenGeneratedAdoownerupdatedSubscription, ICodegenGeneratedAdoownerupdatedSubscriptionVariables>(CodegenGeneratedAdoownerupdatedDocument, options);
+      }
+export type CodegenGeneratedAdoownerupdatedSubscriptionHookResult = ReturnType<typeof useCodegenGeneratedAdoownerupdatedSubscription>;
+export type CodegenGeneratedAdoownerupdatedSubscriptionResult = Apollo.SubscriptionResult<ICodegenGeneratedAdoownerupdatedSubscription>;
 export const TxByAccountDocument = /*#__PURE__*/ gql`
     query TX_BY_ACCOUNT($chainId: String!, $sentFromOrTo: String!, $minHeight: Int, $maxHeight: Int) {
   tx(chainId: $chainId) {

@@ -2030,6 +2030,20 @@ export type ICodegenGeneratedTxQueryVariables = Exact<{
 
 export type ICodegenGeneratedTxQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', chainId: string } };
 
+export type ICodegenGeneratedAdoaddedSubscriptionVariables = Exact<{
+  filter: IAdoAddedSubscriptionInput;
+}>;
+
+
+export type ICodegenGeneratedAdoaddedSubscription = { __typename?: 'Subscription', adoAdded: { __typename?: 'Ado', address: string, adoType: string, appContract: string, chainId: string, instantiateHash: string, instantiateHeight: number, lastUpdatedHash: string, lastUpdatedHeight: number, minter: string, name: string, owner: string } };
+
+export type ICodegenGeneratedAdoownerupdatedSubscriptionVariables = Exact<{
+  filter: IAdoOwnerUpdatedSubscriptionInput;
+}>;
+
+
+export type ICodegenGeneratedAdoownerupdatedSubscription = { __typename?: 'Subscription', adoOwnerUpdated: { __typename?: 'Ado', address: string, adoType: string, appContract: string, chainId: string, instantiateHash: string, instantiateHeight: number, lastUpdatedHash: string, lastUpdatedHeight: number, minter: string, name: string, owner: string } };
+
 export type ITxInfoFragment = { __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any };
 
 
@@ -6732,6 +6746,40 @@ export const CodegenGeneratedTxDocument = /*#__PURE__*/ gql`
   }
 }
     `;
+export const CodegenGeneratedAdoaddedDocument = /*#__PURE__*/ gql`
+    subscription CODEGEN_GENERATED_ADOADDED($filter: AdoAddedSubscriptionInput!) {
+  adoAdded(filter: $filter) {
+    address
+    adoType
+    appContract
+    chainId
+    instantiateHash
+    instantiateHeight
+    lastUpdatedHash
+    lastUpdatedHeight
+    minter
+    name
+    owner
+  }
+}
+    `;
+export const CodegenGeneratedAdoownerupdatedDocument = /*#__PURE__*/ gql`
+    subscription CODEGEN_GENERATED_ADOOWNERUPDATED($filter: AdoOwnerUpdatedSubscriptionInput!) {
+  adoOwnerUpdated(filter: $filter) {
+    address
+    adoType
+    appContract
+    chainId
+    instantiateHash
+    instantiateHeight
+    lastUpdatedHash
+    lastUpdatedHeight
+    minter
+    name
+    owner
+  }
+}
+    `;
 export const TxByAccountDocument = /*#__PURE__*/ gql`
     query TX_BY_ACCOUNT($chainId: String!, $sentFromOrTo: String!, $minHeight: Int, $maxHeight: Int) {
   tx(chainId: $chainId) {
@@ -7512,6 +7560,12 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_TX(variables: ICodegenGeneratedTxQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxQuery>(CodegenGeneratedTxDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX', 'query');
+    },
+    CODEGEN_GENERATED_ADOADDED(variables: ICodegenGeneratedAdoaddedSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoaddedSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoaddedSubscription>(CodegenGeneratedAdoaddedDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADOADDED', 'subscription');
+    },
+    CODEGEN_GENERATED_ADOOWNERUPDATED(variables: ICodegenGeneratedAdoownerupdatedSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoownerupdatedSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoownerupdatedSubscription>(CodegenGeneratedAdoownerupdatedDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADOOWNERUPDATED', 'subscription');
     },
     TX_BY_ACCOUNT(variables: ITxByAccountQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ITxByAccountQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ITxByAccountQuery>(TxByAccountDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'TX_BY_ACCOUNT', 'query');

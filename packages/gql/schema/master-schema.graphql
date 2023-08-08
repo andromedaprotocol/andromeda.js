@@ -4156,3 +4156,35 @@ query CODEGEN_GENERATED_TX($chainId: String!) {
     chainId
   }
 }
+
+subscription CODEGEN_GENERATED_ADOADDED($filter: AdoAddedSubscriptionInput!) {
+  adoAdded(filter: $filter) {
+    address
+    adoType
+    appContract
+    chainId
+    instantiateHash
+    instantiateHeight
+    lastUpdatedHash
+    lastUpdatedHeight
+    minter
+    name
+    owner
+  }
+}
+
+subscription CODEGEN_GENERATED_ADOOWNERUPDATED($filter: AdoOwnerUpdatedSubscriptionInput!) {
+  adoOwnerUpdated(filter: $filter) {
+    address
+    adoType
+    appContract
+    chainId
+    instantiateHash
+    instantiateHeight
+    lastUpdatedHash
+    lastUpdatedHeight
+    minter
+    name
+    owner
+  }
+}

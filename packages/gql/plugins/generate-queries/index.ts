@@ -63,40 +63,53 @@ export const plugin: PluginFunction<OperationsDocumentConfig> = async (
         }
         return nestedKeys
     }
-    for (const fieldName in schema.getQueryType()?.getFields()) {
-        const field = schema.getQueryType()?.getFields()[fieldName];
-        if (!field) continue;
-        const res = buildForField(field, (_nested) => {
-            return _nested
-        }, QUERY_PREFIX)
-        if (res) {
-            fieldsToBuild.push({
-                selection: {
-                    [fieldName]: res
-                },
-                queryName: `${QUERY_PREFIX}_${fieldName}`
-            })
-        }
-    }
 
-    fieldsToBuild.forEach(build => {
-        const fieldName = Object.keys(build.selection)[0];
-        const definition = buildOperationNodeForField({
-            'field': fieldName,
-            'kind': OperationTypeNode.QUERY,
-            'depthLimit': config.depthLimit,
-            'schema': schema,
-            'circularReferenceDepth': config.circularReferenceDepth,
-            'selectedFields': build.selection[fieldName]
+    const OP_TYPES = [{
+        op: OperationTypeNode.QUERY,
+        field: schema.getQueryType()
+    },
+    {
+        op: OperationTypeNode.SUBSCRIPTION,
+        field: schema.getSubscriptionType()
+    }
+    ];
+    OP_TYPES.forEach(opType => {
+        if (!opType.field) return;
+        fieldsToBuild.length = 0;
+        for (const fieldName in opType.field.getFields()) {
+            const field = opType.field.getFields()[fieldName];
+            if (!field) continue;
+            const res = buildForField(field, (_nested) => {
+                return _nested
+            }, QUERY_PREFIX)
+            if (res) {
+                fieldsToBuild.push({
+                    selection: {
+                        [fieldName]: res
+                    },
+                    queryName: `${QUERY_PREFIX}_${fieldName}`
+                })
+            }
+        }
+        fieldsToBuild.forEach(build => {
+            const fieldName = Object.keys(build.selection)[0];
+            const definition = buildOperationNodeForField({
+                'field': fieldName,
+                'kind': opType.op,
+                'depthLimit': config.depthLimit,
+                'schema': schema,
+                'circularReferenceDepth': config.circularReferenceDepth,
+                'selectedFields': build.selection[fieldName]
+            })
+            const newDef = {
+                ...definition
+            }
+            newDef.name = {
+                kind: Kind.NAME,
+                value: build.queryName.toUpperCase()
+            }
+            definitions.push(newDef)
         })
-        const newDef = {
-            ...definition
-        }
-        newDef.name = {
-            kind: Kind.NAME,
-            value: build.queryName.toUpperCase()
-        }
-        definitions.push(newDef)
     })
 
     const document: DocumentNode = {
