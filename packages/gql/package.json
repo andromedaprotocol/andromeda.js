@@ -14,7 +14,7 @@
     "test": "jest",
     "tsc": "tsc --noEmit",
     "depcheck": "depcheck",
-    "codegen": "graphql-codegen --config codegen.ts"
+    "codegen": "graphql-codegen --config codegen.master.ts && graphql-codegen --config codegen.build.ts"
   },
   "keywords": [],
   "author": "",
@@ -24,16 +24,23 @@
   ],
   "dependencies": {
     "@apollo/client": "^3.7.17",
-    "@graphql-codegen/typescript-operations": "^4.0.1",
     "graphql": "^16.7.1",
     "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.0",
+    "@graphql-codegen/core": "^4.0.0",
+    "@graphql-codegen/plugin-helpers": "^5.0.1",
+    "@graphql-codegen/schema-ast": "^4.0.0",
     "@graphql-codegen/typescript-apollo-client-helpers": "^2.2.6",
     "@graphql-codegen/typescript-graphql-request": "^5.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
+    "@graphql-codegen/visitor-plugin-common": "^4.0.1",
+    "@graphql-tools/utils": "^10.0.4",
+    "@types/node": "^18.14.1",
+    "auto-bind": "^5.0.1",
     "depcheck": "^1.4.3",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",
