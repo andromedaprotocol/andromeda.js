@@ -10,6 +10,7 @@ const commonConfig = {
     transformUnderscore: true,
   },
   typesPrefix: 'I',
+  documentsPrefix: 'D',
   avoidOptionals: {
     field: true,
     inputValue: false,
@@ -21,22 +22,22 @@ const commonConfig = {
   inputMaybeValue: 'T | undefined',
   strictScalars: true,
   scalars: {
-    JSON: '{ [key: string]: any }',
-  },
+    JSON: 'any',
+  }
 }
 
 const config: CodegenConfig = {
-  schema: 'https://gql.testnet.andromedaprotocol.io/graphql',
-  documents: 'src/**/*.graphql',
+  schema: './schema/schema-ast.graphql',
+  documents: 'schema/**/*.graphql',
   ignoreNoDocuments: true,
   generates: {
-    'src/node.ts': {
+    '__generated/node.ts': {
       plugins: ['typescript', 'typescript-operations', 'typescript-graphql-request'],
       config: {
         ...commonConfig
       },
     },
-    'src/react.ts': {
+    '__generated/react.ts': {
       plugins: ['typescript', 'typescript-operations', 'typescript-react-apollo'],
       config: {
         withHooks: true,
@@ -44,8 +45,15 @@ const config: CodegenConfig = {
         ...commonConfig
       },
     },
-    'src/apollo-helpers.ts': {
+    '__generated/apollo-helpers.ts': {
       plugins: ['typescript-apollo-client-helpers']
+    },
+    '__generated/types.ts': {
+      plugins: ['typescript'],
+      config: {
+        ...commonConfig,
+        onlyOperationTypes: false,
+      }
     }
   },
 }

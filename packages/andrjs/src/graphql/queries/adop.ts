@@ -7,7 +7,7 @@ import { querySdk } from "../client";
  * @returns
  */
 export async function queryADOTypes(): Promise<string[]> {
-  const resp = await querySdk.MASTER_ADOP()
+  const resp = await querySdk.CODEGEN_GENERATED_ADOP()
 
   return resp.ADOP.adoTypes;
 }
@@ -20,7 +20,7 @@ export async function queryADOTypes(): Promise<string[]> {
 export async function queryADOPackageDefinition(
   adoType: string
 ): Promise<PackageDefinition> {
-  const resp = await querySdk.MASTER_ADOP_PACKAGE({
+  const resp = await querySdk.CODEGEN_GENERATED_ADOP_PACKAGE({
     ADOP_package_adoType: adoType
   })
 

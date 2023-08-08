@@ -1,0 +1,9 @@
+fragment txInfo on TxInfo {
+  code
+  gasUsed
+  gasWanted
+  hash
+  height
+  rawLog
+  tx
+}

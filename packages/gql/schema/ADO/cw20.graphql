@@ -1,0 +1,53 @@
+query CW20_TOKEN_INFO($contractAddress: String!) {
+  ADO {
+    cw20(address: $contractAddress) {
+      address
+      tokenInfo {
+        decimals
+        name
+        symbol
+        total_supply
+      }
+    }
+  }
+}
+
+query CW20($contractAddress: String!) {
+  ADO {
+    cw20(address: $contractAddress) {
+      address
+      andr {
+        address
+        admin
+        blockHeightUponCreation
+        codeId
+        contractVersion
+        creator
+        ibcPortId
+        label
+        operators
+        originalPublisher
+        owner
+        queries_expected
+        type
+        version
+      }
+      downloadLogo {
+        data
+        mime_type
+      }
+      marketingInfo {
+        allowance
+        description
+        logo
+        marketing
+        project
+      }
+      minter {
+        cap
+        minter
+      }
+      type
+    }
+  }
+}

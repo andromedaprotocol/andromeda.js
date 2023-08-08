@@ -1,5 +1,5 @@
 import { request, GraphQLClient, RequestDocument } from "graphql-request";
-import { getSdk } from "@andromedaprotocol/gql/dist/node";
+import { getSdk } from "@andromedaprotocol/gql/__generated/node";
 /**
  * The URI to send the GQL queries to
  */

@@ -21,7 +21,7 @@ query APP_COMPONENTS($contractAddress: String!) {
   }
 }
 
-query APP_MASTER($contractAddress: String!) {
+query APP_CONFIG_AND_COMPONENTS($contractAddress: String!) {
   ADO {
     app(address: $contractAddress) {
       address
@@ -33,9 +33,6 @@ query APP_MASTER($contractAddress: String!) {
         ...appComponent
       }
       type
-      andr {
-        ...andrFragment
-      }
     }
   }
 }

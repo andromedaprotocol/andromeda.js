@@ -1,7 +1,9 @@
-import { DocumentNode, GraphQLField, GraphQLNonNull, GraphQLObjectType, GraphQLSchema, Kind, OperationDefinitionNode, OperationTypeNode, print } from 'graphql';
+import { DocumentNode, GraphQLField, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLSchema, Kind, OperationDefinitionNode, OperationTypeNode, print } from 'graphql';
 import { PluginFunction, PluginValidateFn, Types } from '@graphql-codegen/plugin-helpers';
 import { OperationsDocumentConfig } from './config';
 import { buildOperationNodeForField } from '@graphql-tools/utils';
+
+const QUERY_PREFIX = 'CODEGEN_GENERATED'
 
 export const plugin: PluginFunction<OperationsDocumentConfig> = async (
     schema: GraphQLSchema,
@@ -9,34 +11,34 @@ export const plugin: PluginFunction<OperationsDocumentConfig> = async (
     config: OperationsDocumentConfig
 ): Promise<Types.PluginOutput> => {
     const definitions: OperationDefinitionNode[] = [];
-    const maxDepth = config.recurDepth ?? 2;
 
     type Selection = Record<string, any>;
     const fieldsToBuild: {
         queryName: string,
         selection: Selection
     }[] = [];
-    // const operationDefinitionNode: OperationDefinitionNode = buildOperationNodeForField({
-    //     schema,
-    //     kind: OperationTypeNode.QUERY,
-    //     field: rootName,
-    //     depthLimit: config.depthLimit,
-    //     circularReferenceDepth: config.circularReferenceDepth,
-    //     selectedFields: getSelection({
-    //         [field.name]:
-    //     })
-    // });
-    // definitions.push(operationDefinitionNode);
 
     const buildForField = (field: GraphQLField<any, any, any>, getSelection: (nested: Selection) => Selection, fieldName: string) => {
         if (!field || !!field.deprecationReason) return;
         let nestedField = field.type;
-        if (nestedField instanceof GraphQLNonNull) {
+
+        // Process graphql lists
+        while (nestedField instanceof GraphQLList || nestedField instanceof GraphQLNonNull) {
             nestedField = nestedField.ofType;
         }
+
         // If Scalar type, return true to include this field
         if (!(nestedField instanceof GraphQLObjectType)) {
-            return field.args.length > 0 ? undefined : true;
+            if (field.args.length > 0) {
+                fieldsToBuild.push({
+                    selection: getSelection({
+                        [field.name]: true
+                    }),
+                    queryName: `${fieldName}_${field.name}`
+                })
+                return undefined;
+            }
+            return true;
         }
 
         // If its an object type then create a nestedKeys struct and return it
@@ -50,13 +52,13 @@ export const plugin: PluginFunction<OperationsDocumentConfig> = async (
             if (subFieldBuild)
                 nestedKeys[subField] = subFieldBuild;
         }
+        fieldsToBuild.push({
+            selection: getSelection({
+                [field.name]: nestedKeys
+            }),
+            queryName: `${fieldName}_${field.name}`
+        })
         if (field.args.length > 0) {
-            fieldsToBuild.push({
-                selection: getSelection({
-                    [field.name]: nestedKeys
-                }),
-                queryName: `${fieldName}_${field.name}`
-            })
             return undefined;
         }
         return nestedKeys
@@ -66,13 +68,13 @@ export const plugin: PluginFunction<OperationsDocumentConfig> = async (
         if (!field) continue;
         const res = buildForField(field, (_nested) => {
             return _nested
-        }, 'MASTER')
+        }, QUERY_PREFIX)
         if (res) {
             fieldsToBuild.push({
                 selection: {
                     [fieldName]: res
                 },
-                queryName: `MASTER_${fieldName}`
+                queryName: `${QUERY_PREFIX}_${fieldName}`
             })
         }
     }
@@ -101,6 +103,7 @@ export const plugin: PluginFunction<OperationsDocumentConfig> = async (
         kind: Kind.DOCUMENT,
         definitions,
     };
+
     const content = print(document);
     return {
         content,

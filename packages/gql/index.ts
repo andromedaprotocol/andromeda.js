@@ -1,5 +1,5 @@
-import { StrictTypedTypePolicies } from './apollo-helpers'
-export * from './apollo-helpers'
+import { StrictTypedTypePolicies } from './__generated/apollo-helpers'
+export * from './__generated/apollo-helpers'
 
 /**
  * Typed Field Policy will be used with apollo client to provide information about key fields.

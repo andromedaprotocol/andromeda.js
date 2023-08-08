@@ -5,11 +5,6 @@ export interface OperationsDocumentConfig {
    */
   depthLimit?: number;
   /**
- * @default 2
- * @description Allows you choose how many levels of depth selection sets will be generated
- */
-  recurDepth?: number;
-  /**
    * @default 1
    * @description Allows you choose how many times the circular references can repeat
    */

@@ -11,10 +11,13 @@
     "start": "nodemon --watch 'src/**/*.ts' --ext 'ts,json' --exec \"npm run\" build",
     "create": "npm run build && npm run test",
     "build": "rimraf ./dist && tsc && tsc-alias",
+    "build:plugin": "rimraf ./plugins/dist && tsc -p tsconfig.plugin.json && tsc-alias -p tsconfig.plugin.json",
     "test": "jest",
     "tsc": "tsc --noEmit",
     "depcheck": "depcheck",
-    "codegen": "graphql-codegen --config codegen.master.ts && graphql-codegen --config codegen.build.ts"
+    "codegen:master": "npm run build:plugin && graphql-codegen --config codegen.master.ts",
+    "codegen:build": "rimraf ./plugin/dist && graphql-codegen --config codegen.build.ts",
+    "codegen": "npm run codegen:master && npm run codegen:build"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +36,7 @@
     "@graphql-codegen/core": "^4.0.0",
     "@graphql-codegen/plugin-helpers": "^5.0.1",
     "@graphql-codegen/schema-ast": "^4.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-apollo-client-helpers": "^2.2.6",
     "@graphql-codegen/typescript-graphql-request": "^5.0.0",
     "@graphql-codegen/typescript-operations": "^4.0.1",
