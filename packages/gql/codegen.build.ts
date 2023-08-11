@@ -48,7 +48,7 @@ const config: CodegenConfig = {
     '__generated/apollo-helpers.ts': {
       plugins: ['typescript-apollo-client-helpers']
     },
-    '__generated/types.ts': {
+    '__generated/types.d.ts': {
       plugins: ['typescript'],
       config: {
         ...commonConfig,
