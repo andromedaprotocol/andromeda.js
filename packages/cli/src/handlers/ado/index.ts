@@ -155,16 +155,85 @@ const commands: Commands = {
   },
   resolvepath: {
     handler: resolvePathHandler,
-    color: pc.blue,
+    color: pc.cyan,
     description: "Gets the address of the specified path",
     usage: "ado resolvepath",
     inputs: [
       {
-        requestMessage: "Input path:",
+        requestMessage: "Input the path:",
         validate: (input: string) => {
           if (input.length === 0) return false;
           return true;
         },
+      },
+    ],
+    flags: executeFlags,
+  },
+  addpath: {
+    handler: addPathHandler,
+    color: pc.magenta,
+    description: "Registers an ADO component to the path",
+    usage: "ado addpath",
+    inputs: [
+      {
+        requestMessage: "Input the ADO componet Address:",
+        validate: validateAddressInput,
+      },
+      {
+        requestMessage: "Input the name:",
+        validate: (input: string) => {
+          if (input.length === 0) return false;
+          return true;
+        },
+      },
+    ],
+    flags: executeFlags,
+  },
+  addparentpath: {
+    handler: addParentPathHandler,
+    color: pc.magenta,
+    description: "Registers the child's path relative to the parent",
+    usage: "ado addparentpath",
+    inputs: [
+      {
+        requestMessage: "Input the Parent Address:",
+        validate: validateAddressInput,
+      },
+      {
+        requestMessage: "Input the name:",
+        validate: (input: string) => {
+          if (input.length === 0) return false;
+          return true;
+        },
+      },
+    ],
+    flags: executeFlags,
+  },
+  subdir: {
+    handler: subDirHandler,
+    color: pc.cyan,
+    description: "Gets the sub directory of the specified path",
+    usage: "ado subdir",
+    inputs: [
+      {
+        requestMessage: "Input the path:",
+        validate: (input: string) => {
+          if (input.length === 0) return false;
+          return true;
+        },
+      },
+    ],
+    flags: executeFlags,
+  },
+  paths: {
+    handler: pathsHandler,
+    color: pc.yellow,
+    description: "Gets the paths of an ADO",
+    usage: "ado paths",
+    inputs: [
+      {
+        requestMessage: "Input the Address:",
+        validate: validateAddressInput,
       },
     ],
     flags: executeFlags,
@@ -346,6 +415,84 @@ async function resolvePathHandler(input: string[]) {
   const msg: Msg = {
     resolve_path: {
       path: path,
+    }
+  };
+  if (client.os.vfs?.address) {
+    const resp = await queryMessage(client.os.vfs?.address, msg);
+    console.log(JSON.stringify(resp, null, 2));
+  } else {
+    console.log("Unable to figure out the vfs address");
+  }
+}
+
+/**
+ * Registers an ADO to the path.
+ * @param input
+ * @param flags
+ */
+async function addPathHandler(input: string[], flags: Flags) {
+  if (!client.os.vfs?.address) throw new Error("Unable to figure out the vfs address");
+
+  const [address, name] = input;
+
+  const msgAddPath: Msg = {
+    add_path: {
+      name,
+      address,
+    }
+  };
+  await executeMessage(client.os.vfs?.address, msgAddPath, flags, "Registered the given ado to the path!"); //TODO: ADD FEE FLAG
+}
+
+/**
+ * Registers the child's path relative to the parent.
+ * @param input
+ * @param flags
+ */
+async function addParentPathHandler(input: string[], flags: Flags) {
+  if (!client.os.vfs?.address) throw new Error("Unable to figure out the vfs address");
+
+  const [parent_address, name] = input;
+
+  const msgAddParentPath: Msg = {
+    add_parent_path: {
+      name,
+      parent_address,
+    }
+  };
+  await executeMessage(client.os.vfs?.address, msgAddParentPath, flags, "Assigned name to the given parent!"); //TODO: ADD FEE FLAG
+}
+
+/**
+ * Queries to get the sub directories of the specified path
+ * @param input
+ * @param flags
+ */
+async function subDirHandler(input: string[]) {
+  const [path] = input;
+  const msg: Msg = {
+    sub_dir: {
+      path: path,
+    }
+  };
+  if (client.os.vfs?.address) {
+    const resp = await queryMessage(client.os.vfs?.address, msg);
+    console.log(JSON.stringify(resp, null, 2));
+  } else {
+    console.log("Unable to figure out the vfs address");
+  }
+}
+
+/**
+ * Queries to get the paths of an ADO
+ * @param input
+ * @param flags
+ */
+async function pathsHandler(input: string[]) {
+  const [address] = input;
+  const msg: Msg = {
+    paths: {
+      addr: address,
     }
   };
   if (client.os.vfs?.address) {
