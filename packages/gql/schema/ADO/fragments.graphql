@@ -1,0 +1,30 @@
+fragment andrFragment on AndrQuery {
+  admin
+  address
+  blockHeightUponCreation
+  codeId
+  creator
+  contractVersion
+  ibcPortId
+  label
+  owner
+  operators
+  originalPublisher
+  queries_expected
+  type
+  version
+}
+
+fragment component on Component {
+  address
+  ado_type
+  instantiate_msg
+  name
+}
+
+fragment appComponent on AppComponent {
+  address
+  ado_type
+  instantiate_msg
+  name
+}

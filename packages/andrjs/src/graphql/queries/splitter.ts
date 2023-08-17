@@ -1,38 +1,5 @@
-import { query } from "../client";
-import { gql } from "graphql-request";
-import { ContractAddressQuery, Recipient } from "./types";
+import { querySdk } from "../client";
 
-export interface SplitterResponse<T> {
-  splitter: T;
-}
-
-export interface RecipientPercentage {
-  percent: string;
-  recipient: Recipient;
-}
-export interface SplitterConfig {
-  locked: boolean;
-  recipients: RecipientPercentage[];
-}
-
-export interface QuerySplitterConfig extends ContractAddressQuery {}
-export type QuerySplitterConfigResponse = SplitterResponse<{
-  config: SplitterConfig;
-}>;
-
-export const QUERY_SPLITTER_CONFIG = gql`
-  query QUERY_SPLITTER_CONFIG($contractAddress: String!) {
-    splitter(address: $contractAddress) {
-      config {
-        locked
-        recipients {
-          percent
-          recipient
-        }
-      }
-    }
-  }
-`;
 
 /**
  * Queries a splitter contract for its config
@@ -41,11 +8,10 @@ export const QUERY_SPLITTER_CONFIG = gql`
  */
 export async function queryConfig(
   contractAddress: string
-): Promise<SplitterConfig> {
-  const resp = await query<QuerySplitterConfig, QuerySplitterConfigResponse>(
-    QUERY_SPLITTER_CONFIG,
-    { contractAddress }
-  );
+) {
+  const resp = await querySdk.CODEGEN_GENERATED_ADO_SPLITTER_CONFIG({
+    'ADO_splitter_address': contractAddress
+  })
 
-  return resp.splitter.config;
+  return resp.ADO.splitter.config;
 }
