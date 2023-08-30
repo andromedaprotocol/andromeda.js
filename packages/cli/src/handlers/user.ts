@@ -1,11 +1,10 @@
-import { Msg } from "@andromedaprotocol/andromeda.js";
 import pc from "picocolors";
 import _ from "lodash";
 import { Commands, Flags } from "../types";
 import { promptWithExit } from "cmd";
 import { executeFlags } from "common";
 import State from "../state";
-import { executeMessage, queryMessage } from "./wasm";
+import { executeMessage } from "./wasm";
 
 const { client } = State;
 
@@ -13,24 +12,18 @@ export const commands: Commands = {
   register: {
     handler: registerHandler,
     color: pc.magenta,
-    description: "Registers a username to an address",
+    description: "Registers a username for an address",
     usage: "user register",
     flags: executeFlags,
   },
   getusername: {
     handler: async () => {
-      const msg: Msg = {
-        get_username: {
-          address: State.wallets.currentWalletAddress,
-        }
-      };
+      if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
+      const walletAddr = State.wallets.currentWalletAddress;
+      if (!walletAddr) throw new Error("No wallet currently assigned");
 
-      if (client.os.vfs?.address) {
-        const resp = await queryMessage(client.os.vfs?.address, msg);
-        console.log(JSON.stringify(resp, null, 2));
-      } else {
-        console.log("Unable to figure out the vfs address");
-      }
+      const resp = await client.os.vfs?.getUsername(walletAddr);
+      console.log(JSON.stringify(resp, null, 2));
     },
     color: pc.cyan,
     description: "Gets the username claimed to an address",
@@ -43,16 +36,11 @@ export const commands: Commands = {
  * @param flags
  */
 async function registerHandler(flags: Flags) {
-  if (!client.os.vfs?.address) throw new Error("Unable to figure out the vfs address");
-
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
   const walletAddr = State.wallets.currentWalletAddress;
-  const msgGet: Msg = {
-    get_username: {
-      address: walletAddr,
-    }
-  };
+  if (!walletAddr) throw new Error("No wallet currently assigned");
 
-  const resp = await queryMessage(client.os.vfs?.address, msgGet);
+  const resp = await client.os.vfs?.getUsername(walletAddr);
   console.log(`You already have ${JSON.stringify(resp, null, 2)} registered for your account`);
 
   let username;
@@ -71,11 +59,7 @@ async function registerHandler(flags: Flags) {
     if (username === "exit") return;
   }
 
-  const msgReg: Msg = {
-    register_user: {
-      username: username,
-    }
-  };
+  const msgReg = await client.os.vfs?.registerUserMsg(username);
   await executeMessage(client.os.vfs?.address, msgReg, flags, "Username claimed!"); //TODO: ADD FEE FLAG
 }
 
@@ -86,14 +70,7 @@ async function registerHandler(flags: Flags) {
  */
 async function validateUsername(input: string) {
   const usernameRegex = new RegExp(/^[a-z0-9]+$/i);
-  if (
-    !input ||
-    input.length === 0 ||
-    !usernameRegex.test(input)
-  )
-    return false;
-
-  return true;
+  return usernameRegex.test(input ?? '');
 }
 
 export default commands;

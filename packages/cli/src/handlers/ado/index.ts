@@ -1,7 +1,6 @@
 import {
   ContractSchema,
   fetchSchema,
-  Msg,
   queryADOPackageDefinition,
   queryADOTypes,
 } from "@andromedaprotocol/andromeda.js";
@@ -411,18 +410,10 @@ async function transferHandler(input: string[], flags: Flags) {
  * @param flags
  */
 async function resolvePathHandler(input: string[]) {
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
   const [path] = input;
-  const msg: Msg = {
-    resolve_path: {
-      path: path,
-    }
-  };
-  if (client.os.vfs?.address) {
-    const resp = await queryMessage(client.os.vfs?.address, msg);
-    console.log(JSON.stringify(resp, null, 2));
-  } else {
-    console.log("Unable to figure out the vfs address");
-  }
+  const resp = await client.os.vfs?.resolvePath(path);
+  console.log(JSON.stringify(resp, null, 2));
 }
 
 /**
@@ -431,16 +422,11 @@ async function resolvePathHandler(input: string[]) {
  * @param flags
  */
 async function addPathHandler(input: string[], flags: Flags) {
-  if (!client.os.vfs?.address) throw new Error("Unable to figure out the vfs address");
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
 
   const [address, name] = input;
 
-  const msgAddPath: Msg = {
-    add_path: {
-      name,
-      address,
-    }
-  };
+  const msgAddPath = client.os.vfs?.addPathMsg(name, address);
   await executeMessage(client.os.vfs?.address, msgAddPath, flags, "Registered the given ado to the path!"); //TODO: ADD FEE FLAG
 }
 
@@ -450,16 +436,11 @@ async function addPathHandler(input: string[], flags: Flags) {
  * @param flags
  */
 async function addParentPathHandler(input: string[], flags: Flags) {
-  if (!client.os.vfs?.address) throw new Error("Unable to figure out the vfs address");
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
 
   const [parent_address, name] = input;
 
-  const msgAddParentPath: Msg = {
-    add_parent_path: {
-      name,
-      parent_address,
-    }
-  };
+  const msgAddParentPath = client.os.vfs?.addParentPathMsg(name, parent_address);
   await executeMessage(client.os.vfs?.address, msgAddParentPath, flags, "Assigned name to the given parent!"); //TODO: ADD FEE FLAG
 }
 
@@ -469,18 +450,10 @@ async function addParentPathHandler(input: string[], flags: Flags) {
  * @param flags
  */
 async function subDirHandler(input: string[]) {
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
   const [path] = input;
-  const msg: Msg = {
-    sub_dir: {
-      path: path,
-    }
-  };
-  if (client.os.vfs?.address) {
-    const resp = await queryMessage(client.os.vfs?.address, msg);
-    console.log(JSON.stringify(resp, null, 2));
-  } else {
-    console.log("Unable to figure out the vfs address");
-  }
+  const resp = await client.os.vfs?.subDir(path);
+  console.log(JSON.stringify(resp, null, 2));
 }
 
 /**
@@ -489,18 +462,10 @@ async function subDirHandler(input: string[]) {
  * @param flags
  */
 async function pathsHandler(input: string[]) {
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
   const [address] = input;
-  const msg: Msg = {
-    paths: {
-      addr: address,
-    }
-  };
-  if (client.os.vfs?.address) {
-    const resp = await queryMessage(client.os.vfs?.address, msg);
-    console.log(JSON.stringify(resp, null, 2));
-  } else {
-    console.log("Unable to figure out the vfs address");
-  }
+  const resp = await client.os.vfs?.paths(address);
+  console.log(JSON.stringify(resp, null, 2));
 }
 
 export default commands;
