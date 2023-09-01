@@ -286,16 +286,16 @@ export default class ADOAPI {
    * @param msg
    * @returns
    */
-  protected andromedaQuery(msg: Msg) {
-    return { andr_query: msg };
+  protected andromedaQuery(msg: Msg, schemaVersion: string = "") {
+    return schemaVersion === "v1" ? { andr_query: msg }: msg;
   }
 
   /**
    * Returns an operators query message
    * @returns
    */
-  operatorsQuery() {
-    return this.andromedaQuery({ operators: {} });
+  operatorsQuery(schemaVersion: string = "") {
+    return this.andromedaQuery({ operators: {} }, schemaVersion);
   }
 
   /**
@@ -317,8 +317,8 @@ export default class ADOAPI {
    * Returns an owner query message
    * @returns
    */
-  ownerQuery() {
-    return this.andromedaQuery({ owner: {} });
+  ownerQuery(schemaVersion: string = "") {
+    return this.andromedaQuery({ owner: {} }, schemaVersion);
   }
 
   /**
@@ -351,8 +351,8 @@ export default class ADOAPI {
    * Returns an ADO type query message
    * @returns
    */
-  typeQuery() {
-    return this.andromedaQuery({ type: {} });
+  typeQuery(schemaVersion: string = "") {
+    return this.andromedaQuery({ type: {} }, schemaVersion);
   }
 
   /**
@@ -374,8 +374,8 @@ export default class ADOAPI {
    * Returns a publisher query message
    * @returns
    */
-  publisherQuery() {
-    return this.andromedaQuery({ original_publisher: {} });
+  publisherQuery(schemaVersion: string = "") {
+    return this.andromedaQuery({ original_publisher: {} }, schemaVersion);
   }
 
   /**
@@ -396,8 +396,8 @@ export default class ADOAPI {
    * Returns a block height creation query
    * @returns
    */
-  createdHeightQuery() {
-    return this.andromedaQuery({ block_height_upon_creation: {} });
+  createdHeightQuery(schemaVersion: string = "") {
+    return this.andromedaQuery({ block_height_upon_creation: {} }, schemaVersion);
   }
 
   /**
@@ -419,8 +419,8 @@ export default class ADOAPI {
    * Returns a version query
    * @returns
    */
-  versionQuery() {
-    return this.andromedaQuery({ version: {} });
+  versionQuery(schemaVersion: string = "") {
+    return this.andromedaQuery({ version: {} }, schemaVersion);
   }
 
   /**
@@ -443,8 +443,8 @@ export default class ADOAPI {
    * @param id
    * @returns
    */
-  moduleQuery(id: string | number) {
-    return this.andromedaQuery({ module: { id } });
+  moduleQuery(id: string | number, schemaVersion: string = "") {
+    return this.andromedaQuery({ module: { id } }, schemaVersion);
   }
 
   /**
@@ -454,8 +454,8 @@ export default class ADOAPI {
    * @param addr
    * @returns
    */
-  async getModule(id: string | number, addr: string = this.address) {
-    const query = this.moduleQuery(id);
+  async getModule(id: string | number, addr: string = this.address, schemaVersion: string = "") {
+    const query = this.moduleQuery(id, schemaVersion);
     const resp = await this.client.queryContract<Module>(addr, query);
 
     return { ...resp, idx: parseInt(`${id}`) };
@@ -465,8 +465,8 @@ export default class ADOAPI {
    * Returns a module IDs query
    * @returns
    */
-  moduleIdsQuery() {
-    return this.andromedaQuery({ module_ids: {} });
+  moduleIdsQuery(schemaVersion: string = "") {
+    return this.andromedaQuery({ module_ids: {} }, schemaVersion);
   }
 
   /**
@@ -475,8 +475,8 @@ export default class ADOAPI {
    * @param addr
    * @returns
    */
-  async getModuleIds(addr: string = this.address) {
-    const query = this.moduleIdsQuery();
+  async getModuleIds(addr: string = this.address, schemaVersion: string = "") {
+    const query = this.moduleIdsQuery(schemaVersion);
     const resp = await this.client.queryContract<string[]>(addr, query);
 
     return resp;
@@ -488,12 +488,12 @@ export default class ADOAPI {
    * @param addr
    * @returns
    */
-  async getModules(addr: string = this.address) {
-    const ids = await this.getModuleIds(addr);
+  async getModules(addr: string = this.address, schemaVersion: string = "") {
+    const ids = await this.getModuleIds(addr, schemaVersion);
     const modulePromises = [];
 
     for (let i = 0; i < ids.length; i++) {
-      modulePromises.push(this.getModule(ids[i], addr));
+      modulePromises.push(this.getModule(ids[i], addr, schemaVersion));
     }
 
     const modules = await Promise.all(modulePromises);

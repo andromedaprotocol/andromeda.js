@@ -208,6 +208,21 @@ export default class AndromedaClient {
   }
 
   /**
+   * Wrapper function for CosmWasm query
+   * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#queryContractRaw
+   * @param address
+   * @param key
+   * @returns
+   */
+  async queryContractRaw<T = any>(address: string, key: Uint8Array) {
+    this.preMessage();
+    return (await this.chainClient!.queryClient!!.queryContractRaw(
+      address,
+      key
+    )) as T;
+  }
+
+  /**
    * Wrapper function for CosmWasm migrate
    * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#migrate
    * @param contractAddress

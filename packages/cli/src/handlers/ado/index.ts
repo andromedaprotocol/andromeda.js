@@ -186,8 +186,8 @@ async function createHandler(input: string[], flags: Flags) {
  * @param address The address of the ADO
  * @returns The type of ADO the contract is, errors if the contract is not an ADO
  */
-async function queryADOType(address: string) {
-  const queryMsg = client.ado.typeQuery();
+async function queryADOType(address: string, schemaVersion: string) {
+  const queryMsg = client.ado.typeQuery(schemaVersion);
 
   const { ado_type } = await queryMessage<{ ado_type: string }>(
     address,
@@ -198,6 +198,18 @@ async function queryADOType(address: string) {
 }
 
 /**
+ * Queries an ADO for its schema version
+ * @param address The address of the ADO
+ * @returns The schema version of ADO the contract is, errors if the contract is not an ADO
+ */
+async function getSchemaVersion(address: string) {
+  const _key = Buffer.from('version');
+  const queryResult = await client.queryContractRaw(address, _key);
+  const schemaVersion = queryResult ? Buffer.from(queryResult).toString().replace(/"/g, '') : '';
+  return schemaVersion.split('.')[1] === '2' ? "v2" : "v1";
+}
+
+/**
  * Executes a chosen message on an ADO by its address
  * @param input
  * @param flags
@@ -205,10 +217,12 @@ async function queryADOType(address: string) {
 async function executeHandler(input: string[], flags: Flags) {
   const [address] = input;
 
+  let schemaVersion = "";
   //The ADO type must be fetched before the message types can be determined
   let type = "";
   try {
-    type = await queryADOType(address);
+    schemaVersion = await getSchemaVersion(address);
+    type = await queryADOType(address, schemaVersion);
   } catch (error) {
     console.error(pc.red("Contract is not a valid ADO"));
     return;
@@ -238,9 +252,11 @@ async function executeHandler(input: string[], flags: Flags) {
 async function queryHandler(input: string[]) {
   const [address] = input;
 
+  let schemaVersion = "";
   let type = "";
   try {
-    type = await queryADOType(address);
+    schemaVersion = await getSchemaVersion(address);
+    type = await queryADOType(address, schemaVersion);
   } catch (error) {
     console.error(pc.red("Contract is not a valid ADO"));
     return;
