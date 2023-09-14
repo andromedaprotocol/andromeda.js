@@ -1,4 +1,4 @@
-import { IAndrSearchOptions } from "@andromedaprotocol/gql/__generated/node";
+import { IAndrSearchOptions } from "@andromedaprotocol/gql/dist/__generated/node";
 import { querySdk } from "../client";
 
 /**

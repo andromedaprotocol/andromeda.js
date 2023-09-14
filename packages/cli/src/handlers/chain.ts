@@ -192,7 +192,7 @@ async function queryChainConfigSafe(
   } catch (error) {
     const { message } = error as Error;
     if (message.includes("not found")) {
-      return;
+      return undefined;
     } else {
       throw error;
     }
@@ -335,9 +335,9 @@ async function listConfigsHandler() {
   [...(await queryAllConfigsSafe()), ...localConfigs].forEach((chainConfig) =>
     config.get("chain.name") === chainConfig.name
       ? configTable.push([
-          pc.green(chainConfig.name),
-          pc.green(chainConfig.chainId),
-        ])
+        pc.green(chainConfig.name),
+        pc.green(chainConfig.chainId),
+      ])
       : configTable.push([chainConfig.name, chainConfig.chainId])
   );
 

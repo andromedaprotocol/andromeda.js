@@ -3,8 +3,8 @@ import { IndexedTx } from "@cosmjs/stargate";
 import { Log, parseRawLog } from "@cosmjs/stargate/build/logs";
 import _ from "lodash";
 import { querySdk } from "../client";
-import { ITxEventAttribute } from "@andromedaprotocol/gql/__generated/types";
-import { ITxInfoFragment } from "@andromedaprotocol/gql/__generated/node";
+import { ITxEventAttribute } from "@andromedaprotocol/gql";
+import { ITxInfoFragment } from "@andromedaprotocol/gql/dist/__generated/node";
 
 export const andrEventKeys = ["andr_app"];
 

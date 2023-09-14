@@ -1,5 +1,6 @@
 import { StrictTypedTypePolicies } from './__generated/apollo-helpers'
 export * from './__generated/apollo-helpers'
+export * from "./__generated/types"
 
 /**
  * Typed Field Policy will be used with apollo client to provide information about key fields.
