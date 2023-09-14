@@ -321,7 +321,6 @@ export async function executeMessage(
     console.log(pc.red("Transaction cancelled"));
     return;
   }
-
   const resp = await displaySpinnerAsync(
     "Executing Tx...",
     async () => await client.execute(address, msg, fee, memo, msgFunds)

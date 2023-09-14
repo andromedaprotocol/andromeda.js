@@ -1,3 +1,4 @@
+import { SigningArchwayClient } from "@archwayhq/arch3.js/build";
 import type {
   CosmWasmClient,
   DeliverTxResponse,
@@ -28,7 +29,11 @@ import type { Fee, Msg } from "../types";
  */
 export default interface ChainClient {
   // The client used to sign any transactions braodcast to the chain
-  signingClient?: SigningCosmWasmClient | TxGrpcClient | LCDClient;
+  signingClient?:
+    | SigningCosmWasmClient
+    | TxGrpcClient
+    | LCDClient
+    | SigningArchwayClient;
   // The client used to query the chain
   queryClient?: CosmWasmClient;
   // The current signer address

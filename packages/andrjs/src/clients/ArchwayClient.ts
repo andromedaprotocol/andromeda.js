@@ -1,21 +1,22 @@
+import { SigningArchwayClient } from "@archwayhq/arch3.js";
+import BaseChainClient from "./BaseChainClient";
 import {
   CosmWasmClient,
   ExecuteResult,
   InstantiateOptions,
   InstantiateResult,
   MigrateResult,
-  SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
+  UploadResult,
 } from "@cosmjs/cosmwasm-stargate";
 import { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import { DeliverTxResponse, GasPrice, StdFee } from "@cosmjs/stargate";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { Fee, Msg } from "..";
-import BaseChainClient from "./BaseChainClient";
 import ChainClient from "./ChainClient";
 
-export default class CosmClient extends BaseChainClient implements ChainClient {
-  public signingClient?: SigningCosmWasmClient;
+export default class ArchwayClient extends BaseChainClient {
+  public signingClient?: SigningArchwayClient;
   public queryClient?: CosmWasmClient;
   private gasPrice?: GasPrice;
 
@@ -30,10 +31,12 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
 
     this.queryClient = await CosmWasmClient.connect(endpoint);
     if (signer) {
-      this.signingClient = await SigningCosmWasmClient.connectWithSigner(
+      this.signingClient = await SigningArchwayClient.connectWithSigner(
         endpoint,
         signer,
-        { broadcastTimeoutMs: 30000, ...options }
+        {
+          gasAdjustment: 1.4,
+        }
       );
 
       const [account] = await signer.getAccounts();
@@ -98,7 +101,7 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
   async execute(
     contractAddress: string,
     msg: Msg,
-    fee?: Fee | undefined,
+    _fee?: Fee | undefined,
     memo?: string | undefined,
     funds?: readonly Coin[] | undefined
   ): Promise<ExecuteResult> {
@@ -107,7 +110,7 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
       this.signer,
       contractAddress,
       msg,
-      fee ?? "auto",
+      "auto",
       memo,
       funds
     );
@@ -124,9 +127,19 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     return this.simulate(message, undefined, memo);
   }
 
-  async upload(code: Uint8Array, fee: Fee = "auto", memo?: string | undefined) {
+  async upload(
+    code: Uint8Array,
+    fee: Fee = "auto",
+    memo?: string | undefined
+  ): Promise<UploadResult> {
     this.preMessage();
-    return this.signingClient!.upload(this.signer, code, fee, memo);
+    const result = await this.signingClient!.upload(
+      this.signer,
+      code,
+      fee,
+      memo
+    );
+    return { ...result, originalChecksum: "", compressedChecksum: "" };
   }
 
   async simulateUpload(
