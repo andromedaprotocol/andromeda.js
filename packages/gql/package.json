@@ -8,7 +8,7 @@
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "rimraf ./dist && tsc && tsc-alias",
+    "build": "rimraf ./dist && npm run codegen && tsc && tsc-alias",
     "build:plugin": "rimraf ./plugins/dist && tsc -p tsconfig.plugin.json && tsc-alias -p tsconfig.plugin.json",
     "tsc": "tsc --noEmit",
     "depcheck": "depcheck",
