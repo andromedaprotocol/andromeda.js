@@ -103,7 +103,7 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     funds?: readonly Coin[] | undefined
   ): Promise<ExecuteResult> {
     this.preMessage(true);
-
+    console.log("FEE", fee);
     return await this.signingClient!.execute(
       this.signer,
       contractAddress,

@@ -22,6 +22,7 @@
     "dist/**/*"
   ],
   "dependencies": {
+    "@archwayhq/arch3.js": "^0.4.0",
     "@cosmjs/cosmwasm-stargate": "^0.29.5",
     "@cosmjs/crypto": "^0.29.5",
     "@cosmjs/encoding": "^0.29.5",
@@ -39,10 +40,10 @@
     "ethers": "^5.7.2",
     "graphql-request": "^5.1.0",
     "jsonschema": "^1.4.1",
+    "libsodium-wrappers": "0.7.6",
     "lodash": "^4.17.21",
     "long": "^5.2.1",
-    "pako": "^2.1.0",
-    "libsodium-wrappers": "0.7.6"
+    "pako": "^2.1.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
