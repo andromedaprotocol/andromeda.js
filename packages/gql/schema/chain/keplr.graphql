@@ -1,0 +1,14 @@
+query KEPLR_CONFIG($identifier: String!) {
+  keplrConfigs {
+    config(identifier: $identifier) {
+      ...keplrConfig
+    }
+  }
+}
+query ALL_KEPLR_CONFIG{
+  keplrConfigs {
+    allConfigs {
+      ...keplrConfig
+    }
+  }
+}

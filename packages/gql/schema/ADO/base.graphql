@@ -1,0 +1,11 @@
+query BASE_ADO($contractAddress: String!) {
+  ADO {
+    ado(address: $contractAddress) {
+      address
+      type
+      andr {
+        ...andrFragment
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+query CHAIN_CONFIG($identifier: String!) {
+  chainConfigs {
+    config(identifier: $identifier) {
+      ...chainConfig
+    }
+  }
+}
+query ALL_CHAIN_CONFIG {
+  chainConfigs {
+    allConfigs {
+      ...chainConfig
+    }
+  }
+}

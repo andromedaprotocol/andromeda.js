@@ -1,0 +1,13 @@
+query CW721_INFO($contractAddress: String!) {
+  ADO {
+    cw721(address: $contractAddress) {
+      address
+      contractInfo {
+        name
+        symbol
+      }
+      minter
+      numTokens
+    }
+  }
+}

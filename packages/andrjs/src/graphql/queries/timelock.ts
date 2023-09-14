@@ -1,63 +1,6 @@
-import { query } from "../client";
-import { gql } from "graphql-request";
-import {
-  AndrSearchOptions,
-  ContractAddressQuery,
-  Expiry,
-  PaginatedRequiredQuery,
-  Recipient,
-} from "./types";
-import { Coin } from "@cosmjs/proto-signing";
+import { IAndrSearchOptions } from "@andromedaprotocol/gql/__generated/node";
+import { querySdk } from "../client";
 
-export interface TimelockResponse<T> {
-  timelock: T;
-}
-
-export interface EscrowExpiryCondition {
-  expiration: Expiry;
-}
-export interface EscrowMinFundsCondition {
-  minimumFunds: Coin[];
-}
-export type EscrowCondition = EscrowExpiryCondition | EscrowMinFundsCondition;
-export interface Escrow {
-  coins: Coin[];
-  condition: EscrowCondition;
-  recipient: Recipient;
-}
-
-export interface QueryTimelockLockedFunds extends ContractAddressQuery {
-  owner: string;
-  recipient: string;
-}
-export type QueryTimelockLockedFundsResponse = TimelockResponse<{
-  getLockedFunds: Escrow;
-}>;
-
-export const QUERY_TIMELOCK_LOCKED_FUNDS = gql`
-  query QUERY_TIMELOCK_LOCKED_FUNDS(
-    $contractAddress: String!
-    $owner: String!
-    $recipient: String!
-  ) {
-    timelock(address: $contractAddress) {
-      getLockedFunds(owner: $owner, recipient: $recipient) {
-        coins {
-          denom
-          amount
-        }
-        condition {
-          expiration
-          miniumFunds {
-            denom
-            amount
-          }
-        }
-        recipient
-      }
-    }
-  }
-`;
 
 /**
  * Queries a timelock contract for locked funds given an owner/recipient tuple
@@ -71,47 +14,14 @@ export async function queryTimelockLockedFunds(
   owner: string,
   recipient: string
 ) {
-  const resp = await query<
-    QueryTimelockLockedFunds,
-    QueryTimelockLockedFundsResponse
-  >(QUERY_TIMELOCK_LOCKED_FUNDS, { contractAddress, owner, recipient });
+  const resp = await querySdk.CODEGEN_GENERATED_ADO_TIMELOCK_GETLOCKEDFUNDS({
+    'ADO_timelock_address': contractAddress,
+    'ADO_timelock_timelock_getLockedFunds_owner': owner,
+    'ADO_timelock_timelock_getLockedFunds_recipient': recipient
+  })
 
-  return resp.timelock.getLockedFunds;
+  return resp.ADO.timelock.getLockedFunds;
 }
-
-export interface QueryTimelockRecipientLockedFunds
-  extends ContractAddressQuery,
-    PaginatedRequiredQuery {
-  recipient: string;
-}
-export type QueryTimelockRecipientLockedFundsResponse = TimelockResponse<{
-  getLockedFundsForRecipient: Escrow[];
-}>;
-
-export const QUERY_TIMELOCK_RECIPIENT_LOCKED_FUNDS = gql`
-  query QUERY_TIMELOCK_RECIPIENT_LOCKED_FUNDS(
-    $contractAddress: String!
-    $options: AndrSearchOptions!
-    $recipient: String!
-  ) {
-    timelock(address: $contractAddress) {
-      getLockedFundsForRecipient(options: $options, recipient: $recipient) {
-        coins {
-          amount
-          denom
-        }
-        condition {
-          expiration
-          miniumFunds {
-            amount
-            denom
-          }
-        }
-        recipient
-      }
-    }
-  }
-`;
 
 /**
  * Queries a timelock contract for all locked funds for a given recipient
@@ -123,16 +33,13 @@ export const QUERY_TIMELOCK_RECIPIENT_LOCKED_FUNDS = gql`
 export async function queryRecipientLockedFunds(
   contractAddress: string,
   recipient: string,
-  options: AndrSearchOptions
-): Promise<Escrow[]> {
-  const resp = await query<
-    QueryTimelockRecipientLockedFunds,
-    QueryTimelockRecipientLockedFundsResponse
-  >(QUERY_TIMELOCK_RECIPIENT_LOCKED_FUNDS, {
-    contractAddress,
-    options,
-    recipient,
-  });
+  options: IAndrSearchOptions
+) {
+  const resp = await querySdk.CODEGEN_GENERATED_ADO_TIMELOCK_GETLOCKEDFUNDSFORRECIPIENT({
+    'ADO_timelock_address': contractAddress,
+    'ADO_timelock_timelock_getLockedFundsForRecipient_recipient': recipient,
+    'ADO_timelock_timelock_getLockedFundsForRecipient_options': options
+  })
 
-  return resp.timelock.getLockedFundsForRecipient;
+  return resp.ADO.timelock.getLockedFundsForRecipient;
 }
