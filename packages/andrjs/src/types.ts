@@ -1,4 +1,4 @@
-import { IChainConfig } from "@andromedaprotocol/gql/__generated/types";
+import { IChainConfig } from "@andromedaprotocol/gql";
 import type { Coin } from "@cosmjs/proto-signing";
 import type { StdFee } from "@cosmjs/stargate";
 

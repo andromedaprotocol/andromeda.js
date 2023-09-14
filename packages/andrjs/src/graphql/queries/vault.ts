@@ -1,4 +1,4 @@
-import { IAndrStrategyType } from "@andromedaprotocol/gql/__generated/types";
+import { IAndrStrategyType } from "@andromedaprotocol/gql";
 import { querySdk } from "../client";
 
 export async function queryBalance(

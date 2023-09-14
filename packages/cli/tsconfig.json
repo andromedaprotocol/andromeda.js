@@ -5,7 +5,10 @@
     "module": "commonjs",
     "outDir": "dist",
     "moduleResolution": "node",
-    "lib": ["esnext"],
+    "strict": true,
+    "lib": [
+      "esnext"
+    ],
     "baseUrl": "./src"
   },
   "include": [
@@ -14,5 +17,9 @@
     "src/**/*.json",
     "tests/**/*.ts"
   ],
-  "exclude": ["node_modules", "dist", "test/**/*.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test/**/*.ts"
+  ]
 }

@@ -1,4 +1,4 @@
-import { IAndrOrderBy } from "@andromedaprotocol/gql/__generated/node";
+import { IAndrOrderBy } from "@andromedaprotocol/gql/dist/__generated/node";
 import { querySdk } from "../client";
 
 /**
