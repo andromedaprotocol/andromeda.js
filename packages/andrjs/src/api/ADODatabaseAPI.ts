@@ -75,6 +75,6 @@ export default class ADODatabaseAPI extends ADOAPI {
 
     const msg = this.getCodeIdQuery(name);
 
-    return this.client.queryContract<number>(this.address ?? address!, msg);
+    return this.client.queryContract<number>(address ?? this.address, msg);
   }
 }
