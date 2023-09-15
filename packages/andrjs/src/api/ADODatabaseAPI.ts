@@ -1,25 +1,10 @@
 import type AndromedaClient from "../AndromedaClient";
 import type { Fee } from "../types";
-import type RegistryAPI from "./RegistryAPI";
 import ADOAPI from "./ADOAPI";
 
 export default class ADODatabaseAPI extends ADOAPI {
   constructor(client: AndromedaClient, public address: string = "") {
     super(client, address);
-  }
-
-  /**
-   * Fetches the ADO DB address from the on chain registry
-   * @param registryAPI
-   */
-  async getAddressFromRegistry(registryAPI: RegistryAPI) {
-    try {
-      const adoDBAddress = await registryAPI.getAddress("adodb");
-      this.address = adoDBAddress;
-    } catch (e) {
-      console.error(e);
-      console.warn("Could not fetch ADO DB address");
-    }
   }
 
   /**

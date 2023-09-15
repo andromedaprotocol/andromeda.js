@@ -3,20 +3,20 @@ import {
   SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
 import {
-  calculateFee,
   DeliverTxResponse,
   GasPrice,
   StdFee,
+  calculateFee,
 } from "@cosmjs/stargate";
-import { ADOAPI, ADODBAPI, RegistryAPI } from "./api";
+import { ADOAPI } from "./api";
 
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
+import OperatingSystemAPI from "api/OperatingSystemAPI";
 import { isUndefined } from "lodash";
 import type { ChainClient } from "./clients";
 import createClient from "./clients";
 import type { Fee, Msg } from "./types";
-import OperatingSystemAPI from "api/OperatingSystemAPI";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
@@ -33,10 +33,6 @@ export default class AndromedaClient {
 
   // API for shared ADO messages
   public ado = new ADOAPI(this);
-  // API for registry specific messages
-  public registry = new RegistryAPI(this);
-  // API for ADO DB specific messages
-  public adoDB = new ADODBAPI(this);
   // API for aOS
   public os = new OperatingSystemAPI(this);
 
@@ -56,7 +52,6 @@ export default class AndromedaClient {
    */
   async connect(
     endpoint: string,
-    registryAddress: string,
     kernelAddress: string,
     addressPrefix: string,
     signer?: OfflineSigner | OfflineDirectSigner,
@@ -69,25 +64,15 @@ export default class AndromedaClient {
 
     this.chainClient = createClient(addressPrefix);
     await this.chainClient.connect(endpoint, signer, options);
-    await this.assignKeyAddresses(registryAddress, kernelAddress);
+    await this.assignKeyAddresses(kernelAddress);
   }
 
   /**
    * Assigns key addresses to the provided APIs
-   * @param registryAddress
+   * @param kernelAddress
    * @returns
    */
-  private async assignKeyAddresses(
-    registryAddress: string,
-    kernelAddress: string
-  ) {
-    if (!registryAddress || registryAddress.length === 0) {
-      console.warn("No registry address provided");
-      return;
-    }
-    this.registry.address = registryAddress;
-    await this.adoDB.getAddressFromRegistry(this.registry);
-
+  private async assignKeyAddresses(kernelAddress: string) {
     if (kernelAddress && kernelAddress.length > 0) {
       await this.os.assignKernelAddress(kernelAddress);
     }
@@ -99,11 +84,8 @@ export default class AndromedaClient {
   disconnect() {
     this.chainClient!.disconnect();
     delete this.chainClient;
-
+    this.os = new OperatingSystemAPI(this);
     delete this.gasPrice;
-
-    this.registry = new RegistryAPI(this);
-    this.adoDB = new ADODBAPI(this);
   }
 
   /**

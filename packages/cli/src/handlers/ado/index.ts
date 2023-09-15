@@ -176,7 +176,7 @@ async function createHandler(input: string[], flags: Flags) {
     type
   );
 
-  const codeId = await client.adoDB.getCodeId(type);
+  const codeId = await client.os.adoDB!.getCodeId(type);
 
   await instantiateMessage(codeId, msg, flags);
 }
