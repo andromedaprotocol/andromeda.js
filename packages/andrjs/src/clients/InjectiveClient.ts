@@ -112,8 +112,7 @@ function encodeObjectToMsgArgs(msgs: EncodeObject[]): MsgArg[] {
 
 export default class InjectiveClient
   extends BaseChainClient
-  implements ChainClient
-{
+  implements ChainClient {
   public signingClient?: TxGrpcClient;
   public queryClient?: CosmWasmClient;
 
@@ -335,15 +334,14 @@ export default class InjectiveClient
 
     const codeIdAttr = findAttribute(resp.logs, "store_code", "code_id");
 
-    const originalChecksum = toHex(sha256(code));
+    // const originalChecksum = toHex(sha256(code));
     const compressedChecksum = toHex(sha256(compressed));
     return {
       ...resp,
       codeId: parseInt(codeIdAttr.value, 10),
       originalSize: code.length,
-      originalChecksum,
       compressedSize: compressed.length,
-      compressedChecksum,
+      checksum: compressedChecksum
     };
   }
 

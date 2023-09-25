@@ -17,20 +17,20 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0
       '@cosmjs/cosmwasm-stargate':
-        specifier: ^0.29.5
-        version: 0.29.5
+        specifier: ^0.31.1
+        version: 0.31.1
       '@cosmjs/crypto':
-        specifier: ^0.29.5
-        version: 0.29.5
+        specifier: ^0.31.1
+        version: 0.31.1
       '@cosmjs/encoding':
-        specifier: ^0.29.5
-        version: 0.29.5
+        specifier: ^0.31.1
+        version: 0.31.1
       '@cosmjs/proto-signing':
-        specifier: ^0.29.5
-        version: 0.29.5
+        specifier: ^0.31.1
+        version: 0.31.1
       '@cosmjs/stargate':
-        specifier: ^0.29.5
-        version: 0.29.5
+        specifier: ^0.31.1
+        version: 0.31.1
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.8.0)
@@ -105,8 +105,8 @@ importers:
         specifier: ^1.8.3
         version: 1.8.7
       typescript:
-        specifier: ^4.9.4
-        version: 4.9.5
+        specifier: ^5.2.2
+        version: 5.2.2
 
   packages/cli:
     dependencies:
@@ -114,17 +114,17 @@ importers:
         specifier: workspace:../andrjs
         version: link:../andrjs
       '@cosmjs/amino':
-        specifier: ^0.30.0
-        version: 0.30.1
+        specifier: ^0.31.1
+        version: 0.31.1
       '@cosmjs/crypto':
-        specifier: ^0.29.5
-        version: 0.29.5
+        specifier: ^0.31.1
+        version: 0.31.1
       '@cosmjs/proto-signing':
-        specifier: ^0.29.5
-        version: 0.29.5
+        specifier: ^0.31.1
+        version: 0.31.1
       '@cosmjs/stargate':
-        specifier: ^0.29.5
-        version: 0.29.5
+        specifier: ^0.31.1
+        version: 0.31.1
       cli-spinner:
         specifier: ^0.2.10
         version: 0.2.10
@@ -221,13 +221,13 @@ importers:
         version: 2.0.22
       ts-jest:
         specifier: ^29.0.5
-        version: 29.1.1(@babel/core@7.22.17)(jest@29.7.0)(typescript@4.9.5)
+        version: 29.1.1(@babel/core@7.22.17)(jest@29.7.0)(typescript@5.2.2)
       ts-node:
         specifier: ^10.9.1
-        version: 10.9.1(@types/node@18.17.15)(typescript@4.9.5)
+        version: 10.9.1(@types/node@18.17.15)(typescript@5.2.2)
       ts-node-dev:
         specifier: ^2.0.0
-        version: 2.0.0(@types/node@18.17.15)(typescript@4.9.5)
+        version: 2.0.0(@types/node@18.17.15)(typescript@5.2.2)
       tsc-alias:
         specifier: ^1.8.3
         version: 1.8.7
@@ -235,8 +235,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       typescript:
-        specifier: ^4.9.4
-        version: 4.9.5
+        specifier: ^5.2.2
+        version: 5.2.2
 
   packages/gql:
     dependencies:
@@ -255,7 +255,7 @@ importers:
     devDependencies:
       '@graphql-codegen/cli':
         specifier: 5.0.0
-        version: 5.0.0(@types/node@18.17.15)(graphql@16.8.0)(typescript@4.9.5)
+        version: 5.0.0(@types/node@18.17.15)(graphql@16.8.0)(typescript@5.2.2)
       '@graphql-codegen/core':
         specifier: ^4.0.0
         version: 4.0.0(graphql@16.8.0)
@@ -296,8 +296,8 @@ importers:
         specifier: ^1.8.3
         version: 1.8.7
       typescript:
-        specifier: ^4.9.5
-        version: 4.9.5
+        specifier: ^5.2.2
+        version: 5.2.2
 
 packages:
 
@@ -1147,15 +1147,6 @@ packages:
       '@cosmjs/utils': 0.29.5
     dev: false
 
-  /@cosmjs/amino@0.30.1:
-    resolution: {integrity: sha512-yNHnzmvAlkETDYIpeCTdVqgvrdt1qgkOXwuRVi8s27UKI5hfqyE9fJ/fuunXE6ZZPnKkjIecDznmuUOMrMvw4w==}
-    dependencies:
-      '@cosmjs/crypto': 0.30.1
-      '@cosmjs/encoding': 0.30.1
-      '@cosmjs/math': 0.30.1
-      '@cosmjs/utils': 0.30.1
-    dev: false
-
   /@cosmjs/amino@0.31.1:
     resolution: {integrity: sha512-kkB9IAkNEUFtjp/uwHv95TgM8VGJ4VWfZwrTyLNqBDD1EpSX2dsNrmUe7k8OMPzKlZUFcKmD4iA0qGvIwzjbGA==}
     dependencies:
@@ -1163,26 +1154,6 @@ packages:
       '@cosmjs/encoding': 0.31.1
       '@cosmjs/math': 0.31.1
       '@cosmjs/utils': 0.31.1
-    dev: false
-
-  /@cosmjs/cosmwasm-stargate@0.29.5:
-    resolution: {integrity: sha512-TNdSvm2tEE3XMCuxHxquzls56t40hC8qnLeYJWHsY2ECZmRK3KrnpRReEr7N7bLtODToK7X/riYrV0JaYxjrYA==}
-    dependencies:
-      '@cosmjs/amino': 0.29.5
-      '@cosmjs/crypto': 0.29.5
-      '@cosmjs/encoding': 0.29.5
-      '@cosmjs/math': 0.29.5
-      '@cosmjs/proto-signing': 0.29.5
-      '@cosmjs/stargate': 0.29.5
-      '@cosmjs/tendermint-rpc': 0.29.5
-      '@cosmjs/utils': 0.29.5
-      cosmjs-types: 0.5.2
-      long: 4.0.0
-      pako: 2.1.0
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - utf-8-validate
     dev: false
 
   /@cosmjs/cosmwasm-stargate@0.31.1:
@@ -1217,18 +1188,6 @@ packages:
       libsodium-wrappers: 0.7.6
     dev: false
 
-  /@cosmjs/crypto@0.30.1:
-    resolution: {integrity: sha512-rAljUlake3MSXs9xAm87mu34GfBLN0h/1uPPV6jEwClWjNkAMotzjC0ab9MARy5FFAvYHL3lWb57bhkbt2GtzQ==}
-    dependencies:
-      '@cosmjs/encoding': 0.30.1
-      '@cosmjs/math': 0.30.1
-      '@cosmjs/utils': 0.30.1
-      '@noble/hashes': 1.3.2
-      bn.js: 5.2.1
-      elliptic: 6.5.4
-      libsodium-wrappers: 0.7.13
-    dev: false
-
   /@cosmjs/crypto@0.31.1:
     resolution: {integrity: sha512-4R/SqdzdVzd4E5dpyEh1IKm5GbTqwDogutyIyyb1bcOXiX/x3CrvPI9Tb4WSIMDLvlb5TVzu2YnUV51Q1+6mMA==}
     dependencies:
@@ -1243,14 +1202,6 @@ packages:
 
   /@cosmjs/encoding@0.29.5:
     resolution: {integrity: sha512-G4rGl/Jg4dMCw5u6PEZHZcoHnUBlukZODHbm/wcL4Uu91fkn5jVo5cXXZcvs4VCkArVGrEj/52eUgTZCmOBGWQ==}
-    dependencies:
-      base64-js: 1.5.1
-      bech32: 1.1.4
-      readonly-date: 1.0.0
-    dev: false
-
-  /@cosmjs/encoding@0.30.1:
-    resolution: {integrity: sha512-rXmrTbgqwihORwJ3xYhIgQFfMSrwLu1s43RIK9I8EBudPx3KmnmyAKzMOVsRDo9edLFNuZ9GIvysUCwQfq3WlQ==}
     dependencies:
       base64-js: 1.5.1
       bech32: 1.1.4
@@ -1281,12 +1232,6 @@ packages:
 
   /@cosmjs/math@0.29.5:
     resolution: {integrity: sha512-2GjKcv+A9f86MAWYLUkjhw1/WpRl2R1BTb3m9qPG7lzMA7ioYff9jY5SPCfafKdxM4TIQGxXQlYGewQL16O68Q==}
-    dependencies:
-      bn.js: 5.2.1
-    dev: false
-
-  /@cosmjs/math@0.30.1:
-    resolution: {integrity: sha512-yaoeI23pin9ZiPHIisa6qqLngfnBR/25tSaWpkTm8Cy10MX70UF5oN4+/t1heLaM6SSmRrhk3psRkV4+7mH51Q==}
     dependencies:
       bn.js: 5.2.1
     dev: false
@@ -1439,10 +1384,6 @@ packages:
 
   /@cosmjs/utils@0.29.5:
     resolution: {integrity: sha512-m7h+RXDUxOzEOGt4P+3OVPX7PuakZT3GBmaM/Y2u+abN3xZkziykD/NvedYFvvCCdQo714XcGl33bwifS9FZPQ==}
-    dev: false
-
-  /@cosmjs/utils@0.30.1:
-    resolution: {integrity: sha512-KvvX58MGMWh7xA+N+deCfunkA/ZNDvFLw4YbOmX3f/XBIkqrVY7qlotfy2aNb1kgp6h4B6Yc8YawJPDTfvWX7g==}
     dev: false
 
   /@cosmjs/utils@0.31.1:
@@ -1785,7 +1726,7 @@ packages:
       '@ethersproject/strings': 5.7.0
     dev: false
 
-  /@graphql-codegen/cli@5.0.0(@types/node@18.17.15)(graphql@16.8.0)(typescript@4.9.5):
+  /@graphql-codegen/cli@5.0.0(@types/node@18.17.15)(graphql@16.8.0)(typescript@5.2.2):
     resolution: {integrity: sha512-A7J7+be/a6e+/ul2KI5sfJlpoqeqwX8EzktaKCeduyVKgOLA6W5t+NUGf6QumBDXU8PEOqXk3o3F+RAwCWOiqA==}
     hasBin: true
     peerDependencies:
@@ -1812,11 +1753,11 @@ packages:
       '@graphql-tools/utils': 10.0.6(graphql@16.8.0)
       '@whatwg-node/fetch': 0.8.8
       chalk: 4.1.2
-      cosmiconfig: 8.3.6(typescript@4.9.5)
+      cosmiconfig: 8.3.6(typescript@5.2.2)
       debounce: 1.2.1
       detect-indent: 6.1.0
       graphql: 16.8.0
-      graphql-config: 5.0.2(@types/node@18.17.15)(graphql@16.8.0)(typescript@4.9.5)
+      graphql-config: 5.0.2(@types/node@18.17.15)(graphql@16.8.0)(typescript@5.2.2)
       inquirer: 8.2.6
       is-glob: 4.0.3
       jiti: 1.20.0
@@ -4235,7 +4176,7 @@ packages:
       yaml: 1.10.2
     dev: true
 
-  /cosmiconfig@8.3.6(typescript@4.9.5):
+  /cosmiconfig@8.3.6(typescript@5.2.2):
     resolution: {integrity: sha512-kcZ6+W5QzcJ3P1Mt+83OUv/oHFqZHIx8DuxG6eZ5RGMERoLqp4BuGjhHLYGK+Kf5XVkQvqBSmAy/nGWN3qDgEA==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -4248,7 +4189,7 @@ packages:
       js-yaml: 4.1.0
       parse-json: 5.2.0
       path-type: 4.0.0
-      typescript: 4.9.5
+      typescript: 5.2.2
     dev: true
 
   /cosmjs-types@0.5.2:
@@ -5068,7 +5009,7 @@ packages:
       tinygradient: 1.1.5
     dev: false
 
-  /graphql-config@5.0.2(@types/node@18.17.15)(graphql@16.8.0)(typescript@4.9.5):
+  /graphql-config@5.0.2(@types/node@18.17.15)(graphql@16.8.0)(typescript@5.2.2):
     resolution: {integrity: sha512-7TPxOrlbiG0JplSZYCyxn2XQtqVhXomEjXUmWJVSS5ET1nPhOJSsIb/WTwqWhcYX6G0RlHXSj9PLtGTKmxLNGg==}
     engines: {node: '>= 16.0.0'}
     peerDependencies:
@@ -5084,7 +5025,7 @@ packages:
       '@graphql-tools/merge': 9.0.0(graphql@16.8.0)
       '@graphql-tools/url-loader': 8.0.0(@types/node@18.17.15)(graphql@16.8.0)
       '@graphql-tools/utils': 10.0.6(graphql@16.8.0)
-      cosmiconfig: 8.3.6(typescript@4.9.5)
+      cosmiconfig: 8.3.6(typescript@5.2.2)
       graphql: 16.8.0
       jiti: 1.20.0
       minimatch: 4.2.3
@@ -5673,7 +5614,7 @@ packages:
       pretty-format: 29.7.0
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.1(@types/node@18.17.15)(typescript@4.9.5)
+      ts-node: 10.9.1(@types/node@18.17.15)(typescript@5.2.2)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -5714,7 +5655,7 @@ packages:
       pretty-format: 29.7.0
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.1(@types/node@18.17.15)(typescript@4.9.5)
+      ts-node: 10.9.1(@types/node@18.17.15)(typescript@5.2.2)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -6150,20 +6091,10 @@ packages:
       libsodium-sumo: 0.7.13
     dev: false
 
-  /libsodium-wrappers@0.7.13:
-    resolution: {integrity: sha512-kasvDsEi/r1fMzKouIDv7B8I6vNmknXwGiYodErGuESoFTohGSKZplFtVxZqHaoQ217AynyIFgnOVRitpHs0Qw==}
-    dependencies:
-      libsodium: 0.7.13
-    dev: false
-
   /libsodium-wrappers@0.7.6:
     resolution: {integrity: sha512-OUO2CWW5bHdLr6hkKLHIKI4raEkZrf3QHkhXsJ1yCh6MZ3JDA7jFD3kCATNquuGSG6MjjPHQIQms0y0gBDzjQg==}
     dependencies:
       libsodium: 0.7.6
-    dev: false
-
-  /libsodium@0.7.13:
-    resolution: {integrity: sha512-mK8ju0fnrKXXfleL53vtp9xiPq5hKM0zbDQtcxQIsSmxNgSxqCj6R7Hl9PkrNe2j29T4yoDaF7DJLK9/i5iWUw==}
     dev: false
 
   /libsodium@0.7.6:
@@ -7640,7 +7571,7 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /ts-jest@29.1.1(@babel/core@7.22.17)(jest@29.7.0)(typescript@4.9.5):
+  /ts-jest@29.1.1(@babel/core@7.22.17)(jest@29.7.0)(typescript@5.2.2):
     resolution: {integrity: sha512-D6xjnnbP17cC85nliwGiL+tpoKN0StpgE0TeOjXQTU6MVCfsB4v7aW05CgQ/1OywGb0x/oy9hHFnN+sczTiRaA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     hasBin: true
@@ -7670,7 +7601,7 @@ packages:
       lodash.memoize: 4.1.2
       make-error: 1.3.6
       semver: 7.5.4
-      typescript: 4.9.5
+      typescript: 5.2.2
       yargs-parser: 21.1.1
     dev: true
 
@@ -7678,7 +7609,7 @@ packages:
     resolution: {integrity: sha512-PGcnJoTBnVGy6yYNFxWVNkdcAuAMstvutN9MgDJIV6L0oG8fB+ZNNy1T+wJzah8RPGor1mZuPQkVfXNDpy9eHA==}
     dev: true
 
-  /ts-node-dev@2.0.0(@types/node@18.17.15)(typescript@4.9.5):
+  /ts-node-dev@2.0.0(@types/node@18.17.15)(typescript@5.2.2):
     resolution: {integrity: sha512-ywMrhCfH6M75yftYvrvNarLEY+SUXtUvU8/0Z6llrHQVBx12GiFk5sStF8UdfE/yfzk9IAq7O5EEbTQsxlBI8w==}
     engines: {node: '>=0.8.0'}
     hasBin: true
@@ -7697,16 +7628,16 @@ packages:
       rimraf: 2.7.1
       source-map-support: 0.5.21
       tree-kill: 1.2.2
-      ts-node: 10.9.1(@types/node@18.17.15)(typescript@4.9.5)
+      ts-node: 10.9.1(@types/node@18.17.15)(typescript@5.2.2)
       tsconfig: 7.0.0
-      typescript: 4.9.5
+      typescript: 5.2.2
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/wasm'
       - '@types/node'
     dev: true
 
-  /ts-node@10.9.1(@types/node@18.17.15)(typescript@4.9.5):
+  /ts-node@10.9.1(@types/node@18.17.15)(typescript@5.2.2):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -7732,7 +7663,7 @@ packages:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 4.9.5
+      typescript: 5.2.2
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     dev: true
@@ -7813,9 +7744,9 @@ packages:
     resolution: {integrity: sha512-7uc1O8h1M1g0rArakJdf0uLRSSgFcYexrVoKo+bzJd32gd4gDy2L/Z+8/FjPnU9ydY3pEnVPtr9FyscYY60K1g==}
     dev: false
 
-  /typescript@4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
+  /typescript@5.2.2:
+    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
+    engines: {node: '>=14.17'}
     hasBin: true
     dev: true
 
