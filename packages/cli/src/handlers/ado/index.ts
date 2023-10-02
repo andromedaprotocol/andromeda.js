@@ -1,8 +1,5 @@
 import {
   ContractSchema,
-  fetchSchema,
-  queryADOPackageDefinition,
-  queryADOTypes,
 } from "@andromedaprotocol/andromeda.js";
 import { Schema } from "jsonschema";
 import pc from "picocolors";
@@ -52,7 +49,7 @@ const commands: Commands = {
         requestMessage: "Input the ADO type:",
         validate: async (input: string) => {
           try {
-            await queryADOPackageDefinition(input.toLowerCase());
+            await client.os.schema!.getSchemaFromAdoType(input);
             return true;
           } catch (error) {
             const { message } = error as Error;
@@ -68,7 +65,7 @@ const commands: Commands = {
           try {
             const adoTypes = displaySpinnerAsync(
               "Fetching ADO types...",
-              async () => await queryADOTypes()
+              async () => await client!.os!.adoDB!.getAllADO()
             );
 
             return adoTypes ?? [];
@@ -246,23 +243,18 @@ const commands: Commands = {
  */
 async function createHandler(input: string[], flags: Flags) {
   const [type] = input;
-  const {
-    schemas: { contract_schema, instantiate },
-  } = await queryADOPackageDefinition(type);
+  const codeId = await client!.os!.adoDB!.getCodeId(type);
   const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () => await fetchSchema(instantiate ?? contract_schema)
+    async () => await client.os.schema!.getSchemaFromCodeId(codeId)
   );
 
   const msg = await promptInstantiateMsg(
     (adoSchema as ContractSchema).instantiate
       ? (adoSchema as ContractSchema).instantiate
       : (adoSchema as Schema),
-    type
+    codeId
   );
-
-  const codeId = await client.os.adoDB!.getCodeId(type);
-
   await instantiateMessage(codeId, msg, flags);
 }
 
@@ -271,15 +263,9 @@ async function createHandler(input: string[], flags: Flags) {
  * @param address The address of the ADO
  * @returns The type of ADO the contract is, errors if the contract is not an ADO
  */
-async function queryADOType(address: string) {
-  const queryMsg = client.ado.typeQuery();
-
-  const { ado_type } = await queryMessage<{ ado_type: string }>(
-    address,
-    queryMsg
-  );
-
-  return ado_type;
+async function queryCodeId(address: string) {
+  const { codeId } = await client.chainClient!.queryClient!.getContract(address);
+  return codeId;
 }
 
 /**
@@ -291,27 +277,24 @@ async function executeHandler(input: string[], flags: Flags) {
   const [address] = input;
 
   //The ADO type must be fetched before the message types can be determined
-  let type = "";
+  let codeId = -1;
   try {
-    type = await queryADOType(address);
+    codeId = await queryCodeId(address);
   } catch (error) {
     console.error(pc.red("Contract is not a valid ADO"));
     return;
   }
 
-  const {
-    schemas: { contract_schema, execute },
-  } = await queryADOPackageDefinition(type);
   const adoSchema: ContractSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () => await fetchSchema(execute ?? contract_schema)
+    async () => await client.os.schema!.getSchemaFromCodeId(codeId)
   );
 
   const msg = await promptQueryOrExecuteMessage(
     (adoSchema as ContractSchema).execute
       ? (adoSchema as ContractSchema).execute
       : (adoSchema as Schema),
-    type
+    codeId
   );
   await executeMessage(address, msg, flags);
 }
@@ -323,28 +306,25 @@ async function executeHandler(input: string[], flags: Flags) {
 async function queryHandler(input: string[]) {
   const [address] = input;
 
-  let type = "";
+  let codeId = -1;
   try {
-    type = await queryADOType(address);
+    codeId = await queryCodeId(address);
   } catch (error) {
     console.error(pc.red("Contract is not a valid ADO"));
     return;
   }
 
-  const {
-    schemas: { contract_schema, query },
-  } = await queryADOPackageDefinition(type);
   const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
     async () =>
-      await fetchSchema<ContractSchema | Schema>(query ?? contract_schema)
+      await client!.os!.schema!.getSchemaFromCodeId(codeId)
   );
 
   const msg = await promptQueryOrExecuteMessage(
     (adoSchema as ContractSchema).query
       ? (adoSchema as ContractSchema).query
       : (adoSchema as Schema),
-    type
+    codeId
   );
   const resp = await queryMessage(address, msg);
 

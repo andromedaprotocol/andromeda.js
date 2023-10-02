@@ -1,7 +1,5 @@
 import {
   encode,
-  fetchSchema,
-  queryADOPackageDefinition,
 } from "@andromedaprotocol/andromeda.js";
 import { Schema, Validator } from "jsonschema";
 import _ from "lodash";
@@ -36,12 +34,10 @@ async function requestSendNFT(): Promise<SendNftMsg> {
 
   let msg: string | Record<string, any> = {};
   try {
-    const type = await client.ado.getType(addressInput.address);
-    const { schemas } = await queryADOPackageDefinition(type);
-    if (!schemas) throw new Error("Not a registered ADO type");
-    if (!schemas.receive || !schemas.receive.cw721)
+    const type = (await client.chainClient!.queryClient!.getContract(addressInput.address)).codeId;
+    const schema = await client!.os.schema!.getSubSchemaFromCodeId(type, 'receive-cw721').catch(() => undefined);
+    if (!schema)
       throw new Error("Contract address cannot receive NFTs");
-    const schema = await fetchSchema<Schema>(schemas.receive.cw721);
     msg = await promptQueryOrExecuteMessage(schema, type);
   } catch (error) {
     console.error(error);
@@ -91,7 +87,7 @@ export async function requestMessageType(options: Schema[]): Promise<string> {
 
 export async function promptQueryOrExecuteMessage(
   schema: Schema,
-  type: string
+  codeId: number
 ) {
   const validOptions = (schema.oneOf ?? []).filter(
     ({ required }) =>
@@ -118,7 +114,7 @@ export async function promptQueryOrExecuteMessage(
     return await requestSendNFT();
   }
 
-  const prompter = new SchemaPrompt(schema, type);
+  const prompter = new SchemaPrompt(schema, codeId);
 
   const keys = Object.keys(properties);
   let answers: Record<string, any> = {};
@@ -139,13 +135,12 @@ export async function promptQueryOrExecuteMessage(
 
 export async function promptInstantiateMsg(
   schema: Schema,
-  type: string,
+  codeId: number,
   bread?: string[]
 ) {
   const { required, properties } = schema;
   if (!properties) return {};
-
-  const prompter = new SchemaPrompt(schema, type);
+  const prompter = new SchemaPrompt(schema, codeId);
 
   const keys = Object.keys(properties);
   let answers: Record<string, any> = {};
@@ -174,7 +169,7 @@ enum AndromedaSchemaTypes {
 export default class SchemaPrompt {
   answers: Record<string, any> = {};
 
-  constructor(public schema: Schema, public type: string) {}
+  constructor(public schema: Schema, public codeId: number) { }
 
   async requestAppComponent() {
     const name = await this.promptQuestion(
@@ -190,12 +185,9 @@ export default class SchemaPrompt {
       ["App Component"]
     );
 
-    const {
-      schemas: { contract_schema },
-    } = await queryADOPackageDefinition(adoType);
     const adoSchema = await displaySpinnerAsync(
       "Fetching Schema...",
-      async () => await fetchSchema(contract_schema)
+      async () => await client.os.schema!.getSchemaFromCodeId(this.codeId)
     );
 
     const msg = await promptInstantiateMsg(adoSchema.instantiate, adoType, [
@@ -230,12 +222,10 @@ export default class SchemaPrompt {
         },
       };
 
-    let type = "";
+    let type: number = -1;
     try {
-      const resp = await client.queryContract<{ ado_type: string }>(address, {
-        andr_query: { type: {} },
-      });
-      type = resp.ado_type;
+      const resp = await client.chainClient!.queryClient!.getContract(address)
+      type = resp.codeId;
     } catch (error) {
       const typeInput = await promptWithExit({
         message: "What type of ADO are you sending to?",
@@ -243,7 +233,7 @@ export default class SchemaPrompt {
         type: "input",
         validate: async (input: string) => {
           try {
-            await queryADOPackageDefinition(input);
+            await client.os.adoDB!.getCodeId(input);
             return true;
           } catch (error) {
             const { message } = error as Error;
@@ -254,15 +244,12 @@ export default class SchemaPrompt {
           }
         },
       });
-      type = typeInput.adoType;
+      type = await client.os.adoDB!.getCodeId(typeInput.adoType);
     }
 
-    const {
-      schemas: { contract_schema },
-    } = await queryADOPackageDefinition(type);
     const adoSchema = await displaySpinnerAsync(
       "Fetching schema...",
-      async () => await fetchSchema(contract_schema)
+      async () => await client.os.schema!.getSchemaFromCodeId(type)
     );
     const msg = await promptQueryOrExecuteMessage(adoSchema.execute, type);
 
@@ -329,13 +316,11 @@ export default class SchemaPrompt {
       choices: options.map(({ description, properties, type }, idx) => {
         const propertyKeys = properties ? Object.keys(properties) : [];
 
-        const name = `[Option ${idx + 1}] ${
-          description ? `Description: ${description}, ` : ""
-        }${
-          propertyKeys.length > 0
+        const name = `[Option ${idx + 1}] ${description ? `Description: ${description}, ` : ""
+          }${propertyKeys.length > 0
             ? `Properties: ${propertyKeys.join(", ")}, `
             : " "
-        }Type: ${type}`;
+          }Type: ${type}`;
         return {
           name,
           value: idx,
@@ -358,9 +343,8 @@ export default class SchemaPrompt {
       if (required || response.length > 0) {
         const addElement = await promptWithExit({
           prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
-          message: `Would you like to add ${
-            response.length === 0 ? name : "another"
-          }?`,
+          message: `Would you like to add ${response.length === 0 ? name : "another"
+            }?`,
           type: "confirm",
           name: "confirm",
         });
@@ -438,7 +422,7 @@ export default class SchemaPrompt {
         const propertyName = propertyNames[i];
         const isRequired: boolean = Boolean(
           required &&
-            (!Array.isArray(required) || required.includes(propertyName))
+          (!Array.isArray(required) || required.includes(propertyName))
         );
         answer[propertyName] = await this.promptQuestion(
           propertyName,
