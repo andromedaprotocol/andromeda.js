@@ -77,4 +77,30 @@ export default class ADODatabaseAPI extends ADOAPI {
 
     return this.client.queryContract<number>(address ?? this.address, msg);
   }
+
+  /**
+   * Provides a message object for the ADO DB's `GetCodeId` query
+   * @param name
+   * @returns
+   */
+  getAllADOQuery() {
+    return {
+      all_ado_types: {},
+    };
+  }
+
+  /**
+   * Gets the code ID for an ADO type from the ADO DB
+   * @param name
+   * @param address
+   * @returns
+   */
+  async getAllADO(address?: string) {
+    if (!this.address && !address)
+      throw new Error("No provided ADO DB address to retrieve code ID");
+
+    const msg = this.getAllADOQuery();
+
+    return this.client.queryContract<string[]>(address ?? this.address, msg);
+  }
 }

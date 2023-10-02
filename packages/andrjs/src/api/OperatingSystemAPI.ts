@@ -2,11 +2,14 @@ import { validateAddress } from "..";
 import type AndromedaClient from "../AndromedaClient";
 import ADOAPI from "./ADOAPI";
 import ADODatabaseAPI from "./ADODatabaseAPI";
+import ADODSchemaAPI from "./ADOSchemaAPI";
 import VirtualFileSystemAPI from "./VirtualFileSystemAPI";
 
 export default class OperatingSystemAPI extends ADOAPI {
   public vfs?: VirtualFileSystemAPI;
   public adoDB?: ADODatabaseAPI;
+  // API for shared SCHEMA messages
+  public schema?: ADODSchemaAPI;
 
   constructor(client: AndromedaClient, public address: string = "") {
     super(client, address);
@@ -32,6 +35,7 @@ export default class OperatingSystemAPI extends ADOAPI {
     this.address = address;
     await this.fetchVFSAddress();
     await this.fetchADODBAddress();
+    await this.fetchSchemaAddress();
   }
 
   /**
@@ -51,6 +55,15 @@ export default class OperatingSystemAPI extends ADOAPI {
     const adoDBKey = "adodb";
     const adoDBAddress = await this.fetchKeyAddress(adoDBKey);
     this.adoDB = new ADODatabaseAPI(this.client, adoDBAddress);
+  }
+
+  /**
+ * Fetches the current ADOP Schema address from the kernel
+ */
+  async fetchSchemaAddress() {
+    // const key = "schema";
+    // const address = await this.fetchKeyAddress(key);
+    this.schema = new ADODSchemaAPI(this.client, "stars1fwe74pty6yg4jx8p53vd7w8v3km6sklv0w2pty50v7z4eucxykpsajseuh");
   }
 
   /**
