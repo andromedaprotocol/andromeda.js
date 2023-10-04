@@ -4,6 +4,7 @@ import { exitInputs, promptWithExit } from "./cmd";
 import config from "./config";
 import State from "./state";
 import pc from "picocolors";
+import { Answers } from "inquirer";
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -59,18 +60,22 @@ export async function validateOrRequest(
 
   const prompt = await (choices
     ? promptWithExit({
-        type: "list",
-        message,
-        name: `requestinput`,
-        validate,
-        choices,
-      })
+      type: "autocomplete" as any,
+      suggestOnly: true,
+      message,
+      name: `requestinput`,
+      validate,
+      source: (_answers: Answers, input = '') => {
+        if (input.trim() === '') return choices;
+        return choices.filter(c => c.includes(input));
+      },
+    })
     : promptWithExit({
-        type: hiddenInput ? "password" : "input",
-        message,
-        name: `requestinput`,
-        validate,
-      }));
+      type: hiddenInput ? "password" : "input",
+      message,
+      name: `requestinput`,
+      validate,
+    }));
   return prompt.requestinput;
 }
 

@@ -275,12 +275,12 @@ export async function printCommandHelp(cmd: Command, commands: Commands = {}) {
  * @param questionDefinition
  * @returns
  */
-export async function promptWithExit(
-  questionDefinition: inquirer.QuestionCollection<inquirer.Answers>
+export async function promptWithExit<T extends inquirer.DistinctQuestion>(
+  questionDefinition: T
 ) {
   const transformQuestion = (
-    question: inquirer.DistinctQuestion
-  ): inquirer.DistinctQuestion => {
+    question: T
+  ): T => {
     const mappedQuestion = {
       ...question,
       validate: async (input: string) => {

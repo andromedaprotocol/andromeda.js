@@ -7,6 +7,7 @@ import pc from "picocolors";
 import { displaySpinnerAsync, promptWithExit, validateAddressInput } from "..";
 import config from "../config";
 import State from "../state";
+import { promptAdoType } from "../handlers/ado/common";
 
 const { client } = State;
 
@@ -178,19 +179,18 @@ export default class SchemaPrompt {
       true,
       ["App Component"]
     );
-    const adoType = await this.promptQuestion(
+    const adoType = await promptAdoType(
       "ADO Type",
-      { type: "string" },
-      true,
       ["App Component"]
     );
+    const codeId = await client!.os!.adoDB!.getCodeId(adoType);
 
     const adoSchema = await displaySpinnerAsync(
-      "Fetching Schema...",
-      async () => await client.os.schema!.getSchemaFromCodeId(this.codeId)
+      `Fetching Schema for ${adoType}...`,
+      async () => await client.os.schema!.getSchemaFromCodeId(codeId)
     );
 
-    const msg = await promptInstantiateMsg(adoSchema.instantiate, adoType, [
+    const msg = await promptInstantiateMsg(adoSchema.instantiate, codeId, [
       `${name} - Instantiation`,
     ]);
     const instantiateMsg = encode(msg);

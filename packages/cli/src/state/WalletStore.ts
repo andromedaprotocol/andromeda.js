@@ -115,8 +115,9 @@ export default class WalletStore {
    * @returns A Wallet class for the current wallet
    */
   get currentWallet() {
-    const walletName = this.defaultWallets[config.get("chain.chainId")];
-    const wallet = this.getWalletByName(walletName);
+    const chainId = config.get("chain.chainId");
+    const walletName = this.defaultWallets[chainId];
+    const wallet = this.getWalletByName(walletName, chainId);
     return wallet;
   }
 
@@ -285,25 +286,25 @@ export default class WalletStore {
     return wallet;
   }
 
-  /**
-   * Get a wallet by identifier, identifier being a name or address. Ignores chain IDs.
-   * @param identifier The identifier for the wallet (name or address)
-   * @returns
-   */
-  getWalletRaw(identifier: string) {
-    const wallet = this.getWalletByName(identifier);
-    if (!wallet) return this.getWalletByAddress(identifier);
-    return wallet;
-  }
+  // /**
+  //  * Get a wallet by identifier, identifier being a name or address. Ignores chain IDs.
+  //  * @param identifier The identifier for the wallet (name or address)
+  //  * @returns
+  //  */
+  // getWalletRaw(identifier: string) {
+  //   const wallet = this.getWalletByName(identifier);
+  //   if (!wallet) return this.getWalletByAddress(identifier);
+  //   return wallet;
+  // }
 
   /**
    * Get a wallet by Chain ID/Name combination
    * @param name The assigned name for the wallet
    * @returns
    */
-  getWalletByName(name: string) {
+  getWalletByName(name: string, chainId: string) {
     const walletData = this.wallets.find(
-      ({ name: walletName }) => walletName === name
+      (wallet) => wallet.name === name && wallet.chainId === chainId
     );
     if (!walletData) return;
 
@@ -348,7 +349,7 @@ export default class WalletStore {
     const walletName = this.defaultWallets[chainId];
     if (!walletName) return;
 
-    const wallet = this.getWalletByName(walletName);
+    const wallet = this.getWalletByName(walletName, chainId);
     return wallet;
   }
 
@@ -372,8 +373,8 @@ export default class WalletStore {
    * @param name
    * @returns The passphrase for the given wallet
    */
-  async getWalletPassphrase(name: string) {
-    const wallet = this.getWalletByName(name);
+  async getWalletPassphrase(name: string, chainId: string) {
+    const wallet = this.getWalletByName(name, chainId);
     if (!wallet) throw new Error(`Wallet not found with name ${name}`);
     // Check keychain
     let passphrase = await keychain.getPassword(KEYCHAIN_SERVICE, name);

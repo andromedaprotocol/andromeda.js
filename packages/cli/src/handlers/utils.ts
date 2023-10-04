@@ -141,10 +141,16 @@ export async function handle(
       }
       await cmd.handler(commandInput, flags);
     } catch (error) {
-      //Invalid command, print out help text
-      const { message } = error as Error;
-      logError(pc.red(message));
-      log(pc.red(`Use the ${pc.bold("--help")} flag for help`));
+      console.log();
+      // If its not an error then its interrupted call from inquirer to exist by user
+      if (error === 'EVENT_INTERRUPTED') {
+        logError(pc.red("Prompt has been interrupted"));
+      } else {
+        //Invalid command, print out help text
+        const { message } = error as Error;
+        logError(pc.red(message));
+        log(pc.red(`Use the ${pc.bold("--help")} flag for help`));
+      }
     }
   }
 }

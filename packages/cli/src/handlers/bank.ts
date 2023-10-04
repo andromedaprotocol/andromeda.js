@@ -1,5 +1,5 @@
 import { Coin, parseCoins } from "@cosmjs/amino";
-import { promptWithExit } from "cmd";
+import { promptWithExit } from "../cmd";
 import pc from "picocolors";
 import { displaySpinnerAsync, printTransactionUrl } from "../common";
 import State from "../state";

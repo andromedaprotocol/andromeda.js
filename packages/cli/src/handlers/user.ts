@@ -1,8 +1,8 @@
 import pc from "picocolors";
 import _ from "lodash";
 import { Commands, Flags } from "../types";
-import { promptWithExit } from "cmd";
-import { executeFlags } from "common";
+import { promptWithExit } from "../cmd";
+import { executeFlags } from "../common";
 import State from "../state";
 import { executeMessage } from "./wasm";
 

@@ -245,7 +245,7 @@ async function createHandler(input: string[], flags: Flags) {
   const [type] = input;
   const codeId = await client!.os!.adoDB!.getCodeId(type);
   const adoSchema = await displaySpinnerAsync(
-    "Fetching schema...",
+    `Fetching schema for ${type}-${codeId}...`,
     async () => await client.os.schema!.getSchemaFromCodeId(codeId)
   );
 

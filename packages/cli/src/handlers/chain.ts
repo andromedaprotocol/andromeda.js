@@ -7,7 +7,7 @@ import Table from "cli-table";
 import inquirer from "inquirer";
 import pc from "picocolors";
 
-import { promptWithExit } from "cmd";
+import { promptWithExit } from "../cmd";
 import { displaySpinnerAsync, logTableConfig } from "../common";
 import config from "../config";
 import {
