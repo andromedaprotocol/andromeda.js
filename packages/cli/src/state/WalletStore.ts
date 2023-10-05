@@ -121,9 +121,19 @@ export default class WalletStore {
     return wallet;
   }
 
+  /**
+ * Gets the current wallet fee denom by removing numeric values from the defaultFee config
+ * @returns A Wallet class for the current wallet
+ */
+  get currentWalletDenom() {
+    const fee = config.get("chain.defaultFee");
+    return fee.replaceAll(/\d/g, '').replaceAll(".", '');
+  }
+
   get currentWalletAddress() {
-    const walletName = this.defaultWallets[config.get("chain.chainId")];
-    const walletAddress = this.getWalletAddress(walletName);
+    const chainId = config.get("chain.chainId");
+    const walletName = this.defaultWallets[chainId];
+    const walletAddress = this.getWalletAddress(walletName, chainId);
 
     return walletAddress;
   }
@@ -139,9 +149,9 @@ export default class WalletStore {
    * @param name
    * @returns The wallet's address if it exists
    */
-  getWalletAddress(name: string) {
+  getWalletAddress(name: string, chainId: string) {
     const walletData = this.wallets.find(
-      ({ name: walletName }) => walletName === name
+      (wallet) => wallet.name === name && wallet.chainId === chainId
     );
 
     return walletData ? walletData.address : undefined;

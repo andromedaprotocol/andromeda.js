@@ -61,9 +61,9 @@ export default class OperatingSystemAPI extends ADOAPI {
  * Fetches the current ADOP Schema address from the kernel
  */
   async fetchSchemaAddress() {
-    // const key = "schema";
-    // const address = await this.fetchKeyAddress(key);
-    this.schema = new ADODSchemaAPI(this.client, "stars1fwe74pty6yg4jx8p53vd7w8v3km6sklv0w2pty50v7z4eucxykpsajseuh");
+    const key = "schemadb";
+    const address = await this.fetchKeyAddress(key);
+    this.schema = new ADODSchemaAPI(this.client, address);
   }
 
   /**

@@ -312,6 +312,7 @@ export async function promptWithExit<T extends inquirer.DistinctQuestion>(
     const question = questions[i];
 
     const resp = await inquirer.prompt(question);
+
     // If the user selects exit then throw exit error
     if (exitInputs.includes(resp[question.name!]))
       throw new Error("Command exited");

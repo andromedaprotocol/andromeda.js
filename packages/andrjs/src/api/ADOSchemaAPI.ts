@@ -3,7 +3,7 @@ import ADOAPI from "./ADOAPI";
 import AndromedaClient, { ContractSchema } from "index";
 
 export default class ADODSchemaAPI extends ADOAPI {
-  constructor(client: AndromedaClient, public address: string = "stars1fwe74pty6yg4jx8p53vd7w8v3km6sklv0w2pty50v7z4eucxykpsajseuh") {
+  constructor(client: AndromedaClient, public address: string) {
     super(client, address);
   }
 
@@ -21,7 +21,7 @@ export default class ADODSchemaAPI extends ADOAPI {
   }
 
   /**
-   * Gets the code ID for an ADO type from the ADO DB
+   * Gets the schema for the key in schemadb
    * @param key
    * @param address
    * @returns
@@ -34,12 +34,15 @@ export default class ADODSchemaAPI extends ADOAPI {
         string: string;
       }
     }>(address ?? this.address, msg);
-    return JSON.parse(res.value.string) as T;
+    const schema = JSON.parse(res.value.string) as T;
+    return {
+      schema, key
+    }
   }
 
 
   /**
-   * Gets the code ID for an ADO type from the ADO DB
+   * Gets the schema for the codeId
    * @param key
    * @param address
    * @returns
@@ -49,7 +52,7 @@ export default class ADODSchemaAPI extends ADOAPI {
   }
 
   /**
- * Gets the code ID for an ADO type from the ADO DB
+ * Gets the schema for the adoType. First fetch the codeId from adodb and then use the codeId to get the schema
  * @param key
  * @param address
  * @returns
@@ -60,7 +63,7 @@ export default class ADODSchemaAPI extends ADOAPI {
   }
 
   /**
-  * Gets the code ID for an ADO type from the ADO DB
+  * Gets the sub schema, like receive schema, from the codeId. Similar to getSchemaFromCodeId
   * @param key
   * @param address
   * @returns
@@ -71,7 +74,7 @@ export default class ADODSchemaAPI extends ADOAPI {
   }
 
   /**
-  * Gets the code ID for an ADO type from the ADO DB
+  * Get the sub schema, like receive schema, from adoType. Similar to getSchemaFromAdoType
   * @param key
   * @param address
   * @returns

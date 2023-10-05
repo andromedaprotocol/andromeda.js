@@ -45,7 +45,8 @@ export async function validateOrRequest(
   input?: string,
   validate?: (input: string) => Promise<boolean | string> | (boolean | string),
   choices?: string[],
-  hiddenInput?: boolean
+  hiddenInput?: boolean,
+  defaultValue?: string
 ): Promise<string> {
   //If the user provided input then validate
   if (input) {
@@ -75,6 +76,7 @@ export async function validateOrRequest(
       message,
       name: `requestinput`,
       validate,
+      default: defaultValue
     }));
   return prompt.requestinput;
 }

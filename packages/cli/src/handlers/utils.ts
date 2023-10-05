@@ -119,7 +119,7 @@ export async function handle(
       //Check if command has expected inputs
       if (cmd.inputs) {
         for (let i = 0; i < cmd.inputs.length; i++) {
-          const { requestMessage, validate, options, transform, hiddenInput } =
+          const { requestMessage, validate, options, transform, hiddenInput, default: defaultValue } =
             cmd.inputs[i];
           let userInput = commandInput[i];
           const inputOptions = options
@@ -132,7 +132,8 @@ export async function handle(
             userInput,
             validate,
             inputOptions,
-            hiddenInput
+            hiddenInput,
+            typeof defaultValue === 'string' ? defaultValue : await defaultValue?.()
           );
           if (exitInputs.includes(userInput)) throw new Error("Command exited");
 

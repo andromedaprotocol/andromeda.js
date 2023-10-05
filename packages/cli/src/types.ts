@@ -14,6 +14,8 @@ export interface CommandInput {
   transform?: (input: string) => Promise<any> | any;
   // Whether to hide the user input
   hiddenInput?: boolean;
+  // Default value for the command, if any
+  default?: string | (() => Promise<string>);
 }
 
 /**

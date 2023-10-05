@@ -45,13 +45,13 @@ export const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Denom:",
+        default: async () => State.wallets.currentWalletDenom
       },
       {
-        requestMessage: `Input Address${
-          typeof State.wallets.currentWallet !== "undefined"
-            ? " (Leave empty to see your balance)"
-            : ""
-        }:`,
+        requestMessage: `Input Address${typeof State.wallets.currentWallet !== "undefined"
+          ? " (Leave empty to see your balance)"
+          : ""
+          }:`,
         validate: (input: string) => {
           if (
             input.length === 0 &&
@@ -60,6 +60,7 @@ export const commands: Commands = {
             return true;
           return validateAddressInput(input);
         },
+        default: async () => State.wallets.currentWalletAddress || ''
       },
     ],
   },
