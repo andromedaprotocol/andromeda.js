@@ -139,7 +139,7 @@ export default class ArchwayClient extends BaseChainClient {
       fee,
       memo
     );
-    return { ...result, originalChecksum: "", compressedChecksum: "" };
+    return { ...result };
   }
 
   async simulateUpload(

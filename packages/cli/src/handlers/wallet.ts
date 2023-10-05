@@ -321,9 +321,9 @@ async function useWalletHandler(input: string[]) {
  * @returns A signer if the wallet is valid
  */
 export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
-  const passphrase = await store.getWalletPassphrase(wallet.name);
-  const signer = await wallet.getWallet(passphrase);
   const chainId = config.get("chain.chainId");
+  const passphrase = await store.getWalletPassphrase(wallet.name, chainId);
+  const signer = await wallet.getWallet(passphrase);
   store.setDefaultWallet(chainId, wallet.name);
   if (!autoConnect) return signer;
 

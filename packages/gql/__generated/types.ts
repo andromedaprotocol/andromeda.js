@@ -889,10 +889,10 @@ export type ICrowdfundState = {
 
 export type ICurrency = {
   __typename?: 'Currency';
-  coinDecimals: Scalars['Int']['output'];
-  coinDenom: Scalars['String']['output'];
-  coinGeckoId: Scalars['String']['output'];
-  coinMinimalDenom: Scalars['String']['output'];
+  coinDecimals: Maybe<Scalars['Int']['output']>;
+  coinDenom: Maybe<Scalars['String']['output']>;
+  coinGeckoId: Maybe<Scalars['String']['output']>;
+  coinMinimalDenom: Maybe<Scalars['String']['output']>;
 };
 
 export type IDownloadLogo = {

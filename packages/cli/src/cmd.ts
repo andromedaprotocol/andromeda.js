@@ -11,6 +11,7 @@ import {
   chainHandler,
   gqlHandler,
   txHandler,
+  userHandler,
   walletHandler,
   wasmHandler,
 } from "./handlers";
@@ -106,6 +107,13 @@ export const baseCommands: Commands = {
     description: "Prints the current CLI version",
     color: pc.cyan,
     usage: "version",
+  },
+  user: {
+    handler: userHandler,
+    description: "Manage user",
+    color: pc.blue,
+    usage: "user <cmd>",
+    disabled: () => typeof State.wallets.currentWallet === "undefined",
   },
 };
 
@@ -267,12 +275,12 @@ export async function printCommandHelp(cmd: Command, commands: Commands = {}) {
  * @param questionDefinition
  * @returns
  */
-export async function promptWithExit(
-  questionDefinition: inquirer.QuestionCollection<inquirer.Answers>
+export async function promptWithExit<T extends inquirer.DistinctQuestion>(
+  questionDefinition: T
 ) {
   const transformQuestion = (
-    question: inquirer.DistinctQuestion
-  ): inquirer.DistinctQuestion => {
+    question: T
+  ): T => {
     const mappedQuestion = {
       ...question,
       validate: async (input: string) => {
@@ -304,6 +312,7 @@ export async function promptWithExit(
     const question = questions[i];
 
     const resp = await inquirer.prompt(question);
+
     // If the user selects exit then throw exit error
     if (exitInputs.includes(resp[question.name!]))
       throw new Error("Command exited");

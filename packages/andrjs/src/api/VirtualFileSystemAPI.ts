@@ -47,14 +47,12 @@ export default class VirtualFileSystemAPI extends ADOAPI {
   /**
    * Generates a 'RegisterUser' message for the VFS
    * @param username
-   * @param address The address to assign the username to. Used when transferring ownership of a username.
    * @returns
    */
-  registerUserMsg(username: string, address?: string) {
+  registerUserMsg(username: string) {
     return {
       register_user: {
         username,
-        address,
       },
     };
   }
@@ -62,13 +60,11 @@ export default class VirtualFileSystemAPI extends ADOAPI {
   /**
    * Registers a username for the currently used signing address
    * @param username
-   * @param address The address to assign the username to. Used when transferring ownership of a username.
    * @param msgParams
    * @returns
    */
   async registerUser(
     username: string,
-    address?: string,
     msgParams?: OptionalExecuteParams
   ) {
     this.preMessage();
@@ -77,7 +73,7 @@ export default class VirtualFileSystemAPI extends ADOAPI {
 
     return this.client.execute(
       this.address,
-      this.registerUserMsg(username, address),
+      this.registerUserMsg(username),
       msgParams?.fee,
       msgParams?.memo,
       msgParams?.funds
@@ -174,5 +170,84 @@ export default class VirtualFileSystemAPI extends ADOAPI {
       msgParams?.memo,
       msgParams?.funds
     );
+  }
+
+  /**
+   * Generates a 'GetUsername' query message for the VFS
+   * @param address
+   * @returns
+   */
+  getUsernameMsg(address: string) {
+    return {
+      get_username: {
+        address,
+      },
+    };
+  }
+
+  /**
+   * Resolves the username for the given address
+   * @param address
+   * @returns
+   */
+  async getUsername(address: string) {
+    this.preMessage();
+    return this.client.queryContract(this.address, this.getUsernameMsg(address));
+  }
+
+  /**
+   * Generates a 'SubDir' query message for the VFS
+   * @param path
+   * @returns
+   */
+  subDirMsg(path: string) {
+    return {
+      sub_dir: {
+        path,
+      },
+    };
+  }
+
+  /**
+   * Resolves the sub dir for a given path
+   * @param path
+   * @returns
+   */
+  async subDir(path: string) {
+    this.preMessage();
+    if (!path || path.length === 0)
+      throw new Error("Cannot resolve an empty path using the VFS");
+    return this.client.queryContract(this.address, this.subDirMsg(path));
+  }
+
+  /**
+   * Generates a 'paths' query message for the VFS
+   * @param addr
+   * @returns
+   */
+  pathsMsg(addr: string) {
+    return {
+      paths: {
+        addr,
+      },
+    };
+  }
+
+  /**
+   * Resolves the paths for a given address
+   * @param addr
+   * @returns
+   */
+  async paths(addr: string) {
+    this.preMessage();
+    if (
+      !addr ||
+      addr.length === 0 ||
+      !validateAddress(addr)
+    )
+      throw new Error(
+        "Cannot resolve an invalid address using the VFS"
+      );
+    return this.client.queryContract(this.address, this.pathsMsg(addr));
   }
 }

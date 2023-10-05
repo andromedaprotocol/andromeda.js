@@ -5,6 +5,7 @@ import adoCommands from "./ado";
 import gqlCommands from "./gql";
 import bankCommands from "./bank";
 import txCommands from "./tx";
+import userCommands from "./user";
 import { generateHandler } from "./utils";
 
 export * as wallets from "./wallet";
@@ -14,6 +15,7 @@ export * as ado from "./ado";
 export * as gql from "./gql";
 export * as bank from "./bank";
 export * as tx from "./tx";
+export * as vfs from "./user";
 export * from "./utils";
 
 export const walletHandler = generateHandler(walletCommands, "wallet");
@@ -23,6 +25,7 @@ export const adoHandler = generateHandler(adoCommands, "ado");
 export const bankHandler = generateHandler(bankCommands, "bank");
 export const gqlHandler = generateHandler(gqlCommands, "gql");
 export const txHandler = generateHandler(txCommands, "tx");
+export const userHandler = generateHandler(userCommands, "user");
 
 export const allCommands = [
   ...Object.keys(chainCommands).map((cmd) => `chain ${cmd}`),
@@ -32,4 +35,5 @@ export const allCommands = [
   ...Object.keys(adoCommands).map((cmd) => `ado ${cmd}`),
   ...Object.keys(gqlCommands).map((cmd) => `gql ${cmd}`),
   ...Object.keys(bankCommands).map((cmd) => `bank ${cmd}`),
+  ...Object.keys(userCommands).map((cmd) => `user ${cmd}`),
 ];

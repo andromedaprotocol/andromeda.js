@@ -459,9 +459,7 @@ export default class AndromedaClient {
    */
   async getSentTxsByAddress(addr: string) {
     this.preMessage();
-    return this.chainClient!.queryClient!?.searchTx({
-      tags: [{ key: "message.sender", value: addr }],
-    });
+    return this.chainClient!.queryClient!?.searchTx([{ key: "message.sender", value: addr }]);
   }
 
   /**
@@ -471,9 +469,7 @@ export default class AndromedaClient {
    */
   async getTxsByContract(addr: string) {
     this.preMessage();
-    return this.chainClient!.queryClient!?.searchTx({
-      tags: [{ key: "execute._contract_address", value: addr }],
-    });
+    return this.chainClient!.queryClient!?.searchTx([{ key: "execute._contract_address", value: addr }]);
   }
 
   /**
@@ -483,10 +479,14 @@ export default class AndromedaClient {
    */
   async getBankTxsByAddress(addr: string) {
     this.preMessage();
-    return this.chainClient!.queryClient!?.searchTx({
-      sentFromOrTo: addr,
-    });
-  }
+    const sentQuery = `message.module='bank' AND transfer.sender='${addr}'`;
+    const receivedQuery = `message.module = 'bank' AND transfer.recipient = '${addr}'`;
+    const [sent, received] = await Promise.all(
+      [sentQuery, receivedQuery].map((rawQuery) => this.chainClient!.queryClient!?.searchTx(rawQuery)),
+    );
+    const sentHashes = sent.map((t) => t.hash);
+    return [...sent, ...received.filter((t) => !sentHashes.includes(t.hash))];
+  };
 
   /**
    * Queries all possible transactions for a given address

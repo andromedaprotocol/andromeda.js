@@ -476,10 +476,10 @@ type CrowdfundState {
 }
 
 type Currency {
-  coinDecimals: Int!
-  coinDenom: String!
-  coinGeckoId: String!
-  coinMinimalDenom: String!
+  coinDecimals: Int
+  coinDenom: String
+  coinGeckoId: String
+  coinMinimalDenom: String
 }
 
 type DownloadLogo {

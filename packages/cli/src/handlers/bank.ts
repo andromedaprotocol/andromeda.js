@@ -1,5 +1,5 @@
 import { Coin, parseCoins } from "@cosmjs/amino";
-import { promptWithExit } from "cmd";
+import { promptWithExit } from "../cmd";
 import pc from "picocolors";
 import { displaySpinnerAsync, printTransactionUrl } from "../common";
 import State from "../state";
@@ -45,13 +45,13 @@ export const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Denom:",
+        default: async () => State.wallets.currentWalletDenom
       },
       {
-        requestMessage: `Input Address${
-          typeof State.wallets.currentWallet !== "undefined"
-            ? " (Leave empty to see your balance)"
-            : ""
-        }:`,
+        requestMessage: `Input Address${typeof State.wallets.currentWallet !== "undefined"
+          ? " (Leave empty to see your balance)"
+          : ""
+          }:`,
         validate: (input: string) => {
           if (
             input.length === 0 &&
@@ -60,6 +60,7 @@ export const commands: Commands = {
             return true;
           return validateAddressInput(input);
         },
+        default: async () => State.wallets.currentWalletAddress || ''
       },
     ],
   },

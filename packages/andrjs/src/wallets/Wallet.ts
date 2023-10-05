@@ -9,7 +9,7 @@ export default class Wallet {
     public name: string,
     public key: string,
     public prefix?: string
-  ) {}
+  ) { }
 
   /**
    * Generates a new wallet from a given mnemonic

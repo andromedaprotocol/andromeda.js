@@ -14,6 +14,10 @@ import {
 
 // Register command type prompt
 const inquirerCommandPrompt = require("inquirer-command-prompt");
+const inquirerAutocompletePrompt = require("inquirer-autocomplete-prompt");
+const InterruptedPrompt = require("inquirer-interrupted-prompt");
+inquirer.registerPrompt("autocomplete", inquirerAutocompletePrompt);
+InterruptedPrompt.fromAll(inquirer);
 inquirer.registerPrompt("command", inquirerCommandPrompt);
 
 async function onStartup() {
