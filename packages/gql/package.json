@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/gql",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
