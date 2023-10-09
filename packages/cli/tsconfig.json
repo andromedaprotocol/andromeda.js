@@ -9,8 +9,7 @@
     "lib": [
       "esnext"
     ],
-    "baseUrl": "./src",
-    "rootDir": "."
+    "baseUrl": "./src"
   },
   "include": [
     "src/**/*.ts",
