@@ -14,11 +14,25 @@ import {
 
 // Register command type prompt
 const inquirerCommandPrompt = require("inquirer-command-prompt");
-const inquirerAutocompletePrompt = require("inquirer-autocomplete-prompt");
 const InterruptedPrompt = require("inquirer-interrupted-prompt");
-inquirer.registerPrompt("autocomplete", inquirerAutocompletePrompt);
+
+import AutocompletePrompt from "inquirer-autocomplete-prompt";
+class CustomAutocompletePrompt extends AutocompletePrompt<any> {
+  onSubmit(line: string) {
+    let selected_value = this.currentChoices.getChoice(this.selected).value;
+
+    if (!line && selected_value) {
+      line = selected_value;
+    }
+    
+    super.onSubmit(line);
+  }
+}
+
+inquirer.registerPrompt("autocomplete", CustomAutocompletePrompt);
 InterruptedPrompt.fromAll(inquirer);
 inquirer.registerPrompt("command", inquirerCommandPrompt);
+
 
 async function onStartup() {
   try {
