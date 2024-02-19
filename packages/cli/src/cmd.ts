@@ -113,7 +113,9 @@ export const baseCommands: Commands = {
     description: "Manage user",
     color: pc.blue,
     usage: "user <cmd>",
-    disabled: () => typeof State.wallets.currentWallet === "undefined",
+// Applying the disabled state to the user command until the user command is implemented in AMP.
+    // disabled: () => typeof State.wallets.currentWallet === "undefined",
+    disabled: () => true,
   },
 };
 
