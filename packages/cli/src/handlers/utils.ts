@@ -97,8 +97,9 @@ export async function handle(
       log(pc.red("Command disabled"));
       return;
     }
-    if (flags["help"] && (commandInput.length === 0 || cmd.inputs)) {
-      await printCommandHelp(cmd, commands);
+    if (flags["--help"] && (commandInput.length === 0 || cmd.inputs)) {
+      //await printCommandHelp(cmd, commands);
+      await listCommands(commands, prefix);
       return;
     }
 
