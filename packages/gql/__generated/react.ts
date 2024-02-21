@@ -623,7 +623,7 @@ export type ICodegenGeneratedAdoCw20ExchangeSaleassetsQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw20ExchangeSaleassetsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_exchange: { __typename?: 'CW20ExchangeAdo', saleAssets: string } } };
+export type ICodegenGeneratedAdoCw20ExchangeSaleassetsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_exchange: { __typename?: 'CW20ExchangeAdo', saleAssets: Array<string> } } };
 
 export type ICodegenGeneratedAdoCw20ExchangeQueryVariables = Exact<{
   ADO_cw20_exchange_address: Scalars['String']['input'];

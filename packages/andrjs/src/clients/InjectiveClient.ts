@@ -24,7 +24,6 @@ import {
   ChainRestAuthApi,
   ChainRestTendermintApi,
   createTransaction,
-  MsgArg,
   MsgExecuteContract,
   MsgInstantiateContract,
   MsgMigrateContract,
@@ -33,8 +32,8 @@ import {
   TxGrpcClient,
   TxRaw as InjTxRaw,
   createTxRawFromSigResponse,
+  Msgs,
 } from "@injectivelabs/sdk-ts";
-import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
 import {
   BigNumberInBase,
   DEFAULT_BLOCK_TIMEOUT_HEIGHT,
@@ -47,6 +46,7 @@ import { gzip } from "pako";
 import type { Msg } from "../types";
 import BaseChainClient from "./BaseChainClient";
 import ChainClient from "./ChainClient";
+import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
 
 type MsgType =
   | "MsgSend"
@@ -103,10 +103,10 @@ function mapObjToEnjClass(type: MsgType, value: any) {
   }
 }
 
-function encodeObjectToMsgArgs(msgs: EncodeObject[]): MsgArg[] {
+function encodeObjectToMsg(msgs: EncodeObject[]): Msgs[] {
   return msgs.map((msg) => {
     const type = _.last(msg.typeUrl.split("."));
-    return mapObjToEnjClass(type as MsgType, msg.value).toDirectSign();
+    return mapObjToEnjClass(type as MsgType, msg.value);
   });
 }
 
@@ -135,9 +135,11 @@ export default class InjectiveClient
   ): Promise<void> {
     delete this.signingClient;
     delete this.queryClient;
+
+    // TODO: Update this to use config from our gql service
     const network = endpoint.includes("testnet")
-      ? Network.TestnetK8s
-      : Network.MainnetK8s;
+      ? Network.Testnet
+      : Network.Mainnet;
     this.chainId = getNetworkChainInfo(network).chainId;
     const { rest, rpc, grpc } = getNetworkEndpoints(network);
 
@@ -193,7 +195,9 @@ export default class InjectiveClient
 
   private async signInj(
     messages: EncodeObject[],
-    fee: StdFee = getStdFee((DEFAULT_GAS_LIMIT * 2).toString()),
+    fee: StdFee = getStdFee({
+      'gas': DEFAULT_GAS_LIMIT * 2
+    }),
     memo: string = "",
     simulation = false
   ) {
@@ -204,7 +208,7 @@ export default class InjectiveClient
     const { signDoc, txRaw } = createTransaction({
       pubKey,
       chainId: this.chainId!,
-      message: encodeObjectToMsgArgs(messages),
+      message: encodeObjectToMsg(messages),
       timeoutHeight,
       sequence: baseAccount.sequence,
       accountNumber: baseAccount.accountNumber,
@@ -216,9 +220,9 @@ export default class InjectiveClient
 
     const signed = await this.directSigner!.signDirect(this.signer!, {
       ...signDoc,
-      chainId: signDoc.getChainId(),
-      bodyBytes: signDoc.getBodyBytes_asU8(),
-      authInfoBytes: signDoc.getAuthInfoBytes_asU8(),
+      chainId: signDoc.chainId,
+      bodyBytes: signDoc.bodyBytes,
+      authInfoBytes: signDoc.authInfoBytes,
       accountNumber: Long.fromInt(baseAccount.accountNumber),
     });
 
@@ -228,9 +232,9 @@ export default class InjectiveClient
   async sign(messages: EncodeObject[], fee?: StdFee, memo?: string) {
     const injTxRaw = await this.signInj(messages, fee, memo);
     return {
-      bodyBytes: injTxRaw.getBodyBytes_asU8(),
-      authInfoBytes: injTxRaw.getAuthInfoBytes_asU8(),
-      signatures: injTxRaw.getSignaturesList_asU8(),
+      bodyBytes: injTxRaw.bodyBytes,
+      authInfoBytes: injTxRaw.authInfoBytes,
+      signatures: injTxRaw.signatures,
     };
   }
 

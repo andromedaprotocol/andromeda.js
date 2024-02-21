@@ -36,10 +36,11 @@ async function requestSendNFT(): Promise<SendNftMsg> {
   let msg: string | Record<string, any> = {};
   try {
     const codeId = (await client.chainClient!.queryClient!.getContract(addressInput.address)).codeId;
-    const schema = await client!.os.schema!.getSubSchemaFromCodeId(codeId, 'receive-cw721').catch(() => undefined);
+    const schema = await client!.os.schema!.getSubSchemaFromCodeId(codeId, 'cw721receive').catch(() => undefined);
     if (!schema)
-      throw new Error("Contract address cannot receive NFTs");
-    msg = await promptQueryOrExecuteMessage(schema.schema, schema.key);
+      // Maybe add a issue template here so user can request addition of new schema?
+      throw new Error("CW721 receive schema not found. Please provide raw message.");
+    msg = await promptQueryOrExecuteMessage(schema.schema);
   } catch (error: any) {
     console.error(error?.message);
     const messageInput = await promptWithExit({
@@ -87,9 +88,7 @@ export async function requestMessageType(options: Schema[]): Promise<string> {
 }
 
 export async function promptQueryOrExecuteMessage(
-  schema: Schema,
-  schemaKey: string
-) {
+  schema: Schema) {
   const validOptions = (schema.oneOf ?? []).filter(
     ({ required }) =>
       required &&
@@ -115,7 +114,7 @@ export async function promptQueryOrExecuteMessage(
     return await requestSendNFT();
   }
 
-  const prompter = new SchemaPrompt(schema, schemaKey);
+  const prompter = new SchemaPrompt(schema);
 
   const keys = Object.keys(properties);
   let answers: Record<string, any> = {};
@@ -136,12 +135,11 @@ export async function promptQueryOrExecuteMessage(
 
 export async function promptInstantiateMsg(
   schema: Schema,
-  codeId: number,
   bread?: string[]
 ) {
   const { required, properties } = schema;
   if (!properties) return {};
-  const prompter = new SchemaPrompt(schema, codeId.toString());
+  const prompter = new SchemaPrompt(schema);
 
   const keys = Object.keys(properties);
   let answers: Record<string, any> = {};
@@ -172,7 +170,7 @@ export default class SchemaPrompt {
 
   // Schema key is generally codeId but it can be different for nested keys like receive schema.
   // To keep track of schema, we pass schemaKey. Its of structure `{codeId}-{substring?}`
-  constructor(public schema: Schema, public schemaKey: string) { }
+  constructor(public schema: Schema) { }
 
   async requestAppComponent() {
     const name = await this.promptQuestion(
@@ -192,7 +190,7 @@ export default class SchemaPrompt {
       async () => await client.os.schema!.getSchemaFromCodeId(codeId)
     );
 
-    const msg = await promptInstantiateMsg(adoSchema.schema.instantiate, codeId, [
+    const msg = await promptInstantiateMsg(adoSchema.schema.instantiate, [
       `${name} - Instantiation`,
     ]);
     const instantiateMsg = encode(msg);
@@ -253,7 +251,7 @@ export default class SchemaPrompt {
       "Fetching schema...",
       async () => await client.os.schema!.getSchemaFromCodeId(type)
     );
-    const msg = await promptQueryOrExecuteMessage(adoSchema.schema.execute, adoSchema.key);
+    const msg = await promptQueryOrExecuteMessage(adoSchema.schema.execute);
 
     return {
       address: {

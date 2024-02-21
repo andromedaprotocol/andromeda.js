@@ -35,7 +35,7 @@ export function setGQLUri(newUri: string) {
 const URI: Readonly<string> = process.env.GQL_URL ?? "https://gql.testnet.andromedaprotocol.io/graphql";
 const gqlClient = new GraphQLClient(URI);
 
-export const querySdk = getSdk(gqlClient);
+export const querySdk: ReturnType<typeof getSdk> = getSdk(gqlClient);
 
 /**
  * Sets the GQL Server URI

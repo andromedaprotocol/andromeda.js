@@ -17,10 +17,10 @@ import type {
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
 import type { MsgSendEncodeObject } from "@cosmjs/stargate";
 import type { TxGrpcClient, TxRaw as InjTxRaw } from "@injectivelabs/sdk-ts";
-import type { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
 import type { LCDClient, Tx as TerraTx } from "@terra-money/terra.js";
 import type { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import type { Fee, Msg } from "../types";
+import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
 
 /**
  * When interacting with any Cosmos chain there may be differences in how they sign messages or how the messages themselves are constructed.
@@ -30,10 +30,10 @@ import type { Fee, Msg } from "../types";
 export default interface ChainClient {
   // The client used to sign any transactions braodcast to the chain
   signingClient?:
-    | SigningCosmWasmClient
-    | TxGrpcClient
-    | LCDClient
-    | SigningArchwayClient;
+  | SigningCosmWasmClient
+  | TxGrpcClient
+  | LCDClient
+  | SigningArchwayClient;
   // The client used to query the chain
   queryClient?: CosmWasmClient;
   // The current signer address

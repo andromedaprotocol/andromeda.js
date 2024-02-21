@@ -46,7 +46,8 @@ const commands: Commands = {
         requestMessage: "Input the ADO type:",
         validate: async (input: string) => {
           try {
-            await client.os.schema!.getSchemaFromAdoType(input);
+            const codeId = await client!.os!.adoDB!.getCodeId(input);
+            await client.os.schema!.getSchemaFromCodeId(codeId);
             return true;
           } catch (error) {
             const { message } = error as Error;
@@ -242,7 +243,7 @@ async function createHandler(input: string[], flags: Flags) {
   const [type] = input;
   const codeId = await client!.os!.adoDB!.getCodeId(type);
   const adoSchema = await displaySpinnerAsync(
-    `Fetching schema for ${type}-${codeId}...`,
+    `Fetching schema for ${type} (${codeId}) ...`,
     async () => await client.os.schema!.getSchemaFromCodeId(codeId)
   );
 
@@ -250,7 +251,6 @@ async function createHandler(input: string[], flags: Flags) {
     adoSchema.schema.instantiate
       ? adoSchema.schema.instantiate
       : (adoSchema.schema as Schema),
-    codeId
   );
   await instantiateMessage(codeId, msg, flags);
 }
@@ -266,40 +266,15 @@ async function queryCodeId(address: string) {
 }
 
 /**
- * Queries an ADO for its type by address
- * @param address The address of the ADO
- * @returns The type of ADO the contract is, errors if the contract is not an ADO
- */
-async function queryADOType(address: string) {
-  const queryMsg = client.ado.typeQuery();
-
-  const { ado_type } = await queryMessage<{ ado_type: string }>(
-    address,
-    queryMsg
-  );
-
-  return ado_type;
-}
-
-/**
  * Queries an ADO for its schema by address
  * @param address The address of the ADO
  * @returns Schema for the ado
  */
 async function queryAdoSchema(address: string) {
-  try {
-    // First try to get the schema using codeId as codeId are unique
-    const codeId = await queryCodeId(address);
-    const schema = await client.os.schema!.getSchemaFromCodeId(codeId);
-    return schema;
-  } catch (err) {
-    // If codeId schema fetch fail, try to get the adoType and check the codeId for it in adodb
-    console.log(`Schema not found using Code Id, falling back to Ado Type`)
-    const adoType = await queryADOType(address);
-    console.log(adoType);
-    const schema = await client.os.schema!.getSchemaFromAdoType(adoType);
-    return schema
-  }
+  const codeId = await queryCodeId(address);
+  const schema = await client.os.schema!.getSchemaFromCodeId(codeId);
+  return schema;
+
 }
 
 /**
@@ -319,7 +294,6 @@ async function executeHandler(input: string[], flags: Flags) {
     adoSchema.schema.execute
       ? adoSchema.schema.execute
       : (adoSchema.schema as Schema),
-    adoSchema.key
   );
   await executeMessage(address, msg, flags);
 }
@@ -349,7 +323,6 @@ async function queryHandler(input: string[]) {
     adoSchema.schema.query
       ? adoSchema.schema.query
       : adoSchema.schema as Schema,
-    adoSchema.key
   );
   const resp = await queryMessage(address, msg);
 
