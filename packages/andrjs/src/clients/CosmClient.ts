@@ -17,7 +17,7 @@ import ChainClient from "./ChainClient";
 export default class CosmClient extends BaseChainClient implements ChainClient {
   public signingClient?: SigningCosmWasmClient;
   public queryClient?: CosmWasmClient;
-  private gasPrice?: GasPrice;
+  public gasPrice?: GasPrice;
 
   async connect(
     endpoint: string,

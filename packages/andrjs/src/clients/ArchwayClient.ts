@@ -18,7 +18,7 @@ import ChainClient from "./ChainClient";
 export default class ArchwayClient extends BaseChainClient {
   public signingClient?: SigningArchwayClient;
   public queryClient?: CosmWasmClient;
-  private gasPrice?: GasPrice;
+  public gasPrice?: GasPrice;
 
   async connect(
     endpoint: string,

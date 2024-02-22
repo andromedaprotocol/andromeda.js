@@ -44,21 +44,6 @@ const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input the ADO type:",
-        validate: async (input: string) => {
-          try {
-            const codeId = await client!.os!.adoDB!.getCodeId(input);
-            await client.os.schema!.getSchemaFromCodeId(codeId);
-            return true;
-          } catch (error) {
-            const { message } = error as Error;
-            if (message.includes("u64 not found")) {
-              console.log(pc.red("Invalid ADO Type"));
-            } else {
-              console.log(pc.red(message));
-            }
-            return false;
-          }
-        },
         options: async () => {
           try {
             const adoTypes = displaySpinnerAsync(
