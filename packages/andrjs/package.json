@@ -31,7 +31,7 @@
     "@cosmjs/stargate": "^0.31.3",
     "@cosmjs/tendermint-rpc": "^0.31.3",
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@injectivelabs/networks": "^1.14.5",
+    "@injectivelabs/networks": "1.14.5",
     "@injectivelabs/sdk-ts": "1.14.5",
     "@injectivelabs/utils": "1.14.5",
     "@keplr-wallet/types": "^0.12.69",
