@@ -3,8 +3,8 @@ import ADOAPI from "./ADOAPI";
 import AndromedaClient, { ContractSchema } from "index";
 import axios from "axios";
 
-export default class ADODSchemaAPI extends ADOAPI {
-  constructor(client: AndromedaClient, public address: string) {
+export default class ADOSchemaAPI extends ADOAPI {
+  constructor(client: AndromedaClient, public address: string = "") {
     super(client, address);
   }
 

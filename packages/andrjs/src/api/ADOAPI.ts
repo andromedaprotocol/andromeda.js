@@ -2,10 +2,11 @@ import type AndromedaClient from "../AndromedaClient";
 import type { Fee, Module, Msg } from "../types";
 
 export default class ADOAPI {
+
   constructor(
     protected client: AndromedaClient,
     protected address: string = ""
-  ) {}
+  ) { }
 
   /**
    * Converts a message object to an Andromeda Execute Message

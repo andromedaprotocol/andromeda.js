@@ -229,7 +229,7 @@ async function createHandler(input: string[], flags: Flags) {
   const codeId = await client!.os!.adoDB!.getCodeId(type);
   const adoSchema = await displaySpinnerAsync(
     `Fetching schema for ${type} (${codeId}) ...`,
-    async () => await client.os.schema!.getSchemaFromCodeId(codeId)
+    async () => await client.schema!.getSchemaFromCodeId(codeId)
   );
 
   const msg = await promptInstantiateMsg(
@@ -257,7 +257,7 @@ async function queryCodeId(address: string) {
  */
 async function queryAdoSchema(address: string) {
   const codeId = await queryCodeId(address);
-  const schema = await client.os.schema!.getSchemaFromCodeId(codeId);
+  const schema = await client.schema!.getSchemaFromCodeId(codeId);
   return schema;
 
 }
@@ -301,7 +301,7 @@ async function queryHandler(input: string[]) {
   const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
     async () =>
-      await client!.os!.schema!.getSchemaFromCodeId(codeId)
+      await client!.schema!.getSchemaFromCodeId(codeId)
   );
 
   const msg = await promptQueryOrExecuteMessage(

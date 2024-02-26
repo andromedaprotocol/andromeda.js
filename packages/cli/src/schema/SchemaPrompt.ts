@@ -36,7 +36,7 @@ async function requestSendNFT(): Promise<SendNftMsg> {
   let msg: string | Record<string, any> = {};
   try {
     const codeId = (await client.chainClient!.queryClient!.getContract(addressInput.address)).codeId;
-    const schema = await client!.os.schema!.getSubSchemaFromCodeId(codeId, 'cw721receive').catch(() => undefined);
+    const schema = await client!.schema!.getSubSchemaFromCodeId(codeId, 'cw721receive').catch(() => undefined);
     if (!schema)
       // Maybe add a issue template here so user can request addition of new schema?
       throw new Error("CW721 receive schema not found. Please provide raw message.");
@@ -187,7 +187,7 @@ export default class SchemaPrompt {
 
     const adoSchema = await displaySpinnerAsync(
       `Fetching Schema for ${adoType}...`,
-      async () => await client.os.schema!.getSchemaFromCodeId(codeId)
+      async () => await client.schema!.getSchemaFromCodeId(codeId)
     );
 
     const msg = await promptInstantiateMsg(adoSchema.schema.instantiate, [
@@ -249,7 +249,7 @@ export default class SchemaPrompt {
 
     const adoSchema = await displaySpinnerAsync(
       "Fetching schema...",
-      async () => await client.os.schema!.getSchemaFromCodeId(type)
+      async () => await client.schema!.getSchemaFromCodeId(type)
     );
     const msg = await promptQueryOrExecuteMessage(adoSchema.schema.execute);
 

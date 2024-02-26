@@ -16,6 +16,7 @@ import type { ChainClient } from "./clients";
 import createClient from "./clients";
 import type { Fee, Msg } from "./types";
 import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
+import ADOSchemaAPI from "api/ADOSchemaAPI";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
@@ -30,6 +31,7 @@ export default class AndromedaClient {
 
   // API for shared ADO messages
   public ado = new ADOAPI(this);
+  public schema = new ADOSchemaAPI(this);
   // API for aOS
   public os = new OperatingSystemAPI(this);
 
