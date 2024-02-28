@@ -32,7 +32,7 @@ export default class ADOSchemaAPI extends ADOAPI {
    * @returns
    */
   async getSchemaFromCodeId<T = ContractSchema>(codeId: number, subSchema = 'default') {
-    let schema = await axios.get(`https://andromeda-schema-api.vercel.app/api/raw/${codeId}/${await this.client.chainClient?.queryClient?.getChainId()}/${subSchema}`).then(res => res.data as T).catch(() => undefined);
+    let schema = await axios.get(`https://andromeda-schema-api.vercel.app/api/raw/code_id/${codeId}/${await this.client.chainClient?.queryClient?.getChainId()}/${subSchema}`).then(res => res.data as T).catch(() => undefined);
     if (!schema) {
       schema = await this.client.os.adoDB?.getAdoType(codeId).then(adoVersion => this.getSchemaFromVersion<T>(adoVersion, subSchema)).then(data => data.schema).catch(() => undefined);
     }

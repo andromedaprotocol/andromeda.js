@@ -48,7 +48,7 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.8.1)
       '@injectivelabs/networks':
-        specifier: ^1.14.5
+        specifier: 1.14.5
         version: 1.14.5(google-protobuf@3.21.2)
       '@injectivelabs/sdk-ts':
         specifier: 1.14.5
