@@ -144,15 +144,20 @@ export async function title() {
   const version = await getCurrentPackage().version;
   const latest = await getLatestNpmVersion();
   console.log();
-  if (version !== latest) {
-    console.log(pc.bold(pc.green("Update available") + ", update using the following command: " + pc.bgCyan(" npm update -g @andromeda-protocol/cli ")))
-  }
   const COLORS = {
     yellow: '#feb912',
     red: '#d52b63',
     purple: '#4576e5'
   }
-  const msg = await figletAsync("Andromeda CLI  v" + version);
+  const versionMsg = pc.bgCyan(pc.bold(" CLI version - v" + version + " "));
+  // const versionMsg = "CLI version - v" + version;
+  console.log(versionMsg);
+  if (version !== latest) {
+    console.log(pc.bold(pc.green("Update available")) + ", update using the following command: " + pc.bgBlack(" npm update -g @andromeda-protocol/cli "));
+  }
+  const msg = await figletAsync("Andromeda CLI", {
+    font: "Standard",
+  });
 
   console.log(gradient(
     COLORS.purple, COLORS.red, COLORS.yellow, COLORS.red, COLORS.purple).multiline(msg),
