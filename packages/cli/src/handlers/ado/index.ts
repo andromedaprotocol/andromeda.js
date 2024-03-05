@@ -257,7 +257,15 @@ async function queryCodeId(address: string) {
  */
 async function queryAdoSchema(address: string) {
   const codeId = await queryCodeId(address);
-  const schema = await client.schema!.getSchemaFromCodeId(codeId);
+
+  // Try to create a fallback type from ado types query
+  let fallbackType: string | undefined = undefined;
+  const adoType = await client.ado.getType(address).catch(() => undefined);
+  if (adoType) {
+    // Trying to prevent unncessary call for version if type query already failed
+    fallbackType = adoType && await client.ado.getVersion(address).then(version => `${adoType}@${version}`).catch(() => undefined);
+  }
+  const schema = await client.schema!.getSchemaFromCodeId(codeId, undefined, fallbackType);
   return schema;
 
 }

@@ -33,10 +33,14 @@ export default class ADOSchemaAPI extends ADOAPI {
    * @param address
    * @returns
    */
-  async getSchemaFromCodeId<T = ContractSchema>(codeId: number, subSchema = 'default') {
+  async getSchemaFromCodeId<T = ContractSchema>(codeId: number, subSchema = 'default', fallbackType?: string) {
     let schema = await axios.get(`${ADOSchemaAPI.SCHEMA_BASE_URL}/raw/code_id/${codeId}/${await this.client.chainClient?.queryClient?.getChainId()}/${subSchema}`).then(res => res.data as T).catch(() => undefined);
     if (!schema) {
       schema = await this.client.os.adoDB?.getAdoType(codeId).then(adoVersion => this.getSchemaFromVersion<T>(adoVersion, subSchema)).then(data => data.schema).catch(() => undefined);
+    }
+    // If we still don't have schema, try to get ado type from ado type query
+    if (!schema && fallbackType) {
+      schema = await this.getSchemaFromVersion<T>(fallbackType, subSchema).then(data => data.schema).catch(() => undefined);
     }
     if (!schema) throw new Error("Schema not found!");
     return {

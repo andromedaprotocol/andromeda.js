@@ -172,7 +172,7 @@ export default class SchemaPrompt {
   // To keep track of schema, we pass schemaKey. Its of structure `{codeId}-{substring?}`
   constructor(public schema: Schema) { }
 
-  async requestAppComponent() {
+  async requestAppComponent(property: Schema) {
     const name = await this.promptQuestion(
       "ADO Name",
       { type: "string" },
@@ -195,13 +195,23 @@ export default class SchemaPrompt {
     ]);
     const instantiateMsg = encode(msg);
 
-    return {
-      ado_type: adoType,
-      name,
-      component_type: {
-        new: instantiateMsg
+    // Different version of schema have different type of component structure
+    // New schema support "component_type" while old schema support "instantiate_msg"
+    if ("component_type" in (property.properties ?? {})) {
+      return {
+        ado_type: adoType,
+        name,
+        component_type: {
+          new: instantiateMsg
+        }
+      };
+    } else {
+      return {
+        ado_type: adoType,
+        name,
+        instantiate_msg: instantiateMsg
       }
-    };
+    }
   }
 
   async requestADORecipient() {
@@ -499,7 +509,7 @@ export default class SchemaPrompt {
             );
             return { identifier };
           case AndromedaSchemaTypes.AppComponent:
-            return await this.requestAppComponent();
+            return await this.requestAppComponent(property);
           default:
             break;
         }
@@ -550,19 +560,16 @@ export default class SchemaPrompt {
       const refSplit = ref.split("/");
       const field = _.last(refSplit);
       if (!field) return;
-
+      const { definitions } = this.schema;
+      const definition = Object(definitions)[field] ?? {};
       if (
         Object.values(AndromedaSchemaTypes as Record<string, string>).includes(
           field
         )
       ) {
-        return { type: field };
-      } else {
-        const { definitions } = this.schema;
-        const definition = Object(definitions)[field];
-
-        if (definition) return definition;
+        return { ...definition, type: field };
       }
+      return definition;
     }
 
     throw new Error(`Could not get ref ${ref} in schema ${this.schema}`);
