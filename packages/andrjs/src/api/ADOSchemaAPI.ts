@@ -8,6 +8,8 @@ export default class ADOSchemaAPI extends ADOAPI {
     super(client, address);
   }
 
+  public static readonly SCHEMA_BASE_URL = 'https://api.andromedaprotocol.io/v1/schema'
+
   /**
    * Gets the schema for the key in schemadb
    * @param key
@@ -17,7 +19,7 @@ export default class ADOSchemaAPI extends ADOAPI {
   private async getSchemaFromVersion<T = ContractSchema>(adoVersion: string, subSchema = 'default') {
     const [adoType, version] = adoVersion.split('@');
     const subPath = subSchema === 'default' ? adoType : subSchema;
-    const schema: T = await axios.get(`https://andromeda-schema-api.vercel.app/api/raw/${adoType}/${version}/${subPath}`).then(res => res.data);
+    const schema: T = await axios.get(`${ADOSchemaAPI.SCHEMA_BASE_URL}/raw/${adoType}/${version}/${subPath}`).then(res => res.data);
     return {
       schema,
       adoVersion: adoVersion
@@ -32,7 +34,7 @@ export default class ADOSchemaAPI extends ADOAPI {
    * @returns
    */
   async getSchemaFromCodeId<T = ContractSchema>(codeId: number, subSchema = 'default') {
-    let schema = await axios.get(`https://andromeda-schema-api.vercel.app/api/raw/code_id/${codeId}/${await this.client.chainClient?.queryClient?.getChainId()}/${subSchema}`).then(res => res.data as T).catch(() => undefined);
+    let schema = await axios.get(`${ADOSchemaAPI.SCHEMA_BASE_URL}/raw/code_id/${codeId}/${await this.client.chainClient?.queryClient?.getChainId()}/${subSchema}`).then(res => res.data as T).catch(() => undefined);
     if (!schema) {
       schema = await this.client.os.adoDB?.getAdoType(codeId).then(adoVersion => this.getSchemaFromVersion<T>(adoVersion, subSchema)).then(data => data.schema).catch(() => undefined);
     }

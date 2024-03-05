@@ -160,7 +160,7 @@ export async function promptInstantiateMsg(
 
 enum AndromedaSchemaTypes {
   AMPRecipient = "AMPRecipient",
-  AndrAddress = "AndrAddress",
+  AndrAddress = "AndrAddr",
   Binary = "Binary",
   AppComponent = "AppComponent",
 }
@@ -198,7 +198,9 @@ export default class SchemaPrompt {
     return {
       ado_type: adoType,
       name,
-      instantiate_msg: instantiateMsg,
+      component_type: {
+        new: instantiateMsg
+      }
     };
   }
 
