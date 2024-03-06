@@ -1,5 +1,11 @@
 # @andromedaprotocol/andromeda.js
 
+## 0.3.8-beta.1
+
+### Patch Changes
+
+- Cosmjs updates, Injective Client Update, ADO Schema updates
+
 ## 0.3.8-beta.0
 
 ### Patch Changes
