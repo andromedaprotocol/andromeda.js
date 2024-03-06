@@ -1,0 +1,12 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@andromedaprotocol/andromeda.js": "0.3.7",
+    "@andromedaprotocol/cli": "0.3.8",
+    "@andromedaprotocol/gql": "0.3.7"
+  },
+  "changesets": [
+    "thick-onions-invite"
+  ]
+}
