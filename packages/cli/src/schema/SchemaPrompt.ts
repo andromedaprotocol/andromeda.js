@@ -160,7 +160,7 @@ export async function promptInstantiateMsg(
 
 enum AndromedaSchemaTypes {
   AMPRecipient = "AMPRecipient",
-  AndrAddress = "AndrAddr",
+  // AndrAddress = "AndrAddr",
   Binary = "Binary",
   AppComponent = "AppComponent",
 }
@@ -500,14 +500,14 @@ export default class SchemaPrompt {
             break;
           case AndromedaSchemaTypes.AMPRecipient:
             return this.requestRecipient(name);
-          case AndromedaSchemaTypes.AndrAddress:
-            const identifier = await this.promptQuestion(
-              name,
-              { type: "string" },
-              true,
-              bread
-            );
-            return { identifier };
+          // case AndromedaSchemaTypes.AndrAddress:
+          //   const identifier = await this.promptQuestion(
+          //     name,
+          //     { type: "string" },
+          //     true,
+          //     bread
+          //   );
+          //   return { identifier };
           case AndromedaSchemaTypes.AppComponent:
             return await this.requestAppComponent(property);
           default:
