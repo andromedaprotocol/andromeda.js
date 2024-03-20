@@ -1,5 +1,12 @@
 # @andromedaprotocol/cli
 
+## 0.3.9-beta.2
+
+### Patch Changes
+
+- Override vulnerable dependencies
+
+
 ## 0.3.9-beta.1
 
 ### Patch Changes

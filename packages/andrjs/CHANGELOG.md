@@ -1,5 +1,11 @@
 # @andromedaprotocol/andromeda.js
 
+## 0.3.8-beta.2
+
+### Patch Changes
+
+- Override vulnerable dependencies
+
 ## 0.3.8-beta.1
 
 ### Patch Changes

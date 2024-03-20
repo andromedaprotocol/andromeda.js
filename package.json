@@ -15,8 +15,19 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "rimraf": "^4.4.0",
     "@changesets/cli": "^2.26.2",
-    "cpy-cli": "^5.0.0"
+    "cpy-cli": "^5.0.0",
+    "rimraf": "^4.4.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss@<8.4.31": ">=8.4.31",
+      "graphql@>=16.3.0 <16.8.1": ">=16.8.1",
+      "@babel/traverse@<7.23.2": ">=7.23.2",
+      "semver@>=7.0.0 <7.5.2": ">=7.5.2",
+      "axios@>=0.8.1 <0.28.0": "^1.6.7", 
+      "jose@>=3.0.0 <=4.15.4": ">=4.15.5",
+      "follow-redirects@<=1.15.5": ">=1.15.6"
+    }
   }
 }
