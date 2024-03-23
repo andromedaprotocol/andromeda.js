@@ -1,0 +1,61 @@
+fragment keplrConfig on KeplrConfig {
+  bip44 {
+    coinType
+  }
+  bech32Config {
+    ...bech32config
+  }
+  chainId
+  coinType
+  chainName
+  currencies {
+    ...currency
+  }
+  feeCurrencies {
+    ...currency
+  }
+  gasPriceStep {
+    average
+    low
+    high
+  }
+  rpc
+  rest
+  stakeCurrency {
+    ...currency
+  }
+}
+
+fragment currency on Currency {
+  coinDenom
+  coinGeckoId
+  coinDecimals
+  coinMinimalDenom
+}
+
+fragment bech32config on Bech32Config {
+  bech32PrefixAccPub
+  bech32PrefixValPub
+  bech32PrefixAccAddr
+  bech32PrefixConsPub
+  bech32PrefixValAddr
+  bech32PrefixConsAddr
+}
+
+fragment chainConfig on ChainConfig {
+  addressPrefix
+  blockExplorerTxPages
+  blockExplorerAddressPages
+  chainId
+  chainUrl
+  chainName
+  chainType
+  defaultFee
+  iconUrls {
+    sm
+    lg
+  }
+  kernelAddress
+  name
+  registryAddress
+}

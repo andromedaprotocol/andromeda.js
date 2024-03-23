@@ -1,25 +1,10 @@
 import type AndromedaClient from "../AndromedaClient";
 import type { Fee } from "../types";
-import type RegistryAPI from "./RegistryAPI";
 import ADOAPI from "./ADOAPI";
 
-export default class ADODBAPI extends ADOAPI {
+export default class ADODatabaseAPI extends ADOAPI {
   constructor(client: AndromedaClient, public address: string = "") {
     super(client, address);
-  }
-
-  /**
-   * Fetches the ADO DB address from the on chain registry
-   * @param registryAPI
-   */
-  async getAddressFromRegistry(registryAPI: RegistryAPI) {
-    try {
-      const adoDBAddress = await registryAPI.getAddress("adodb");
-      this.address = adoDBAddress;
-    } catch (e) {
-      console.error(e);
-      console.warn("Could not fetch ADO DB address");
-    }
   }
 
   /**
@@ -79,6 +64,19 @@ export default class ADODBAPI extends ADOAPI {
   }
 
   /**
+   * Provides a message object for the ADO DB's `GetCodeId` query
+   * @param name
+   * @returns
+   */
+  getAdoTypeQuery(codeId: number) {
+    return {
+      ado_type: {
+        code_id: codeId,
+      },
+    };
+  }
+
+  /**
    * Gets the code ID for an ADO type from the ADO DB
    * @param name
    * @param address
@@ -90,6 +88,50 @@ export default class ADODBAPI extends ADOAPI {
 
     const msg = this.getCodeIdQuery(name);
 
-    return this.client.queryContract<number>(this.address ?? address!, msg);
+    return this.client.queryContract<number>(address ?? this.address, msg);
+  }
+
+  /**
+ * Gets the code ID for an ADO type from the ADO DB
+ * @param name
+ * @param address
+ * @returns
+ */
+  async getAdoType(codeId: number, address?: string) {
+    if (!this.address && !address)
+      throw new Error("No provided ADO DB address to retrieve code ID");
+
+    const msg = this.getAdoTypeQuery(codeId);
+
+    return this.client.queryContract<string>(address ?? this.address, msg);
+  }
+
+  /**
+   * Provides a message object for the ADO DB's `GetCodeId` query
+   * @param name
+   * @returns
+   */
+  getAllADOQuery(startAfter = '', limit = 100) {
+    return {
+      all_ado_types: {
+        limit,
+        start_after: startAfter
+      },
+    };
+  }
+
+  /**
+   * Gets the code ID for an ADO type from the ADO DB
+   * @param name
+   * @param address
+   * @returns
+   */
+  async getAllADO(startAfter = '', limit = 100, address?: string) {
+    if (!this.address && !address)
+      throw new Error("No provided ADO DB address to retrieve code ID");
+
+    const msg = this.getAllADOQuery(startAfter, limit);
+
+    return this.client.queryContract<string[]>(address ?? this.address, msg);
   }
 }

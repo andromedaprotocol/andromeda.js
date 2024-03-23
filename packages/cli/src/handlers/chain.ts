@@ -7,7 +7,7 @@ import Table from "cli-table";
 import inquirer from "inquirer";
 import pc from "picocolors";
 
-import { promptWithExit } from "cmd";
+import { promptWithExit } from "../cmd";
 import { displaySpinnerAsync, logTableConfig } from "../common";
 import config from "../config";
 import {
@@ -17,7 +17,7 @@ import {
 } from "../config/storage";
 import State from "../state";
 import { Commands } from "../types";
-import { setCurrentWallet } from "./wallets";
+import { setCurrentWallet } from "./wallet";
 
 const STORAGE_FILE = "chainConfigs.json";
 
@@ -192,7 +192,7 @@ async function queryChainConfigSafe(
   } catch (error) {
     const { message } = error as Error;
     if (message.includes("not found")) {
-      return;
+      return undefined;
     } else {
       throw error;
     }
@@ -335,9 +335,9 @@ async function listConfigsHandler() {
   [...(await queryAllConfigsSafe()), ...localConfigs].forEach((chainConfig) =>
     config.get("chain.name") === chainConfig.name
       ? configTable.push([
-          pc.green(chainConfig.name),
-          pc.green(chainConfig.chainId),
-        ])
+        pc.green(chainConfig.name),
+        pc.green(chainConfig.chainId),
+      ])
       : configTable.push([chainConfig.name, chainConfig.chainId])
   );
 
@@ -361,7 +361,6 @@ async function useConfigHandler(input: string[]) {
   if (!chainConfig) {
     throw new Error(`No chain config for chain ID: ${chainId}`);
   }
-
   config.set("chain", chainConfig);
   console.log(pc.green(`Config loaded!`));
   const wallet = State.wallets.currentWallet;

@@ -1,0 +1,50 @@
+query CROWDFUND_AVAILABLE_TOKENS($contractAddress: String!) {
+  ADO {
+    crowdfund(address: $contractAddress) {
+      availableTokens
+    }
+  }
+}
+
+query CROWDFUND_IS_TOKEN_AVAILABLE(
+  $contractAddress: String!
+  $tokenId: String!
+) {
+  ADO {
+    crowdfund(address: $contractAddress) {
+      isTokenAvailable(tokenId: $tokenId)
+    }
+  }
+}
+
+query CROWDFUND_CONFIG($contractAddress: String!) {
+  ADO {
+    crowdfund(address: $contractAddress) {
+      address
+      config {
+        can_mint_after_sale
+        token_address
+      }
+    }
+  }
+}
+
+query CROWDFUND_STATE($contractAddress: String!) {
+  ADO {
+    crowdfund(address: $contractAddress) {
+      state {
+        amount_sold
+        amount_to_send
+        amount_transferred
+        expiration
+        max_amount_per_wallet
+        min_tokens_sold
+        price {
+          amount
+          denom
+        }
+        recipient
+      }
+    }
+  }
+}

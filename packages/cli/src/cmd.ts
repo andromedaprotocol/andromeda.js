@@ -1,9 +1,8 @@
 import pc from "picocolors";
 import Table from "cli-table";
-import figlet from "figlet";
 import gradient from "gradient-string";
 import inquirer from "inquirer";
-import { logTableConfig, sleep } from "./common";
+import { logTableConfig } from "./common";
 import {
   adoHandler,
   allCommands,
@@ -11,14 +10,15 @@ import {
   chainHandler,
   gqlHandler,
   txHandler,
+  userHandler,
   walletHandler,
   wasmHandler,
 } from "./handlers";
 import State from "./state";
 import { Command, Commands } from "./types";
+import { getCurrentPackage, getLatestNpmVersion } from "./utils/npm";
+import { figletAsync } from "utils/fonts";
 
-// Require package.json to print version
-const npmPackage = require("../package.json");
 
 /**
  * Valid inputs to exit a prompt
@@ -52,11 +52,11 @@ export const baseCommands: Commands = {
     color: pc.white,
     usage: "clear",
   },
-  wallets: {
+  wallet: {
     handler: walletHandler,
     description: "Manage wallets",
     color: pc.blue,
-    usage: "wallets <cmd>",
+    usage: "wallet <cmd>",
   },
   chain: {
     handler: chainHandler,
@@ -101,11 +101,21 @@ export const baseCommands: Commands = {
   },
   version: {
     handler: async () => {
+      const npmPackage = getCurrentPackage()
       console.log(`Version: ${npmPackage.version}`);
     },
     description: "Prints the current CLI version",
     color: pc.cyan,
     usage: "version",
+  },
+  user: {
+    handler: userHandler,
+    description: "Manage user",
+    color: pc.blue,
+    usage: "user <cmd>",
+    // Applying the disabled state to the user command until the user command is implemented in AMP.
+    // disabled: () => typeof State.wallets.currentWallet === "undefined",
+    disabled: () => true,
   },
 };
 
@@ -114,11 +124,8 @@ export const baseCommands: Commands = {
  */
 export async function title() {
   console.clear();
-  const msg = "Andromeda CLI";
+  // const version = await getLatestNpmVersion();
 
-  figlet(msg, (_err: any, data: any) => {
-    console.log(gradient("blue", "purple", "red", "orange").multiline(data));
-  });
   console.log();
   console.log(
     pc.red(
@@ -134,7 +141,30 @@ export async function title() {
       )}`
     )
   );
-  await sleep(20);
+  const version = await getCurrentPackage().version;
+  const latest = await getLatestNpmVersion();
+  console.log();
+  const COLORS = {
+    yellow: '#feb912',
+    red: '#d52b63',
+    purple: '#4576e5'
+  }
+  const versionMsg = pc.bgCyan(pc.bold(" CLI version - v" + version + " "));
+  // const versionMsg = "CLI version - v" + version;
+  console.log(versionMsg);
+  if (version !== latest) {
+    console.log(pc.bold(pc.green("Update available")) + ", update using the following command: " + pc.bgBlack(" npm update -g @andromeda-protocol/cli "));
+  }
+  const msg = await figletAsync("Andromeda CLI", {
+    font: "Standard",
+  });
+
+  console.log(gradient(
+    COLORS.purple, COLORS.red, COLORS.yellow, COLORS.red, COLORS.purple).multiline(msg),
+    // version !== latest ? pc.green(pc.bold("    Update available for CLI.")) : undefined
+  );
+
+  // console.log();
 }
 
 /**
@@ -267,12 +297,12 @@ export async function printCommandHelp(cmd: Command, commands: Commands = {}) {
  * @param questionDefinition
  * @returns
  */
-export async function promptWithExit(
-  questionDefinition: inquirer.QuestionCollection<inquirer.Answers>
+export async function promptWithExit<T extends inquirer.DistinctQuestion>(
+  questionDefinition: T
 ) {
   const transformQuestion = (
-    question: inquirer.DistinctQuestion
-  ): inquirer.DistinctQuestion => {
+    question: T
+  ): T => {
     const mappedQuestion = {
       ...question,
       validate: async (input: string) => {
@@ -304,6 +334,7 @@ export async function promptWithExit(
     const question = questions[i];
 
     const resp = await inquirer.prompt(question);
+
     // If the user selects exit then throw exit error
     if (exitInputs.includes(resp[question.name!]))
       throw new Error("Command exited");

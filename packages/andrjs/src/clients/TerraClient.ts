@@ -10,7 +10,7 @@ import {
 import { sha256 } from "@cosmjs/crypto";
 import { toHex } from "@cosmjs/encoding";
 import { Coin, EncodeObject, OfflineDirectSigner } from "@cosmjs/proto-signing";
-import { findAttribute, Log, parseRawLog } from "@cosmjs/stargate/build/logs";
+import { findAttribute, Log } from "@cosmjs/stargate/build/logs";
 import {
   LCDClient,
   Msg as TerraMsg,
@@ -84,8 +84,7 @@ function encodeObjectToMsgArgs(msgs: EncodeObject[]): TerraMsg[] {
 
 export default class TerraClient
   extends BaseChainClient
-  implements ChainClient
-{
+  implements ChainClient {
   private directSigner?: OfflineDirectSigner;
   public signingClient?: LCDClient;
 
@@ -117,17 +116,20 @@ export default class TerraClient
     tx: Tx
   ): Promise<DeliverTxResponse & { logs: readonly Log[] }> {
     const resp = await this.signingClient?.tx.broadcast(tx);
+
     if (!resp) throw new Error("No response when broadcasting Tx");
-    const logs = parseRawLog(resp.raw_log);
-    const codeIdAttr = findAttribute(logs, "store_code", "code_id");
+    const codeIdAttr = findAttribute(resp.logs, "store_code", "code_id");
     return {
       ...resp,
       code: codeIdAttr ? parseInt(codeIdAttr.value, 10) : -1,
       transactionHash: resp.txhash,
-      events: _.flatten(logs.map((log) => log.events)),
+      events: _.flatten(resp.logs.map((log) => log.events)),
       gasUsed: resp.gas_used,
       gasWanted: resp.gas_wanted,
-      logs,
+      rawLog: resp.raw_log,
+      // This is required but we don't have this
+      txIndex: null as any,
+      msgResponses: []
     };
   }
 
@@ -235,15 +237,14 @@ export default class TerraClient
     const message = this.encodeUploadMessage(compressed);
     const resp = await this.signAndBroadcast([message], fee, memo);
 
-    const originalChecksum = toHex(sha256(code));
+    // const originalChecksum = toHex(sha256(code));
     const compressedChecksum = toHex(sha256(compressed));
     return {
       ...resp,
       codeId: resp.code,
       originalSize: code.length,
-      originalChecksum,
       compressedSize: compressed.length,
-      compressedChecksum,
+      checksum: compressedChecksum
     };
   }
 

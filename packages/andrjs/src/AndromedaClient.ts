@@ -3,28 +3,25 @@ import {
   SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
 import {
-  calculateFee,
   DeliverTxResponse,
-  GasPrice,
   StdFee,
+  calculateFee,
 } from "@cosmjs/stargate";
-import { ADOAPI, ADODBAPI, RegistryAPI } from "./api";
+import { ADOAPI } from "./api";
 
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
-import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
+import OperatingSystemAPI from "api/OperatingSystemAPI";
 import { isUndefined } from "lodash";
 import type { ChainClient } from "./clients";
 import createClient from "./clients";
 import type { Fee, Msg } from "./types";
+import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
+import ADOSchemaAPI from "api/ADOSchemaAPI";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
  */
 export default class AndromedaClient {
-  // Signer used for broadcasting messages
-  public signer: string = "";
-  // The gas price assigned for broadcasting messages
-  private gasPrice?: GasPrice;
   // Client used to interact with the chain, includes a query client when connected and a signing client when connected with a signer
   public chainClient?: ChainClient;
 
@@ -34,10 +31,9 @@ export default class AndromedaClient {
 
   // API for shared ADO messages
   public ado = new ADOAPI(this);
-  // API for registry specific messages
-  public registry = new RegistryAPI(this);
-  // API for ADO DB specific messages
-  public adoDB = new ADODBAPI(this);
+  public schema = new ADOSchemaAPI(this);
+  // API for aOS
+  public os = new OperatingSystemAPI(this);
 
   /**
    * A pre-message hook to check that the client is connected and functioning
@@ -55,7 +51,7 @@ export default class AndromedaClient {
    */
   async connect(
     endpoint: string,
-    registryAddress: string,
+    kernelAddress: string,
     addressPrefix: string,
     signer?: OfflineSigner | OfflineDirectSigner,
     // Only used for Cosmos Clients
@@ -63,25 +59,20 @@ export default class AndromedaClient {
   ) {
     delete this.chainClient;
 
-    this.gasPrice = options?.gasPrice;
-
     this.chainClient = createClient(addressPrefix);
     await this.chainClient.connect(endpoint, signer, options);
-    await this.assignKeyAddresses(registryAddress);
+    await this.assignKeyAddresses(kernelAddress);
   }
 
   /**
    * Assigns key addresses to the provided APIs
-   * @param registryAddress
+   * @param kernelAddress
    * @returns
    */
-  private async assignKeyAddresses(registryAddress: string) {
-    if (!registryAddress || registryAddress.length === 0) {
-      console.warn("No registry address provided");
-      return;
+  private async assignKeyAddresses(kernelAddress: string) {
+    if (kernelAddress && kernelAddress.length > 0) {
+      await this.os.assignKernelAddress(kernelAddress);
     }
-    this.registry.address = registryAddress;
-    await this.adoDB.getAddressFromRegistry(this.registry);
   }
 
   /**
@@ -90,12 +81,7 @@ export default class AndromedaClient {
   disconnect() {
     this.chainClient!.disconnect();
     delete this.chainClient;
-
-    this.signer = "";
-    delete this.gasPrice;
-
-    this.registry = new RegistryAPI(this);
-    this.adoDB = new ADODBAPI(this);
+    this.os = new OperatingSystemAPI(this);
   }
 
   /**
@@ -157,7 +143,6 @@ export default class AndromedaClient {
    */
   async upload(code: Uint8Array, fee?: Fee, memo?: string) {
     this.preMessage();
-    // return await this.cosmWasmClient!.upload(this.signer, code, fee, memo);]
     return this.chainClient!.upload(code, fee, memo);
   }
 
@@ -412,7 +397,7 @@ export default class AndromedaClient {
    * @returns
    */
   calculcateFee(gas: number) {
-    const gasPrice = this.gasPrice;
+    const gasPrice = this.chainClient?.gasPrice;
     if (!gasPrice)
       throw new Error(
         "No gas prices provided for client. Cannot simulate Tx fee."
@@ -470,9 +455,7 @@ export default class AndromedaClient {
    */
   async getSentTxsByAddress(addr: string) {
     this.preMessage();
-    return this.chainClient!.queryClient!?.searchTx({
-      tags: [{ key: "message.sender", value: addr }],
-    });
+    return this.chainClient!.queryClient!?.searchTx([{ key: "message.sender", value: addr }]);
   }
 
   /**
@@ -482,9 +465,7 @@ export default class AndromedaClient {
    */
   async getTxsByContract(addr: string) {
     this.preMessage();
-    return this.chainClient!.queryClient!?.searchTx({
-      tags: [{ key: "execute._contract_address", value: addr }],
-    });
+    return this.chainClient!.queryClient!?.searchTx([{ key: "execute._contract_address", value: addr }]);
   }
 
   /**
@@ -494,10 +475,14 @@ export default class AndromedaClient {
    */
   async getBankTxsByAddress(addr: string) {
     this.preMessage();
-    return this.chainClient!.queryClient!?.searchTx({
-      sentFromOrTo: addr,
-    });
-  }
+    const sentQuery = `message.module='bank' AND transfer.sender='${addr}'`;
+    const receivedQuery = `message.module = 'bank' AND transfer.recipient = '${addr}'`;
+    const [sent, received] = await Promise.all(
+      [sentQuery, receivedQuery].map((rawQuery) => this.chainClient!.queryClient!?.searchTx(rawQuery)),
+    );
+    const sentHashes = sent.map((t) => t.hash);
+    return [...sent, ...received.filter((t) => !sentHashes.includes(t.hash))];
+  };
 
   /**
    * Queries all possible transactions for a given address

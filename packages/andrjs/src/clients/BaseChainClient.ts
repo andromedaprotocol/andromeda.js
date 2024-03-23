@@ -1,4 +1,5 @@
 import {
+  InstantiateOptions,
   MsgExecuteContractEncodeObject,
   MsgInstantiateContractEncodeObject,
   MsgMigrateContractEncodeObject,
@@ -63,7 +64,8 @@ export default class BaseChainClient implements Partial<ChainClient> {
   encodeInstantiateMsg(
     codeId: number,
     msg: Msg,
-    label: string
+    label: string,
+    options?: InstantiateOptions
   ): MsgInstantiateContractEncodeObject {
     return {
       typeUrl: "/cosmwasm.wasm.v1.MsgInstantiateContract",
@@ -72,6 +74,8 @@ export default class BaseChainClient implements Partial<ChainClient> {
         codeId: Long.fromInt(codeId),
         msg: JsonToArray(msg),
         label,
+        'admin': options?.admin,
+        'funds': options?.funds as any
       },
     };
   }

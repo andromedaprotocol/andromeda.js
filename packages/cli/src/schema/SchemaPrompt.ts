@@ -1,7 +1,5 @@
 import {
   encode,
-  fetchSchema,
-  queryADOPackageDefinition,
 } from "@andromedaprotocol/andromeda.js";
 import { Schema, Validator } from "jsonschema";
 import _ from "lodash";
@@ -9,6 +7,7 @@ import pc from "picocolors";
 import { displaySpinnerAsync, promptWithExit, validateAddressInput } from "..";
 import config from "../config";
 import State from "../state";
+import { promptAdoType } from "../handlers/ado/common";
 
 const { client } = State;
 
@@ -36,15 +35,14 @@ async function requestSendNFT(): Promise<SendNftMsg> {
 
   let msg: string | Record<string, any> = {};
   try {
-    const type = await client.ado.getType(addressInput.address);
-    const { schemas } = await queryADOPackageDefinition(type);
-    if (!schemas) throw new Error("Not a registered ADO type");
-    if (!schemas.receive || !schemas.receive.cw721)
-      throw new Error("Contract address cannot receive NFTs");
-    const schema = await fetchSchema<Schema>(schemas.receive.cw721);
-    msg = await promptQueryOrExecuteMessage(schema, type);
-  } catch (error) {
-    console.error(error);
+    const codeId = (await client.chainClient!.queryClient!.getContract(addressInput.address)).codeId;
+    const schema = await client!.schema!.getSubSchemaFromCodeId(codeId, 'cw721receive').catch(() => undefined);
+    if (!schema)
+      // Maybe add a issue template here so user can request addition of new schema?
+      throw new Error("CW721 receive schema not found. Please provide raw message.");
+    msg = await promptQueryOrExecuteMessage(schema.schema);
+  } catch (error: any) {
+    console.error(error?.message);
     const messageInput = await promptWithExit({
       type: "input",
       message: `[Sending NFT ${tokenIdInput.tokenid}] Input message to send (base64 encoded):`,
@@ -90,9 +88,7 @@ export async function requestMessageType(options: Schema[]): Promise<string> {
 }
 
 export async function promptQueryOrExecuteMessage(
-  schema: Schema,
-  type: string
-) {
+  schema: Schema) {
   const validOptions = (schema.oneOf ?? []).filter(
     ({ required }) =>
       required &&
@@ -118,7 +114,7 @@ export async function promptQueryOrExecuteMessage(
     return await requestSendNFT();
   }
 
-  const prompter = new SchemaPrompt(schema, type);
+  const prompter = new SchemaPrompt(schema);
 
   const keys = Object.keys(properties);
   let answers: Record<string, any> = {};
@@ -139,13 +135,11 @@ export async function promptQueryOrExecuteMessage(
 
 export async function promptInstantiateMsg(
   schema: Schema,
-  type: string,
   bread?: string[]
 ) {
   const { required, properties } = schema;
   if (!properties) return {};
-
-  const prompter = new SchemaPrompt(schema, type);
+  const prompter = new SchemaPrompt(schema);
 
   const keys = Object.keys(properties);
   let answers: Record<string, any> = {};
@@ -165,8 +159,8 @@ export async function promptInstantiateMsg(
 }
 
 enum AndromedaSchemaTypes {
-  Recipient = "Recipient",
-  AndrAddress = "AndrAddress",
+  AMPRecipient = "AMPRecipient",
+  // AndrAddress = "AndrAddr",
   Binary = "Binary",
   AppComponent = "AppComponent",
 }
@@ -174,40 +168,50 @@ enum AndromedaSchemaTypes {
 export default class SchemaPrompt {
   answers: Record<string, any> = {};
 
-  constructor(public schema: Schema, public type: string) {}
+  // Schema key is generally codeId but it can be different for nested keys like receive schema.
+  // To keep track of schema, we pass schemaKey. Its of structure `{codeId}-{substring?}`
+  constructor(public schema: Schema) { }
 
-  async requestAppComponent() {
+  async requestAppComponent(property: Schema) {
     const name = await this.promptQuestion(
       "ADO Name",
       { type: "string" },
       true,
       ["App Component"]
     );
-    const adoType = await this.promptQuestion(
+    const adoType = await promptAdoType(
       "ADO Type",
-      { type: "string" },
-      true,
       ["App Component"]
     );
+    const codeId = await client!.os!.adoDB!.getCodeId(adoType);
 
-    const {
-      schemas: { contract_schema },
-    } = await queryADOPackageDefinition(adoType);
     const adoSchema = await displaySpinnerAsync(
-      "Fetching Schema...",
-      async () => await fetchSchema(contract_schema)
+      `Fetching Schema for ${adoType}...`,
+      async () => await client.schema!.getSchemaFromCodeId(codeId)
     );
 
-    const msg = await promptInstantiateMsg(adoSchema.instantiate, adoType, [
+    const msg = await promptInstantiateMsg(adoSchema.schema.instantiate, [
       `${name} - Instantiation`,
     ]);
     const instantiateMsg = encode(msg);
 
-    return {
-      ado_type: adoType,
-      name,
-      instantiate_msg: instantiateMsg,
-    };
+    // Different version of schema have different type of component structure
+    // New schema support "component_type" while old schema support "instantiate_msg"
+    if ("component_type" in (property.properties ?? {})) {
+      return {
+        ado_type: adoType,
+        name,
+        component_type: {
+          new: instantiateMsg
+        }
+      };
+    } else {
+      return {
+        ado_type: adoType,
+        name,
+        instantiate_msg: instantiateMsg
+      }
+    }
   }
 
   async requestADORecipient() {
@@ -230,12 +234,10 @@ export default class SchemaPrompt {
         },
       };
 
-    let type = "";
+    let type: number = -1;
     try {
-      const resp = await client.queryContract<{ ado_type: string }>(address, {
-        andr_query: { type: {} },
-      });
-      type = resp.ado_type;
+      const resp = await client.chainClient!.queryClient!.getContract(address)
+      type = resp.codeId;
     } catch (error) {
       const typeInput = await promptWithExit({
         message: "What type of ADO are you sending to?",
@@ -243,7 +245,7 @@ export default class SchemaPrompt {
         type: "input",
         validate: async (input: string) => {
           try {
-            await queryADOPackageDefinition(input);
+            await client.os.adoDB!.getCodeId(input);
             return true;
           } catch (error) {
             const { message } = error as Error;
@@ -254,17 +256,14 @@ export default class SchemaPrompt {
           }
         },
       });
-      type = typeInput.adoType;
+      type = await client.os.adoDB!.getCodeId(typeInput.adoType);
     }
 
-    const {
-      schemas: { contract_schema },
-    } = await queryADOPackageDefinition(type);
     const adoSchema = await displaySpinnerAsync(
       "Fetching schema...",
-      async () => await fetchSchema(contract_schema)
+      async () => await client.schema!.getSchemaFromCodeId(type)
     );
-    const msg = await promptQueryOrExecuteMessage(adoSchema.execute, type);
+    const msg = await promptQueryOrExecuteMessage(adoSchema.schema.execute);
 
     return {
       address: {
@@ -329,13 +328,11 @@ export default class SchemaPrompt {
       choices: options.map(({ description, properties, type }, idx) => {
         const propertyKeys = properties ? Object.keys(properties) : [];
 
-        const name = `[Option ${idx + 1}] ${
-          description ? `Description: ${description}, ` : ""
-        }${
-          propertyKeys.length > 0
+        const name = `[Option ${idx + 1}] ${description ? `Description: ${description}, ` : ""
+          }${propertyKeys.length > 0
             ? `Properties: ${propertyKeys.join(", ")}, `
             : " "
-        }Type: ${type}`;
+          }Type: ${type}`;
         return {
           name,
           value: idx,
@@ -358,9 +355,8 @@ export default class SchemaPrompt {
       if (required || response.length > 0) {
         const addElement = await promptWithExit({
           prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
-          message: `Would you like to add ${
-            response.length === 0 ? name : "another"
-          }?`,
+          message: `Would you like to add ${response.length === 0 ? name : "another"
+            }?`,
           type: "confirm",
           name: "confirm",
         });
@@ -383,9 +379,11 @@ export default class SchemaPrompt {
     required = false,
     bread?: string[]
   ): Promise<any> {
-    if (name === "primitive_contract") {
-      return config.get("chain.registryAddress");
+    // Automatically assign kernel address
+    if (name === "kernel_address") {
+      return config.get("chain.kernelAddress");
     }
+
     if (!required) {
       const addProperty = await promptWithExit({
         prefix: bread ? `[Constructing ${bread.join(".")}]` : "",
@@ -436,7 +434,7 @@ export default class SchemaPrompt {
         const propertyName = propertyNames[i];
         const isRequired: boolean = Boolean(
           required &&
-            (!Array.isArray(required) || required.includes(propertyName))
+          (!Array.isArray(required) || required.includes(propertyName))
         );
         answer[propertyName] = await this.promptQuestion(
           propertyName,
@@ -500,18 +498,18 @@ export default class SchemaPrompt {
           case "boolean":
             question.type = "confirm";
             break;
-          case AndromedaSchemaTypes.Recipient:
+          case AndromedaSchemaTypes.AMPRecipient:
             return this.requestRecipient(name);
-          case AndromedaSchemaTypes.AndrAddress:
-            const identifier = await this.promptQuestion(
-              name,
-              { type: "string" },
-              true,
-              bread
-            );
-            return { identifier };
+          // case AndromedaSchemaTypes.AndrAddress:
+          //   const identifier = await this.promptQuestion(
+          //     name,
+          //     { type: "string" },
+          //     true,
+          //     bread
+          //   );
+          //   return { identifier };
           case AndromedaSchemaTypes.AppComponent:
-            return await this.requestAppComponent();
+            return await this.requestAppComponent(property);
           default:
             break;
         }
@@ -562,19 +560,16 @@ export default class SchemaPrompt {
       const refSplit = ref.split("/");
       const field = _.last(refSplit);
       if (!field) return;
-
+      const { definitions } = this.schema;
+      const definition = Object(definitions)[field] ?? {};
       if (
         Object.values(AndromedaSchemaTypes as Record<string, string>).includes(
           field
         )
       ) {
-        return { type: field };
-      } else {
-        const { definitions } = this.schema;
-        const definition = Object(definitions)[field];
-
-        if (definition) return definition;
+        return { ...definition, type: field };
       }
+      return definition;
     }
 
     throw new Error(`Could not get ref ${ref} in schema ${this.schema}`);

@@ -1,9 +1,3 @@
-import {
-  ContractSchema,
-  fetchSchema,
-  queryADOPackageDefinition,
-  queryADOTypes,
-} from "@andromedaprotocol/andromeda.js";
 import { Schema } from "jsonschema";
 import pc from "picocolors";
 import {
@@ -50,25 +44,11 @@ const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input the ADO type:",
-        validate: async (input: string) => {
-          try {
-            await queryADOPackageDefinition(input.toLowerCase());
-            return true;
-          } catch (error) {
-            const { message } = error as Error;
-            if (message.includes("unknown adoType")) {
-              console.log(pc.red("Invalid ADO Type"));
-            } else {
-              console.log(pc.red(message));
-            }
-            return false;
-          }
-        },
         options: async () => {
           try {
             const adoTypes = displaySpinnerAsync(
               "Fetching ADO types...",
-              async () => await queryADOTypes()
+              async () => await client!.os!.adoDB!.getAllADO()
             );
 
             return adoTypes ?? [];
@@ -152,6 +132,91 @@ const commands: Commands = {
     description: "Allows management of modules for an ADO",
     color: pc.yellow,
   },
+  resolvepath: {
+    handler: resolvePathHandler,
+    color: pc.cyan,
+    description: "Gets the address of the specified path",
+    usage: "ado resolvepath",
+    inputs: [
+      {
+        requestMessage: "Input the path:",
+        validate: (input: string) => {
+          if (input.length === 0) return false;
+          return true;
+        },
+      },
+    ],
+    flags: executeFlags,
+  },
+  addpath: {
+    handler: addPathHandler,
+    color: pc.magenta,
+    description: "Registers an ADO component to the path",
+    usage: "ado addpath",
+    inputs: [
+      {
+        requestMessage: "Input the ADO componet Address:",
+        validate: validateAddressInput,
+      },
+      {
+        requestMessage: "Input the name:",
+        validate: (input: string) => {
+          if (input.length === 0) return false;
+          return true;
+        },
+      },
+    ],
+    flags: executeFlags,
+  },
+  addparentpath: {
+    handler: addParentPathHandler,
+    color: pc.magenta,
+    description: "Registers the child's path relative to the parent",
+    usage: "ado addparentpath",
+    inputs: [
+      {
+        requestMessage: "Input the Parent Address:",
+        validate: validateAddressInput,
+      },
+      {
+        requestMessage: "Input the name:",
+        validate: (input: string) => {
+          if (input.length === 0) return false;
+          return true;
+        },
+      },
+    ],
+    flags: executeFlags,
+  },
+  subdir: {
+    handler: subDirHandler,
+    color: pc.cyan,
+    description: "Gets the sub directory of the specified path",
+    usage: "ado subdir",
+    inputs: [
+      {
+        requestMessage: "Input the path:",
+        validate: (input: string) => {
+          if (input.length === 0) return false;
+          return true;
+        },
+      },
+    ],
+    flags: executeFlags,
+  },
+  paths: {
+    handler: pathsHandler,
+    color: pc.yellow,
+    description: "Gets the paths of an ADO",
+    usage: "ado paths",
+    inputs: [
+      {
+        requestMessage: "Input the Address:",
+        validate: validateAddressInput,
+      },
+    ],
+    flags: executeFlags,
+  },
 };
 
 /**
@@ -161,40 +226,48 @@ const commands: Commands = {
  */
 async function createHandler(input: string[], flags: Flags) {
   const [type] = input;
-  const {
-    schemas: { contract_schema, instantiate },
-  } = await queryADOPackageDefinition(type);
+  const codeId = await client!.os!.adoDB!.getCodeId(type);
   const adoSchema = await displaySpinnerAsync(
-    "Fetching schema...",
-    async () => await fetchSchema(instantiate ?? contract_schema)
+    `Fetching schema for ${type} (${codeId}) ...`,
+    async () => await client.schema!.getSchemaFromCodeId(codeId)
   );
 
   const msg = await promptInstantiateMsg(
-    (adoSchema as ContractSchema).instantiate
-      ? (adoSchema as ContractSchema).instantiate
-      : (adoSchema as Schema),
-    type
+    adoSchema.schema.instantiate
+      ? adoSchema.schema.instantiate
+      : (adoSchema.schema as Schema),
   );
-
-  const codeId = await client.adoDB.getCodeId(type);
-
   await instantiateMessage(codeId, msg, flags);
 }
 
 /**
- * Queries an ADO for its type by address
+ * Queries an ADO for its codeId by address
  * @param address The address of the ADO
- * @returns The type of ADO the contract is, errors if the contract is not an ADO
+ * @returns The codeId of ADO the contract is, errors if address is not a contract
  */
-async function queryADOType(address: string) {
-  const queryMsg = client.ado.typeQuery();
+async function queryCodeId(address: string) {
+  const { codeId } = await client.chainClient!.queryClient!.getContract(address);
+  return codeId;
+}
 
-  const { ado_type } = await queryMessage<{ ado_type: string }>(
-    address,
-    queryMsg
-  );
+/**
+ * Queries an ADO for its schema by address
+ * @param address The address of the ADO
+ * @returns Schema for the ado
+ */
+async function queryAdoSchema(address: string) {
+  const codeId = await queryCodeId(address);
 
-  return ado_type;
+  // Try to create a fallback type from ado types query
+  let fallbackType: string | undefined = undefined;
+  const adoType = await client.ado.getType(address).catch(() => undefined);
+  if (adoType) {
+    // Trying to prevent unncessary call for version if type query already failed
+    fallbackType = adoType && await client.ado.getVersion(address).then(version => `${adoType}@${version}`).catch(() => undefined);
+  }
+  const schema = await client.schema!.getSchemaFromCodeId(codeId, undefined, fallbackType);
+  return schema;
+
 }
 
 /**
@@ -205,28 +278,15 @@ async function queryADOType(address: string) {
 async function executeHandler(input: string[], flags: Flags) {
   const [address] = input;
 
-  //The ADO type must be fetched before the message types can be determined
-  let type = "";
-  try {
-    type = await queryADOType(address);
-  } catch (error) {
-    console.error(pc.red("Contract is not a valid ADO"));
-    return;
-  }
-
-  const {
-    schemas: { contract_schema, execute },
-  } = await queryADOPackageDefinition(type);
-  const adoSchema: ContractSchema = await displaySpinnerAsync(
+  const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () => await fetchSchema(execute ?? contract_schema)
+    async () => await queryAdoSchema(address).catch(() => { throw new Error(`Not a valid ADO`) })
   );
 
   const msg = await promptQueryOrExecuteMessage(
-    (adoSchema as ContractSchema).execute
-      ? (adoSchema as ContractSchema).execute
-      : (adoSchema as Schema),
-    type
+    adoSchema.schema.execute
+      ? adoSchema.schema.execute
+      : (adoSchema.schema as Schema),
   );
   await executeMessage(address, msg, flags);
 }
@@ -238,28 +298,24 @@ async function executeHandler(input: string[], flags: Flags) {
 async function queryHandler(input: string[]) {
   const [address] = input;
 
-  let type = "";
+  let codeId = -1;
   try {
-    type = await queryADOType(address);
+    codeId = await queryCodeId(address);
   } catch (error) {
     console.error(pc.red("Contract is not a valid ADO"));
     return;
   }
 
-  const {
-    schemas: { contract_schema, query },
-  } = await queryADOPackageDefinition(type);
   const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
     async () =>
-      await fetchSchema<ContractSchema | Schema>(query ?? contract_schema)
+      await client!.schema!.getSchemaFromCodeId(codeId)
   );
 
   const msg = await promptQueryOrExecuteMessage(
-    (adoSchema as ContractSchema).query
-      ? (adoSchema as ContractSchema).query
-      : (adoSchema as Schema),
-    type
+    adoSchema.schema.query
+      ? adoSchema.schema.query
+      : adoSchema.schema as Schema,
   );
   const resp = await queryMessage(address, msg);
 
@@ -317,6 +373,70 @@ async function transferHandler(input: string[], flags: Flags) {
 
   const msg = client.ado.updateOwnerMsg(recipient);
   await executeMessage(address, msg, flags, "ADO Transferred!");
+}
+
+/**
+ * Queries to get the address of the specified path
+ * @param input
+ * @param flags
+ */
+async function resolvePathHandler(input: string[]) {
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
+  const [path] = input;
+  const resp = await client.os.vfs?.resolvePath(path);
+  console.log(JSON.stringify(resp, null, 2));
+}
+
+/**
+ * Registers an ADO to the path.
+ * @param input
+ * @param flags
+ */
+async function addPathHandler(input: string[], flags: Flags) {
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
+
+  const [address, name] = input;
+
+  const msgAddPath = client.os.vfs?.addPathMsg(name, address);
+  await executeMessage(client.os.vfs?.address, msgAddPath, flags, "Registered the given ado to the path!"); //TODO: ADD FEE FLAG
+}
+
+/**
+ * Registers the child's path relative to the parent.
+ * @param input
+ * @param flags
+ */
+async function addParentPathHandler(input: string[], flags: Flags) {
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
+
+  const [parent_address, name] = input;
+
+  const msgAddParentPath = client.os.vfs?.addParentPathMsg(name, parent_address);
+  await executeMessage(client.os.vfs?.address, msgAddParentPath, flags, "Assigned name to the given parent!"); //TODO: ADD FEE FLAG
+}
+
+/**
+ * Queries to get the sub directories of the specified path
+ * @param input
+ * @param flags
+ */
+async function subDirHandler(input: string[]) {
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
+  const [path] = input;
+  const resp = await client.os.vfs?.subDir(path);
+  console.log(JSON.stringify(resp, null, 2));
+}
+
+/**
+ * Queries to get the paths of an ADO
+ * @param input
+ * @param flags
+ */
+async function pathsHandler(input: string[]) {
+  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
+  const [address] = input;
+  const resp = await client.os.vfs?.paths(address);
+  console.log(JSON.stringify(resp, null, 2));
 }
 
 export default commands;

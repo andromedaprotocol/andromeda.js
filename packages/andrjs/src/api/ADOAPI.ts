@@ -2,10 +2,11 @@ import type AndromedaClient from "../AndromedaClient";
 import type { Fee, Module, Msg } from "../types";
 
 export default class ADOAPI {
+
   constructor(
     protected client: AndromedaClient,
     protected address: string = ""
-  ) {}
+  ) { }
 
   /**
    * Converts a message object to an Andromeda Execute Message
@@ -295,7 +296,7 @@ export default class ADOAPI {
    * @returns
    */
   operatorsQuery() {
-    return this.andromedaQuery({ operators: {} });
+    return { operators: {} };
   }
 
   /**
@@ -318,7 +319,7 @@ export default class ADOAPI {
    * @returns
    */
   ownerQuery() {
-    return this.andromedaQuery({ owner: {} });
+    return { owner: {} };
   }
 
   /**
@@ -352,7 +353,7 @@ export default class ADOAPI {
    * @returns
    */
   typeQuery() {
-    return this.andromedaQuery({ type: {} });
+    return { type: {} };
   }
 
   /**
@@ -375,7 +376,7 @@ export default class ADOAPI {
    * @returns
    */
   publisherQuery() {
-    return this.andromedaQuery({ original_publisher: {} });
+    return { original_publisher: {} };
   }
 
   /**
@@ -397,7 +398,7 @@ export default class ADOAPI {
    * @returns
    */
   createdHeightQuery() {
-    return this.andromedaQuery({ block_height_upon_creation: {} });
+    return { block_height_upon_creation: {} };
   }
 
   /**
@@ -420,7 +421,7 @@ export default class ADOAPI {
    * @returns
    */
   versionQuery() {
-    return this.andromedaQuery({ version: {} });
+    return { version: {} };
   }
 
   /**
@@ -444,7 +445,7 @@ export default class ADOAPI {
    * @returns
    */
   moduleQuery(id: string | number) {
-    return this.andromedaQuery({ module: { id } });
+    return { module: { id } };
   }
 
   /**
@@ -466,7 +467,7 @@ export default class ADOAPI {
    * @returns
    */
   moduleIdsQuery() {
-    return this.andromedaQuery({ module_ids: {} });
+    return { module_ids: {} };
   }
 
   /**

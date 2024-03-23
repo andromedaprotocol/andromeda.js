@@ -38,9 +38,9 @@ const config = convict({
       env: "CHAIN_URL",
       nullable: false,
     },
-    registryAddress: {
+    kernelAddress: {
       default: "",
-      doc: "The contract address of the Andromeda Registry",
+      doc: "The contract address of the Andromeda Kernel",
       format: String,
       env: "REGISTRY_ADDRESS",
       nullable: false,

@@ -1,0 +1,48 @@
+{
+  "name": "@andromedaprotocol/gql",
+  "version": "0.3.8-beta.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
+  },
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "rimraf ./dist && npm run codegen && tsc && tsc-alias",
+    "build:plugin": "rimraf ./plugins/dist && tsc -p tsconfig.plugin.json && tsc-alias -p tsconfig.plugin.json",
+    "tsc": "tsc --noEmit",
+    "depcheck": "depcheck",
+    "codegen:master": "npm run build:plugin && graphql-codegen --config codegen.master.ts",
+    "codegen:build": "rimraf ./__generated && graphql-codegen --config codegen.build.ts",
+    "codegen": "npm run codegen:master && npm run codegen:build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "files": [
+    "dist/**/*"
+  ],
+  "dependencies": {
+    "@apollo/client": "^3.7.17",
+    "graphql": "^16.7.1",
+    "graphql-request": "^6.1.0",
+    "graphql-tag": "^2.12.6"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "5.0.0",
+    "@graphql-codegen/core": "^4.0.0",
+    "@graphql-codegen/plugin-helpers": "^5.0.1",
+    "@graphql-codegen/schema-ast": "^4.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-apollo-client-helpers": "^2.2.6",
+    "@graphql-codegen/typescript-graphql-request": "^5.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@graphql-codegen/typescript-react-apollo": "^3.3.7",
+    "@graphql-codegen/visitor-plugin-common": "^4.0.1",
+    "@graphql-tools/utils": "^10.0.4",
+    "@types/node": "^18.14.1",
+    "depcheck": "^1.4.3",
+    "tsc-alias": "^1.8.3",
+    "typescript": "^5.2.2"
+  }
+}
