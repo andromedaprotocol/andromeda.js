@@ -3,6 +3,9 @@ import { GasPrice } from "@cosmjs/stargate";
 import WalletStore from "./WalletStore";
 import pc from "picocolors";
 import config from "../config";
+import axios from "axios";
+import ADOSchemaAPI from "@andromedaprotocol/andromeda.js/dist/api/ADOSchemaAPI";
+import { getCurrentPackage } from "utils/npm";
 
 /**
  * A class to store the current CLI state including the Andromeda Client used and any wallet related info
@@ -30,8 +33,13 @@ export class State {
    * Connects the Andromeda Client to chain. Has a default timeout to prevent infinite awaiting.
    */
   public async connectClient() {
-    const { chainUrl, defaultFee, addressPrefix, kernelAddress, chainId } =
+    const { chainUrl, defaultFee, addressPrefix, kernelAddress: _kernelAddress, chainId } =
       config.get("chain");
+
+    const pkgVersion = await getCurrentPackage().version;
+    const overrideKernels: Array<string> = await axios.get(`${ADOSchemaAPI.SCHEMA_BASE_URL}/kernel/${pkgVersion}`).then(res => res.data.kernels || []).catch(_ => []);
+    const kernelAddress = overrideKernels.find(k => k.startsWith(addressPrefix)) || _kernelAddress;
+
     const { client, wallets } = this;
 
     const currentWallet = wallets.currentWallet;
