@@ -1,5 +1,6 @@
 import { IAndrOrderBy } from "@andromedaprotocol/gql/dist/__generated/node";
 import { querySdk } from "../client";
+import { IAdoType } from "@andromedaprotocol/gql";
 
 /**
  * Queries all assets owned by a wallet address
@@ -13,14 +14,16 @@ export async function queryAssets(
     limit: number,
     offset: number,
     orderBy?: IAndrOrderBy,
-    search?: string
+    search?: string,
+    adoType?: IAdoType
 ) {
     const resp = await querySdk.ASSETS({
         walletAddress,
         limit,
         offset,
         orderBy,
-        search
+        search,
+        adoType
     })
 
     return resp.accounts.assets;
