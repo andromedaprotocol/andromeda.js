@@ -150,8 +150,8 @@ export async function handle(
       } else {
         //Invalid command, print out help text
         const { message } = error as Error;
-        logError(pc.red(message));
-        log(pc.red(`Use the ${pc.bold("--help")} flag for help`));
+        logError(pc.red(`${pc.bold('Error:')} ${message}`));
+        log(pc.blue(`Use the ${pc.bold("--help")} flag for help`));
       }
     }
   }

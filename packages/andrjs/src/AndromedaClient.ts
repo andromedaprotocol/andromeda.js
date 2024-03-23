@@ -4,26 +4,24 @@ import {
 } from "@cosmjs/cosmwasm-stargate";
 import {
   DeliverTxResponse,
-  GasPrice,
   StdFee,
   calculateFee,
 } from "@cosmjs/stargate";
 import { ADOAPI } from "./api";
 
 import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
-import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/core/accounts/signers/types/proto-signer";
 import OperatingSystemAPI from "api/OperatingSystemAPI";
 import { isUndefined } from "lodash";
 import type { ChainClient } from "./clients";
 import createClient from "./clients";
 import type { Fee, Msg } from "./types";
+import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
+import ADOSchemaAPI from "api/ADOSchemaAPI";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
  */
 export default class AndromedaClient {
-  // The gas price assigned for broadcasting messages
-  private gasPrice?: GasPrice;
   // Client used to interact with the chain, includes a query client when connected and a signing client when connected with a signer
   public chainClient?: ChainClient;
 
@@ -33,6 +31,7 @@ export default class AndromedaClient {
 
   // API for shared ADO messages
   public ado = new ADOAPI(this);
+  public schema = new ADOSchemaAPI(this);
   // API for aOS
   public os = new OperatingSystemAPI(this);
 
@@ -60,8 +59,6 @@ export default class AndromedaClient {
   ) {
     delete this.chainClient;
 
-    this.gasPrice = options?.gasPrice;
-
     this.chainClient = createClient(addressPrefix);
     await this.chainClient.connect(endpoint, signer, options);
     await this.assignKeyAddresses(kernelAddress);
@@ -85,7 +82,6 @@ export default class AndromedaClient {
     this.chainClient!.disconnect();
     delete this.chainClient;
     this.os = new OperatingSystemAPI(this);
-    delete this.gasPrice;
   }
 
   /**
@@ -401,7 +397,7 @@ export default class AndromedaClient {
    * @returns
    */
   calculcateFee(gas: number) {
-    const gasPrice = this.gasPrice;
+    const gasPrice = this.chainClient?.gasPrice;
     if (!gasPrice)
       throw new Error(
         "No gas prices provided for client. Cannot simulate Tx fee."

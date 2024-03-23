@@ -36,10 +36,11 @@ async function requestSendNFT(): Promise<SendNftMsg> {
   let msg: string | Record<string, any> = {};
   try {
     const codeId = (await client.chainClient!.queryClient!.getContract(addressInput.address)).codeId;
-    const schema = await client!.os.schema!.getSubSchemaFromCodeId(codeId, 'receive-cw721').catch(() => undefined);
+    const schema = await client!.schema!.getSubSchemaFromCodeId(codeId, 'cw721receive').catch(() => undefined);
     if (!schema)
-      throw new Error("Contract address cannot receive NFTs");
-    msg = await promptQueryOrExecuteMessage(schema.schema, schema.key);
+      // Maybe add a issue template here so user can request addition of new schema?
+      throw new Error("CW721 receive schema not found. Please provide raw message.");
+    msg = await promptQueryOrExecuteMessage(schema.schema);
   } catch (error: any) {
     console.error(error?.message);
     const messageInput = await promptWithExit({
@@ -87,9 +88,7 @@ export async function requestMessageType(options: Schema[]): Promise<string> {
 }
 
 export async function promptQueryOrExecuteMessage(
-  schema: Schema,
-  schemaKey: string
-) {
+  schema: Schema) {
   const validOptions = (schema.oneOf ?? []).filter(
     ({ required }) =>
       required &&
@@ -115,7 +114,7 @@ export async function promptQueryOrExecuteMessage(
     return await requestSendNFT();
   }
 
-  const prompter = new SchemaPrompt(schema, schemaKey);
+  const prompter = new SchemaPrompt(schema);
 
   const keys = Object.keys(properties);
   let answers: Record<string, any> = {};
@@ -136,12 +135,11 @@ export async function promptQueryOrExecuteMessage(
 
 export async function promptInstantiateMsg(
   schema: Schema,
-  codeId: number,
   bread?: string[]
 ) {
   const { required, properties } = schema;
   if (!properties) return {};
-  const prompter = new SchemaPrompt(schema, codeId.toString());
+  const prompter = new SchemaPrompt(schema);
 
   const keys = Object.keys(properties);
   let answers: Record<string, any> = {};
@@ -162,7 +160,7 @@ export async function promptInstantiateMsg(
 
 enum AndromedaSchemaTypes {
   AMPRecipient = "AMPRecipient",
-  AndrAddress = "AndrAddress",
+  // AndrAddress = "AndrAddr",
   Binary = "Binary",
   AppComponent = "AppComponent",
 }
@@ -172,9 +170,9 @@ export default class SchemaPrompt {
 
   // Schema key is generally codeId but it can be different for nested keys like receive schema.
   // To keep track of schema, we pass schemaKey. Its of structure `{codeId}-{substring?}`
-  constructor(public schema: Schema, public schemaKey: string) { }
+  constructor(public schema: Schema) { }
 
-  async requestAppComponent() {
+  async requestAppComponent(property: Schema) {
     const name = await this.promptQuestion(
       "ADO Name",
       { type: "string" },
@@ -189,19 +187,31 @@ export default class SchemaPrompt {
 
     const adoSchema = await displaySpinnerAsync(
       `Fetching Schema for ${adoType}...`,
-      async () => await client.os.schema!.getSchemaFromCodeId(codeId)
+      async () => await client.schema!.getSchemaFromCodeId(codeId)
     );
 
-    const msg = await promptInstantiateMsg(adoSchema.schema.instantiate, codeId, [
+    const msg = await promptInstantiateMsg(adoSchema.schema.instantiate, [
       `${name} - Instantiation`,
     ]);
     const instantiateMsg = encode(msg);
 
-    return {
-      ado_type: adoType,
-      name,
-      instantiate_msg: instantiateMsg,
-    };
+    // Different version of schema have different type of component structure
+    // New schema support "component_type" while old schema support "instantiate_msg"
+    if ("component_type" in (property.properties ?? {})) {
+      return {
+        ado_type: adoType,
+        name,
+        component_type: {
+          new: instantiateMsg
+        }
+      };
+    } else {
+      return {
+        ado_type: adoType,
+        name,
+        instantiate_msg: instantiateMsg
+      }
+    }
   }
 
   async requestADORecipient() {
@@ -251,9 +261,9 @@ export default class SchemaPrompt {
 
     const adoSchema = await displaySpinnerAsync(
       "Fetching schema...",
-      async () => await client.os.schema!.getSchemaFromCodeId(type)
+      async () => await client.schema!.getSchemaFromCodeId(type)
     );
-    const msg = await promptQueryOrExecuteMessage(adoSchema.schema.execute, adoSchema.key);
+    const msg = await promptQueryOrExecuteMessage(adoSchema.schema.execute);
 
     return {
       address: {
@@ -490,16 +500,16 @@ export default class SchemaPrompt {
             break;
           case AndromedaSchemaTypes.AMPRecipient:
             return this.requestRecipient(name);
-          case AndromedaSchemaTypes.AndrAddress:
-            const identifier = await this.promptQuestion(
-              name,
-              { type: "string" },
-              true,
-              bread
-            );
-            return { identifier };
+          // case AndromedaSchemaTypes.AndrAddress:
+          //   const identifier = await this.promptQuestion(
+          //     name,
+          //     { type: "string" },
+          //     true,
+          //     bread
+          //   );
+          //   return { identifier };
           case AndromedaSchemaTypes.AppComponent:
-            return await this.requestAppComponent();
+            return await this.requestAppComponent(property);
           default:
             break;
         }
@@ -550,19 +560,16 @@ export default class SchemaPrompt {
       const refSplit = ref.split("/");
       const field = _.last(refSplit);
       if (!field) return;
-
+      const { definitions } = this.schema;
+      const definition = Object(definitions)[field] ?? {};
       if (
         Object.values(AndromedaSchemaTypes as Record<string, string>).includes(
           field
         )
       ) {
-        return { type: field };
-      } else {
-        const { definitions } = this.schema;
-        const definition = Object(definitions)[field];
-
-        if (definition) return definition;
+        return { ...definition, type: field };
       }
+      return definition;
     }
 
     throw new Error(`Could not get ref ${ref} in schema ${this.schema}`);

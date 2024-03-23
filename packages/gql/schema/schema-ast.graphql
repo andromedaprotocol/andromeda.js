@@ -360,7 +360,7 @@ type CW20ExchangeAdo {
   address: String!
   andr: AndrQuery!
   sale(cw20: String, native: String): SaleResponse
-  saleAssets(options: AndrSearchOptions): String!
+  saleAssets(options: AndrSearchOptions): [String!]!
   tokenAddress: String
   type: String!
 }

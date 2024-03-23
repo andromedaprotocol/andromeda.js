@@ -6,9 +6,10 @@
   "scripts": {
     "build": "pnpm --filter \"./packages/*\" run build",
     "prepack": "rimraf packages/*/andromedaprotocol-*.tgz",
-    "pack": "pnpm --filter \"./packages/*\" exec pnpm pack",
+    "pack": "npm run build &&  pnpm --filter \"./packages/*\" exec pnpm pack",
     "postpack": "npm run collect",
-    "collect": "rimraf local_libs && cpy ./packages/*/andromedaprotocol-*.tgz local_libs --flat"
+    "collect": "rimraf local_libs && cpy ./packages/*/andromedaprotocol-*.tgz local_libs --flat",
+    "clean": "rimraf -g packages/*/dist packages/*/*.tgz **/node_modules local_libs"
   },
   "keywords": [],
   "author": "",

@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/cli",
-  "version": "0.3.8",
+  "version": "0.3.9-beta.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -31,10 +31,11 @@
   ],
   "dependencies": {
     "@andromedaprotocol/andromeda.js": "workspace:*",
-    "@cosmjs/amino": "^0.31.1",
-    "@cosmjs/crypto": "^0.31.1",
-    "@cosmjs/proto-signing": "^0.31.1",
-    "@cosmjs/stargate": "^0.31.1",
+    "@cosmjs/amino": "^0.31.3",
+    "@cosmjs/crypto": "^0.31.3",
+    "@cosmjs/proto-signing": "^0.31.3",
+    "@cosmjs/stargate": "^0.31.3",
+    "axios": "^1.6.7",
     "cli-spinner": "^0.2.10",
     "cli-table": "^0.3.11",
     "convict": "^6.2.4",
@@ -59,10 +60,10 @@
     "@types/cli-table": "^0.3.1",
     "@types/convict": "^6.1.1",
     "@types/convict-format-with-validator": "^6.0.2",
-    "@types/inquirer-autocomplete-prompt": "^2.0.0",
     "@types/figlet": "^1.5.5",
     "@types/gradient-string": "^1.1.2",
     "@types/inquirer": "^8.2.4",
+    "@types/inquirer-autocomplete-prompt": "^2.0.0",
     "@types/jest": "^29.4.0",
     "@types/lodash": "^4.14.191",
     "@types/minimist": "^1.2.2",

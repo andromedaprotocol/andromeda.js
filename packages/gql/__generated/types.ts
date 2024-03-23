@@ -653,7 +653,7 @@ export type ICw20ExchangeAdo = {
   address: Scalars['String']['output'];
   andr: IAndrQuery;
   sale: Maybe<ISaleResponse>;
-  saleAssets: Scalars['String']['output'];
+  saleAssets: Array<Scalars['String']['output']>;
   tokenAddress: Maybe<Scalars['String']['output']>;
   type: Scalars['String']['output'];
 };
