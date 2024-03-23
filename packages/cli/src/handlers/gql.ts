@@ -31,6 +31,10 @@ const commands: Commands = {
         description: "Filter assets by ADO type",
         usage: "--type cw721",
       },
+      search: {
+        description: "Filter assets by name",
+        usage: "--search name",
+      },
     },
   },
 };
@@ -79,11 +83,11 @@ async function appHandler(input: string[]) {
 async function assetsHandler(_input: string[], flags: Flags) {
   const walletAddr = State.wallets.currentWalletAddress;
   if (!walletAddr) throw new Error("No wallet currently assigned");
-  const { type } = flags;
+  const { type, search } = flags;
 
   const assets = await displaySpinnerAsync(
     "Searching the Cosmos...",
-    async () => await queryAssets(walletAddr, 0, 0)
+    async () => await queryAssets(walletAddr, 0, 0, IAndrOrderBy.DESC, search, type)
   );
 
   const assetsTable = new Table({
@@ -91,15 +95,20 @@ async function assetsHandler(_input: string[], flags: Flags) {
   });
   assetsTable.push([
     pc.bold("Address"),
+    pc.bold("Name"),
     pc.bold("ADO Type"),
     pc.bold("App Contract"),
   ]);
   assets.forEach((asset) => {
-    if (type && asset.adoType !== type) return;
-    assetsTable.push([asset.address, asset.adoType, asset.appContract ?? ""]);
+    assetsTable.push([asset.address, asset.name ?? "", asset.adoType, asset.appContract ?? ""]);
   });
 
   console.log(assetsTable.toString());
+}
+
+enum IAndrOrderBy {
+  ASC = "Asc",
+  DESC = "Desc"
 }
 
 export default commands;
