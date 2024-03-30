@@ -3,6 +3,7 @@ import pc from "picocolors";
 import State from "../../state";
 import { Commands } from "../../types";
 import { queryMessage } from "../wasm";
+import { addressQueryExecuteInjector } from '../ado/common'
 
 const { client } = State;
 
@@ -36,7 +37,7 @@ const commands: Commands = {
   // },
   getcodeid: {
     description: "Fetches the code ID for a given ADO",
-    usage: "ado db getcodeid <ado key>",
+    usage: "os adodb getcodeid <ado key>",
     handler: getCodeIdHandler,
     color: pc.green,
     inputs: [
@@ -46,11 +47,12 @@ const commands: Commands = {
     ],
   },
   address: {
-    description: "Gets the current address for the db",
-    usage: "ado db address",
+    description: "Gets the adodb address",
+    usage: "os adodb address",
     handler: getAddressHandler,
     color: pc.white,
   },
+  ...addressQueryExecuteInjector(() => client.os.adoDB?.address || "", "os adodb", "ADODB")
 };
 
 /**

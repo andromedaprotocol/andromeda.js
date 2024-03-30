@@ -237,6 +237,11 @@ export type IAllChainConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type IAllChainConfigQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerTxPages: Array<string>, blockExplorerAddressPages: Array<string>, chainId: string, chainUrl: string, chainName: string, chainType: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, enabled: boolean, iconUrls: { __typename?: 'IconUrl', sm: string, lg: string } }> } };
 
+export type IAllStoredChainConfigQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type IAllStoredChainConfigQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allStoredConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerTxPages: Array<string>, blockExplorerAddressPages: Array<string>, chainId: string, chainUrl: string, chainName: string, chainType: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, enabled: boolean, iconUrls: { __typename?: 'IconUrl', sm: string, lg: string } }> } };
+
 export type IKeplrConfigFragment = { __typename?: 'KeplrConfig', chainId: string, coinType: number, chainName: string, rpc: string, rest: string, bip44: { __typename?: 'Bip44', coinType: number }, bech32Config: { __typename?: 'Bech32Config', bech32PrefixAccPub: string, bech32PrefixValPub: string, bech32PrefixAccAddr: string, bech32PrefixConsPub: string, bech32PrefixValAddr: string, bech32PrefixConsAddr: string }, currencies: Array<{ __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string }>, feeCurrencies: Array<{ __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string }>, gasPriceStep: { __typename?: 'GasPriceStep', average: number, low: number, high: number }, stakeCurrency: { __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string } };
 
 
@@ -2460,6 +2465,15 @@ export const AllChainConfigDocument = /*#__PURE__*/ gql`
     query ALL_CHAIN_CONFIG {
   chainConfigs {
     allConfigs {
+      ...chainConfig
+    }
+  }
+}
+    ${ChainConfigFragmentDoc}`;
+export const AllStoredChainConfigDocument = /*#__PURE__*/ gql`
+    query ALL_STORED_CHAIN_CONFIG {
+  chainConfigs {
+    allStoredConfigs {
       ...chainConfig
     }
   }
@@ -6799,6 +6813,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     ALL_CHAIN_CONFIG(variables?: IAllChainConfigQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<IAllChainConfigQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<IAllChainConfigQuery>(AllChainConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ALL_CHAIN_CONFIG', 'query');
+    },
+    ALL_STORED_CHAIN_CONFIG(variables?: IAllStoredChainConfigQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<IAllStoredChainConfigQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<IAllStoredChainConfigQuery>(AllStoredChainConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ALL_STORED_CHAIN_CONFIG', 'query');
     },
     KEPLR_CONFIG(variables: IKeplrConfigQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<IKeplrConfigQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<IKeplrConfigQuery>(KeplrConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'KEPLR_CONFIG', 'query');

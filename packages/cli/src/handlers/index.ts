@@ -2,6 +2,7 @@ import chainCommands from "./chain";
 import walletCommands from "./wallet";
 import wasmCommands from "./wasm";
 import adoCommands from "./ado";
+import osCommands from "./os";
 import gqlCommands from "./gql";
 import bankCommands from "./bank";
 import txCommands from "./tx";
@@ -22,6 +23,7 @@ export const walletHandler = generateHandler(walletCommands, "wallet");
 export const wasmHandler = generateHandler(wasmCommands, "wasm");
 export const chainHandler = generateHandler(chainCommands, "chain");
 export const adoHandler = generateHandler(adoCommands, "ado");
+export const osHandler = generateHandler(osCommands, "os");
 export const bankHandler = generateHandler(bankCommands, "bank");
 export const gqlHandler = generateHandler(gqlCommands, "gql");
 export const txHandler = generateHandler(txCommands, "tx");
@@ -33,6 +35,7 @@ export const allCommands = [
   ...Object.keys(wasmCommands).map((cmd) => `wasm ${cmd}`),
   ...Object.keys(txCommands).map((cmd) => `tx ${cmd}`),
   ...Object.keys(adoCommands).map((cmd) => `ado ${cmd}`),
+  ...Object.keys(osCommands).map((cmd) => `os ${cmd}`),
   ...Object.keys(gqlCommands).map((cmd) => `gql ${cmd}`),
   ...Object.keys(bankCommands).map((cmd) => `bank ${cmd}`),
   ...Object.keys(userCommands).map((cmd) => `user ${cmd}`),

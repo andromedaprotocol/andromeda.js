@@ -1,7 +1,10 @@
-import { displaySpinnerAsync } from "../../common";
+import { displaySpinnerAsync, executeFlags } from "../../common";
 import State from "../../state";
 import { promptWithExit } from "../../cmd";
 import { Answers } from "inquirer";
+import { Commands } from "types";
+import { executeHandler, queryHandler } from ".";
+import pc from "picocolors";
 
 const { client } = State;
 
@@ -40,4 +43,23 @@ export async function promptAdoType(
     },
   })
   return input.adoType as string;
+}
+
+export function addressQueryExecuteInjector(address: () => string | Promise<string>, prefix: string, label: string) {
+  const commands: Commands = {
+    query: {
+      handler: async () => queryHandler([await address()]),
+      usage: `${prefix} query`,
+      description: `Query ${label}`,
+      color: pc.green,
+    },
+    execute: {
+      handler: async (_input, flags) => executeHandler([await address()], flags),
+      usage: `${prefix} execute`,
+      description: `Execute ${label}`,
+      color: pc.magenta,
+      flags: executeFlags
+    },
+  }
+  return commands;
 }

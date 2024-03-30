@@ -124,53 +124,53 @@ export default class VirtualFileSystemAPI extends ADOAPI {
     );
   }
 
-  /**
-   * Generates a 'AddParentPath' message for the VFS
-   * @param name
-   * @param parent_address
-   * @returns
-   */
-  addParentPathMsg(name: string, parent_address: string) {
-    return {
-      add_path: {
-        name,
-        parent_address,
-      },
-    };
-  }
+  // /**
+  //  * Generates a 'AddParentPath' message for the VFS
+  //  * @param name
+  //  * @param parent_address
+  //  * @returns
+  //  */
+  // addParentPathMsg(name: string, parent_address: string) {
+  //   return {
+  //     add_path: {
+  //       name,
+  //       parent_address,
+  //     },
+  //   };
+  // }
 
-  /**
-   * Registers a parent path for the currently used signing address
-   * @param name
-   * @param parent_address
-   * @param msgParams
-   * @returns
-   */
-  async addParentPath(
-    name: string,
-    parent_address: string,
-    msgParams?: OptionalExecuteParams
-  ) {
-    this.preMessage();
-    if (!name || name.length === 0)
-      throw new Error("Cannot register an empty path");
-    if (
-      !parent_address ||
-      parent_address.length === 0 ||
-      !validateAddress(parent_address)
-    )
-      throw new Error(
-        "Cannot register an invalid address for a path within the VFS"
-      );
+  // /**
+  //  * Registers a parent path for the currently used signing address
+  //  * @param name
+  //  * @param parent_address
+  //  * @param msgParams
+  //  * @returns
+  //  */
+  // async addParentPath(
+  //   name: string,
+  //   parent_address: string,
+  //   msgParams?: OptionalExecuteParams
+  // ) {
+  //   this.preMessage();
+  //   if (!name || name.length === 0)
+  //     throw new Error("Cannot register an empty path");
+  //   if (
+  //     !parent_address ||
+  //     parent_address.length === 0 ||
+  //     !validateAddress(parent_address)
+  //   )
+  //     throw new Error(
+  //       "Cannot register an invalid address for a path within the VFS"
+  //     );
 
-    return this.client.execute(
-      this.address,
-      this.addParentPathMsg(name, parent_address),
-      msgParams?.fee,
-      msgParams?.memo,
-      msgParams?.funds
-    );
-  }
+  //   return this.client.execute(
+  //     this.address,
+  //     this.addParentPathMsg(name, parent_address),
+  //     msgParams?.fee,
+  //     msgParams?.memo,
+  //     msgParams?.funds
+  //   );
+  // }
 
   /**
    * Generates a 'GetUsername' query message for the VFS
@@ -248,6 +248,6 @@ export default class VirtualFileSystemAPI extends ADOAPI {
       throw new Error(
         "Cannot resolve an invalid address using the VFS"
       );
-    return this.client.queryContract(this.address, this.pathsMsg(addr));
+    return this.client.queryContract<string[]>(this.address, this.pathsMsg(addr));
   }
 }

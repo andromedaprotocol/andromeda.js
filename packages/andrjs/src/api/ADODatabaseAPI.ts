@@ -1,5 +1,4 @@
 import type AndromedaClient from "../AndromedaClient";
-import type { Fee } from "../types";
 import ADOAPI from "./ADOAPI";
 
 export default class ADODatabaseAPI extends ADOAPI {
@@ -7,48 +6,48 @@ export default class ADODatabaseAPI extends ADOAPI {
     super(client, address);
   }
 
-  /**
-   * Provides a message object for the ADO DB's `UpdateCodeId` message
-   * @param code_id_key
-   * @param code_id
-   * @returns
-   */
-  updateCodeIdMsg(code_id_key: string, code_id: number) {
-    return {
-      update_code_id: {
-        code_id,
-        code_id_key,
-      },
-    };
-  }
+  // /**
+  //  * Provides a message object for the ADO DB's `UpdateCodeId` message
+  //  * @param code_id_key
+  //  * @param code_id
+  //  * @returns
+  //  */
+  // updateCodeIdMsg(code_id_key: string, code_id: number) {
+  //   return {
+  //     update_code_id: {
+  //       code_id,
+  //       code_id_key,
+  //     },
+  //   };
+  // }
 
-  /**
-   * Updates the Code ID for a given key within the ADO DB
-   * @param code_id_key
-   * @param code_id
-   * @param fee
-   * @param address
-   * @param memo
-   * @returns
-   */
-  async updateCodeId(
-    code_id_key: string,
-    code_id: number,
-    fee: Fee,
-    address?: string,
-    memo?: string
-  ) {
-    const msg = this.updateCodeIdMsg(code_id_key, code_id);
-    if (!address && !this.address)
-      throw new Error("Please provide a valid ADO DB address");
+  // /**
+  //  * Updates the Code ID for a given key within the ADO DB
+  //  * @param code_id_key
+  //  * @param code_id
+  //  * @param fee
+  //  * @param address
+  //  * @param memo
+  //  * @returns
+  //  */
+  // async updateCodeId(
+  //   code_id_key: string,
+  //   code_id: number,
+  //   fee: Fee,
+  //   address?: string,
+  //   memo?: string
+  // ) {
+  //   const msg = this.updateCodeIdMsg(code_id_key, code_id);
+  //   if (!address && !this.address)
+  //     throw new Error("Please provide a valid ADO DB address");
 
-    return this.client.execute(
-      address ?? this.address!,
-      msg,
-      fee,
-      memo ?? `Update Code ID (${code_id_key}, ${code_id})`
-    );
-  }
+  //   return this.client.execute(
+  //     address ?? this.address!,
+  //     msg,
+  //     fee,
+  //     memo ?? `Update Code ID (${code_id_key}, ${code_id})`
+  //   );
+  // }
 
   /**
    * Provides a message object for the ADO DB's `GetCodeId` query

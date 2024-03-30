@@ -237,6 +237,11 @@ export type IAllChainConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type IAllChainConfigQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerTxPages: Array<string>, blockExplorerAddressPages: Array<string>, chainId: string, chainUrl: string, chainName: string, chainType: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, enabled: boolean, iconUrls: { __typename?: 'IconUrl', sm: string, lg: string } }> } };
 
+export type IAllStoredChainConfigQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type IAllStoredChainConfigQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allStoredConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerTxPages: Array<string>, blockExplorerAddressPages: Array<string>, chainId: string, chainUrl: string, chainName: string, chainType: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, enabled: boolean, iconUrls: { __typename?: 'IconUrl', sm: string, lg: string } }> } };
+
 export type IKeplrConfigFragment = { __typename?: 'KeplrConfig', chainId: string, coinType: number, chainName: string, rpc: string, rest: string, bip44: { __typename?: 'Bip44', coinType: number }, bech32Config: { __typename?: 'Bech32Config', bech32PrefixAccPub: string, bech32PrefixValPub: string, bech32PrefixAccAddr: string, bech32PrefixConsPub: string, bech32PrefixValAddr: string, bech32PrefixConsAddr: string }, currencies: Array<{ __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string }>, feeCurrencies: Array<{ __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string }>, gasPriceStep: { __typename?: 'GasPriceStep', average: number, low: number, high: number }, stakeCurrency: { __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string } };
 
 
@@ -2972,6 +2977,45 @@ export type AllChainConfigLazyQueryHookResult = ReturnType<typeof useAllChainCon
 export type AllChainConfigQueryResult = Apollo.QueryResult<IAllChainConfigQuery, IAllChainConfigQueryVariables>;
 export function refetchAllChainConfigQuery(variables?: IAllChainConfigQueryVariables) {
       return { query: AllChainConfigDocument, variables: variables }
+    }
+export const AllStoredChainConfigDocument = /*#__PURE__*/ gql`
+    query ALL_STORED_CHAIN_CONFIG {
+  chainConfigs {
+    allStoredConfigs {
+      ...chainConfig
+    }
+  }
+}
+    ${ChainConfigFragmentDoc}`;
+
+/**
+ * __useAllStoredChainConfigQuery__
+ *
+ * To run a query within a React component, call `useAllStoredChainConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllStoredChainConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllStoredChainConfigQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAllStoredChainConfigQuery(baseOptions?: Apollo.QueryHookOptions<IAllStoredChainConfigQuery, IAllStoredChainConfigQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IAllStoredChainConfigQuery, IAllStoredChainConfigQueryVariables>(AllStoredChainConfigDocument, options);
+      }
+export function useAllStoredChainConfigLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IAllStoredChainConfigQuery, IAllStoredChainConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IAllStoredChainConfigQuery, IAllStoredChainConfigQueryVariables>(AllStoredChainConfigDocument, options);
+        }
+export type AllStoredChainConfigQueryHookResult = ReturnType<typeof useAllStoredChainConfigQuery>;
+export type AllStoredChainConfigLazyQueryHookResult = ReturnType<typeof useAllStoredChainConfigLazyQuery>;
+export type AllStoredChainConfigQueryResult = Apollo.QueryResult<IAllStoredChainConfigQuery, IAllStoredChainConfigQueryVariables>;
+export function refetchAllStoredChainConfigQuery(variables?: IAllStoredChainConfigQueryVariables) {
+      return { query: AllStoredChainConfigDocument, variables: variables }
     }
 export const KeplrConfigDocument = /*#__PURE__*/ gql`
     query KEPLR_CONFIG($identifier: String!) {

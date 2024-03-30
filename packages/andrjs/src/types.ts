@@ -53,13 +53,10 @@ export type ChainConfig = IChainConfig
 /**
  * Object used to define an address used with the Andromeda ecosystem
  */
-export interface AndrAddress {
-  identifier: string;
-}
+export type AndrAddress = string;
 
 export interface Module {
-  /** The ADO type for the module */
-  module_type: string;
+  name?: string;
   /** The address of the module */
   address: AndrAddress;
   /** Whether the module is mutable */
@@ -76,3 +73,16 @@ export interface OptionalExecuteParams {
   memo?: string;
   fee?: StdFee;
 }
+
+
+export interface ExpirationAtHeight {
+  at_height: number
+}
+export interface ExpirationAtTime {
+  at_time: string
+}
+export interface ExpirationNever {
+  never: {}
+}
+
+export type Expiration = ExpirationAtHeight | ExpirationAtTime | ExpirationNever;
