@@ -32,7 +32,6 @@ query APP_CONFIG_AND_COMPONENTS($contractAddress: String!) {
       components {
         ...appComponent
       }
-      type
     }
   }
 }

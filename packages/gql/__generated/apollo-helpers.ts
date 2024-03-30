@@ -32,21 +32,18 @@ export type AccountsQueryFieldPolicy = {
 	assets?: FieldPolicy<any> | FieldReadFunction<any>,
 	wallets?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type AddressListAdoKeySpecifier = ('address' | 'admin' | 'andr' | 'codeId' | 'creator' | 'ibcPortId' | 'includesAddress' | 'isOperator' | 'label' | 'operators' | 'owner' | 'queries_expected' | 'type' | AddressListAdoKeySpecifier)[];
+export type AddressListAdoKeySpecifier = ('address' | 'admin' | 'andr' | 'chainId' | 'codeId' | 'creator' | 'ibcPortId' | 'includesAddress' | 'label' | 'owner' | AddressListAdoKeySpecifier)[];
 export type AddressListAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	admin?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	codeId?: FieldPolicy<any> | FieldReadFunction<any>,
 	creator?: FieldPolicy<any> | FieldReadFunction<any>,
 	ibcPortId?: FieldPolicy<any> | FieldReadFunction<any>,
 	includesAddress?: FieldPolicy<any> | FieldReadFunction<any>,
-	isOperator?: FieldPolicy<any> | FieldReadFunction<any>,
 	label?: FieldPolicy<any> | FieldReadFunction<any>,
-	operators?: FieldPolicy<any> | FieldReadFunction<any>,
-	owner?: FieldPolicy<any> | FieldReadFunction<any>,
-	queries_expected?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	owner?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type AddressListResponseKeySpecifier = ('included' | AddressListResponseKeySpecifier)[];
 export type AddressListResponseFieldPolicy = {
@@ -76,12 +73,14 @@ export type AdoPackageFieldPolicy = {
 	name?: FieldPolicy<any> | FieldReadFunction<any>,
 	schemas?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type AdoQueryKeySpecifier = ('address_list' | 'ado' | 'app' | 'auction' | 'crowdfund' | 'cw20' | 'cw20_exchange' | 'cw20_staking' | 'cw721' | 'factory' | 'lockdrop' | 'marketplace' | 'merkle_airdrop' | 'primitive' | 'rate_limiting_withdrawals' | 'rates' | 'receipt' | 'splitter' | 'timelock' | 'vault' | 'vesting' | 'weighted_distribution_splitter' | AdoQueryKeySpecifier)[];
+export type AdoQueryKeySpecifier = ('address_list' | 'ado' | 'adoSmart' | 'app' | 'auction' | 'chainId' | 'crowdfund' | 'cw20' | 'cw20_exchange' | 'cw20_staking' | 'cw721' | 'factory' | 'lockdrop' | 'marketplace' | 'merkle_airdrop' | 'primitive' | 'rate_limiting_withdrawals' | 'rates' | 'receipt' | 'splitter' | 'timelock' | 'vault' | 'vesting' | 'weighted_distribution_splitter' | AdoQueryKeySpecifier)[];
 export type AdoQueryFieldPolicy = {
 	address_list?: FieldPolicy<any> | FieldReadFunction<any>,
 	ado?: FieldPolicy<any> | FieldReadFunction<any>,
+	adoSmart?: FieldPolicy<any> | FieldReadFunction<any>,
 	app?: FieldPolicy<any> | FieldReadFunction<any>,
 	auction?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	crowdfund?: FieldPolicy<any> | FieldReadFunction<any>,
 	cw20?: FieldPolicy<any> | FieldReadFunction<any>,
 	cw20_exchange?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -100,6 +99,13 @@ export type AdoQueryFieldPolicy = {
 	vault?: FieldPolicy<any> | FieldReadFunction<any>,
 	vesting?: FieldPolicy<any> | FieldReadFunction<any>,
 	weighted_distribution_splitter?: FieldPolicy<any> | FieldReadFunction<any>
+};
+export type AdoSmartResponseKeySpecifier = ('address' | 'adoType' | 'query' | 'queryResult' | AdoSmartResponseKeySpecifier)[];
+export type AdoSmartResponseFieldPolicy = {
+	address?: FieldPolicy<any> | FieldReadFunction<any>,
+	adoType?: FieldPolicy<any> | FieldReadFunction<any>,
+	query?: FieldPolicy<any> | FieldReadFunction<any>,
+	queryResult?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type AgreementKeySpecifier = ('amount' | 'purchaser' | AgreementKeySpecifier)[];
 export type AgreementFieldPolicy = {
@@ -126,21 +132,21 @@ export type AndrAddressKeySpecifier = ('identifier' | AndrAddressKeySpecifier)[]
 export type AndrAddressFieldPolicy = {
 	identifier?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type AndrQueryKeySpecifier = ('address' | 'admin' | 'blockHeightUponCreation' | 'codeId' | 'contractVersion' | 'creator' | 'ibcPortId' | 'isOperator' | 'label' | 'operators' | 'originalPublisher' | 'owner' | 'queries_expected' | 'type' | 'version' | AndrQueryKeySpecifier)[];
+export type AndrQueryKeySpecifier = ('address' | 'admin' | 'appContract' | 'blockHeightUponCreation' | 'codeId' | 'creator' | 'ibcPortId' | 'kernelAddress' | 'label' | 'originalPublisher' | 'owner' | 'ownershipRequest' | 'permissionedActions' | 'type' | 'version' | AndrQueryKeySpecifier)[];
 export type AndrQueryFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	admin?: FieldPolicy<any> | FieldReadFunction<any>,
+	appContract?: FieldPolicy<any> | FieldReadFunction<any>,
 	blockHeightUponCreation?: FieldPolicy<any> | FieldReadFunction<any>,
 	codeId?: FieldPolicy<any> | FieldReadFunction<any>,
-	contractVersion?: FieldPolicy<any> | FieldReadFunction<any>,
 	creator?: FieldPolicy<any> | FieldReadFunction<any>,
 	ibcPortId?: FieldPolicy<any> | FieldReadFunction<any>,
-	isOperator?: FieldPolicy<any> | FieldReadFunction<any>,
+	kernelAddress?: FieldPolicy<any> | FieldReadFunction<any>,
 	label?: FieldPolicy<any> | FieldReadFunction<any>,
-	operators?: FieldPolicy<any> | FieldReadFunction<any>,
 	originalPublisher?: FieldPolicy<any> | FieldReadFunction<any>,
 	owner?: FieldPolicy<any> | FieldReadFunction<any>,
-	queries_expected?: FieldPolicy<any> | FieldReadFunction<any>,
+	ownershipRequest?: FieldPolicy<any> | FieldReadFunction<any>,
+	permissionedActions?: FieldPolicy<any> | FieldReadFunction<any>,
 	type?: FieldPolicy<any> | FieldReadFunction<any>,
 	version?: FieldPolicy<any> | FieldReadFunction<any>
 };
@@ -149,12 +155,13 @@ export type AndrStrategyFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	strategyType?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type AppAdoKeySpecifier = ('address' | 'addresses' | 'admin' | 'andr' | 'codeId' | 'componentExists' | 'components' | 'config' | 'creator' | 'getAddress' | 'ibcPortId' | 'isOperator' | 'label' | 'operators' | 'owner' | 'queries_expected' | 'type' | AppAdoKeySpecifier)[];
+export type AppAdoKeySpecifier = ('address' | 'addresses' | 'admin' | 'andr' | 'chainId' | 'codeId' | 'componentExists' | 'components' | 'config' | 'creator' | 'getAddress' | 'ibcPortId' | 'label' | 'owner' | AppAdoKeySpecifier)[];
 export type AppAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	addresses?: FieldPolicy<any> | FieldReadFunction<any>,
 	admin?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	codeId?: FieldPolicy<any> | FieldReadFunction<any>,
 	componentExists?: FieldPolicy<any> | FieldReadFunction<any>,
 	components?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -162,19 +169,16 @@ export type AppAdoFieldPolicy = {
 	creator?: FieldPolicy<any> | FieldReadFunction<any>,
 	getAddress?: FieldPolicy<any> | FieldReadFunction<any>,
 	ibcPortId?: FieldPolicy<any> | FieldReadFunction<any>,
-	isOperator?: FieldPolicy<any> | FieldReadFunction<any>,
 	label?: FieldPolicy<any> | FieldReadFunction<any>,
-	operators?: FieldPolicy<any> | FieldReadFunction<any>,
-	owner?: FieldPolicy<any> | FieldReadFunction<any>,
-	queries_expected?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	owner?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type AppComponentKeySpecifier = ('address' | 'ado_type' | 'instantiate_msg' | 'name' | AppComponentKeySpecifier)[];
+export type AppComponentKeySpecifier = ('address' | 'ado_type' | 'instantiate_msg' | 'name' | 'type' | AppComponentKeySpecifier)[];
 export type AppComponentFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	ado_type?: FieldPolicy<any> | FieldReadFunction<any>,
 	instantiate_msg?: FieldPolicy<any> | FieldReadFunction<any>,
-	name?: FieldPolicy<any> | FieldReadFunction<any>
+	name?: FieldPolicy<any> | FieldReadFunction<any>,
+	type?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type AppComponentAddressKeySpecifier = ('address' | 'name' | AppComponentAddressKeySpecifier)[];
 export type AppComponentAddressFieldPolicy = {
@@ -186,21 +190,27 @@ export type AppConfigFieldPolicy = {
 	name?: FieldPolicy<any> | FieldReadFunction<any>,
 	owner?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type AssetResultKeySpecifier = ('address' | 'adoType' | 'appContract' | 'chainId' | 'components' | 'instantiateHash' | 'instantiateHeight' | 'lastUpdatedHash' | 'lastUpdatedHeight' | 'name' | 'owner' | AssetResultKeySpecifier)[];
+export type AssetResultKeySpecifier = ('address' | 'adoType' | 'appContract' | 'chainId' | 'components' | 'disowned' | 'instantiateHash' | 'instantiateHeight' | 'instantiateOwner' | 'kernel' | 'lastUpdatedHash' | 'lastUpdatedHeight' | 'memo' | 'minter' | 'name' | 'owner' | 'ownershipRequest' | AssetResultKeySpecifier)[];
 export type AssetResultFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	adoType?: FieldPolicy<any> | FieldReadFunction<any>,
 	appContract?: FieldPolicy<any> | FieldReadFunction<any>,
 	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	components?: FieldPolicy<any> | FieldReadFunction<any>,
+	disowned?: FieldPolicy<any> | FieldReadFunction<any>,
 	instantiateHash?: FieldPolicy<any> | FieldReadFunction<any>,
 	instantiateHeight?: FieldPolicy<any> | FieldReadFunction<any>,
+	instantiateOwner?: FieldPolicy<any> | FieldReadFunction<any>,
+	kernel?: FieldPolicy<any> | FieldReadFunction<any>,
 	lastUpdatedHash?: FieldPolicy<any> | FieldReadFunction<any>,
 	lastUpdatedHeight?: FieldPolicy<any> | FieldReadFunction<any>,
+	memo?: FieldPolicy<any> | FieldReadFunction<any>,
+	minter?: FieldPolicy<any> | FieldReadFunction<any>,
 	name?: FieldPolicy<any> | FieldReadFunction<any>,
-	owner?: FieldPolicy<any> | FieldReadFunction<any>
+	owner?: FieldPolicy<any> | FieldReadFunction<any>,
+	ownershipRequest?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type AuctionAdoKeySpecifier = ('address' | 'admin' | 'andr' | 'auctionIDs' | 'auctionInfosForAddress' | 'auctionState' | 'bids' | 'codeId' | 'creator' | 'ibcPortId' | 'isOperator' | 'label' | 'latestAuctionState' | 'operators' | 'owner' | 'queries_expected' | 'summaryFields' | 'type' | AuctionAdoKeySpecifier)[];
+export type AuctionAdoKeySpecifier = ('address' | 'admin' | 'andr' | 'auctionIDs' | 'auctionInfosForAddress' | 'auctionState' | 'bids' | 'chainId' | 'codeId' | 'creator' | 'ibcPortId' | 'label' | 'latestAuctionState' | 'owner' | 'summaryFields' | AuctionAdoKeySpecifier)[];
 export type AuctionAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	admin?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -209,17 +219,14 @@ export type AuctionAdoFieldPolicy = {
 	auctionInfosForAddress?: FieldPolicy<any> | FieldReadFunction<any>,
 	auctionState?: FieldPolicy<any> | FieldReadFunction<any>,
 	bids?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	codeId?: FieldPolicy<any> | FieldReadFunction<any>,
 	creator?: FieldPolicy<any> | FieldReadFunction<any>,
 	ibcPortId?: FieldPolicy<any> | FieldReadFunction<any>,
-	isOperator?: FieldPolicy<any> | FieldReadFunction<any>,
 	label?: FieldPolicy<any> | FieldReadFunction<any>,
 	latestAuctionState?: FieldPolicy<any> | FieldReadFunction<any>,
-	operators?: FieldPolicy<any> | FieldReadFunction<any>,
 	owner?: FieldPolicy<any> | FieldReadFunction<any>,
-	queries_expected?: FieldPolicy<any> | FieldReadFunction<any>,
-	summaryFields?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	summaryFields?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type AuctionIDsResponseKeySpecifier = ('auction_ids' | AuctionIDsResponseKeySpecifier)[];
 export type AuctionIDsResponseFieldPolicy = {
@@ -231,7 +238,7 @@ export type AuctionInfosForAddressResponseFieldPolicy = {
 	token_address?: FieldPolicy<any> | FieldReadFunction<any>,
 	token_id?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type AuctionStateResponseKeySpecifier = ('auction_id' | 'coin_denom' | 'end_time' | 'high_bidder_addr' | 'high_bidder_amount' | 'is_cancelled' | 'min_bid' | 'start_time' | 'summaryFields' | 'whitelist' | AuctionStateResponseKeySpecifier)[];
+export type AuctionStateResponseKeySpecifier = ('auction_id' | 'coin_denom' | 'end_time' | 'high_bidder_addr' | 'high_bidder_amount' | 'is_cancelled' | 'min_bid' | 'start_time' | 'whitelist' | AuctionStateResponseKeySpecifier)[];
 export type AuctionStateResponseFieldPolicy = {
 	auction_id?: FieldPolicy<any> | FieldReadFunction<any>,
 	coin_denom?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -241,14 +248,13 @@ export type AuctionStateResponseFieldPolicy = {
 	is_cancelled?: FieldPolicy<any> | FieldReadFunction<any>,
 	min_bid?: FieldPolicy<any> | FieldReadFunction<any>,
 	start_time?: FieldPolicy<any> | FieldReadFunction<any>,
-	summaryFields?: FieldPolicy<any> | FieldReadFunction<any>,
 	whitelist?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type BaseAdoKeySpecifier = ('address' | 'andr' | 'type' | BaseAdoKeySpecifier)[];
+export type BaseAdoKeySpecifier = ('address' | 'andr' | 'chainId' | BaseAdoKeySpecifier)[];
 export type BaseAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type Bech32ConfigKeySpecifier = ('bech32PrefixAccAddr' | 'bech32PrefixAccPub' | 'bech32PrefixConsAddr' | 'bech32PrefixConsPub' | 'bech32PrefixValAddr' | 'bech32PrefixValPub' | Bech32ConfigKeySpecifier)[];
 export type Bech32ConfigFieldPolicy = {
@@ -273,7 +279,7 @@ export type Bip44KeySpecifier = ('coinType' | Bip44KeySpecifier)[];
 export type Bip44FieldPolicy = {
 	coinType?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type CW20AdoKeySpecifier = ('address' | 'allAccounts' | 'allAllowances' | 'allSpenderAllowances' | 'allowance' | 'andr' | 'balance' | 'downloadLogo' | 'marketingInfo' | 'minter' | 'tokenInfo' | 'type' | CW20AdoKeySpecifier)[];
+export type CW20AdoKeySpecifier = ('address' | 'allAccounts' | 'allAllowances' | 'allSpenderAllowances' | 'allowance' | 'andr' | 'balance' | 'chainId' | 'downloadLogo' | 'marketingInfo' | 'minter' | 'tokenInfo' | CW20AdoKeySpecifier)[];
 export type CW20AdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	allAccounts?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -282,33 +288,33 @@ export type CW20AdoFieldPolicy = {
 	allowance?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
 	balance?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	downloadLogo?: FieldPolicy<any> | FieldReadFunction<any>,
 	marketingInfo?: FieldPolicy<any> | FieldReadFunction<any>,
 	minter?: FieldPolicy<any> | FieldReadFunction<any>,
-	tokenInfo?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	tokenInfo?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type CW20ExchangeAdoKeySpecifier = ('address' | 'andr' | 'sale' | 'saleAssets' | 'tokenAddress' | 'type' | CW20ExchangeAdoKeySpecifier)[];
+export type CW20ExchangeAdoKeySpecifier = ('address' | 'andr' | 'chainId' | 'sale' | 'saleAssets' | 'tokenAddress' | CW20ExchangeAdoKeySpecifier)[];
 export type CW20ExchangeAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	sale?: FieldPolicy<any> | FieldReadFunction<any>,
 	saleAssets?: FieldPolicy<any> | FieldReadFunction<any>,
-	tokenAddress?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	tokenAddress?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type CW20StakingAdoKeySpecifier = ('address' | 'andr' | 'config' | 'staker' | 'stakers' | 'state' | 'timestamp' | 'type' | CW20StakingAdoKeySpecifier)[];
+export type CW20StakingAdoKeySpecifier = ('address' | 'andr' | 'chainId' | 'config' | 'staker' | 'stakers' | 'state' | 'timestamp' | CW20StakingAdoKeySpecifier)[];
 export type CW20StakingAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	config?: FieldPolicy<any> | FieldReadFunction<any>,
 	staker?: FieldPolicy<any> | FieldReadFunction<any>,
 	stakers?: FieldPolicy<any> | FieldReadFunction<any>,
 	state?: FieldPolicy<any> | FieldReadFunction<any>,
-	timestamp?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	timestamp?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type CW721AdoKeySpecifier = ('address' | 'admin' | 'allNftInfo' | 'allOperators' | 'allTokens' | 'andr' | 'approval' | 'approvals' | 'codeId' | 'contractInfo' | 'creator' | 'ibcPortId' | 'isArchived' | 'isOperator' | 'label' | 'minter' | 'nftInfo' | 'numOwners' | 'numTokens' | 'operators' | 'owner' | 'ownerOf' | 'queries_expected' | 'searchTokens' | 'tokens' | 'transferAgreement' | 'type' | CW721AdoKeySpecifier)[];
+export type CW721AdoKeySpecifier = ('address' | 'admin' | 'allNftInfo' | 'allOperators' | 'allTokens' | 'andr' | 'approval' | 'approvals' | 'chainId' | 'codeId' | 'contractInfo' | 'creator' | 'ibcPortId' | 'isArchived' | 'label' | 'minter' | 'nftInfo' | 'numOwners' | 'numTokens' | 'owner' | 'ownerOf' | 'searchTokens' | 'tokens' | 'transferAgreement' | CW721AdoKeySpecifier)[];
 export type CW721AdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	admin?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -318,27 +324,24 @@ export type CW721AdoFieldPolicy = {
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
 	approval?: FieldPolicy<any> | FieldReadFunction<any>,
 	approvals?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	codeId?: FieldPolicy<any> | FieldReadFunction<any>,
 	contractInfo?: FieldPolicy<any> | FieldReadFunction<any>,
 	creator?: FieldPolicy<any> | FieldReadFunction<any>,
 	ibcPortId?: FieldPolicy<any> | FieldReadFunction<any>,
 	isArchived?: FieldPolicy<any> | FieldReadFunction<any>,
-	isOperator?: FieldPolicy<any> | FieldReadFunction<any>,
 	label?: FieldPolicy<any> | FieldReadFunction<any>,
 	minter?: FieldPolicy<any> | FieldReadFunction<any>,
 	nftInfo?: FieldPolicy<any> | FieldReadFunction<any>,
 	numOwners?: FieldPolicy<any> | FieldReadFunction<any>,
 	numTokens?: FieldPolicy<any> | FieldReadFunction<any>,
-	operators?: FieldPolicy<any> | FieldReadFunction<any>,
 	owner?: FieldPolicy<any> | FieldReadFunction<any>,
 	ownerOf?: FieldPolicy<any> | FieldReadFunction<any>,
-	queries_expected?: FieldPolicy<any> | FieldReadFunction<any>,
 	searchTokens?: FieldPolicy<any> | FieldReadFunction<any>,
 	tokens?: FieldPolicy<any> | FieldReadFunction<any>,
-	transferAgreement?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	transferAgreement?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type ChainConfigKeySpecifier = ('addressPrefix' | 'blockExplorerAddressPages' | 'blockExplorerTxPages' | 'chainId' | 'chainName' | 'chainType' | 'chainUrl' | 'defaultFee' | 'iconUrls' | 'kernelAddress' | 'name' | 'registryAddress' | ChainConfigKeySpecifier)[];
+export type ChainConfigKeySpecifier = ('addressPrefix' | 'blockExplorerAddressPages' | 'blockExplorerTxPages' | 'chainId' | 'chainName' | 'chainType' | 'chainUrl' | 'defaultFee' | 'enabled' | 'iconUrls' | 'kernelAddress' | 'name' | 'registryAddress' | ChainConfigKeySpecifier)[];
 export type ChainConfigFieldPolicy = {
 	addressPrefix?: FieldPolicy<any> | FieldReadFunction<any>,
 	blockExplorerAddressPages?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -348,14 +351,16 @@ export type ChainConfigFieldPolicy = {
 	chainType?: FieldPolicy<any> | FieldReadFunction<any>,
 	chainUrl?: FieldPolicy<any> | FieldReadFunction<any>,
 	defaultFee?: FieldPolicy<any> | FieldReadFunction<any>,
+	enabled?: FieldPolicy<any> | FieldReadFunction<any>,
 	iconUrls?: FieldPolicy<any> | FieldReadFunction<any>,
 	kernelAddress?: FieldPolicy<any> | FieldReadFunction<any>,
 	name?: FieldPolicy<any> | FieldReadFunction<any>,
 	registryAddress?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type ChainConfigQueryKeySpecifier = ('allConfigs' | 'config' | ChainConfigQueryKeySpecifier)[];
+export type ChainConfigQueryKeySpecifier = ('allConfigs' | 'allStoredConfigs' | 'config' | ChainConfigQueryKeySpecifier)[];
 export type ChainConfigQueryFieldPolicy = {
 	allConfigs?: FieldPolicy<any> | FieldReadFunction<any>,
+	allStoredConfigs?: FieldPolicy<any> | FieldReadFunction<any>,
 	config?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type CoinKeySpecifier = ('amount' | 'denom' | CoinKeySpecifier)[];
@@ -381,27 +386,33 @@ export type ConfigStructureFieldPolicy = {
 	number_of_reward_tokens?: FieldPolicy<any> | FieldReadFunction<any>,
 	staking_token?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type CrowdfundAdoKeySpecifier = ('address' | 'andr' | 'availableTokens' | 'config' | 'isTokenAvailable' | 'state' | 'type' | CrowdfundAdoKeySpecifier)[];
+export type CrowdfundAdoKeySpecifier = ('address' | 'andr' | 'availableTokens' | 'chainId' | 'config' | 'isTokenAvailable' | 'state' | CrowdfundAdoKeySpecifier)[];
 export type CrowdfundAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
 	availableTokens?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	config?: FieldPolicy<any> | FieldReadFunction<any>,
 	isTokenAvailable?: FieldPolicy<any> | FieldReadFunction<any>,
-	state?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	state?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type CrowdfundConfigKeySpecifier = ('can_mint_after_sale' | 'token_address' | CrowdfundConfigKeySpecifier)[];
 export type CrowdfundConfigFieldPolicy = {
 	can_mint_after_sale?: FieldPolicy<any> | FieldReadFunction<any>,
 	token_address?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type CrowdfundStateKeySpecifier = ('amount_sold' | 'amount_to_send' | 'amount_transferred' | 'expiration' | 'max_amount_per_wallet' | 'min_tokens_sold' | 'price' | 'recipient' | CrowdfundStateKeySpecifier)[];
+export type CrowdfundRecipientKeySpecifier = ('address' | 'ibc_recovery_address' | 'msg' | CrowdfundRecipientKeySpecifier)[];
+export type CrowdfundRecipientFieldPolicy = {
+	address?: FieldPolicy<any> | FieldReadFunction<any>,
+	ibc_recovery_address?: FieldPolicy<any> | FieldReadFunction<any>,
+	msg?: FieldPolicy<any> | FieldReadFunction<any>
+};
+export type CrowdfundStateKeySpecifier = ('amount_sold' | 'amount_to_send' | 'amount_transferred' | 'end_time' | 'max_amount_per_wallet' | 'min_tokens_sold' | 'price' | 'recipient' | CrowdfundStateKeySpecifier)[];
 export type CrowdfundStateFieldPolicy = {
 	amount_sold?: FieldPolicy<any> | FieldReadFunction<any>,
 	amount_to_send?: FieldPolicy<any> | FieldReadFunction<any>,
 	amount_transferred?: FieldPolicy<any> | FieldReadFunction<any>,
-	expiration?: FieldPolicy<any> | FieldReadFunction<any>,
+	end_time?: FieldPolicy<any> | FieldReadFunction<any>,
 	max_amount_per_wallet?: FieldPolicy<any> | FieldReadFunction<any>,
 	min_tokens_sold?: FieldPolicy<any> | FieldReadFunction<any>,
 	price?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -430,12 +441,12 @@ export type EscrowConditionFieldPolicy = {
 	expiration?: FieldPolicy<any> | FieldReadFunction<any>,
 	miniumFunds?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type FactoryAdoKeySpecifier = ('address' | 'andr' | 'code_id' | 'type' | FactoryAdoKeySpecifier)[];
+export type FactoryAdoKeySpecifier = ('address' | 'andr' | 'chainId' | 'code_id' | FactoryAdoKeySpecifier)[];
 export type FactoryAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
-	code_id?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
+	code_id?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type GasPriceStepKeySpecifier = ('average' | 'high' | 'low' | GasPriceStepKeySpecifier)[];
 export type GasPriceStepFieldPolicy = {
@@ -443,21 +454,19 @@ export type GasPriceStepFieldPolicy = {
 	high?: FieldPolicy<any> | FieldReadFunction<any>,
 	low?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type IBaseAdoQueryKeySpecifier = ('address' | 'andr' | 'type' | IBaseAdoQueryKeySpecifier)[];
+export type IBaseAdoQueryKeySpecifier = ('address' | 'andr' | IBaseAdoQueryKeySpecifier)[];
 export type IBaseAdoQueryFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
-	andr?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	andr?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type IWasmContractKeySpecifier = ('address' | 'admin' | 'codeId' | 'creator' | 'ibcPortId' | 'label' | 'queries_expected' | IWasmContractKeySpecifier)[];
+export type IWasmContractKeySpecifier = ('address' | 'admin' | 'codeId' | 'creator' | 'ibcPortId' | 'label' | IWasmContractKeySpecifier)[];
 export type IWasmContractFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	admin?: FieldPolicy<any> | FieldReadFunction<any>,
 	codeId?: FieldPolicy<any> | FieldReadFunction<any>,
 	creator?: FieldPolicy<any> | FieldReadFunction<any>,
 	ibcPortId?: FieldPolicy<any> | FieldReadFunction<any>,
-	label?: FieldPolicy<any> | FieldReadFunction<any>,
-	queries_expected?: FieldPolicy<any> | FieldReadFunction<any>
+	label?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type IconUrlKeySpecifier = ('lg' | 'sm' | IconUrlKeySpecifier)[];
 export type IconUrlFieldPolicy = {
@@ -483,13 +492,13 @@ export type KeplrConfigQueryFieldPolicy = {
 	allConfigs?: FieldPolicy<any> | FieldReadFunction<any>,
 	config?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type LockdropAdoKeySpecifier = ('address' | 'andr' | 'config' | 'state' | 'type' | 'userInfo' | 'withdrawalPercentAllowed' | LockdropAdoKeySpecifier)[];
+export type LockdropAdoKeySpecifier = ('address' | 'andr' | 'chainId' | 'config' | 'state' | 'userInfo' | 'withdrawalPercentAllowed' | LockdropAdoKeySpecifier)[];
 export type LockdropAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	config?: FieldPolicy<any> | FieldReadFunction<any>,
 	state?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>,
 	userInfo?: FieldPolicy<any> | FieldReadFunction<any>,
 	withdrawalPercentAllowed?: FieldPolicy<any> | FieldReadFunction<any>
 };
@@ -514,34 +523,39 @@ export type LockdropUserInfoFieldPolicy = {
 	total_native_locked?: FieldPolicy<any> | FieldReadFunction<any>,
 	withrawal_flag?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type MarketingInfoKeySpecifier = ('allowance' | 'description' | 'logo' | 'marketing' | 'project' | MarketingInfoKeySpecifier)[];
+export type MarketingInfoKeySpecifier = ('description' | 'logo' | 'marketing' | 'project' | MarketingInfoKeySpecifier)[];
 export type MarketingInfoFieldPolicy = {
-	allowance?: FieldPolicy<any> | FieldReadFunction<any>,
 	description?: FieldPolicy<any> | FieldReadFunction<any>,
 	logo?: FieldPolicy<any> | FieldReadFunction<any>,
 	marketing?: FieldPolicy<any> | FieldReadFunction<any>,
 	project?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type MarketplaceAdoKeySpecifier = ('address' | 'andr' | 'latestSaleState' | 'saleIds' | 'saleInfosForAddress' | 'saleState' | 'type' | MarketplaceAdoKeySpecifier)[];
+export type MarketplaceAdoKeySpecifier = ('address' | 'admin' | 'andr' | 'chainId' | 'codeId' | 'creator' | 'ibcPortId' | 'label' | 'latestSaleState' | 'owner' | 'saleIds' | 'saleInfosForAddress' | 'saleState' | MarketplaceAdoKeySpecifier)[];
 export type MarketplaceAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
+	admin?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
+	codeId?: FieldPolicy<any> | FieldReadFunction<any>,
+	creator?: FieldPolicy<any> | FieldReadFunction<any>,
+	ibcPortId?: FieldPolicy<any> | FieldReadFunction<any>,
+	label?: FieldPolicy<any> | FieldReadFunction<any>,
 	latestSaleState?: FieldPolicy<any> | FieldReadFunction<any>,
+	owner?: FieldPolicy<any> | FieldReadFunction<any>,
 	saleIds?: FieldPolicy<any> | FieldReadFunction<any>,
 	saleInfosForAddress?: FieldPolicy<any> | FieldReadFunction<any>,
-	saleState?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	saleState?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type MerkleAirdropAdoKeySpecifier = ('address' | 'andr' | 'config' | 'isClaimed' | 'latestStage' | 'merkleRoot' | 'totalClaimed' | 'type' | MerkleAirdropAdoKeySpecifier)[];
+export type MerkleAirdropAdoKeySpecifier = ('address' | 'andr' | 'chainId' | 'config' | 'isClaimed' | 'latestStage' | 'merkleRoot' | 'totalClaimed' | MerkleAirdropAdoKeySpecifier)[];
 export type MerkleAirdropAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	config?: FieldPolicy<any> | FieldReadFunction<any>,
 	isClaimed?: FieldPolicy<any> | FieldReadFunction<any>,
 	latestStage?: FieldPolicy<any> | FieldReadFunction<any>,
 	merkleRoot?: FieldPolicy<any> | FieldReadFunction<any>,
-	totalClaimed?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	totalClaimed?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type MerkleAirdropConfigKeySpecifier = ('asset_info' | MerkleAirdropConfigKeySpecifier)[];
 export type MerkleAirdropConfigFieldPolicy = {
@@ -570,6 +584,18 @@ export type MutationFieldPolicy = {
 	addAdo?: FieldPolicy<any> | FieldReadFunction<any>,
 	updateAdoOwner?: FieldPolicy<any> | FieldReadFunction<any>
 };
+export type NFTMetadataKeySpecifier = ('animation_url' | 'attributes' | 'background_color' | 'description' | 'external_url' | 'image' | 'image_data' | 'name' | 'youtube_url' | NFTMetadataKeySpecifier)[];
+export type NFTMetadataFieldPolicy = {
+	animation_url?: FieldPolicy<any> | FieldReadFunction<any>,
+	attributes?: FieldPolicy<any> | FieldReadFunction<any>,
+	background_color?: FieldPolicy<any> | FieldReadFunction<any>,
+	description?: FieldPolicy<any> | FieldReadFunction<any>,
+	external_url?: FieldPolicy<any> | FieldReadFunction<any>,
+	image?: FieldPolicy<any> | FieldReadFunction<any>,
+	image_data?: FieldPolicy<any> | FieldReadFunction<any>,
+	name?: FieldPolicy<any> | FieldReadFunction<any>,
+	youtube_url?: FieldPolicy<any> | FieldReadFunction<any>
+};
 export type NftApprovalKeySpecifier = ('expires' | 'spender' | NftApprovalKeySpecifier)[];
 export type NftApprovalFieldPolicy = {
 	expires?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -580,9 +606,11 @@ export type NftContractInfoFieldPolicy = {
 	name?: FieldPolicy<any> | FieldReadFunction<any>,
 	symbol?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type NftInfoKeySpecifier = ('extension' | 'token_uri' | NftInfoKeySpecifier)[];
+export type NftInfoKeySpecifier = ('extension' | 'metadata' | 'tokenId' | 'token_uri' | NftInfoKeySpecifier)[];
 export type NftInfoFieldPolicy = {
 	extension?: FieldPolicy<any> | FieldReadFunction<any>,
+	metadata?: FieldPolicy<any> | FieldReadFunction<any>,
+	tokenId?: FieldPolicy<any> | FieldReadFunction<any>,
 	token_uri?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type NftOwnerInfoKeySpecifier = ('approvals' | 'owner' | NftOwnerInfoKeySpecifier)[];
@@ -594,12 +622,12 @@ export type PercentRateKeySpecifier = ('decimal' | PercentRateKeySpecifier)[];
 export type PercentRateFieldPolicy = {
 	decimal?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type PrimitiveAdoKeySpecifier = ('address' | 'andr' | 'getValue' | 'type' | PrimitiveAdoKeySpecifier)[];
+export type PrimitiveAdoKeySpecifier = ('address' | 'andr' | 'chainId' | 'getValue' | PrimitiveAdoKeySpecifier)[];
 export type PrimitiveAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
-	getValue?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
+	getValue?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type PrimitiveResponseKeySpecifier = ('key' | 'value' | PrimitiveResponseKeySpecifier)[];
 export type PrimitiveResponseFieldPolicy = {
@@ -633,20 +661,20 @@ export type RateInfoFieldPolicy = {
 	rate?: FieldPolicy<any> | FieldReadFunction<any>,
 	receivers?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type RateLimitingWithdrawalsAdoKeySpecifier = ('accountDetails' | 'address' | 'andr' | 'coinAllowanceDetails' | 'type' | RateLimitingWithdrawalsAdoKeySpecifier)[];
+export type RateLimitingWithdrawalsAdoKeySpecifier = ('accountDetails' | 'address' | 'andr' | 'chainId' | 'coinAllowanceDetails' | RateLimitingWithdrawalsAdoKeySpecifier)[];
 export type RateLimitingWithdrawalsAdoFieldPolicy = {
 	accountDetails?: FieldPolicy<any> | FieldReadFunction<any>,
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
-	coinAllowanceDetails?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
+	coinAllowanceDetails?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type RatesAdoKeySpecifier = ('address' | 'andr' | 'payments' | 'type' | RatesAdoKeySpecifier)[];
+export type RatesAdoKeySpecifier = ('address' | 'andr' | 'chainId' | 'payments' | RatesAdoKeySpecifier)[];
 export type RatesAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
-	payments?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
+	payments?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type SaleIdsKeySpecifier = ('sale_ids' | SaleIdsKeySpecifier)[];
 export type SaleIdsFieldPolicy = {
@@ -658,11 +686,14 @@ export type SaleInfoFieldPolicy = {
 	token_address?: FieldPolicy<any> | FieldReadFunction<any>,
 	token_id?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type SaleResponseKeySpecifier = ('amount' | 'exchange_rate' | 'recipient' | SaleResponseKeySpecifier)[];
+export type SaleResponseKeySpecifier = ('amount' | 'end_time' | 'exchange_rate' | 'recipient' | 'start_amount' | 'start_time' | SaleResponseKeySpecifier)[];
 export type SaleResponseFieldPolicy = {
 	amount?: FieldPolicy<any> | FieldReadFunction<any>,
+	end_time?: FieldPolicy<any> | FieldReadFunction<any>,
 	exchange_rate?: FieldPolicy<any> | FieldReadFunction<any>,
-	recipient?: FieldPolicy<any> | FieldReadFunction<any>
+	recipient?: FieldPolicy<any> | FieldReadFunction<any>,
+	start_amount?: FieldPolicy<any> | FieldReadFunction<any>,
+	start_time?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type SaleStateResponseKeySpecifier = ('coin_denom' | 'price' | 'sale_id' | 'status' | SaleStateResponseKeySpecifier)[];
 export type SaleStateResponseFieldPolicy = {
@@ -676,12 +707,12 @@ export type SplitterFieldPolicy = {
 	lock?: FieldPolicy<any> | FieldReadFunction<any>,
 	recipients?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type SplitterAdoKeySpecifier = ('address' | 'andr' | 'config' | 'type' | SplitterAdoKeySpecifier)[];
+export type SplitterAdoKeySpecifier = ('address' | 'andr' | 'chainId' | 'config' | SplitterAdoKeySpecifier)[];
 export type SplitterAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
-	config?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
+	config?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type StakerResponseKeySpecifier = ('address' | 'pending_rewards' | 'share' | StakerResponseKeySpecifier)[];
 export type StakerResponseFieldPolicy = {
@@ -704,25 +735,17 @@ export type SummaryFieldsFieldPolicy = {
 	high_bidder_amount?: FieldPolicy<any> | FieldReadFunction<any>,
 	min_bid?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type TimelockAdoKeySpecifier = ('address' | 'andr' | 'getLockedFunds' | 'getLockedFundsForRecipient' | 'type' | TimelockAdoKeySpecifier)[];
+export type TimelockAdoKeySpecifier = ('address' | 'andr' | 'chainId' | 'getLockedFunds' | 'getLockedFundsForRecipient' | TimelockAdoKeySpecifier)[];
 export type TimelockAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	getLockedFunds?: FieldPolicy<any> | FieldReadFunction<any>,
-	getLockedFundsForRecipient?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	getLockedFundsForRecipient?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type TokenExtensionKeySpecifier = ('animation_url' | 'attributes' | 'description' | 'external_url' | 'image' | 'image_data' | 'name' | 'publisher' | 'youtube_url' | TokenExtensionKeySpecifier)[];
+export type TokenExtensionKeySpecifier = ('publisher' | TokenExtensionKeySpecifier)[];
 export type TokenExtensionFieldPolicy = {
-	animation_url?: FieldPolicy<any> | FieldReadFunction<any>,
-	attributes?: FieldPolicy<any> | FieldReadFunction<any>,
-	description?: FieldPolicy<any> | FieldReadFunction<any>,
-	external_url?: FieldPolicy<any> | FieldReadFunction<any>,
-	image?: FieldPolicy<any> | FieldReadFunction<any>,
-	image_data?: FieldPolicy<any> | FieldReadFunction<any>,
-	name?: FieldPolicy<any> | FieldReadFunction<any>,
-	publisher?: FieldPolicy<any> | FieldReadFunction<any>,
-	youtube_url?: FieldPolicy<any> | FieldReadFunction<any>
+	publisher?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type TokenInfoKeySpecifier = ('decimals' | 'name' | 'symbol' | 'total_supply' | TokenInfoKeySpecifier)[];
 export type TokenInfoFieldPolicy = {
@@ -746,7 +769,7 @@ export type TxEventAttributeFieldPolicy = {
 	key?: FieldPolicy<any> | FieldReadFunction<any>,
 	value?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type TxInfoKeySpecifier = ('code' | 'events' | 'gasUsed' | 'gasWanted' | 'hash' | 'height' | 'rawLog' | 'tx' | 'txLog' | TxInfoKeySpecifier)[];
+export type TxInfoKeySpecifier = ('code' | 'events' | 'gasUsed' | 'gasWanted' | 'hash' | 'height' | 'msgResponses' | 'rawLog' | 'tx' | 'txIndex' | 'txLog' | TxInfoKeySpecifier)[];
 export type TxInfoFieldPolicy = {
 	code?: FieldPolicy<any> | FieldReadFunction<any>,
 	events?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -754,21 +777,29 @@ export type TxInfoFieldPolicy = {
 	gasWanted?: FieldPolicy<any> | FieldReadFunction<any>,
 	hash?: FieldPolicy<any> | FieldReadFunction<any>,
 	height?: FieldPolicy<any> | FieldReadFunction<any>,
+	msgResponses?: FieldPolicy<any> | FieldReadFunction<any>,
 	rawLog?: FieldPolicy<any> | FieldReadFunction<any>,
 	tx?: FieldPolicy<any> | FieldReadFunction<any>,
+	txIndex?: FieldPolicy<any> | FieldReadFunction<any>,
 	txLog?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type TxLogKeySpecifier = ('events' | TxLogKeySpecifier)[];
 export type TxLogFieldPolicy = {
 	events?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type TxSearchResultKeySpecifier = ('byAccount' | 'byContract' | 'byHash' | 'byHeight' | 'byOwner' | 'byTag' | 'chainId' | TxSearchResultKeySpecifier)[];
+export type TxMsgResponsesKeySpecifier = ('typeUrl' | 'value' | TxMsgResponsesKeySpecifier)[];
+export type TxMsgResponsesFieldPolicy = {
+	typeUrl?: FieldPolicy<any> | FieldReadFunction<any>,
+	value?: FieldPolicy<any> | FieldReadFunction<any>
+};
+export type TxSearchResultKeySpecifier = ('byAccount' | 'byContract' | 'byHash' | 'byHeight' | 'byOwner' | 'byRawString' | 'byTag' | 'chainId' | TxSearchResultKeySpecifier)[];
 export type TxSearchResultFieldPolicy = {
 	byAccount?: FieldPolicy<any> | FieldReadFunction<any>,
 	byContract?: FieldPolicy<any> | FieldReadFunction<any>,
 	byHash?: FieldPolicy<any> | FieldReadFunction<any>,
 	byHeight?: FieldPolicy<any> | FieldReadFunction<any>,
 	byOwner?: FieldPolicy<any> | FieldReadFunction<any>,
+	byRawString?: FieldPolicy<any> | FieldReadFunction<any>,
 	byTag?: FieldPolicy<any> | FieldReadFunction<any>,
 	chainId?: FieldPolicy<any> | FieldReadFunction<any>
 };
@@ -777,22 +808,22 @@ export type UserWeightResponseFieldPolicy = {
 	total_weight?: FieldPolicy<any> | FieldReadFunction<any>,
 	weight?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type VaultAdoKeySpecifier = ('address' | 'andr' | 'balance' | 'strategyAddress' | 'type' | VaultAdoKeySpecifier)[];
+export type VaultAdoKeySpecifier = ('address' | 'andr' | 'balance' | 'chainId' | 'strategyAddress' | VaultAdoKeySpecifier)[];
 export type VaultAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
 	balance?: FieldPolicy<any> | FieldReadFunction<any>,
-	strategyAddress?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
+	strategyAddress?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type VestingAdoKeySpecifier = ('address' | 'andr' | 'batch' | 'batches' | 'config' | 'type' | VestingAdoKeySpecifier)[];
+export type VestingAdoKeySpecifier = ('address' | 'andr' | 'batch' | 'batches' | 'chainId' | 'config' | VestingAdoKeySpecifier)[];
 export type VestingAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
 	batch?: FieldPolicy<any> | FieldReadFunction<any>,
 	batches?: FieldPolicy<any> | FieldReadFunction<any>,
-	config?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
+	config?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type VestingBatchInfoKeySpecifier = ('amount' | 'amount_available_to_claim' | 'amount_claimed' | 'id' | 'last_claimed_release_time' | 'lockup_end' | 'number_of_available_claims' | 'release_amount' | 'release_unit' | VestingBatchInfoKeySpecifier)[];
 export type VestingBatchInfoFieldPolicy = {
@@ -824,13 +855,13 @@ export type WasmContractFieldPolicy = {
 	queries_expected?: FieldPolicy<any> | FieldReadFunction<any>,
 	queryMsg?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type WeightedDistributionSplitterAdoKeySpecifier = ('address' | 'andr' | 'config' | 'getUserWeight' | 'type' | WeightedDistributionSplitterAdoKeySpecifier)[];
+export type WeightedDistributionSplitterAdoKeySpecifier = ('address' | 'andr' | 'chainId' | 'config' | 'getUserWeight' | WeightedDistributionSplitterAdoKeySpecifier)[];
 export type WeightedDistributionSplitterAdoFieldPolicy = {
 	address?: FieldPolicy<any> | FieldReadFunction<any>,
 	andr?: FieldPolicy<any> | FieldReadFunction<any>,
+	chainId?: FieldPolicy<any> | FieldReadFunction<any>,
 	config?: FieldPolicy<any> | FieldReadFunction<any>,
-	getUserWeight?: FieldPolicy<any> | FieldReadFunction<any>,
-	type?: FieldPolicy<any> | FieldReadFunction<any>
+	getUserWeight?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type StrictTypedTypePolicies = {
 	ADOPQuery?: Omit<TypePolicy, "fields" | "keyFields"> & {
@@ -880,6 +911,10 @@ export type StrictTypedTypePolicies = {
 	AdoQuery?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | AdoQueryKeySpecifier | (() => undefined | AdoQueryKeySpecifier),
 		fields?: AdoQueryFieldPolicy,
+	},
+	AdoSmartResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
+		keyFields?: false | AdoSmartResponseKeySpecifier | (() => undefined | AdoSmartResponseKeySpecifier),
+		fields?: AdoSmartResponseFieldPolicy,
 	},
 	Agreement?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | AgreementKeySpecifier | (() => undefined | AgreementKeySpecifier),
@@ -1013,6 +1048,10 @@ export type StrictTypedTypePolicies = {
 		keyFields?: false | CrowdfundConfigKeySpecifier | (() => undefined | CrowdfundConfigKeySpecifier),
 		fields?: CrowdfundConfigFieldPolicy,
 	},
+	CrowdfundRecipient?: Omit<TypePolicy, "fields" | "keyFields"> & {
+		keyFields?: false | CrowdfundRecipientKeySpecifier | (() => undefined | CrowdfundRecipientKeySpecifier),
+		fields?: CrowdfundRecipientFieldPolicy,
+	},
 	CrowdfundState?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | CrowdfundStateKeySpecifier | (() => undefined | CrowdfundStateKeySpecifier),
 		fields?: CrowdfundStateFieldPolicy,
@@ -1108,6 +1147,10 @@ export type StrictTypedTypePolicies = {
 	Mutation?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | MutationKeySpecifier | (() => undefined | MutationKeySpecifier),
 		fields?: MutationFieldPolicy,
+	},
+	NFTMetadata?: Omit<TypePolicy, "fields" | "keyFields"> & {
+		keyFields?: false | NFTMetadataKeySpecifier | (() => undefined | NFTMetadataKeySpecifier),
+		fields?: NFTMetadataFieldPolicy,
 	},
 	NftApproval?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | NftApprovalKeySpecifier | (() => undefined | NftApprovalKeySpecifier),
@@ -1228,6 +1271,10 @@ export type StrictTypedTypePolicies = {
 	TxLog?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | TxLogKeySpecifier | (() => undefined | TxLogKeySpecifier),
 		fields?: TxLogFieldPolicy,
+	},
+	TxMsgResponses?: Omit<TypePolicy, "fields" | "keyFields"> & {
+		keyFields?: false | TxMsgResponsesKeySpecifier | (() => undefined | TxMsgResponsesKeySpecifier),
+		fields?: TxMsgResponsesFieldPolicy,
 	},
 	TxSearchResult?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | TxSearchResultKeySpecifier | (() => undefined | TxSearchResultKeySpecifier),

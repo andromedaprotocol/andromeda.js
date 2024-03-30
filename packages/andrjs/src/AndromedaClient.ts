@@ -476,7 +476,7 @@ export default class AndromedaClient {
   async getBankTxsByAddress(addr: string) {
     this.preMessage();
     const sentQuery = `message.module='bank' AND transfer.sender='${addr}'`;
-    const receivedQuery = `message.module = 'bank' AND transfer.recipient = '${addr}'`;
+    const receivedQuery = `message.module='bank' AND transfer.recipient='${addr}'`;
     const [sent, received] = await Promise.all(
       [sentQuery, receivedQuery].map((rawQuery) => this.chainClient!.queryClient!?.searchTx(rawQuery)),
     );

@@ -31,6 +31,10 @@ const commands: Commands = {
         description: "Filter assets by ADO type",
         usage: "--type cw721",
       },
+      search: {
+        description: "Filter assets by name",
+        usage: "--search name",
+      },
     },
   },
 };
@@ -52,13 +56,15 @@ async function appHandler(input: string[]) {
       components,
     } = app;
 
+    console.log("");
     console.log(`${pc.bold("Owner:")} ${owner}`);
     console.log(`${pc.bold("App Name:")} ${name}`);
     console.log();
     const componentTable = new Table(logTableConfig);
-    console.log(pc.bold("Components"));
+    console.log(pc.bold("Components:\n"));
+    componentTable.push(["Name", "ADO Type", "Address", "Component Type"].map(l => pc.bold(l)));
     components.forEach((comp) => {
-      componentTable.push([comp.name, comp.ado_type, comp.address]);
+      componentTable.push([pc.bold(comp.name), comp.ado_type, comp.address, comp.type]);
     });
     console.log(componentTable.toString());
   } catch (error) {
@@ -79,11 +85,11 @@ async function appHandler(input: string[]) {
 async function assetsHandler(_input: string[], flags: Flags) {
   const walletAddr = State.wallets.currentWalletAddress;
   if (!walletAddr) throw new Error("No wallet currently assigned");
-  const { type } = flags;
+  const { type, search } = flags;
 
   const assets = await displaySpinnerAsync(
     "Searching the Cosmos...",
-    async () => await queryAssets(walletAddr, 0, 0)
+    async () => await queryAssets(walletAddr, 0, 0, IAndrOrderBy.DESC, search, type)
   );
 
   const assetsTable = new Table({
@@ -91,15 +97,20 @@ async function assetsHandler(_input: string[], flags: Flags) {
   });
   assetsTable.push([
     pc.bold("Address"),
+    pc.bold("Name"),
     pc.bold("ADO Type"),
     pc.bold("App Contract"),
   ]);
   assets.forEach((asset) => {
-    if (type && asset.adoType !== type) return;
-    assetsTable.push([asset.address, asset.adoType, asset.appContract ?? ""]);
+    assetsTable.push([asset.address, asset.name ?? "", asset.adoType, asset.appContract ?? ""]);
   });
 
   console.log(assetsTable.toString());
+}
+
+enum IAndrOrderBy {
+  ASC = "Asc",
+  DESC = "Desc"
 }
 
 export default commands;

@@ -1,29 +1,20 @@
-query CODEGEN_GENERATED_ADO_ADDRESS_LIST_ANDR_ISOPERATOR($ADO_address_list_address: String!, $ADO_address_list_address_list_andr_andr_isOperator_address: String!) {
-  ADO {
-    address_list(address: $ADO_address_list_address) {
-      andr {
-        isOperator(address: $ADO_address_list_address_list_andr_andr_isOperator_address)
-      }
-    }
-  }
-}
-
 query CODEGEN_GENERATED_ADO_ADDRESS_LIST_ANDR($ADO_address_list_address: String!) {
   ADO {
     address_list(address: $ADO_address_list_address) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -45,33 +36,7 @@ query CODEGEN_GENERATED_ADO_ADDRESS_LIST($ADO_address_list_address: String!) {
   ADO {
     address_list(address: $ADO_address_list_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_ADO_ANDR_ISOPERATOR($ADO_ado_address: String!, $ADO_ado_ado_andr_andr_isOperator_address: String!) {
-  ADO {
-    ado(address: $ADO_ado_address) {
-      andr {
-        isOperator(address: $ADO_ado_ado_andr_andr_isOperator_address)
-      }
+      chainId
     }
   }
 }
@@ -82,16 +47,17 @@ query CODEGEN_GENERATED_ADO_ADO_ANDR($ADO_ado_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -106,20 +72,32 @@ query CODEGEN_GENERATED_ADO_ADO($ADO_ado_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
-      type
+      chainId
+    }
+  }
+}
+
+query CODEGEN_GENERATED_ADO_ADOSMART($ADO_adoSmart_address: String!, $ADO_adoSmart_query: String!) {
+  ADO {
+    adoSmart(address: $ADO_adoSmart_address, query: $ADO_adoSmart_query) {
+      address
+      adoType
+      query
+      queryResult
     }
   }
 }
@@ -135,32 +113,23 @@ query CODEGEN_GENERATED_ADO_APP_ADDRESSES($ADO_app_address: String!) {
   }
 }
 
-query CODEGEN_GENERATED_ADO_APP_ANDR_ISOPERATOR($ADO_app_address: String!, $ADO_app_app_andr_andr_isOperator_address: String!) {
-  ADO {
-    app(address: $ADO_app_address) {
-      andr {
-        isOperator(address: $ADO_app_app_andr_andr_isOperator_address)
-      }
-    }
-  }
-}
-
 query CODEGEN_GENERATED_ADO_APP_ANDR($ADO_app_address: String!) {
   ADO {
     app(address: $ADO_app_address) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -184,6 +153,7 @@ query CODEGEN_GENERATED_ADO_APP_COMPONENTS($ADO_app_address: String!) {
         ado_type
         instantiate_msg
         name
+        type
       }
     }
   }
@@ -216,42 +186,17 @@ query CODEGEN_GENERATED_ADO_APP($ADO_app_address: String!) {
         address
         name
       }
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       components {
         address
         ado_type
         instantiate_msg
         name
+        type
       }
       config {
         name
         owner
-      }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_AUCTION_ANDR_ISOPERATOR($ADO_auction_address: String!, $ADO_auction_auction_andr_andr_isOperator_address: String!) {
-  ADO {
-    auction(address: $ADO_auction_address) {
-      andr {
-        isOperator(address: $ADO_auction_auction_andr_andr_isOperator_address)
       }
     }
   }
@@ -263,16 +208,17 @@ query CODEGEN_GENERATED_ADO_AUCTION_ANDR($ADO_auction_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -319,7 +265,6 @@ query CODEGEN_GENERATED_ADO_AUCTION_AUCTIONSTATE($ADO_auction_address: String!, 
         is_cancelled
         min_bid
         start_time
-        summaryFields
         whitelist
       }
     }
@@ -375,7 +320,6 @@ query CODEGEN_GENERATED_ADO_AUCTION_LATESTAUCTIONSTATE($ADO_auction_address: Str
         is_cancelled
         min_bid
         start_time
-        summaryFields
         whitelist
       }
     }
@@ -398,34 +342,14 @@ query CODEGEN_GENERATED_ADO_AUCTION($ADO_auction_address: String!) {
   ADO {
     auction(address: $ADO_auction_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
+      chainId
     }
   }
 }
 
-query CODEGEN_GENERATED_ADO_CROWDFUND_ANDR_ISOPERATOR($ADO_crowdfund_address: String!, $ADO_crowdfund_crowdfund_andr_andr_isOperator_address: String!) {
+query CODEGEN_GENERATED_ADO_CHAINID($ADO_chainId_address: String!) {
   ADO {
-    crowdfund(address: $ADO_crowdfund_address) {
-      andr {
-        isOperator(address: $ADO_crowdfund_crowdfund_andr_andr_isOperator_address)
-      }
-    }
+    chainId(address: $ADO_chainId_address)
   }
 }
 
@@ -435,16 +359,17 @@ query CODEGEN_GENERATED_ADO_CROWDFUND_ANDR($ADO_crowdfund_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -484,6 +409,20 @@ query CODEGEN_GENERATED_ADO_CROWDFUND_STATE_PRICE($ADO_crowdfund_address: String
   }
 }
 
+query CODEGEN_GENERATED_ADO_CROWDFUND_STATE_RECIPIENT($ADO_crowdfund_address: String!) {
+  ADO {
+    crowdfund(address: $ADO_crowdfund_address) {
+      state {
+        recipient {
+          address
+          ibc_recovery_address
+          msg
+        }
+      }
+    }
+  }
+}
+
 query CODEGEN_GENERATED_ADO_CROWDFUND_STATE($ADO_crowdfund_address: String!) {
   ADO {
     crowdfund(address: $ADO_crowdfund_address) {
@@ -491,14 +430,18 @@ query CODEGEN_GENERATED_ADO_CROWDFUND_STATE($ADO_crowdfund_address: String!) {
         amount_sold
         amount_to_send
         amount_transferred
-        expiration
+        end_time
         max_amount_per_wallet
         min_tokens_sold
         price {
           amount
           denom
         }
-        recipient
+        recipient {
+          address
+          ibc_recovery_address
+          msg
+        }
       }
     }
   }
@@ -508,23 +451,8 @@ query CODEGEN_GENERATED_ADO_CROWDFUND($ADO_crowdfund_address: String!) {
   ADO {
     crowdfund(address: $ADO_crowdfund_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
       availableTokens
+      chainId
       config {
         can_mint_after_sale
         token_address
@@ -533,16 +461,19 @@ query CODEGEN_GENERATED_ADO_CROWDFUND($ADO_crowdfund_address: String!) {
         amount_sold
         amount_to_send
         amount_transferred
-        expiration
+        end_time
         max_amount_per_wallet
         min_tokens_sold
         price {
           amount
           denom
         }
-        recipient
+        recipient {
+          address
+          ibc_recovery_address
+          msg
+        }
       }
-      type
     }
   }
 }
@@ -603,32 +534,23 @@ query CODEGEN_GENERATED_ADO_CW20_ALLOWANCE($ADO_cw20_address: String!, $ADO_cw20
   }
 }
 
-query CODEGEN_GENERATED_ADO_CW20_ANDR_ISOPERATOR($ADO_cw20_address: String!, $ADO_cw20_cw20_andr_andr_isOperator_address: String!) {
-  ADO {
-    cw20(address: $ADO_cw20_address) {
-      andr {
-        isOperator(address: $ADO_cw20_cw20_andr_andr_isOperator_address)
-      }
-    }
-  }
-}
-
 query CODEGEN_GENERATED_ADO_CW20_ANDR($ADO_cw20_address: String!) {
   ADO {
     cw20(address: $ADO_cw20_address) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -659,7 +581,6 @@ query CODEGEN_GENERATED_ADO_CW20_MARKETINGINFO($ADO_cw20_address: String!) {
   ADO {
     cw20(address: $ADO_cw20_address) {
       marketingInfo {
-        allowance
         description
         logo
         marketing
@@ -697,28 +618,12 @@ query CODEGEN_GENERATED_ADO_CW20($ADO_cw20_address: String!) {
   ADO {
     cw20(address: $ADO_cw20_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       downloadLogo {
         data
         mime_type
       }
       marketingInfo {
-        allowance
         description
         logo
         marketing
@@ -734,19 +639,6 @@ query CODEGEN_GENERATED_ADO_CW20($ADO_cw20_address: String!) {
         symbol
         total_supply
       }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_CW20_EXCHANGE_ANDR_ISOPERATOR($ADO_cw20_exchange_address: String!, $ADO_cw20_exchange_cw20_exchange_andr_andr_isOperator_address: String!) {
-  ADO {
-    cw20_exchange(address: $ADO_cw20_exchange_address) {
-      andr {
-        isOperator(
-          address: $ADO_cw20_exchange_cw20_exchange_andr_andr_isOperator_address
-        )
-      }
     }
   }
 }
@@ -757,16 +649,17 @@ query CODEGEN_GENERATED_ADO_CW20_EXCHANGE_ANDR($ADO_cw20_exchange_address: Strin
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -782,8 +675,11 @@ query CODEGEN_GENERATED_ADO_CW20_EXCHANGE_SALE($ADO_cw20_exchange_address: Strin
         native: $ADO_cw20_exchange_cw20_exchange_sale_native
       ) {
         amount
+        end_time
         exchange_rate
         recipient
+        start_amount
+        start_time
       }
     }
   }
@@ -801,34 +697,8 @@ query CODEGEN_GENERATED_ADO_CW20_EXCHANGE($ADO_cw20_exchange_address: String!) {
   ADO {
     cw20_exchange(address: $ADO_cw20_exchange_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       tokenAddress
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_CW20_STAKING_ANDR_ISOPERATOR($ADO_cw20_staking_address: String!, $ADO_cw20_staking_cw20_staking_andr_andr_isOperator_address: String!) {
-  ADO {
-    cw20_staking(address: $ADO_cw20_staking_address) {
-      andr {
-        isOperator(address: $ADO_cw20_staking_cw20_staking_andr_andr_isOperator_address)
-      }
     }
   }
 }
@@ -839,16 +709,17 @@ query CODEGEN_GENERATED_ADO_CW20_STAKING_ANDR($ADO_cw20_staking_address: String!
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -919,22 +790,7 @@ query CODEGEN_GENERATED_ADO_CW20_STAKING($ADO_cw20_staking_address: String!) {
   ADO {
     cw20_staking(address: $ADO_cw20_staking_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       config {
         number_of_reward_tokens
         staking_token {
@@ -945,7 +801,6 @@ query CODEGEN_GENERATED_ADO_CW20_STAKING($ADO_cw20_staking_address: String!) {
         total_share
       }
       timestamp
-      type
     }
   }
 }
@@ -987,7 +842,7 @@ query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_ACCESS($ADO_cw721_address: String!,
   }
 }
 
-query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
+query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       allNftInfo(
@@ -996,6 +851,23 @@ query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION_ATTRIBUTES($ADO_cw72
       ) {
         info {
           extension {
+            publisher
+          }
+        }
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      allNftInfo(
+        includeExpired: $ADO_cw721_cw721_allNftInfo_includeExpired
+        tokenId: $ADO_cw721_cw721_allNftInfo_tokenId
+      ) {
+        info {
+          metadata {
             attributes {
               display_type
               trait_type
@@ -1008,7 +880,7 @@ query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION_ATTRIBUTES($ADO_cw72
   }
 }
 
-query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
+query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       allNftInfo(
@@ -1016,19 +888,19 @@ query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION($ADO_cw721_address: 
         tokenId: $ADO_cw721_cw721_allNftInfo_tokenId
       ) {
         info {
-          extension {
+          metadata {
             animation_url
             attributes {
               display_type
               trait_type
               value
             }
+            background_color
             description
             external_url
             image
             image_data
             name
-            publisher
             youtube_url
           }
         }
@@ -1046,20 +918,24 @@ query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO($ADO_cw721_address: String!, $
       ) {
         info {
           extension {
+            publisher
+          }
+          metadata {
             animation_url
             attributes {
               display_type
               trait_type
               value
             }
+            background_color
             description
             external_url
             image
             image_data
             name
-            publisher
             youtube_url
           }
+          tokenId
           token_uri
         }
       }
@@ -1083,20 +959,24 @@ query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO($ADO_cw721_address: String!, $ADO_c
         }
         info {
           extension {
+            publisher
+          }
+          metadata {
             animation_url
             attributes {
               display_type
               trait_type
               value
             }
+            background_color
             description
             external_url
             image
             image_data
             name
-            publisher
             youtube_url
           }
+          tokenId
           token_uri
         }
       }
@@ -1127,32 +1007,23 @@ query CODEGEN_GENERATED_ADO_CW721_ALLTOKENS($ADO_cw721_address: String!, $ADO_cw
   }
 }
 
-query CODEGEN_GENERATED_ADO_CW721_ANDR_ISOPERATOR($ADO_cw721_address: String!, $ADO_cw721_cw721_andr_andr_isOperator_address: String!) {
-  ADO {
-    cw721(address: $ADO_cw721_address) {
-      andr {
-        isOperator(address: $ADO_cw721_cw721_andr_andr_isOperator_address)
-      }
-    }
-  }
-}
-
 query CODEGEN_GENERATED_ADO_CW721_ANDR($ADO_cw721_address: String!) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -1208,11 +1079,23 @@ query CODEGEN_GENERATED_ADO_CW721_ISARCHIVED($ADO_cw721_address: String!, $ADO_c
   }
 }
 
-query CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
+query CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
         extension {
+          publisher
+        }
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
+        metadata {
           attributes {
             display_type
             trait_type
@@ -1224,23 +1107,23 @@ query CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION_ATTRIBUTES($ADO_cw721_addres
   }
 }
 
-query CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
+query CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
-        extension {
+        metadata {
           animation_url
           attributes {
             display_type
             trait_type
             value
           }
+          background_color
           description
           external_url
           image
           image_data
           name
-          publisher
           youtube_url
         }
       }
@@ -1253,20 +1136,24 @@ query CODEGEN_GENERATED_ADO_CW721_NFTINFO($ADO_cw721_address: String!, $ADO_cw72
     cw721(address: $ADO_cw721_address) {
       nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
         extension {
+          publisher
+        }
+        metadata {
           animation_url
           attributes {
             display_type
             trait_type
             value
           }
+          background_color
           description
           external_url
           image
           image_data
           name
-          publisher
           youtube_url
         }
+        tokenId
         token_uri
       }
     }
@@ -1314,11 +1201,23 @@ query CODEGEN_GENERATED_ADO_CW721_OWNEROF($ADO_cw721_address: String!, $ADO_cw72
   }
 }
 
-query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
+query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
         extension {
+          publisher
+        }
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
+        metadata {
           attributes {
             display_type
             trait_type
@@ -1330,23 +1229,23 @@ query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION_ATTRIBUTES($ADO_cw721_a
   }
 }
 
-query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
+query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
-        extension {
+        metadata {
           animation_url
           attributes {
             display_type
             trait_type
             value
           }
+          background_color
           description
           external_url
           image
           image_data
           name
-          publisher
           youtube_url
         }
       }
@@ -1359,20 +1258,24 @@ query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS($ADO_cw721_address: String!, $ADO
     cw721(address: $ADO_cw721_address) {
       searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
         extension {
+          publisher
+        }
+        metadata {
           animation_url
           attributes {
             display_type
             trait_type
             value
           }
+          background_color
           description
           external_url
           image
           image_data
           name
-          publisher
           youtube_url
         }
+        tokenId
         token_uri
       }
     }
@@ -1465,39 +1368,13 @@ query CODEGEN_GENERATED_ADO_CW721($ADO_cw721_address: String!) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       contractInfo {
         name
         symbol
       }
       minter
       numTokens
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_FACTORY_ANDR_ISOPERATOR($ADO_factory_address: String!, $ADO_factory_factory_andr_andr_isOperator_address: String!) {
-  ADO {
-    factory(address: $ADO_factory_address) {
-      andr {
-        isOperator(address: $ADO_factory_factory_andr_andr_isOperator_address)
-      }
     }
   }
 }
@@ -1508,16 +1385,17 @@ query CODEGEN_GENERATED_ADO_FACTORY_ANDR($ADO_factory_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -1537,33 +1415,7 @@ query CODEGEN_GENERATED_ADO_FACTORY($ADO_factory_address: String!) {
   ADO {
     factory(address: $ADO_factory_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_LOCKDROP_ANDR_ISOPERATOR($ADO_lockdrop_address: String!, $ADO_lockdrop_lockdrop_andr_andr_isOperator_address: String!) {
-  ADO {
-    lockdrop(address: $ADO_lockdrop_address) {
-      andr {
-        isOperator(address: $ADO_lockdrop_lockdrop_andr_andr_isOperator_address)
-      }
+      chainId
     }
   }
 }
@@ -1574,16 +1426,17 @@ query CODEGEN_GENERATED_ADO_LOCKDROP_ANDR($ADO_lockdrop_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -1644,22 +1497,7 @@ query CODEGEN_GENERATED_ADO_LOCKDROP($ADO_lockdrop_address: String!) {
   ADO {
     lockdrop(address: $ADO_lockdrop_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       config {
         deposit_window
         incentive_token
@@ -1672,17 +1510,6 @@ query CODEGEN_GENERATED_ADO_LOCKDROP($ADO_lockdrop_address: String!) {
         are_claims_allowed
         total_native_locked
       }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_MARKETPLACE_ANDR_ISOPERATOR($ADO_marketplace_address: String!, $ADO_marketplace_marketplace_andr_andr_isOperator_address: String!) {
-  ADO {
-    marketplace(address: $ADO_marketplace_address) {
-      andr {
-        isOperator(address: $ADO_marketplace_marketplace_andr_andr_isOperator_address)
-      }
     }
   }
 }
@@ -1693,16 +1520,17 @@ query CODEGEN_GENERATED_ADO_MARKETPLACE_ANDR($ADO_marketplace_address: String!) 
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -1771,35 +1599,7 @@ query CODEGEN_GENERATED_ADO_MARKETPLACE($ADO_marketplace_address: String!) {
   ADO {
     marketplace(address: $ADO_marketplace_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_MERKLE_AIRDROP_ANDR_ISOPERATOR($ADO_merkle_airdrop_address: String!, $ADO_merkle_airdrop_merkle_airdrop_andr_andr_isOperator_address: String!) {
-  ADO {
-    merkle_airdrop(address: $ADO_merkle_airdrop_address) {
-      andr {
-        isOperator(
-          address: $ADO_merkle_airdrop_merkle_airdrop_andr_andr_isOperator_address
-        )
-      }
+      chainId
     }
   }
 }
@@ -1810,16 +1610,17 @@ query CODEGEN_GENERATED_ADO_MERKLE_AIRDROP_ANDR($ADO_merkle_airdrop_address: Str
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -1873,37 +1674,11 @@ query CODEGEN_GENERATED_ADO_MERKLE_AIRDROP($ADO_merkle_airdrop_address: String!)
   ADO {
     merkle_airdrop(address: $ADO_merkle_airdrop_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       config {
         asset_info
       }
       latestStage
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_PRIMITIVE_ANDR_ISOPERATOR($ADO_primitive_address: String!, $ADO_primitive_primitive_andr_andr_isOperator_address: String!) {
-  ADO {
-    primitive(address: $ADO_primitive_address) {
-      andr {
-        isOperator(address: $ADO_primitive_primitive_andr_andr_isOperator_address)
-      }
     }
   }
 }
@@ -1914,16 +1689,17 @@ query CODEGEN_GENERATED_ADO_PRIMITIVE_ANDR($ADO_primitive_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -1946,23 +1722,7 @@ query CODEGEN_GENERATED_ADO_PRIMITIVE($ADO_primitive_address: String!) {
   ADO {
     primitive(address: $ADO_primitive_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
+      chainId
     }
   }
 }
@@ -1978,34 +1738,23 @@ query CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ACCOUNTDETAILS($ADO_rate_l
   }
 }
 
-query CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ANDR_ISOPERATOR($ADO_rate_limiting_withdrawals_address: String!, $ADO_rate_limiting_withdrawals_rate_limiting_withdrawals_andr_andr_isOperator_address: String!) {
-  ADO {
-    rate_limiting_withdrawals(address: $ADO_rate_limiting_withdrawals_address) {
-      andr {
-        isOperator(
-          address: $ADO_rate_limiting_withdrawals_rate_limiting_withdrawals_andr_andr_isOperator_address
-        )
-      }
-    }
-  }
-}
-
 query CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ANDR($ADO_rate_limiting_withdrawals_address: String!) {
   ADO {
     rate_limiting_withdrawals(address: $ADO_rate_limiting_withdrawals_address) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2033,37 +1782,11 @@ query CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS($ADO_rate_limiting_withdra
         latest_withdrawal
       }
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       coinAllowanceDetails {
         coin
         limit
         minimal_withdrawal_frequency
-      }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_RATES_ANDR_ISOPERATOR($ADO_rates_address: String!, $ADO_rates_rates_andr_andr_isOperator_address: String!) {
-  ADO {
-    rates(address: $ADO_rates_address) {
-      andr {
-        isOperator(address: $ADO_rates_rates_andr_andr_isOperator_address)
       }
     }
   }
@@ -2075,16 +1798,17 @@ query CODEGEN_GENERATED_ADO_RATES_ANDR($ADO_rates_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2187,22 +1911,7 @@ query CODEGEN_GENERATED_ADO_RATES($ADO_rates_address: String!) {
   ADO {
     rates(address: $ADO_rates_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       payments {
         description
         is_additive
@@ -2221,17 +1930,6 @@ query CODEGEN_GENERATED_ADO_RATES($ADO_rates_address: String!) {
         }
         receivers
       }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_SPLITTER_ANDR_ISOPERATOR($ADO_splitter_address: String!, $ADO_splitter_splitter_andr_andr_isOperator_address: String!) {
-  ADO {
-    splitter(address: $ADO_splitter_address) {
-      andr {
-        isOperator(address: $ADO_splitter_splitter_andr_andr_isOperator_address)
-      }
     }
   }
 }
@@ -2242,16 +1940,17 @@ query CODEGEN_GENERATED_ADO_SPLITTER_ANDR($ADO_splitter_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2290,39 +1989,13 @@ query CODEGEN_GENERATED_ADO_SPLITTER($ADO_splitter_address: String!) {
   ADO {
     splitter(address: $ADO_splitter_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       config {
         lock
         recipients {
           percent
           recipient
         }
-      }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_TIMELOCK_ANDR_ISOPERATOR($ADO_timelock_address: String!, $ADO_timelock_timelock_andr_andr_isOperator_address: String!) {
-  ADO {
-    timelock(address: $ADO_timelock_address) {
-      andr {
-        isOperator(address: $ADO_timelock_timelock_andr_andr_isOperator_address)
       }
     }
   }
@@ -2334,16 +2007,17 @@ query CODEGEN_GENERATED_ADO_TIMELOCK_ANDR($ADO_timelock_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2509,33 +2183,7 @@ query CODEGEN_GENERATED_ADO_TIMELOCK($ADO_timelock_address: String!) {
   ADO {
     timelock(address: $ADO_timelock_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_VAULT_ANDR_ISOPERATOR($ADO_vault_address: String!, $ADO_vault_vault_andr_andr_isOperator_address: String!) {
-  ADO {
-    vault(address: $ADO_vault_address) {
-      andr {
-        isOperator(address: $ADO_vault_vault_andr_andr_isOperator_address)
-      }
+      chainId
     }
   }
 }
@@ -2546,16 +2194,17 @@ query CODEGEN_GENERATED_ADO_VAULT_ANDR($ADO_vault_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2589,33 +2238,7 @@ query CODEGEN_GENERATED_ADO_VAULT($ADO_vault_address: String!) {
   ADO {
     vault(address: $ADO_vault_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_VESTING_ANDR_ISOPERATOR($ADO_vesting_address: String!, $ADO_vesting_vesting_andr_andr_isOperator_address: String!) {
-  ADO {
-    vesting(address: $ADO_vesting_address) {
-      andr {
-        isOperator(address: $ADO_vesting_vesting_andr_andr_isOperator_address)
-      }
+      chainId
     }
   }
 }
@@ -2626,16 +2249,17 @@ query CODEGEN_GENERATED_ADO_VESTING_ANDR($ADO_vesting_address: String!) {
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2696,22 +2320,6 @@ query CODEGEN_GENERATED_ADO_VESTING($ADO_vesting_address: String!) {
   ADO {
     vesting(address: $ADO_vesting_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
       batches {
         amount
         amount_available_to_claim
@@ -2723,26 +2331,12 @@ query CODEGEN_GENERATED_ADO_VESTING($ADO_vesting_address: String!) {
         release_amount
         release_unit
       }
+      chainId
       config {
         denom
         is_multi_batch_enabled
         recipient
         unbonding_duration
-      }
-      type
-    }
-  }
-}
-
-query CODEGEN_GENERATED_ADO_WEIGHTED_DISTRIBUTION_SPLITTER_ANDR_ISOPERATOR($ADO_weighted_distribution_splitter_address: String!, $ADO_weighted_distribution_splitter_weighted_distribution_splitter_andr_andr_isOperator_address: String!) {
-  ADO {
-    weighted_distribution_splitter(
-      address: $ADO_weighted_distribution_splitter_address
-    ) {
-      andr {
-        isOperator(
-          address: $ADO_weighted_distribution_splitter_weighted_distribution_splitter_andr_andr_isOperator_address
-        )
       }
     }
   }
@@ -2756,16 +2350,17 @@ query CODEGEN_GENERATED_ADO_WEIGHTED_DISTRIBUTION_SPLITTER_ANDR($ADO_weighted_di
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2825,22 +2420,7 @@ query CODEGEN_GENERATED_ADO_WEIGHTED_DISTRIBUTION_SPLITTER($ADO_weighted_distrib
       address: $ADO_weighted_distribution_splitter_address
     ) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       config {
         lock
         recipients {
@@ -2848,7 +2428,6 @@ query CODEGEN_GENERATED_ADO_WEIGHTED_DISTRIBUTION_SPLITTER($ADO_weighted_distrib
           recipient
         }
       }
-      type
     }
   }
 }
@@ -2925,13 +2504,19 @@ query CODEGEN_GENERATED_ADOP {
   }
 }
 
-query CODEGEN_GENERATED_ACCOUNTS_ASSETS_COMPONENTS($accounts_assets_adoType: AdoType, $accounts_assets_limit: Int, $accounts_assets_offset: Int, $accounts_assets_orderBy: AndrOrderBy, $accounts_assets_search: String, $accounts_assets_walletAddress: String!, $accounts_assets_assets_components_componentType: AdoType, $accounts_assets_assets_components_limit: Int, $accounts_assets_assets_components_offset: Int) {
+query CODEGEN_GENERATED_ACCOUNTS_ASSETS_COMPONENTS($accounts_assets_adoType: String, $accounts_assets_appContract: String, $accounts_assets_instantiateOwner: String, $accounts_assets_kernel: String, $accounts_assets_limit: Int!, $accounts_assets_memo: String, $accounts_assets_offset: Int!, $accounts_assets_orderBy: AndrOrderBy, $accounts_assets_owner: String, $accounts_assets_ownershipRequest: String, $accounts_assets_search: String, $accounts_assets_walletAddress: String!, $accounts_assets_assets_components_componentType: AdoType, $accounts_assets_assets_components_limit: Int!, $accounts_assets_assets_components_offset: Int!) {
   accounts {
     assets(
       adoType: $accounts_assets_adoType
+      appContract: $accounts_assets_appContract
+      instantiateOwner: $accounts_assets_instantiateOwner
+      kernel: $accounts_assets_kernel
       limit: $accounts_assets_limit
+      memo: $accounts_assets_memo
       offset: $accounts_assets_offset
       orderBy: $accounts_assets_orderBy
+      owner: $accounts_assets_owner
+      ownershipRequest: $accounts_assets_ownershipRequest
       search: $accounts_assets_search
       walletAddress: $accounts_assets_walletAddress
     ) {
@@ -2949,13 +2534,19 @@ query CODEGEN_GENERATED_ACCOUNTS_ASSETS_COMPONENTS($accounts_assets_adoType: Ado
   }
 }
 
-query CODEGEN_GENERATED_ACCOUNTS_ASSETS($accounts_assets_adoType: AdoType, $accounts_assets_limit: Int, $accounts_assets_offset: Int, $accounts_assets_orderBy: AndrOrderBy, $accounts_assets_search: String, $accounts_assets_walletAddress: String!) {
+query CODEGEN_GENERATED_ACCOUNTS_ASSETS($accounts_assets_adoType: String, $accounts_assets_appContract: String, $accounts_assets_instantiateOwner: String, $accounts_assets_kernel: String, $accounts_assets_limit: Int!, $accounts_assets_memo: String, $accounts_assets_offset: Int!, $accounts_assets_orderBy: AndrOrderBy, $accounts_assets_owner: String, $accounts_assets_ownershipRequest: String, $accounts_assets_search: String, $accounts_assets_walletAddress: String!) {
   accounts {
     assets(
       adoType: $accounts_assets_adoType
+      appContract: $accounts_assets_appContract
+      instantiateOwner: $accounts_assets_instantiateOwner
+      kernel: $accounts_assets_kernel
       limit: $accounts_assets_limit
+      memo: $accounts_assets_memo
       offset: $accounts_assets_offset
       orderBy: $accounts_assets_orderBy
+      owner: $accounts_assets_owner
+      ownershipRequest: $accounts_assets_ownershipRequest
       search: $accounts_assets_search
       walletAddress: $accounts_assets_walletAddress
     ) {
@@ -2963,12 +2554,18 @@ query CODEGEN_GENERATED_ACCOUNTS_ASSETS($accounts_assets_adoType: AdoType, $acco
       adoType
       appContract
       chainId
+      disowned
       instantiateHash
       instantiateHeight
+      instantiateOwner
+      kernel
       lastUpdatedHash
       lastUpdatedHeight
+      memo
+      minter
       name
       owner
+      ownershipRequest
     }
   }
 }
@@ -3007,6 +2604,41 @@ query CODEGEN_GENERATED_CHAINCONFIGS_ALLCONFIGS {
       chainType
       chainUrl
       defaultFee
+      enabled
+      iconUrls {
+        lg
+        sm
+      }
+      kernelAddress
+      name
+      registryAddress
+    }
+  }
+}
+
+query CODEGEN_GENERATED_CHAINCONFIGS_ALLSTOREDCONFIGS_ICONURLS {
+  chainConfigs {
+    allStoredConfigs {
+      iconUrls {
+        lg
+        sm
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_CHAINCONFIGS_ALLSTOREDCONFIGS {
+  chainConfigs {
+    allStoredConfigs {
+      addressPrefix
+      blockExplorerAddressPages
+      blockExplorerTxPages
+      chainId
+      chainName
+      chainType
+      chainUrl
+      defaultFee
+      enabled
       iconUrls {
         lg
         sm
@@ -3040,6 +2672,7 @@ query CODEGEN_GENERATED_CHAINCONFIGS_CONFIG($chainConfigs_config_identifier: Str
       chainType
       chainUrl
       defaultFee
+      enabled
       iconUrls {
         lg
         sm
@@ -3062,6 +2695,25 @@ query CODEGEN_GENERATED_CHAINCONFIGS {
       chainType
       chainUrl
       defaultFee
+      enabled
+      iconUrls {
+        lg
+        sm
+      }
+      kernelAddress
+      name
+      registryAddress
+    }
+    allStoredConfigs {
+      addressPrefix
+      blockExplorerAddressPages
+      blockExplorerTxPages
+      chainId
+      chainName
+      chainType
+      chainUrl
+      defaultFee
+      enabled
       iconUrls {
         lg
         sm
@@ -3084,6 +2736,25 @@ query CODEGEN_GENERATED_CHAINCONFIGS {
       chainType
       chainUrl
       defaultFee
+      enabled
+      iconUrls {
+        lg
+        sm
+      }
+      kernelAddress
+      name
+      registryAddress
+    }
+    allStoredConfigs {
+      addressPrefix
+      blockExplorerAddressPages
+      blockExplorerTxPages
+      chainId
+      chainName
+      chainType
+      chainUrl
+      defaultFee
+      enabled
       iconUrls {
         lg
         sm
@@ -3466,6 +3137,21 @@ query CODEGEN_GENERATED_TX_BYACCOUNT_EVENTS($chainId: String!, $tx_byAccount_max
   }
 }
 
+query CODEGEN_GENERATED_TX_BYACCOUNT_MSGRESPONSES($chainId: String!, $tx_byAccount_maxHeight: Int, $tx_byAccount_minHeight: Int, $tx_byAccount_sentFromOrTo: String!) {
+  tx(chainId: $chainId) {
+    byAccount(
+      maxHeight: $tx_byAccount_maxHeight
+      minHeight: $tx_byAccount_minHeight
+      sentFromOrTo: $tx_byAccount_sentFromOrTo
+    ) {
+      msgResponses {
+        typeUrl
+        value
+      }
+    }
+  }
+}
+
 query CODEGEN_GENERATED_TX_BYACCOUNT_TXLOG_EVENTS_ATTRIBUTES($chainId: String!, $tx_byAccount_maxHeight: Int, $tx_byAccount_minHeight: Int, $tx_byAccount_sentFromOrTo: String!) {
   tx(chainId: $chainId) {
     byAccount(
@@ -3544,8 +3230,13 @@ query CODEGEN_GENERATED_TX_BYACCOUNT($chainId: String!, $tx_byAccount_maxHeight:
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -3589,6 +3280,21 @@ query CODEGEN_GENERATED_TX_BYCONTRACT_EVENTS($chainId: String!, $tx_byContract_a
           value
         }
         type
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYCONTRACT_MSGRESPONSES($chainId: String!, $tx_byContract_address: String!, $tx_byContract_maxHeight: Int, $tx_byContract_minHeight: Int) {
+  tx(chainId: $chainId) {
+    byContract(
+      address: $tx_byContract_address
+      maxHeight: $tx_byContract_maxHeight
+      minHeight: $tx_byContract_minHeight
+    ) {
+      msgResponses {
+        typeUrl
+        value
       }
     }
   }
@@ -3672,8 +3378,13 @@ query CODEGEN_GENERATED_TX_BYCONTRACT($chainId: String!, $tx_byContract_address:
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -3709,6 +3420,17 @@ query CODEGEN_GENERATED_TX_BYHASH_EVENTS($chainId: String!, $tx_byHash_hash: Str
           value
         }
         type
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYHASH_MSGRESPONSES($chainId: String!, $tx_byHash_hash: String!) {
+  tx(chainId: $chainId) {
+    byHash(hash: $tx_byHash_hash) {
+      msgResponses {
+        typeUrl
+        value
       }
     }
   }
@@ -3776,8 +3498,13 @@ query CODEGEN_GENERATED_TX_BYHASH($chainId: String!, $tx_byHash_hash: String!) {
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -3813,6 +3540,17 @@ query CODEGEN_GENERATED_TX_BYHEIGHT_EVENTS($chainId: String!, $tx_byHeight_heigh
           value
         }
         type
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYHEIGHT_MSGRESPONSES($chainId: String!, $tx_byHeight_height: Float!) {
+  tx(chainId: $chainId) {
+    byHeight(height: $tx_byHeight_height) {
+      msgResponses {
+        typeUrl
+        value
       }
     }
   }
@@ -3880,8 +3618,13 @@ query CODEGEN_GENERATED_TX_BYHEIGHT($chainId: String!, $tx_byHeight_height: Floa
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -3925,6 +3668,21 @@ query CODEGEN_GENERATED_TX_BYOWNER_EVENTS($chainId: String!, $tx_byOwner_maxHeig
           value
         }
         type
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYOWNER_MSGRESPONSES($chainId: String!, $tx_byOwner_maxHeight: Int, $tx_byOwner_minHeight: Int, $tx_byOwner_walletAddress: String!) {
+  tx(chainId: $chainId) {
+    byOwner(
+      maxHeight: $tx_byOwner_maxHeight
+      minHeight: $tx_byOwner_minHeight
+      walletAddress: $tx_byOwner_walletAddress
+    ) {
+      msgResponses {
+        typeUrl
+        value
       }
     }
   }
@@ -4008,8 +3766,133 @@ query CODEGEN_GENERATED_TX_BYOWNER($chainId: String!, $tx_byOwner_maxHeight: Int
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
+      txLog {
+        events {
+          attributes {
+            key
+            value
+          }
+          type
+        }
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYRAWSTRING_EVENTS_ATTRIBUTES($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      events {
+        attributes {
+          key
+          value
+        }
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYRAWSTRING_EVENTS($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      events {
+        attributes {
+          key
+          value
+        }
+        type
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYRAWSTRING_MSGRESPONSES($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      msgResponses {
+        typeUrl
+        value
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG_EVENTS_ATTRIBUTES($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      txLog {
+        events {
+          attributes {
+            key
+            value
+          }
+        }
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG_EVENTS($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      txLog {
+        events {
+          attributes {
+            key
+            value
+          }
+          type
+        }
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      txLog {
+        events {
+          attributes {
+            key
+            value
+          }
+          type
+        }
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYRAWSTRING($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      code
+      events {
+        attributes {
+          key
+          value
+        }
+        type
+      }
+      gasUsed
+      gasWanted
+      hash
+      height
+      msgResponses {
+        typeUrl
+        value
+      }
+      rawLog
+      tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -4053,6 +3936,21 @@ query CODEGEN_GENERATED_TX_BYTAG_EVENTS($chainId: String!, $tx_byTag_maxHeight: 
           value
         }
         type
+      }
+    }
+  }
+}
+
+query CODEGEN_GENERATED_TX_BYTAG_MSGRESPONSES($chainId: String!, $tx_byTag_maxHeight: Int, $tx_byTag_minHeight: Int, $tx_byTag_tags: JSON!) {
+  tx(chainId: $chainId) {
+    byTag(
+      maxHeight: $tx_byTag_maxHeight
+      minHeight: $tx_byTag_minHeight
+      tags: $tx_byTag_tags
+    ) {
+      msgResponses {
+        typeUrl
+        value
       }
     }
   }
@@ -4136,8 +4034,13 @@ query CODEGEN_GENERATED_TX_BYTAG($chainId: String!, $tx_byTag_maxHeight: Int, $t
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
       txLog {
         events {
           attributes {

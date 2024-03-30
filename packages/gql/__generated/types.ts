@@ -62,20 +62,27 @@ export type IAccountsQuery = {
 
 
 export type IAccountsQueryAssetsArgs = {
-  adoType?: InputMaybe<IAdoType>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
+  adoType?: InputMaybe<Scalars['String']['input']>;
+  appContract?: InputMaybe<Scalars['String']['input']>;
+  instantiateOwner?: InputMaybe<Scalars['String']['input']>;
+  kernel?: InputMaybe<Scalars['String']['input']>;
+  limit?: Scalars['Int']['input'];
+  memo?: InputMaybe<Scalars['String']['input']>;
+  offset?: Scalars['Int']['input'];
   orderBy?: InputMaybe<IAndrOrderBy>;
+  owner?: InputMaybe<Scalars['String']['input']>;
+  ownershipRequest?: InputMaybe<Scalars['String']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
   walletAddress: Scalars['String']['input'];
 };
 
-export type IAddressListAdo = {
+export type IAddressListAdo = IIBaseAdoQuery & {
   __typename?: 'AddressListAdo';
   address: Scalars['String']['output'];
   /** @deprecated Moved to `andr` query resolver, use `admin` field on `andr` to resolve this query. */
   admin: Maybe<Scalars['String']['output']>;
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   /** @deprecated Moved to `andr` query resolver, use `codeId` field on `andr` to resolve this query. */
   codeId: Maybe<Scalars['Int']['output']>;
   /** @deprecated Moved to `andr` query resolver, use `creator` field on `andr` to resolve this query. */
@@ -83,17 +90,10 @@ export type IAddressListAdo = {
   /** @deprecated Moved to `andr` query resolver, use `ibcPortId` field on `andr` to resolve this query. */
   ibcPortId: Maybe<Scalars['String']['output']>;
   includesAddress: Maybe<IAddressListResponse>;
-  /** @deprecated Moved to `andr` query resolver, use `operators` field on `andr` to resolve this query. */
-  isOperator: Maybe<Scalars['Boolean']['output']>;
   /** @deprecated Moved to `andr` query resolver, use `label` field on `andr` to resolve this query. */
   label: Maybe<Scalars['String']['output']>;
-  /** @deprecated Moved to `andr` query resolver, use `operators` field on `andr` to resolve this query. */
-  operators: Maybe<Array<Scalars['String']['output']>>;
   /** @deprecated Moved to `andr` query resolver, use `owner` field on `andr` to resolve this query. */
   owner: Maybe<Scalars['String']['output']>;
-  /** @deprecated Moved to `andr` query resolver, use `queries_expected` field on `andr` to resolve this query. */
-  queries_expected: Maybe<Array<Scalars['String']['output']>>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -159,8 +159,10 @@ export type IAdoQuery = {
   __typename?: 'AdoQuery';
   address_list: IAddressListAdo;
   ado: IBaseAdo;
+  adoSmart: IAdoSmartResponse;
   app: IAppAdo;
   auction: IAuctionAdo;
+  chainId: Maybe<Scalars['String']['output']>;
   crowdfund: ICrowdfundAdo;
   cw20: ICw20Ado;
   cw20_exchange: ICw20ExchangeAdo;
@@ -192,12 +194,23 @@ export type IAdoQueryAdoArgs = {
 };
 
 
+export type IAdoQueryAdoSmartArgs = {
+  address: Scalars['String']['input'];
+  query: Scalars['String']['input'];
+};
+
+
 export type IAdoQueryAppArgs = {
   address: Scalars['String']['input'];
 };
 
 
 export type IAdoQueryAuctionArgs = {
+  address: Scalars['String']['input'];
+};
+
+
+export type IAdoQueryChainIdArgs = {
   address: Scalars['String']['input'];
 };
 
@@ -286,6 +299,14 @@ export type IAdoQueryWeightedDistributionSplitterArgs = {
   address: Scalars['String']['input'];
 };
 
+export type IAdoSmartResponse = {
+  __typename?: 'AdoSmartResponse';
+  address: Scalars['String']['output'];
+  adoType: Scalars['String']['output'];
+  query: Scalars['String']['output'];
+  queryResult: Scalars['JSON']['output'];
+};
+
 export enum IAdoType {
   ADDRESSLIST = 'AddressList',
   ADO = 'Ado',
@@ -332,7 +353,7 @@ export type IAgreementAmount = {
 export type IAllNftInfo = {
   __typename?: 'AllNftInfo';
   access: Maybe<INftOwnerInfo>;
-  info: Maybe<INftInfo>;
+  info: INftInfo;
 };
 
 export type IAllowance = {
@@ -357,24 +378,19 @@ export type IAndrQuery = IIWasmContract & {
   __typename?: 'AndrQuery';
   address: Scalars['String']['output'];
   admin: Maybe<Scalars['String']['output']>;
-  blockHeightUponCreation: Scalars['Int']['output'];
+  appContract: Maybe<Scalars['String']['output']>;
+  blockHeightUponCreation: Maybe<Scalars['Int']['output']>;
   codeId: Scalars['Int']['output'];
-  contractVersion: Scalars['String']['output'];
   creator: Scalars['String']['output'];
   ibcPortId: Maybe<Scalars['String']['output']>;
-  isOperator: Scalars['Boolean']['output'];
+  kernelAddress: Maybe<Scalars['String']['output']>;
   label: Scalars['String']['output'];
-  operators: Array<Scalars['String']['output']>;
-  originalPublisher: Scalars['String']['output'];
+  originalPublisher: Maybe<Scalars['String']['output']>;
   owner: Scalars['String']['output'];
-  queries_expected: Maybe<Array<Scalars['String']['output']>>;
+  ownershipRequest: Maybe<Scalars['JSON']['output']>;
+  permissionedActions: Maybe<Array<Scalars['String']['output']>>;
   type: Scalars['String']['output'];
   version: Scalars['String']['output'];
-};
-
-
-export type IAndrQueryIsOperatorArgs = {
-  address: Scalars['String']['input'];
 };
 
 export type IAndrSearchOptions = {
@@ -393,13 +409,14 @@ export enum IAndrStrategyType {
   ANCHOR = 'Anchor'
 }
 
-export type IAppAdo = {
+export type IAppAdo = IIBaseAdoQuery & {
   __typename?: 'AppAdo';
   address: Scalars['String']['output'];
   addresses: Maybe<Array<IAppComponentAddress>>;
   /** @deprecated Moved to `andr` query resolver, use `admin` field on `andr` to resolve this query. */
   admin: Maybe<Scalars['String']['output']>;
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   /** @deprecated Moved to `andr` query resolver, use `codeId` field on `andr` to resolve this query. */
   codeId: Maybe<Scalars['Int']['output']>;
   componentExists: Maybe<Scalars['Boolean']['output']>;
@@ -410,17 +427,10 @@ export type IAppAdo = {
   getAddress: Maybe<Scalars['String']['output']>;
   /** @deprecated Moved to `andr` query resolver, use `ibcPortId` field on `andr` to resolve this query. */
   ibcPortId: Maybe<Scalars['String']['output']>;
-  /** @deprecated Moved to `andr` query resolver, use `operators` field on `andr` to resolve this query. */
-  isOperator: Maybe<Scalars['Boolean']['output']>;
   /** @deprecated Moved to `andr` query resolver, use `label` field on `andr` to resolve this query. */
   label: Maybe<Scalars['String']['output']>;
-  /** @deprecated Moved to `andr` query resolver, use `operators` field on `andr` to resolve this query. */
-  operators: Maybe<Array<Scalars['String']['output']>>;
   /** @deprecated Moved to `andr` query resolver, use `owner` field on `andr` to resolve this query. */
   owner: Maybe<Scalars['String']['output']>;
-  /** @deprecated Moved to `andr` query resolver, use `queries_expected` field on `andr` to resolve this query. */
-  queries_expected: Maybe<Array<Scalars['String']['output']>>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -437,8 +447,9 @@ export type IAppComponent = {
   __typename?: 'AppComponent';
   address: Maybe<Scalars['String']['output']>;
   ado_type: Scalars['String']['output'];
-  instantiate_msg: Scalars['String']['output'];
+  instantiate_msg: Maybe<Scalars['JSON']['output']>;
   name: Scalars['String']['output'];
+  type: Maybe<Scalars['String']['output']>;
 };
 
 export type IAppComponentAddress = {
@@ -458,24 +469,30 @@ export type IAssetResult = {
   address: Scalars['String']['output'];
   adoType: Scalars['String']['output'];
   appContract: Maybe<Scalars['String']['output']>;
-  chainId: Maybe<Scalars['String']['output']>;
+  chainId: Scalars['String']['output'];
   components: Maybe<Array<IComponent>>;
+  disowned: Maybe<Scalars['Boolean']['output']>;
   instantiateHash: Maybe<Scalars['String']['output']>;
   instantiateHeight: Maybe<Scalars['Int']['output']>;
+  instantiateOwner: Maybe<Scalars['String']['output']>;
+  kernel: Maybe<Scalars['String']['output']>;
   lastUpdatedHash: Maybe<Scalars['String']['output']>;
   lastUpdatedHeight: Maybe<Scalars['Int']['output']>;
+  memo: Maybe<Scalars['String']['output']>;
+  minter: Maybe<Scalars['String']['output']>;
   name: Maybe<Scalars['String']['output']>;
   owner: Scalars['String']['output'];
+  ownershipRequest: Maybe<Scalars['String']['output']>;
 };
 
 
 export type IAssetResultComponentsArgs = {
   componentType?: InputMaybe<IAdoType>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
+  limit?: Scalars['Int']['input'];
+  offset?: Scalars['Int']['input'];
 };
 
-export type IAuctionAdo = {
+export type IAuctionAdo = IIBaseAdoQuery & {
   __typename?: 'AuctionAdo';
   address: Scalars['String']['output'];
   /** @deprecated Moved to `andr` query resolver, use `admin` field on `andr` to resolve this query. */
@@ -485,25 +502,19 @@ export type IAuctionAdo = {
   auctionInfosForAddress: Maybe<IAuctionInfosForAddressResponse>;
   auctionState: Maybe<IAuctionStateResponse>;
   bids: Maybe<IBidsResponse>;
+  chainId: Scalars['String']['output'];
   /** @deprecated Moved to `andr` query resolver, use `codeId` field on `andr` to resolve this query. */
   codeId: Maybe<Scalars['Int']['output']>;
   /** @deprecated Moved to `andr` query resolver, use `creator` field on `andr` to resolve this query. */
   creator: Maybe<Scalars['String']['output']>;
   /** @deprecated Moved to `andr` query resolver, use `ibcPortId` field on `andr` to resolve this query. */
   ibcPortId: Maybe<Scalars['String']['output']>;
-  /** @deprecated Moved to `andr` query resolver, use `isOperator` field on `andr` to resolve this query. */
-  isOperator: Scalars['Boolean']['output'];
   /** @deprecated Moved to `andr` query resolver, use `label` field on `andr` to resolve this query. */
   label: Maybe<Scalars['String']['output']>;
   latestAuctionState: Maybe<IAuctionStateResponse>;
-  /** @deprecated Moved to `andr` query resolver, use `operators` field on `andr` to resolve this query. */
-  operators: Array<Scalars['String']['output']>;
   /** @deprecated Moved to `andr` query resolver, use `owner` field on `andr` to resolve this query. */
-  owner: Scalars['String']['output'];
-  /** @deprecated Moved to `andr` query resolver, use `queries_expected` field on `andr` to resolve this query. */
-  queries_expected: Maybe<Array<Scalars['String']['output']>>;
+  owner: Maybe<Scalars['String']['output']>;
   summaryFields: Maybe<ISummaryFields>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -526,11 +537,6 @@ export type IAuctionAdoAuctionStateArgs = {
 export type IAuctionAdoBidsArgs = {
   auctionId: Scalars['Float']['input'];
   options?: InputMaybe<IAndrSearchOptions>;
-};
-
-
-export type IAuctionAdoIsOperatorArgs = {
-  address: Scalars['String']['input'];
 };
 
 
@@ -558,23 +564,22 @@ export type IAuctionInfosForAddressResponse = {
 
 export type IAuctionStateResponse = {
   __typename?: 'AuctionStateResponse';
-  auction_id: Maybe<Scalars['Int']['output']>;
-  coin_denom: Maybe<Scalars['String']['output']>;
+  auction_id: Scalars['Int']['output'];
+  coin_denom: Scalars['String']['output'];
   end_time: Maybe<Scalars['JSON']['output']>;
   high_bidder_addr: Maybe<Scalars['String']['output']>;
   high_bidder_amount: Maybe<Scalars['Int']['output']>;
   is_cancelled: Maybe<Scalars['Boolean']['output']>;
   min_bid: Maybe<Scalars['Int']['output']>;
   start_time: Maybe<Scalars['JSON']['output']>;
-  summaryFields: Maybe<Scalars['Int']['output']>;
-  whitelist: Maybe<Scalars['JSON']['output']>;
+  whitelist: Maybe<Array<Scalars['String']['output']>>;
 };
 
 export type IBaseAdo = IIBaseAdoQuery & {
   __typename?: 'BaseAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
-  type: Scalars['String']['output'];
+  chainId: Scalars['String']['output'];
 };
 
 export type IBech32Config = {
@@ -591,7 +596,7 @@ export type IBid = {
   __typename?: 'Bid';
   amount: Scalars['Int']['output'];
   bidder: Scalars['String']['output'];
-  timestamp: Scalars['JSON']['output'];
+  timestamp: Scalars['String']['output'];
 };
 
 export type IBidsResponse = {
@@ -604,7 +609,7 @@ export type IBip44 = {
   coinType: Scalars['Int']['output'];
 };
 
-export type ICw20Ado = {
+export type ICw20Ado = IIBaseAdoQuery & {
   __typename?: 'CW20Ado';
   address: Scalars['String']['output'];
   allAccounts: Maybe<Array<Scalars['String']['output']>>;
@@ -612,12 +617,12 @@ export type ICw20Ado = {
   allSpenderAllowances: Maybe<Array<IAllowance>>;
   allowance: Maybe<IAllowance>;
   andr: IAndrQuery;
-  balance: Maybe<Scalars['Float']['output']>;
+  balance: Scalars['Float']['output'];
+  chainId: Scalars['String']['output'];
   downloadLogo: Maybe<IDownloadLogo>;
   marketingInfo: Maybe<IMarketingInfo>;
   minter: Maybe<IMinter>;
   tokenInfo: Maybe<ITokenInfo>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -648,14 +653,14 @@ export type ICw20AdoBalanceArgs = {
   address: Scalars['String']['input'];
 };
 
-export type ICw20ExchangeAdo = {
+export type ICw20ExchangeAdo = IIBaseAdoQuery & {
   __typename?: 'CW20ExchangeAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   sale: Maybe<ISaleResponse>;
-  saleAssets: Array<Scalars['String']['output']>;
+  saleAssets: Maybe<Array<Scalars['String']['output']>>;
   tokenAddress: Maybe<Scalars['String']['output']>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -669,16 +674,16 @@ export type ICw20ExchangeAdoSaleAssetsArgs = {
   options?: InputMaybe<IAndrSearchOptions>;
 };
 
-export type ICw20StakingAdo = {
+export type ICw20StakingAdo = IIBaseAdoQuery & {
   __typename?: 'CW20StakingAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   config: Maybe<IConfigStructure>;
   staker: Maybe<IStakerResponse>;
   stakers: Maybe<Array<IStakerResponse>>;
   state: Maybe<IStateStructure>;
   timestamp: Scalars['JSON']['output'];
-  type: Scalars['String']['output'];
 };
 
 
@@ -691,7 +696,7 @@ export type ICw20StakingAdoStakersArgs = {
   options?: InputMaybe<IAndrSearchOptions>;
 };
 
-export type ICw721Ado = {
+export type ICw721Ado = IIBaseAdoQuery & {
   __typename?: 'CW721Ado';
   address: Scalars['String']['output'];
   /** @deprecated Moved to `andr` query resolver, use `admin` field on `andr` to resolve this query. */
@@ -702,6 +707,7 @@ export type ICw721Ado = {
   andr: IAndrQuery;
   approval: Maybe<INftApproval>;
   approvals: Maybe<Array<INftApproval>>;
+  chainId: Scalars['String']['output'];
   /** @deprecated Moved to `andr` query resolver, use `codeId` field on `andr` to resolve this query. */
   codeId: Maybe<Scalars['Int']['output']>;
   contractInfo: Maybe<INftContractInfo>;
@@ -710,25 +716,18 @@ export type ICw721Ado = {
   /** @deprecated Moved to `andr` query resolver, use `ibcPortId` field on `andr` to resolve this query. */
   ibcPortId: Maybe<Scalars['String']['output']>;
   isArchived: Maybe<Scalars['Boolean']['output']>;
-  /** @deprecated Moved to `andr` query resolver, use `operators` field on `andr` to resolve this query. */
-  isOperator: Maybe<Scalars['Boolean']['output']>;
   /** @deprecated Moved to `andr` query resolver, use `label` field on `andr` to resolve this query. */
   label: Maybe<Scalars['String']['output']>;
   minter: Maybe<Scalars['String']['output']>;
   nftInfo: Maybe<INftInfo>;
   numOwners: Maybe<Scalars['Int']['output']>;
   numTokens: Maybe<Scalars['Int']['output']>;
-  /** @deprecated Moved to `andr` query resolver, use `operators` field on `andr` to resolve this query. */
-  operators: Maybe<Array<Scalars['String']['output']>>;
   /** @deprecated Moved to `andr` query resolver, use `owner` field on `andr` to resolve this query. */
   owner: Maybe<Scalars['String']['output']>;
   ownerOf: Maybe<INftOwnerInfo>;
-  /** @deprecated Moved to `andr` query resolver, use `queries_expected` field on `andr` to resolve this query. */
-  queries_expected: Maybe<Array<Scalars['String']['output']>>;
   searchTokens: Maybe<Array<INftInfo>>;
   tokens: Maybe<Array<Scalars['String']['output']>>;
   transferAgreement: ITransferAgreement;
-  type: Scalars['String']['output'];
 };
 
 
@@ -809,6 +808,7 @@ export type IChainConfig = {
   chainType: Scalars['String']['output'];
   chainUrl: Scalars['String']['output'];
   defaultFee: Scalars['String']['output'];
+  enabled: Maybe<Scalars['Boolean']['output']>;
   iconUrls: IIconUrl;
   kernelAddress: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
@@ -818,6 +818,7 @@ export type IChainConfig = {
 export type IChainConfigQuery = {
   __typename?: 'ChainConfigQuery';
   allConfigs: Array<IChainConfig>;
+  allStoredConfigs: Array<IChainConfig>;
   config: IChainConfig;
 };
 
@@ -853,15 +854,15 @@ export type IConfigStructure = {
   staking_token: Maybe<IAndrAddress>;
 };
 
-export type ICrowdfundAdo = {
+export type ICrowdfundAdo = IIBaseAdoQuery & {
   __typename?: 'CrowdfundAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
   availableTokens: Maybe<Array<Scalars['String']['output']>>;
+  chainId: Scalars['String']['output'];
   config: Maybe<ICrowdfundConfig>;
   isTokenAvailable: Maybe<Scalars['Boolean']['output']>;
   state: Maybe<ICrowdfundState>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -872,7 +873,14 @@ export type ICrowdfundAdoIsTokenAvailableArgs = {
 export type ICrowdfundConfig = {
   __typename?: 'CrowdfundConfig';
   can_mint_after_sale: Scalars['Boolean']['output'];
-  token_address: Scalars['JSON']['output'];
+  token_address: Scalars['String']['output'];
+};
+
+export type ICrowdfundRecipient = {
+  __typename?: 'CrowdfundRecipient';
+  address: Scalars['String']['output'];
+  ibc_recovery_address: Scalars['String']['output'];
+  msg: Scalars['JSON']['output'];
 };
 
 export type ICrowdfundState = {
@@ -880,11 +888,11 @@ export type ICrowdfundState = {
   amount_sold: Maybe<Scalars['Int']['output']>;
   amount_to_send: Maybe<Scalars['Int']['output']>;
   amount_transferred: Maybe<Scalars['Int']['output']>;
-  expiration: Maybe<Scalars['JSON']['output']>;
+  end_time: Maybe<Scalars['JSON']['output']>;
   max_amount_per_wallet: Maybe<Scalars['Int']['output']>;
   min_tokens_sold: Maybe<Scalars['Int']['output']>;
   price: Maybe<ICoin>;
-  recipient: Maybe<Scalars['JSON']['output']>;
+  recipient: Maybe<ICrowdfundRecipient>;
 };
 
 export type ICurrency = {
@@ -918,8 +926,8 @@ export type IFactoryAdo = IIBaseAdoQuery & {
   __typename?: 'FactoryAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   code_id: Maybe<Scalars['Int']['output']>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -937,7 +945,6 @@ export type IGasPriceStep = {
 export type IIBaseAdoQuery = {
   address: Scalars['String']['output'];
   andr: IAndrQuery;
-  type: Scalars['String']['output'];
 };
 
 export type IIWasmContract = {
@@ -947,7 +954,6 @@ export type IIWasmContract = {
   creator: Scalars['String']['output'];
   ibcPortId: Maybe<Scalars['String']['output']>;
   label: Scalars['String']['output'];
-  queries_expected: Maybe<Array<Scalars['String']['output']>>;
 };
 
 export type IIconUrl = {
@@ -982,13 +988,13 @@ export type IKeplrConfigQueryConfigArgs = {
   identifier: Scalars['String']['input'];
 };
 
-export type ILockdropAdo = {
+export type ILockdropAdo = IIBaseAdoQuery & {
   __typename?: 'LockdropAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   config: Maybe<ILockdropConfig>;
   state: Maybe<ILockdropState>;
-  type: Scalars['String']['output'];
   userInfo: Maybe<Array<ILockdropUserInfo>>;
   withdrawalPercentAllowed: Maybe<Scalars['Float']['output']>;
 };
@@ -1029,22 +1035,33 @@ export type ILockdropUserInfo = {
 
 export type IMarketingInfo = {
   __typename?: 'MarketingInfo';
-  allowance: Maybe<Scalars['Float']['output']>;
   description: Maybe<Scalars['String']['output']>;
   logo: Maybe<Scalars['JSON']['output']>;
   marketing: Maybe<Scalars['String']['output']>;
   project: Maybe<Scalars['String']['output']>;
 };
 
-export type IMarketplaceAdo = {
+export type IMarketplaceAdo = IIBaseAdoQuery & {
   __typename?: 'MarketplaceAdo';
   address: Scalars['String']['output'];
+  /** @deprecated Moved to `andr` query resolver, use `admin` field on `andr` to resolve this query. */
+  admin: Maybe<Scalars['String']['output']>;
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
+  /** @deprecated Moved to `andr` query resolver, use `codeId` field on `andr` to resolve this query. */
+  codeId: Maybe<Scalars['Int']['output']>;
+  /** @deprecated Moved to `andr` query resolver, use `creator` field on `andr` to resolve this query. */
+  creator: Maybe<Scalars['String']['output']>;
+  /** @deprecated Moved to `andr` query resolver, use `ibcPortId` field on `andr` to resolve this query. */
+  ibcPortId: Maybe<Scalars['String']['output']>;
+  /** @deprecated Moved to `andr` query resolver, use `label` field on `andr` to resolve this query. */
+  label: Maybe<Scalars['String']['output']>;
   latestSaleState: Maybe<ISaleStateResponse>;
+  /** @deprecated Moved to `andr` query resolver, use `owner` field on `andr` to resolve this query. */
+  owner: Maybe<Scalars['String']['output']>;
   saleIds: Maybe<ISaleIds>;
   saleInfosForAddress: Maybe<Array<ISaleInfo>>;
   saleState: Maybe<ISaleStateResponse>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -1070,16 +1087,16 @@ export type IMarketplaceAdoSaleStateArgs = {
   saleId: Scalars['String']['input'];
 };
 
-export type IMerkleAirdropAdo = {
+export type IMerkleAirdropAdo = IIBaseAdoQuery & {
   __typename?: 'MerkleAirdropAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   config: Maybe<IMerkleAirdropConfig>;
   isClaimed: Maybe<Scalars['Boolean']['output']>;
   latestStage: Maybe<Scalars['Int']['output']>;
   merkleRoot: Maybe<IMerkleRootResponse>;
   totalClaimed: Maybe<Scalars['String']['output']>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -1140,6 +1157,19 @@ export type IMutationUpdateAdoOwnerArgs = {
   input: IUpdateAdoOwnerInput;
 };
 
+export type INftMetadata = {
+  __typename?: 'NFTMetadata';
+  animation_url: Maybe<Scalars['String']['output']>;
+  attributes: Maybe<Array<IMetadataAttribute>>;
+  background_color: Maybe<Scalars['String']['output']>;
+  description: Maybe<Scalars['String']['output']>;
+  external_url: Maybe<Scalars['String']['output']>;
+  image: Maybe<Scalars['String']['output']>;
+  image_data: Maybe<Scalars['String']['output']>;
+  name: Maybe<Scalars['String']['output']>;
+  youtube_url: Maybe<Scalars['String']['output']>;
+};
+
 export type INftApproval = {
   __typename?: 'NftApproval';
   expires: Maybe<Scalars['JSON']['output']>;
@@ -1155,6 +1185,8 @@ export type INftContractInfo = {
 export type INftInfo = {
   __typename?: 'NftInfo';
   extension: Maybe<ITokenExtension>;
+  metadata: Maybe<INftMetadata>;
+  tokenId: Scalars['String']['output'];
   token_uri: Maybe<Scalars['String']['output']>;
 };
 
@@ -1169,12 +1201,12 @@ export type IPercentRate = {
   decimal: Maybe<Scalars['Float']['output']>;
 };
 
-export type IPrimitiveAdo = {
+export type IPrimitiveAdo = IIBaseAdoQuery & {
   __typename?: 'PrimitiveAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   getValue: Maybe<IPrimitiveResponse>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -1215,12 +1247,17 @@ export type IQueryAppArgs = {
 
 
 export type IQueryAssetsArgs = {
-  adoType?: InputMaybe<IAdoType>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
+  adoType?: InputMaybe<Scalars['String']['input']>;
+  appContract?: InputMaybe<Scalars['String']['input']>;
+  instantiateOwner?: InputMaybe<Scalars['String']['input']>;
+  kernel?: InputMaybe<Scalars['String']['input']>;
+  limit?: Scalars['Int']['input'];
+  memo?: InputMaybe<Scalars['String']['input']>;
+  offset?: Scalars['Int']['input'];
   orderBy?: InputMaybe<IAndrOrderBy>;
+  owner?: InputMaybe<Scalars['String']['input']>;
+  ownershipRequest?: InputMaybe<Scalars['String']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
-  walletAddress: Scalars['String']['input'];
 };
 
 
@@ -1258,21 +1295,21 @@ export type IRateInfo = {
   receivers: Maybe<Array<Scalars['JSON']['output']>>;
 };
 
-export type IRateLimitingWithdrawalsAdo = {
+export type IRateLimitingWithdrawalsAdo = IIBaseAdoQuery & {
   __typename?: 'RateLimitingWithdrawalsAdo';
   accountDetails: Maybe<IAccountDetails>;
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   coinAllowanceDetails: Maybe<ICoinAllowance>;
-  type: Scalars['String']['output'];
 };
 
-export type IRatesAdo = {
+export type IRatesAdo = IIBaseAdoQuery & {
   __typename?: 'RatesAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   payments: Maybe<Array<IRateInfo>>;
-  type: Scalars['String']['output'];
 };
 
 export type ISaleIds = {
@@ -1290,8 +1327,11 @@ export type ISaleInfo = {
 export type ISaleResponse = {
   __typename?: 'SaleResponse';
   amount: Maybe<Scalars['Float']['output']>;
+  end_time: Maybe<Scalars['JSON']['output']>;
   exchange_rate: Maybe<Scalars['Float']['output']>;
   recipient: Maybe<Scalars['String']['output']>;
+  start_amount: Maybe<Scalars['Float']['output']>;
+  start_time: Maybe<Scalars['JSON']['output']>;
 };
 
 export type ISaleStateResponse = {
@@ -1303,7 +1343,7 @@ export type ISaleStateResponse = {
 };
 
 export type ISearchAttribute = {
-  trait_type: Scalars['String']['input'];
+  trait_type?: InputMaybe<Scalars['String']['input']>;
   value?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1313,12 +1353,12 @@ export type ISplitter = {
   recipients: Maybe<Array<IAddressPercent>>;
 };
 
-export type ISplitterAdo = {
+export type ISplitterAdo = IIBaseAdoQuery & {
   __typename?: 'SplitterAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   config: Maybe<ISplitter>;
-  type: Scalars['String']['output'];
 };
 
 export type IStakerResponse = {
@@ -1356,13 +1396,13 @@ export type ISummaryFields = {
   min_bid: Maybe<Scalars['Int']['output']>;
 };
 
-export type ITimelockAdo = {
+export type ITimelockAdo = IIBaseAdoQuery & {
   __typename?: 'TimelockAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   getLockedFunds: Maybe<IEscrow>;
   getLockedFundsForRecipient: Maybe<Array<IEscrow>>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -1379,15 +1419,7 @@ export type ITimelockAdoGetLockedFundsForRecipientArgs = {
 
 export type ITokenExtension = {
   __typename?: 'TokenExtension';
-  animation_url: Maybe<Scalars['String']['output']>;
-  attributes: Array<IMetadataAttribute>;
-  description: Maybe<Scalars['String']['output']>;
-  external_url: Maybe<Scalars['String']['output']>;
-  image: Scalars['String']['output'];
-  image_data: Maybe<Scalars['String']['output']>;
-  name: Scalars['String']['output'];
   publisher: Scalars['String']['output'];
-  youtube_url: Maybe<Scalars['String']['output']>;
 };
 
 export type ITokenInfo = {
@@ -1424,14 +1456,22 @@ export type ITxInfo = {
   gasWanted: Maybe<Scalars['Int']['output']>;
   hash: Scalars['String']['output'];
   height: Scalars['Int']['output'];
+  msgResponses: Maybe<Array<ITxMsgResponses>>;
   rawLog: Maybe<Scalars['String']['output']>;
   tx: Maybe<Scalars['JSON']['output']>;
+  txIndex: Maybe<Scalars['Int']['output']>;
   txLog: Maybe<Array<ITxLog>>;
 };
 
 export type ITxLog = {
   __typename?: 'TxLog';
   events: Array<ITxEvent>;
+};
+
+export type ITxMsgResponses = {
+  __typename?: 'TxMsgResponses';
+  typeUrl: Scalars['String']['output'];
+  value: Maybe<Scalars['JSON']['output']>;
 };
 
 export type ITxSearchResult = {
@@ -1441,6 +1481,7 @@ export type ITxSearchResult = {
   byHash: Maybe<ITxInfo>;
   byHeight: Maybe<Array<ITxInfo>>;
   byOwner: Maybe<Array<ITxInfo>>;
+  byRawString: Maybe<Array<ITxInfo>>;
   byTag: Maybe<Array<ITxInfo>>;
   chainId: Scalars['String']['output'];
 };
@@ -1477,6 +1518,11 @@ export type ITxSearchResultByOwnerArgs = {
 };
 
 
+export type ITxSearchResultByRawStringArgs = {
+  query: Scalars['String']['input'];
+};
+
+
 export type ITxSearchResultByTagArgs = {
   maxHeight?: InputMaybe<Scalars['Int']['input']>;
   minHeight?: InputMaybe<Scalars['Int']['input']>;
@@ -1495,13 +1541,13 @@ export type IUserWeightResponse = {
   weight: Maybe<Scalars['Float']['output']>;
 };
 
-export type IVaultAdo = {
+export type IVaultAdo = IIBaseAdoQuery & {
   __typename?: 'VaultAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
   balance: Maybe<Array<ICoin>>;
+  chainId: Scalars['String']['output'];
   strategyAddress: Maybe<IAndrStrategy>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -1514,14 +1560,14 @@ export type IVaultAdoStrategyAddressArgs = {
   strategy: Scalars['String']['input'];
 };
 
-export type IVestingAdo = {
+export type IVestingAdo = IIBaseAdoQuery & {
   __typename?: 'VestingAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
   batch: Maybe<IVestingBatchInfo>;
   batches: Maybe<Array<IVestingBatchInfo>>;
+  chainId: Scalars['String']['output'];
   config: Maybe<IVestingConfig>;
-  type: Scalars['String']['output'];
 };
 
 
@@ -1567,13 +1613,13 @@ export type IWasmContractQueryMsgArgs = {
   message: Scalars['JSON']['input'];
 };
 
-export type IWeightedDistributionSplitterAdo = {
+export type IWeightedDistributionSplitterAdo = IIBaseAdoQuery & {
   __typename?: 'WeightedDistributionSplitterAdo';
   address: Scalars['String']['output'];
   andr: IAndrQuery;
+  chainId: Scalars['String']['output'];
   config: Maybe<ISplitter>;
   getUserWeight: IUserWeightResponse;
-  type: Scalars['String']['output'];
 };
 
 

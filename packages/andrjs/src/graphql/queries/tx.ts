@@ -9,10 +9,12 @@ import { ITxInfoFragment } from "@andromedaprotocol/gql/dist/__generated/node";
 export const andrEventKeys = ["andr_app"];
 
 
-export interface CleanedTx extends Omit<ITxInfoFragment, "rawLog" | "tx" | "txLog"> {
+export interface CleanedTx extends Omit<ITxInfoFragment, "rawLog" | "tx" | "txLog" | "gasUsed" | "gasWanted"> {
   rawLog: readonly Log[];
   tx: DecodedTxRaw;
   adoType?: string;
+  gasUsed: bigint | number;
+  gasWanted: bigint | number;
 }
 
 export function cleanTx(tx: ITxInfoFragment | IndexedTx): CleanedTx {

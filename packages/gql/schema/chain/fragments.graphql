@@ -58,4 +58,5 @@ fragment chainConfig on ChainConfig {
   kernelAddress
   name
   registryAddress
+  enabled
 }

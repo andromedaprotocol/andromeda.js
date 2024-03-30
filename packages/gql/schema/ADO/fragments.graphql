@@ -1,16 +1,17 @@
 fragment andrFragment on AndrQuery {
-  admin
   address
+  admin
+  appContract
   blockHeightUponCreation
   codeId
   creator
-  contractVersion
   ibcPortId
+  kernelAddress
   label
-  owner
-  operators
   originalPublisher
-  queries_expected
+  owner
+  ownershipRequest
+  permissionedActions
   type
   version
 }
@@ -27,4 +28,5 @@ fragment appComponent on AppComponent {
   ado_type
   instantiate_msg
   name
+  type
 }
