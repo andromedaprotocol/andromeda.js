@@ -689,6 +689,15 @@ export type ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQueryVariables = Exa
 
 export type ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', publisher: string } } } } } };
 
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryVariables = Exact<{
+  ADO_cw721_address: Scalars['String']['input'];
+  ADO_cw721_cw721_allNftInfo_includeExpired: Scalars['Boolean']['input'];
+  ADO_cw721_cw721_allNftInfo_tokenId: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
+
 export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
   ADO_cw721_cw721_allNftInfo_includeExpired: Scalars['Boolean']['input'];
@@ -696,7 +705,7 @@ export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQueryVariables = Exac
 }>;
 
 
-export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } } };
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
 
 export type ICodegenGeneratedAdoCw721AllnftinfoInfoQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -705,7 +714,7 @@ export type ICodegenGeneratedAdoCw721AllnftinfoInfoQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721AllnftinfoInfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } } };
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
 
 export type ICodegenGeneratedAdoCw721AllnftinfoQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -714,7 +723,7 @@ export type ICodegenGeneratedAdoCw721AllnftinfoQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721AllnftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', access: { __typename?: 'NftOwnerInfo', owner: string, approvals: Array<{ __typename?: 'NftApproval', expires: any, spender: string }> }, info: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } } };
+export type ICodegenGeneratedAdoCw721AllnftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', access: { __typename?: 'NftOwnerInfo', owner: string, approvals: Array<{ __typename?: 'NftApproval', expires: any, spender: string }> }, info: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
 
 export type ICodegenGeneratedAdoCw721AlloperatorsQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -783,13 +792,21 @@ export type ICodegenGeneratedAdoCw721NftinfoExtensionQueryVariables = Exact<{
 
 export type ICodegenGeneratedAdoCw721NftinfoExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', publisher: string } } } } };
 
+export type ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryVariables = Exact<{
+  ADO_cw721_address: Scalars['String']['input'];
+  ADO_cw721_cw721_nftInfo_tokenId: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } };
+
 export type ICodegenGeneratedAdoCw721NftinfoMetadataQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
   ADO_cw721_cw721_nftInfo_tokenId: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCw721NftinfoMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } };
+export type ICodegenGeneratedAdoCw721NftinfoMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } };
 
 export type ICodegenGeneratedAdoCw721NftinfoQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -797,7 +814,7 @@ export type ICodegenGeneratedAdoCw721NftinfoQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721NftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } };
+export type ICodegenGeneratedAdoCw721NftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } };
 
 export type ICodegenGeneratedAdoCw721NumownersQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -833,13 +850,21 @@ export type ICodegenGeneratedAdoCw721SearchtokensExtensionQueryVariables = Exact
 
 export type ICodegenGeneratedAdoCw721SearchtokensExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', publisher: string } }> } } };
 
+export type ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryVariables = Exact<{
+  ADO_cw721_address: Scalars['String']['input'];
+  ADO_cw721_cw721_searchTokens_attributes?: InputMaybe<Array<ISearchAttribute> | ISearchAttribute>;
+}>;
+
+
+export type ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } }> } } };
+
 export type ICodegenGeneratedAdoCw721SearchtokensMetadataQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
   ADO_cw721_cw721_searchTokens_attributes?: InputMaybe<Array<ISearchAttribute> | ISearchAttribute>;
 }>;
 
 
-export type ICodegenGeneratedAdoCw721SearchtokensMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } }> } } };
+export type ICodegenGeneratedAdoCw721SearchtokensMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } }> } } };
 
 export type ICodegenGeneratedAdoCw721SearchtokensQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -847,7 +872,7 @@ export type ICodegenGeneratedAdoCw721SearchtokensQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721SearchtokensQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } }> } } };
+export type ICodegenGeneratedAdoCw721SearchtokensQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } }> } } };
 
 export type ICodegenGeneratedAdoCw721TokensQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -5683,6 +5708,61 @@ export type CodegenGeneratedAdoCw721AllnftinfoInfoExtensionQueryResult = Apollo.
 export function refetchCodegenGeneratedAdoCw721AllnftinfoInfoExtensionQuery(variables: ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQueryVariables) {
       return { query: CodegenGeneratedAdoCw721AllnftinfoInfoExtensionDocument, variables: variables }
     }
+export const CodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      allNftInfo(
+        includeExpired: $ADO_cw721_cw721_allNftInfo_includeExpired
+        tokenId: $ADO_cw721_cw721_allNftInfo_tokenId
+      ) {
+        info {
+          metadata {
+            attributes {
+              display_type
+              trait_type
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useCodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery__
+ *
+ * To run a query within a React component, call `useCodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery({
+ *   variables: {
+ *      ADO_cw721_address: // value for 'ADO_cw721_address'
+ *      ADO_cw721_cw721_allNftInfo_includeExpired: // value for 'ADO_cw721_cw721_allNftInfo_includeExpired'
+ *      ADO_cw721_cw721_allNftInfo_tokenId: // value for 'ADO_cw721_cw721_allNftInfo_tokenId'
+ *   },
+ * });
+ */
+export function useCodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery(baseOptions: Apollo.QueryHookOptions<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery, ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery, ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryVariables>(CodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesDocument, options);
+      }
+export function useCodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery, ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery, ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryVariables>(CodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesDocument, options);
+        }
+export type CodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryHookResult = ReturnType<typeof useCodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery>;
+export type CodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesLazyQueryHookResult = ReturnType<typeof useCodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesLazyQuery>;
+export type CodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryResult = Apollo.QueryResult<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery, ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryVariables>;
+export function refetchCodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery(variables: ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryVariables) {
+      return { query: CodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesDocument, variables: variables }
+    }
 export const CodegenGeneratedAdoCw721AllnftinfoInfoMetadataDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
   ADO {
@@ -5694,7 +5774,11 @@ export const CodegenGeneratedAdoCw721AllnftinfoInfoMetadataDocument = /*#__PURE_
         info {
           metadata {
             animation_url
-            attributes
+            attributes {
+              display_type
+              trait_type
+              value
+            }
             background_color
             description
             external_url
@@ -5756,7 +5840,11 @@ export const CodegenGeneratedAdoCw721AllnftinfoInfoDocument = /*#__PURE__*/ gql`
           }
           metadata {
             animation_url
-            attributes
+            attributes {
+              display_type
+              trait_type
+              value
+            }
             background_color
             description
             external_url
@@ -5827,7 +5915,11 @@ export const CodegenGeneratedAdoCw721AllnftinfoDocument = /*#__PURE__*/ gql`
           }
           metadata {
             animation_url
-            attributes
+            attributes {
+              display_type
+              trait_type
+              value
+            }
             background_color
             description
             external_url
@@ -6251,6 +6343,55 @@ export type CodegenGeneratedAdoCw721NftinfoExtensionQueryResult = Apollo.QueryRe
 export function refetchCodegenGeneratedAdoCw721NftinfoExtensionQuery(variables: ICodegenGeneratedAdoCw721NftinfoExtensionQueryVariables) {
       return { query: CodegenGeneratedAdoCw721NftinfoExtensionDocument, variables: variables }
     }
+export const CodegenGeneratedAdoCw721NftinfoMetadataAttributesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
+        metadata {
+          attributes {
+            display_type
+            trait_type
+            value
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useCodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery__
+ *
+ * To run a query within a React component, call `useCodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery({
+ *   variables: {
+ *      ADO_cw721_address: // value for 'ADO_cw721_address'
+ *      ADO_cw721_cw721_nftInfo_tokenId: // value for 'ADO_cw721_cw721_nftInfo_tokenId'
+ *   },
+ * });
+ */
+export function useCodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery(baseOptions: Apollo.QueryHookOptions<ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery, ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery, ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryVariables>(CodegenGeneratedAdoCw721NftinfoMetadataAttributesDocument, options);
+      }
+export function useCodegenGeneratedAdoCw721NftinfoMetadataAttributesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery, ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery, ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryVariables>(CodegenGeneratedAdoCw721NftinfoMetadataAttributesDocument, options);
+        }
+export type CodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryHookResult = ReturnType<typeof useCodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery>;
+export type CodegenGeneratedAdoCw721NftinfoMetadataAttributesLazyQueryHookResult = ReturnType<typeof useCodegenGeneratedAdoCw721NftinfoMetadataAttributesLazyQuery>;
+export type CodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryResult = Apollo.QueryResult<ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery, ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryVariables>;
+export function refetchCodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery(variables: ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryVariables) {
+      return { query: CodegenGeneratedAdoCw721NftinfoMetadataAttributesDocument, variables: variables }
+    }
 export const CodegenGeneratedAdoCw721NftinfoMetadataDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
   ADO {
@@ -6258,7 +6399,11 @@ export const CodegenGeneratedAdoCw721NftinfoMetadataDocument = /*#__PURE__*/ gql
       nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url
@@ -6314,7 +6459,11 @@ export const CodegenGeneratedAdoCw721NftinfoDocument = /*#__PURE__*/ gql`
         }
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url
@@ -6549,6 +6698,55 @@ export type CodegenGeneratedAdoCw721SearchtokensExtensionQueryResult = Apollo.Qu
 export function refetchCodegenGeneratedAdoCw721SearchtokensExtensionQuery(variables: ICodegenGeneratedAdoCw721SearchtokensExtensionQueryVariables) {
       return { query: CodegenGeneratedAdoCw721SearchtokensExtensionDocument, variables: variables }
     }
+export const CodegenGeneratedAdoCw721SearchtokensMetadataAttributesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
+        metadata {
+          attributes {
+            display_type
+            trait_type
+            value
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useCodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery__
+ *
+ * To run a query within a React component, call `useCodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery({
+ *   variables: {
+ *      ADO_cw721_address: // value for 'ADO_cw721_address'
+ *      ADO_cw721_cw721_searchTokens_attributes: // value for 'ADO_cw721_cw721_searchTokens_attributes'
+ *   },
+ * });
+ */
+export function useCodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery(baseOptions: Apollo.QueryHookOptions<ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery, ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery, ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryVariables>(CodegenGeneratedAdoCw721SearchtokensMetadataAttributesDocument, options);
+      }
+export function useCodegenGeneratedAdoCw721SearchtokensMetadataAttributesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery, ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery, ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryVariables>(CodegenGeneratedAdoCw721SearchtokensMetadataAttributesDocument, options);
+        }
+export type CodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryHookResult = ReturnType<typeof useCodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery>;
+export type CodegenGeneratedAdoCw721SearchtokensMetadataAttributesLazyQueryHookResult = ReturnType<typeof useCodegenGeneratedAdoCw721SearchtokensMetadataAttributesLazyQuery>;
+export type CodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryResult = Apollo.QueryResult<ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery, ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryVariables>;
+export function refetchCodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery(variables: ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryVariables) {
+      return { query: CodegenGeneratedAdoCw721SearchtokensMetadataAttributesDocument, variables: variables }
+    }
 export const CodegenGeneratedAdoCw721SearchtokensMetadataDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
   ADO {
@@ -6556,7 +6754,11 @@ export const CodegenGeneratedAdoCw721SearchtokensMetadataDocument = /*#__PURE__*
       searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url
@@ -6612,7 +6814,11 @@ export const CodegenGeneratedAdoCw721SearchtokensDocument = /*#__PURE__*/ gql`
         }
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url

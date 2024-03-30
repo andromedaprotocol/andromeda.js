@@ -689,6 +689,15 @@ export type ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQueryVariables = Exa
 
 export type ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', publisher: string } } } } } };
 
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryVariables = Exact<{
+  ADO_cw721_address: Scalars['String']['input'];
+  ADO_cw721_cw721_allNftInfo_includeExpired: Scalars['Boolean']['input'];
+  ADO_cw721_cw721_allNftInfo_tokenId: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
+
 export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
   ADO_cw721_cw721_allNftInfo_includeExpired: Scalars['Boolean']['input'];
@@ -696,7 +705,7 @@ export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQueryVariables = Exac
 }>;
 
 
-export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } } };
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
 
 export type ICodegenGeneratedAdoCw721AllnftinfoInfoQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -705,7 +714,7 @@ export type ICodegenGeneratedAdoCw721AllnftinfoInfoQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721AllnftinfoInfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } } };
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
 
 export type ICodegenGeneratedAdoCw721AllnftinfoQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -714,7 +723,7 @@ export type ICodegenGeneratedAdoCw721AllnftinfoQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721AllnftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', access: { __typename?: 'NftOwnerInfo', owner: string, approvals: Array<{ __typename?: 'NftApproval', expires: any, spender: string }> }, info: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } } };
+export type ICodegenGeneratedAdoCw721AllnftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', access: { __typename?: 'NftOwnerInfo', owner: string, approvals: Array<{ __typename?: 'NftApproval', expires: any, spender: string }> }, info: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
 
 export type ICodegenGeneratedAdoCw721AlloperatorsQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -783,13 +792,21 @@ export type ICodegenGeneratedAdoCw721NftinfoExtensionQueryVariables = Exact<{
 
 export type ICodegenGeneratedAdoCw721NftinfoExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', publisher: string } } } } };
 
+export type ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryVariables = Exact<{
+  ADO_cw721_address: Scalars['String']['input'];
+  ADO_cw721_cw721_nftInfo_tokenId: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } };
+
 export type ICodegenGeneratedAdoCw721NftinfoMetadataQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
   ADO_cw721_cw721_nftInfo_tokenId: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCw721NftinfoMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } };
+export type ICodegenGeneratedAdoCw721NftinfoMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } };
 
 export type ICodegenGeneratedAdoCw721NftinfoQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -797,7 +814,7 @@ export type ICodegenGeneratedAdoCw721NftinfoQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721NftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } };
+export type ICodegenGeneratedAdoCw721NftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } };
 
 export type ICodegenGeneratedAdoCw721NumownersQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -833,13 +850,21 @@ export type ICodegenGeneratedAdoCw721SearchtokensExtensionQueryVariables = Exact
 
 export type ICodegenGeneratedAdoCw721SearchtokensExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', publisher: string } }> } } };
 
+export type ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryVariables = Exact<{
+  ADO_cw721_address: Scalars['String']['input'];
+  ADO_cw721_cw721_searchTokens_attributes?: InputMaybe<Array<ISearchAttribute> | ISearchAttribute>;
+}>;
+
+
+export type ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } }> } } };
+
 export type ICodegenGeneratedAdoCw721SearchtokensMetadataQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
   ADO_cw721_cw721_searchTokens_attributes?: InputMaybe<Array<ISearchAttribute> | ISearchAttribute>;
 }>;
 
 
-export type ICodegenGeneratedAdoCw721SearchtokensMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } }> } } };
+export type ICodegenGeneratedAdoCw721SearchtokensMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } }> } } };
 
 export type ICodegenGeneratedAdoCw721SearchtokensQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -847,7 +872,7 @@ export type ICodegenGeneratedAdoCw721SearchtokensQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721SearchtokensQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } }> } } };
+export type ICodegenGeneratedAdoCw721SearchtokensQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } }> } } };
 
 export type ICodegenGeneratedAdoCw721TokensQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -3374,6 +3399,28 @@ export const CodegenGeneratedAdoCw721AllnftinfoInfoExtensionDocument = /*#__PURE
   }
 }
     `;
+export const CodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      allNftInfo(
+        includeExpired: $ADO_cw721_cw721_allNftInfo_includeExpired
+        tokenId: $ADO_cw721_cw721_allNftInfo_tokenId
+      ) {
+        info {
+          metadata {
+            attributes {
+              display_type
+              trait_type
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
 export const CodegenGeneratedAdoCw721AllnftinfoInfoMetadataDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
   ADO {
@@ -3385,7 +3432,11 @@ export const CodegenGeneratedAdoCw721AllnftinfoInfoMetadataDocument = /*#__PURE_
         info {
           metadata {
             animation_url
-            attributes
+            attributes {
+              display_type
+              trait_type
+              value
+            }
             background_color
             description
             external_url
@@ -3414,7 +3465,11 @@ export const CodegenGeneratedAdoCw721AllnftinfoInfoDocument = /*#__PURE__*/ gql`
           }
           metadata {
             animation_url
-            attributes
+            attributes {
+              display_type
+              trait_type
+              value
+            }
             background_color
             description
             external_url
@@ -3452,7 +3507,11 @@ export const CodegenGeneratedAdoCw721AllnftinfoDocument = /*#__PURE__*/ gql`
           }
           metadata {
             animation_url
-            attributes
+            attributes {
+              display_type
+              trait_type
+              value
+            }
             background_color
             description
             external_url
@@ -3584,6 +3643,23 @@ export const CodegenGeneratedAdoCw721NftinfoExtensionDocument = /*#__PURE__*/ gq
   }
 }
     `;
+export const CodegenGeneratedAdoCw721NftinfoMetadataAttributesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
+        metadata {
+          attributes {
+            display_type
+            trait_type
+            value
+          }
+        }
+      }
+    }
+  }
+}
+    `;
 export const CodegenGeneratedAdoCw721NftinfoMetadataDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
   ADO {
@@ -3591,7 +3667,11 @@ export const CodegenGeneratedAdoCw721NftinfoMetadataDocument = /*#__PURE__*/ gql
       nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url
@@ -3615,7 +3695,11 @@ export const CodegenGeneratedAdoCw721NftinfoDocument = /*#__PURE__*/ gql`
         }
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url
@@ -3688,6 +3772,23 @@ export const CodegenGeneratedAdoCw721SearchtokensExtensionDocument = /*#__PURE__
   }
 }
     `;
+export const CodegenGeneratedAdoCw721SearchtokensMetadataAttributesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
+        metadata {
+          attributes {
+            display_type
+            trait_type
+            value
+          }
+        }
+      }
+    }
+  }
+}
+    `;
 export const CodegenGeneratedAdoCw721SearchtokensMetadataDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
   ADO {
@@ -3695,7 +3796,11 @@ export const CodegenGeneratedAdoCw721SearchtokensMetadataDocument = /*#__PURE__*
       searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url
@@ -3719,7 +3824,11 @@ export const CodegenGeneratedAdoCw721SearchtokensDocument = /*#__PURE__*/ gql`
         }
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url
@@ -6862,6 +6971,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION(variables: ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQuery>(CodegenGeneratedAdoCw721AllnftinfoInfoExtensionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION', 'query');
     },
+    CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA_ATTRIBUTES(variables: ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesQuery>(CodegenGeneratedAdoCw721AllnftinfoInfoMetadataAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA_ATTRIBUTES', 'query');
+    },
     CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA(variables: ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQuery>(CodegenGeneratedAdoCw721AllnftinfoInfoMetadataDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA', 'query');
     },
@@ -6895,6 +7007,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION(variables: ICodegenGeneratedAdoCw721NftinfoExtensionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721NftinfoExtensionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721NftinfoExtensionQuery>(CodegenGeneratedAdoCw721NftinfoExtensionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION', 'query');
     },
+    CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA_ATTRIBUTES(variables: ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721NftinfoMetadataAttributesQuery>(CodegenGeneratedAdoCw721NftinfoMetadataAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA_ATTRIBUTES', 'query');
+    },
     CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA(variables: ICodegenGeneratedAdoCw721NftinfoMetadataQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721NftinfoMetadataQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721NftinfoMetadataQuery>(CodegenGeneratedAdoCw721NftinfoMetadataDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA', 'query');
     },
@@ -6912,6 +7027,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION(variables: ICodegenGeneratedAdoCw721SearchtokensExtensionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721SearchtokensExtensionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721SearchtokensExtensionQuery>(CodegenGeneratedAdoCw721SearchtokensExtensionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION', 'query');
+    },
+    CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA_ATTRIBUTES(variables: ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721SearchtokensMetadataAttributesQuery>(CodegenGeneratedAdoCw721SearchtokensMetadataAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA_ATTRIBUTES', 'query');
     },
     CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA(variables: ICodegenGeneratedAdoCw721SearchtokensMetadataQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721SearchtokensMetadataQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721SearchtokensMetadataQuery>(CodegenGeneratedAdoCw721SearchtokensMetadataDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA', 'query');

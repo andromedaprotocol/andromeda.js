@@ -568,6 +568,12 @@ export type MerkleRootResponseFieldPolicy = {
 	stage?: FieldPolicy<any> | FieldReadFunction<any>,
 	total_amount?: FieldPolicy<any> | FieldReadFunction<any>
 };
+export type MetadataAttributeKeySpecifier = ('display_type' | 'trait_type' | 'value' | MetadataAttributeKeySpecifier)[];
+export type MetadataAttributeFieldPolicy = {
+	display_type?: FieldPolicy<any> | FieldReadFunction<any>,
+	trait_type?: FieldPolicy<any> | FieldReadFunction<any>,
+	value?: FieldPolicy<any> | FieldReadFunction<any>
+};
 export type MinterKeySpecifier = ('cap' | 'minter' | MinterKeySpecifier)[];
 export type MinterFieldPolicy = {
 	cap?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -1129,6 +1135,10 @@ export type StrictTypedTypePolicies = {
 	MerkleRootResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | MerkleRootResponseKeySpecifier | (() => undefined | MerkleRootResponseKeySpecifier),
 		fields?: MerkleRootResponseFieldPolicy,
+	},
+	MetadataAttribute?: Omit<TypePolicy, "fields" | "keyFields"> & {
+		keyFields?: false | MetadataAttributeKeySpecifier | (() => undefined | MetadataAttributeKeySpecifier),
+		fields?: MetadataAttributeFieldPolicy,
 	},
 	Minter?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | MinterKeySpecifier | (() => undefined | MinterKeySpecifier),

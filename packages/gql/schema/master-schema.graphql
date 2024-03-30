@@ -859,6 +859,27 @@ query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION($ADO_cw721_address: 
   }
 }
 
+query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      allNftInfo(
+        includeExpired: $ADO_cw721_cw721_allNftInfo_includeExpired
+        tokenId: $ADO_cw721_cw721_allNftInfo_tokenId
+      ) {
+        info {
+          metadata {
+            attributes {
+              display_type
+              trait_type
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
   ADO {
     cw721(address: $ADO_cw721_address) {
@@ -869,7 +890,11 @@ query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA($ADO_cw721_address: S
         info {
           metadata {
             animation_url
-            attributes
+            attributes {
+              display_type
+              trait_type
+              value
+            }
             background_color
             description
             external_url
@@ -897,7 +922,11 @@ query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO($ADO_cw721_address: String!, $
           }
           metadata {
             animation_url
-            attributes
+            attributes {
+              display_type
+              trait_type
+              value
+            }
             background_color
             description
             external_url
@@ -934,7 +963,11 @@ query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO($ADO_cw721_address: String!, $ADO_c
           }
           metadata {
             animation_url
-            attributes
+            attributes {
+              display_type
+              trait_type
+              value
+            }
             background_color
             description
             external_url
@@ -1058,13 +1091,33 @@ query CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION($ADO_cw721_address: String!,
   }
 }
 
+query CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
+        metadata {
+          attributes {
+            display_type
+            trait_type
+            value
+          }
+        }
+      }
+    }
+  }
+}
+
 query CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url
@@ -1087,7 +1140,11 @@ query CODEGEN_GENERATED_ADO_CW721_NFTINFO($ADO_cw721_address: String!, $ADO_cw72
         }
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url
@@ -1156,13 +1213,33 @@ query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION($ADO_cw721_address: Str
   }
 }
 
+query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
+        metadata {
+          attributes {
+            display_type
+            trait_type
+            value
+          }
+        }
+      }
+    }
+  }
+}
+
 query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url
@@ -1185,7 +1262,11 @@ query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS($ADO_cw721_address: String!, $ADO
         }
         metadata {
           animation_url
-          attributes
+          attributes {
+            display_type
+            trait_type
+            value
+          }
           background_color
           description
           external_url

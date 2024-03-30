@@ -194,13 +194,13 @@ type AndrQuery implements IWasmContract {
   address: String!
   admin: String
   appContract: String
-  blockHeightUponCreation: Int!
+  blockHeightUponCreation: Int
   codeId: Int!
   creator: String!
   ibcPortId: String
   kernelAddress: String
   label: String!
-  originalPublisher: String!
+  originalPublisher: String
   owner: String!
   ownershipRequest: JSON
   permissionedActions: [String!]
@@ -641,6 +641,12 @@ type MerkleRootResponse {
   total_amount: String
 }
 
+type MetadataAttribute {
+  display_type: String
+  trait_type: String!
+  value: String!
+}
+
 type Minter {
   cap: Float
   minter: String!
@@ -653,7 +659,7 @@ type Mutation {
 
 type NFTMetadata {
   animation_url: String
-  attributes: [String!]
+  attributes: [MetadataAttribute!]
   background_color: String
   description: String
   external_url: String

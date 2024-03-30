@@ -379,13 +379,13 @@ export type IAndrQuery = IIWasmContract & {
   address: Scalars['String']['output'];
   admin: Maybe<Scalars['String']['output']>;
   appContract: Maybe<Scalars['String']['output']>;
-  blockHeightUponCreation: Scalars['Int']['output'];
+  blockHeightUponCreation: Maybe<Scalars['Int']['output']>;
   codeId: Scalars['Int']['output'];
   creator: Scalars['String']['output'];
   ibcPortId: Maybe<Scalars['String']['output']>;
   kernelAddress: Maybe<Scalars['String']['output']>;
   label: Scalars['String']['output'];
-  originalPublisher: Scalars['String']['output'];
+  originalPublisher: Maybe<Scalars['String']['output']>;
   owner: Scalars['String']['output'];
   ownershipRequest: Maybe<Scalars['JSON']['output']>;
   permissionedActions: Maybe<Array<Scalars['String']['output']>>;
@@ -1128,6 +1128,13 @@ export type IMerkleRootResponse = {
   total_amount: Maybe<Scalars['String']['output']>;
 };
 
+export type IMetadataAttribute = {
+  __typename?: 'MetadataAttribute';
+  display_type: Maybe<Scalars['String']['output']>;
+  trait_type: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
 export type IMinter = {
   __typename?: 'Minter';
   cap: Maybe<Scalars['Float']['output']>;
@@ -1153,7 +1160,7 @@ export type IMutationUpdateAdoOwnerArgs = {
 export type INftMetadata = {
   __typename?: 'NFTMetadata';
   animation_url: Maybe<Scalars['String']['output']>;
-  attributes: Maybe<Array<Scalars['String']['output']>>;
+  attributes: Maybe<Array<IMetadataAttribute>>;
   background_color: Maybe<Scalars['String']['output']>;
   description: Maybe<Scalars['String']['output']>;
   external_url: Maybe<Scalars['String']['output']>;
