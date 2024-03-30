@@ -1,11 +1,18 @@
 # @andromedaprotocol/cli
 
+## 0.3.9-beta.3
+
+### Patch Changes
+
+- OS Commands, Cleanup ado commands, update msgs
+- Updated dependencies
+  - @andromedaprotocol/andromeda.js@0.3.8-beta.3
+
 ## 0.3.9-beta.2
 
 ### Patch Changes
 
 - Override vulnerable dependencies
-
 
 ## 0.3.9-beta.1
 

@@ -1,5 +1,13 @@
 # @andromedaprotocol/andromeda.js
 
+## 0.3.8-beta.3
+
+### Patch Changes
+
+- OS Commands, Cleanup ado commands, update msgs
+- Updated dependencies
+  - @andromedaprotocol/gql@0.3.8-beta.3
+
 ## 0.3.8-beta.2
 
 ### Patch Changes

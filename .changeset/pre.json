@@ -2,12 +2,12 @@
   "mode": "pre",
   "tag": "beta",
   "initialVersions": {
-    "@andromedaprotocol/andromeda.js": "0.3.7",
-    "@andromedaprotocol/cli": "0.3.8",
-    "@andromedaprotocol/gql": "0.3.7"
+    "@andromedaprotocol/adocodegen": "0.3.8-beta.2",
+    "@andromedaprotocol/andromeda.js": "0.3.8-beta.3",
+    "@andromedaprotocol/cli": "0.3.9-beta.3",
+    "@andromedaprotocol/gql": "0.3.8-beta.3"
   },
   "changesets": [
-    "afraid-donuts-fix",
-    "thick-onions-invite"
+    "purple-geckos-mix"
   ]
 }
