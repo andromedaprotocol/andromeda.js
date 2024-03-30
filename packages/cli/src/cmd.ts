@@ -9,6 +9,7 @@ import {
   bankHandler,
   chainHandler,
   gqlHandler,
+  osHandler,
   txHandler,
   userHandler,
   walletHandler,
@@ -83,6 +84,13 @@ export const baseCommands: Commands = {
     description: "Query and execute on an ADO",
     color: pc.red,
     usage: "ado <cmd>",
+    disabled: () => !State.client.isConnected,
+  },
+  os: {
+    handler: osHandler,
+    description: "Query and execute on os",
+    color: pc.red,
+    usage: "os <cmd>",
     disabled: () => !State.client.isConnected,
   },
   bank: {

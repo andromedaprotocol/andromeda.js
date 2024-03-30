@@ -24,3 +24,13 @@ export async function queryAllChainConfigs() {
   const resp = await querySdk.ALL_CHAIN_CONFIG()
   return resp.chainConfigs.allConfigs;
 }
+
+
+/**
+ * Queries all stored chain configs
+ * @returns
+ */
+export async function queryAllStoredChainConfigs() {
+  const resp = await querySdk.ALL_STORED_CHAIN_CONFIG()
+  return resp.chainConfigs.allStoredConfigs;
+}

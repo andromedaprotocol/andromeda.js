@@ -5,7 +5,6 @@ import { Schema, Validator } from "jsonschema";
 import _ from "lodash";
 import pc from "picocolors";
 import { displaySpinnerAsync, promptWithExit, validateAddressInput } from "..";
-import config from "../config";
 import State from "../state";
 import { promptAdoType } from "../handlers/ado/common";
 
@@ -381,7 +380,7 @@ export default class SchemaPrompt {
   ): Promise<any> {
     // Automatically assign kernel address
     if (name === "kernel_address") {
-      return config.get("chain.kernelAddress");
+      return client.os.address;
     }
 
     if (!required) {

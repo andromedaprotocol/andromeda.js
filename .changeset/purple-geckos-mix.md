@@ -4,4 +4,4 @@
 "@andromedaprotocol/gql": patch
 ---
 
-Cosmjs updates, Injective Client Update, ADO Schema updates
+OS Commands, Cleanup ado commands, update msgs

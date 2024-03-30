@@ -1,5 +1,5 @@
 import type AndromedaClient from "../AndromedaClient";
-import type { Fee, Module, Msg } from "../types";
+import type { Expiration, Fee, Module, Msg } from "../types";
 
 export default class ADOAPI {
 
@@ -26,8 +26,16 @@ export default class ADOAPI {
    * @param newOwner
    * @returns
    */
-  updateOwnerMsg(newOwner: string) {
-    return this.andromedaReceive({ update_owner: { address: newOwner } });
+  updateOwnerMsg(newOwner: string, expiration?: Expiration) {
+    // TODO: Add expiration?
+    return {
+      ownership: {
+        update_owner: {
+          new_owner: newOwner,
+          expiration
+        }
+      }
+    };
   }
 
   /**
@@ -42,44 +50,45 @@ export default class ADOAPI {
   async updateOwner(
     newOwner: string,
     addr: string = this.address,
+    expiration?: Expiration,
     fee?: Fee,
     memo?: string
   ) {
-    const msg = this.updateOwnerMsg(newOwner);
+    const msg = this.updateOwnerMsg(newOwner, expiration);
     const resp = await this.client.execute(addr, msg, fee, memo);
 
     return resp;
   }
 
-  /**
-   * Returns an update operators message
-   * @param operators
-   * @returns
-   */
-  updateOperatorsMsg(operators: string[]) {
-    return this.andromedaReceive({ update_operators: { operators } });
-  }
+  // /**
+  //  * Returns an update operators message
+  //  * @param operators
+  //  * @returns
+  //  */
+  // updateOperatorsMsg(operators: string[]) {
+  //   return this.andromedaReceive({ update_operators: { operators } });
+  // }
 
-  /**
-   * Updates the operators for a given ADO.
-   *  **Only accessible to the current owner**
-   * @param operators
-   * @param addr
-   * @param fee
-   * @param memo
-   * @returns
-   */
-  async updateOperators(
-    operators: string[],
-    addr: string = this.address,
-    fee?: Fee,
-    memo?: string
-  ) {
-    const msg = this.updateOperatorsMsg(operators);
-    const resp = await this.client.execute(addr, msg, fee, memo);
+  // /**
+  //  * Updates the operators for a given ADO.
+  //  *  **Only accessible to the current owner**
+  //  * @param operators
+  //  * @param addr
+  //  * @param fee
+  //  * @param memo
+  //  * @returns
+  //  */
+  // async updateOperators(
+  //   operators: string[],
+  //   addr: string = this.address,
+  //   fee?: Fee,
+  //   memo?: string
+  // ) {
+  //   const msg = this.updateOperatorsMsg(operators);
+  //   const resp = await this.client.execute(addr, msg, fee, memo);
 
-    return resp;
-  }
+  //   return resp;
+  // }
 
   /**
    * Returns an update app contract message
@@ -87,9 +96,9 @@ export default class ADOAPI {
    * @returns
    */
   updateAppContractMsg(appContract: string) {
-    return this.andromedaReceive({
+    return {
       update_app_contract: { address: appContract },
-    });
+    };
   }
 
   /**
@@ -119,7 +128,7 @@ export default class ADOAPI {
    * @returns
    */
   registerModuleMsg(module: Module) {
-    return this.andromedaReceive({ register_module: { module } });
+    return { register_module: { module } };
   }
 
   /**
@@ -150,9 +159,9 @@ export default class ADOAPI {
    * @returns
    */
   deregisterModuleMsg(id: number) {
-    return this.andromedaReceive({
+    return {
       deregister_module: { module_idx: `${id}` },
-    });
+    };
   }
 
   /**
@@ -184,9 +193,9 @@ export default class ADOAPI {
    * @returns
    */
   alterModuleMsg(id: number, module: Module) {
-    return this.andromedaReceive({
+    return {
       alter_module: { module, module_idx: `${id}` },
-    });
+    };
   }
 
   /**
@@ -213,106 +222,106 @@ export default class ADOAPI {
     return resp;
   }
 
-  /**
-   * Returns a refresh address message
-   * @param key
-   * @returns
-   */
-  refreshAddressMsg(key: string) {
-    return this.andromedaReceive({ refresh_address: { address: key } });
-  }
+  // /**
+  //  * Returns a refresh address message
+  //  * @param key
+  //  * @returns
+  //  */
+  // refreshAddressMsg(key: string) {
+  //   return this.andromedaReceive({ refresh_address: { address: key } });
+  // }
 
-  /**
-   * Refreshes any AndrAddresses within the ADO
-   * **Only accessible by the contract owner.**
-   * @param key
-   * @param addr
-   * @param fee
-   * @param memo
-   * @returns
-   */
-  async refreshAddress(
-    key: string,
-    addr: string = this.address,
-    fee?: Fee,
-    memo?: string
-  ) {
-    const msg = this.refreshAddressMsg(key);
-    const resp = await this.client.execute(addr, msg, fee, memo);
+  // /**
+  //  * Refreshes any AndrAddresses within the ADO
+  //  * **Only accessible by the contract owner.**
+  //  * @param key
+  //  * @param addr
+  //  * @param fee
+  //  * @param memo
+  //  * @returns
+  //  */
+  // async refreshAddress(
+  //   key: string,
+  //   addr: string = this.address,
+  //   fee?: Fee,
+  //   memo?: string
+  // ) {
+  //   const msg = this.refreshAddressMsg(key);
+  //   const resp = await this.client.execute(addr, msg, fee, memo);
 
-    return resp;
-  }
+  //   return resp;
+  // }
 
-  /**
-   * Returns a refresh addresses message
-   * @param startAfter The key to start after
-   * @param limit
-   * @returns
-   */
-  refreshAddressesMsg(startAfter?: string, limit?: number) {
-    return this.andromedaReceive({
-      refresh_addresses: { start_after: startAfter, limit },
-    });
-  }
+  // /**
+  //  * Returns a refresh addresses message
+  //  * @param startAfter The key to start after
+  //  * @param limit
+  //  * @returns
+  //  */
+  // refreshAddressesMsg(startAfter?: string, limit?: number) {
+  //   return this.andromedaReceive({
+  //     refresh_addresses: { start_after: startAfter, limit },
+  //   });
+  // }
 
-  /**
-   * Refreshes multiple addresses
-   * **Only accessible by the contract owner.**
-   * @param startAfter The key to start after
-   * @param limit The amount to refresh
-   * @param addr
-   * @param fee
-   * @param memo
-   * @returns
-   */
-  async refreshAddresses(
-    startAfter?: string,
-    limit?: number,
-    addr: string = this.address,
-    fee?: Fee,
-    memo?: string
-  ) {
-    const msg = this.refreshAddressesMsg(startAfter, limit);
-    const resp = await this.client.execute(addr, msg, fee, memo);
+  // /**
+  //  * Refreshes multiple addresses
+  //  * **Only accessible by the contract owner.**
+  //  * @param startAfter The key to start after
+  //  * @param limit The amount to refresh
+  //  * @param addr
+  //  * @param fee
+  //  * @param memo
+  //  * @returns
+  //  */
+  // async refreshAddresses(
+  //   startAfter?: string,
+  //   limit?: number,
+  //   addr: string = this.address,
+  //   fee?: Fee,
+  //   memo?: string
+  // ) {
+  //   const msg = this.refreshAddressesMsg(startAfter, limit);
+  //   const resp = await this.client.execute(addr, msg, fee, memo);
 
-    return resp;
-  }
+  //   return resp;
+  // }
 
-  /**
-   * Query Messages
-   */
+  // /**
+  //  * Query Messages
+  //  */
 
-  /**
-   * Converts a message object to an Andromeda Query message
-   * @param msg
-   * @returns
-   */
-  protected andromedaQuery(msg: Msg) {
-    return { andr_query: msg };
-  }
+  // /**
+  //  * Converts a message object to an Andromeda Query message
+  //  * @param msg
+  //  * @returns
+  //  */
+  // protected andromedaQuery(msg: Msg) {
+  //   return { andr_query: msg };
+  // }
 
-  /**
-   * Returns an operators query message
-   * @returns
-   */
-  operatorsQuery() {
-    return { operators: {} };
-  }
+  // /**
+  //  * Returns an operators query message
+  //  * @returns
+  //  */
+  // operatorsQuery() {
+  //   return { operators: {} };
+  // }
 
-  /**
-   * Gets all operators for the provided ADO
-   * @param addr
-   * @returns
-   */
-  async getOperators(addr: string = this.address) {
-    const query = this.operatorsQuery();
-    const resp = await this.client.queryContract<{ operators: string[] }>(
-      addr,
-      query
-    );
+  // /**
+  //  * Gets all operators for the provided ADO
+  //  * @param addr
+  //  * @returns
+  //  */
+  // async getOperators(addr: string = this.address) {
+  //   const query = this.operatorsQuery();
+  //   const resp = await this.client.queryContract<{ operators: string[] }>(
+  //     addr,
+  //     query
+  //   );
 
-    return resp.operators;
-  }
+  //   return resp.operators;
+  // }
 
   /**
    * Returns an owner query message
@@ -342,10 +351,10 @@ export default class ADOAPI {
    * @param contractAddr
    * @returns
    */
-  async isOperatorOrOwner(addr: string, contractAddr: string = this.address) {
-    const operators = await this.getOperators(contractAddr);
+  async isOwner(addr: string, contractAddr: string = this.address) {
+    // const operators = await this.getOperators(contractAddr);
     const owner = await this.getOwner(contractAddr);
-    return operators.includes(addr) || owner === addr;
+    return owner === addr;
   }
 
   /**

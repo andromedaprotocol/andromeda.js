@@ -14,26 +14,16 @@ import { Commands, Flags } from "../../types";
 import gqlCommands from "../gql";
 import { generateHandler, validateAddressInput } from "../utils";
 import { executeMessage, instantiateMessage, queryMessage } from "../wasm";
-import dbCommands from "./db";
 import moduleCommands from "./modules";
-import operatorCommands from "./operators";
+// import operatorCommands from "./operators";
 
 const { client, wallets } = State;
-
-// The ADO DB has several subcommands, see `db.ts`
-const dbHandler = generateHandler(dbCommands);
 // Operators have several subcommands, see 'operators.ts'
-const operatorsHandler = generateHandler(operatorCommands);
+// const operatorsHandler = generateHandler(operatorCommands);
 // Modules have several subcommands, see 'modules.ts'
 const modulesHandler = generateHandler(moduleCommands);
 
 const commands: Commands = {
-  db: {
-    handler: dbHandler,
-    usage: "ado db",
-    description: "Allows querying the on chain ADO DB",
-    color: pc.white,
-  },
   create: {
     handler: createHandler,
     usage: "ado create <type>",
@@ -120,103 +110,18 @@ const commands: Commands = {
       },
     ],
   },
-  operators: {
-    handler: operatorsHandler,
-    usage: "ado operators",
-    description: "Allows management of operators for an ADO",
-    color: pc.blue,
-  },
+  // operators: {
+  //   handler: operatorsHandler,
+  //   usage: "ado operators",
+  //   description: "Allows management of operators for an ADO",
+  //   color: pc.blue,
+  // },
   modules: {
     handler: modulesHandler,
     usage: "ado modules",
     description: "Allows management of modules for an ADO",
     color: pc.yellow,
-  },
-  resolvepath: {
-    handler: resolvePathHandler,
-    color: pc.cyan,
-    description: "Gets the address of the specified path",
-    usage: "ado resolvepath",
-    inputs: [
-      {
-        requestMessage: "Input the path:",
-        validate: (input: string) => {
-          if (input.length === 0) return false;
-          return true;
-        },
-      },
-    ],
-    flags: executeFlags,
-  },
-  addpath: {
-    handler: addPathHandler,
-    color: pc.magenta,
-    description: "Registers an ADO component to the path",
-    usage: "ado addpath",
-    inputs: [
-      {
-        requestMessage: "Input the ADO componet Address:",
-        validate: validateAddressInput,
-      },
-      {
-        requestMessage: "Input the name:",
-        validate: (input: string) => {
-          if (input.length === 0) return false;
-          return true;
-        },
-      },
-    ],
-    flags: executeFlags,
-  },
-  addparentpath: {
-    handler: addParentPathHandler,
-    color: pc.magenta,
-    description: "Registers the child's path relative to the parent",
-    usage: "ado addparentpath",
-    inputs: [
-      {
-        requestMessage: "Input the Parent Address:",
-        validate: validateAddressInput,
-      },
-      {
-        requestMessage: "Input the name:",
-        validate: (input: string) => {
-          if (input.length === 0) return false;
-          return true;
-        },
-      },
-    ],
-    flags: executeFlags,
-  },
-  subdir: {
-    handler: subDirHandler,
-    color: pc.cyan,
-    description: "Gets the sub directory of the specified path",
-    usage: "ado subdir",
-    inputs: [
-      {
-        requestMessage: "Input the path:",
-        validate: (input: string) => {
-          if (input.length === 0) return false;
-          return true;
-        },
-      },
-    ],
-    flags: executeFlags,
-  },
-  paths: {
-    handler: pathsHandler,
-    color: pc.yellow,
-    description: "Gets the paths of an ADO",
-    usage: "ado paths",
-    inputs: [
-      {
-        requestMessage: "Input the Address:",
-        validate: validateAddressInput,
-      },
-    ],
-    flags: executeFlags,
-  },
+  }
 };
 
 /**
@@ -275,7 +180,7 @@ async function queryAdoSchema(address: string) {
  * @param input
  * @param flags
  */
-async function executeHandler(input: string[], flags: Flags) {
+export async function executeHandler(input: string[], flags: Flags) {
   const [address] = input;
 
   const adoSchema = await displaySpinnerAsync(
@@ -295,7 +200,7 @@ async function executeHandler(input: string[], flags: Flags) {
  *  Queries an ADO by its address
  * @param input
  */
-async function queryHandler(input: string[]) {
+export async function queryHandler(input: string[]) {
   const [address] = input;
 
   let codeId = -1;
@@ -373,70 +278,6 @@ async function transferHandler(input: string[], flags: Flags) {
 
   const msg = client.ado.updateOwnerMsg(recipient);
   await executeMessage(address, msg, flags, "ADO Transferred!");
-}
-
-/**
- * Queries to get the address of the specified path
- * @param input
- * @param flags
- */
-async function resolvePathHandler(input: string[]) {
-  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
-  const [path] = input;
-  const resp = await client.os.vfs?.resolvePath(path);
-  console.log(JSON.stringify(resp, null, 2));
-}
-
-/**
- * Registers an ADO to the path.
- * @param input
- * @param flags
- */
-async function addPathHandler(input: string[], flags: Flags) {
-  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
-
-  const [address, name] = input;
-
-  const msgAddPath = client.os.vfs?.addPathMsg(name, address);
-  await executeMessage(client.os.vfs?.address, msgAddPath, flags, "Registered the given ado to the path!"); //TODO: ADD FEE FLAG
-}
-
-/**
- * Registers the child's path relative to the parent.
- * @param input
- * @param flags
- */
-async function addParentPathHandler(input: string[], flags: Flags) {
-  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
-
-  const [parent_address, name] = input;
-
-  const msgAddParentPath = client.os.vfs?.addParentPathMsg(name, parent_address);
-  await executeMessage(client.os.vfs?.address, msgAddParentPath, flags, "Assigned name to the given parent!"); //TODO: ADD FEE FLAG
-}
-
-/**
- * Queries to get the sub directories of the specified path
- * @param input
- * @param flags
- */
-async function subDirHandler(input: string[]) {
-  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
-  const [path] = input;
-  const resp = await client.os.vfs?.subDir(path);
-  console.log(JSON.stringify(resp, null, 2));
-}
-
-/**
- * Queries to get the paths of an ADO
- * @param input
- * @param flags
- */
-async function pathsHandler(input: string[]) {
-  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
-  const [address] = input;
-  const resp = await client.os.vfs?.paths(address);
-  console.log(JSON.stringify(resp, null, 2));
 }
 
 export default commands;

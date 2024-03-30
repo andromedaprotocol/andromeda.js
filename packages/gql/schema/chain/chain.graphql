@@ -12,3 +12,11 @@ query ALL_CHAIN_CONFIG {
     }
   }
 }
+
+query ALL_STORED_CHAIN_CONFIG {
+  chainConfigs {
+    allStoredConfigs {
+      ...chainConfig
+    }
+  }
+}

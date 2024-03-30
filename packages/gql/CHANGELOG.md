@@ -1,5 +1,11 @@
 # @andromedaprotocol/gql
 
+## 0.3.8-beta.3
+
+### Patch Changes
+
+- OS Commands, Cleanup ado commands, update msgs
+
 ## 0.3.8-beta.0
 
 ### Patch Changes

@@ -106,39 +106,33 @@ async function getADOModules(address: string): Promise<Module[]> {
  * @returns The created Module
  */
 async function promptForModule(module?: Module): Promise<Module> {
-  const { module_type } = await promptWithExit({
+  const { name } = await promptWithExit({
     type: "input",
-    default: module ? module.module_type : undefined,
-    message: `Input the module type${
-      module ? ` (currently: ${module.module_type})` : ""
-    }:`,
-    name: "module_type",
+    default: module ? module.name : undefined,
+    message: `Input the module name${module ? ` (currently: ${module.address})` : ""
+      }:`,
+    name: "name",
   });
-
   const { address } = await promptWithExit({
     type: "input",
-    default: module ? module.address.identifier : undefined,
-    message: `Input the module address${
-      module ? ` (currently: ${module.address.identifier})` : ""
-    }:`,
+    default: module ? module.address : undefined,
+    message: `Input the module address${module ? ` (currently: ${module.address})` : ""
+      }:`,
     name: "address",
     validate: validateAddressInput,
   });
   const { is_mutable } = await promptWithExit({
     type: "confirm",
     default: module ? module.is_mutable : undefined,
-    message: `Should this module be mutable?${
-      module ? ` (currently: ${module.address.identifier})` : ""
-    }`,
+    message: `Should this module be mutable?${module ? ` (currently: ${module.address})` : ""
+      }`,
     name: "is_mutable",
   });
 
   return {
-    module_type,
+    name,
     is_mutable,
-    address: {
-      identifier: address,
-    },
+    address: address
   };
 }
 
@@ -172,7 +166,7 @@ async function listModulesHandler(input: string[]) {
   const table = new Table(logTableConfig);
   table.push([
     pc.bold(""),
-    pc.bold("Type"),
+    pc.bold("Name"),
     pc.bold("Address"),
     pc.bold("Mutable"),
   ]);
@@ -180,8 +174,8 @@ async function listModulesHandler(input: string[]) {
   modules.forEach((mod) =>
     table.push([
       mod.idx!.toString(),
-      mod.module_type,
-      mod.address.identifier,
+      mod.name || "",
+      mod.address,
       pc.bold(mod.is_mutable ? pc.green("✓") : pc.red("x")),
     ])
   );
@@ -212,7 +206,7 @@ async function removeModuleHandler(input: string[], flags: Flags) {
     choices: modules
       .filter((mod) => mod.is_mutable)
       .map((mod) => ({
-        name: `(${mod.idx}) ${mod.module_type} ${mod.address.identifier}`,
+        name: `(${mod.idx}) ${mod.name} ${mod.address}`,
         value: mod.idx,
       })),
     message: "Choose which module to remove:",
@@ -250,7 +244,7 @@ async function editModuleHandler(input: string[], flags: Flags) {
       ...modules
         .filter((mod) => mod.is_mutable)
         .map((mod) => ({
-          name: `(${mod.idx}) ${mod.module_type} ${mod.address.identifier}`,
+          name: `(${mod.idx}) ${mod.name} ${mod.address}`,
           value: mod,
         })),
       "exit",
