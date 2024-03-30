@@ -52,6 +52,10 @@ export const plugin: PluginFunction<OperationsDocumentConfig> = async (
             if (subFieldBuild)
                 nestedKeys[subField] = subFieldBuild;
         }
+        // Don't include full andr query for ado except base ado qyery
+        if (field.name != 'ado' && 'andr' in nestedKeys && Object.keys(nestedKeys).length > 1) {
+            delete nestedKeys.andr;
+        }
         fieldsToBuild.push({
             selection: getSelection({
                 [field.name]: nestedKeys

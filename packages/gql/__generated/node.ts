@@ -89,7 +89,7 @@ export enum IAndrStrategyType {
 }
 
 export type ISearchAttribute = {
-  trait_type: Scalars['String']['input'];
+  trait_type?: InputMaybe<Scalars['String']['input']>;
   value?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -119,33 +119,46 @@ export type IAppComponentsQueryVariables = Exact<{
 }>;
 
 
-export type IAppComponentsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', address: string, components: Array<{ __typename?: 'AppComponent', address: string, ado_type: string, instantiate_msg: string, name: string }> } } };
+export type IAppComponentsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', address: string, components: Array<{ __typename?: 'AppComponent', address: string, ado_type: string, instantiate_msg: any, name: string, type: string }> } } };
 
 export type IAppConfigAndComponentsQueryVariables = Exact<{
   contractAddress: Scalars['String']['input'];
 }>;
 
 
-export type IAppConfigAndComponentsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', address: string, type: string, config: { __typename?: 'AppConfig', name: string, owner: string }, components: Array<{ __typename?: 'AppComponent', address: string, ado_type: string, instantiate_msg: string, name: string }> } } };
+export type IAppConfigAndComponentsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', address: string, config: { __typename?: 'AppConfig', name: string, owner: string }, components: Array<{ __typename?: 'AppComponent', address: string, ado_type: string, instantiate_msg: any, name: string, type: string }> } } };
 
 export type IAssetsQueryVariables = Exact<{
   walletAddress: Scalars['String']['input'];
+  adoType?: InputMaybe<Scalars['String']['input']>;
+  appContract?: InputMaybe<Scalars['String']['input']>;
+  instantiateOwner?: InputMaybe<Scalars['String']['input']>;
+  kernel?: InputMaybe<Scalars['String']['input']>;
   limit: Scalars['Int']['input'];
+  memo?: InputMaybe<Scalars['String']['input']>;
   offset: Scalars['Int']['input'];
-  search?: InputMaybe<Scalars['String']['input']>;
-  adoType?: InputMaybe<IAdoType>;
   orderBy?: InputMaybe<IAndrOrderBy>;
+  owner?: InputMaybe<Scalars['String']['input']>;
+  ownershipRequest?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type IAssetsQuery = { __typename?: 'Query', accounts: { __typename?: 'AccountsQuery', assets: Array<{ __typename?: 'AssetResult', address: string, adoType: string, appContract: string, chainId: string, instantiateHash: string, instantiateHeight: number, lastUpdatedHash: string, lastUpdatedHeight: number, name: string, owner: string }> } };
+export type IAssetsQuery = { __typename?: 'Query', accounts: { __typename?: 'AccountsQuery', assets: Array<{ __typename?: 'AssetResult', address: string, adoType: string, appContract: string, chainId: string, disowned: boolean, instantiateHash: string, instantiateHeight: number, instantiateOwner: string, kernel: string, lastUpdatedHash: string, lastUpdatedHeight: number, memo: string, minter: string, name: string, owner: string, ownershipRequest: string }> } };
 
 export type IBaseAdoQueryVariables = Exact<{
   contractAddress: Scalars['String']['input'];
 }>;
 
 
-export type IBaseAdoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', admin: string, address: string, blockHeightUponCreation: number, codeId: number, creator: string, contractVersion: string, ibcPortId: string, label: string, owner: string, operators: Array<string>, originalPublisher: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type IBaseAdoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', address: string, chainId: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
+
+export type IMiniBaseAdoQueryVariables = Exact<{
+  contractAddress: Scalars['String']['input'];
+}>;
+
+
+export type IMiniBaseAdoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', address: string, chainId: string, andr: { __typename?: 'AndrQuery', type: string, version: string } } } };
 
 export type ICrowdfundAvailableTokensQueryVariables = Exact<{
   contractAddress: Scalars['String']['input'];
@@ -167,14 +180,14 @@ export type ICrowdfundConfigQueryVariables = Exact<{
 }>;
 
 
-export type ICrowdfundConfigQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', address: string, config: { __typename?: 'CrowdfundConfig', can_mint_after_sale: boolean, token_address: any } } } };
+export type ICrowdfundConfigQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', address: string, config: { __typename?: 'CrowdfundConfig', can_mint_after_sale: boolean, token_address: string } } } };
 
 export type ICrowdfundStateQueryVariables = Exact<{
   contractAddress: Scalars['String']['input'];
 }>;
 
 
-export type ICrowdfundStateQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', state: { __typename?: 'CrowdfundState', amount_sold: number, amount_to_send: number, amount_transferred: number, expiration: any, max_amount_per_wallet: number, min_tokens_sold: number, recipient: any, price: { __typename?: 'Coin', amount: string, denom: string } } } } };
+export type ICrowdfundStateQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', state: { __typename?: 'CrowdfundState', amount_sold: number, amount_to_send: number, amount_transferred: number, end_time: any, max_amount_per_wallet: number, min_tokens_sold: number, price: { __typename?: 'Coin', amount: string, denom: string }, recipient: { __typename?: 'CrowdfundRecipient', address: string, ibc_recovery_address: string, msg: any } } } } };
 
 export type ICw20TokenInfoQueryVariables = Exact<{
   contractAddress: Scalars['String']['input'];
@@ -188,7 +201,7 @@ export type ICw20QueryVariables = Exact<{
 }>;
 
 
-export type ICw20Query = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20: { __typename?: 'CW20Ado', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, downloadLogo: { __typename?: 'DownloadLogo', data: any, mime_type: string }, marketingInfo: { __typename?: 'MarketingInfo', allowance: number, description: string, logo: any, marketing: string, project: string }, minter: { __typename?: 'Minter', cap: number, minter: string } } } };
+export type ICw20Query = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20: { __typename?: 'CW20Ado', address: string, marketingInfo: { __typename?: 'MarketingInfo', description: string, logo: any, marketing: string, project: string }, minter: { __typename?: 'Minter', cap: number, minter: string } } } };
 
 export type ICw721InfoQueryVariables = Exact<{
   contractAddress: Scalars['String']['input'];
@@ -197,7 +210,7 @@ export type ICw721InfoQueryVariables = Exact<{
 
 export type ICw721InfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', address: string, minter: string, numTokens: number, contractInfo: { __typename?: 'NftContractInfo', name: string, symbol: string } } } };
 
-export type IAndrFragmentFragment = { __typename?: 'AndrQuery', admin: string, address: string, blockHeightUponCreation: number, codeId: number, creator: string, contractVersion: string, ibcPortId: string, label: string, owner: string, operators: Array<string>, originalPublisher: string, queries_expected: Array<string>, type: string, version: string };
+export type IAndrFragmentFragment = { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string };
 
 
 export type IAndrFragmentFragmentVariables = Exact<{ [key: string]: never; }>;
@@ -207,7 +220,7 @@ export type IComponentFragment = { __typename?: 'Component', address: string, ad
 
 export type IComponentFragmentVariables = Exact<{ [key: string]: never; }>;
 
-export type IAppComponentFragment = { __typename?: 'AppComponent', address: string, ado_type: string, instantiate_msg: string, name: string };
+export type IAppComponentFragment = { __typename?: 'AppComponent', address: string, ado_type: string, instantiate_msg: any, name: string, type: string };
 
 
 export type IAppComponentFragmentVariables = Exact<{ [key: string]: never; }>;
@@ -217,12 +230,12 @@ export type IChainConfigQueryVariables = Exact<{
 }>;
 
 
-export type IChainConfigQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', config: { __typename?: 'ChainConfig', addressPrefix: string, blockExplorerTxPages: Array<string>, blockExplorerAddressPages: Array<string>, chainId: string, chainUrl: string, chainName: string, chainType: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', sm: string, lg: string } } } };
+export type IChainConfigQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', config: { __typename?: 'ChainConfig', addressPrefix: string, blockExplorerTxPages: Array<string>, blockExplorerAddressPages: Array<string>, chainId: string, chainUrl: string, chainName: string, chainType: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, enabled: boolean, iconUrls: { __typename?: 'IconUrl', sm: string, lg: string } } } };
 
 export type IAllChainConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type IAllChainConfigQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerTxPages: Array<string>, blockExplorerAddressPages: Array<string>, chainId: string, chainUrl: string, chainName: string, chainType: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', sm: string, lg: string } }> } };
+export type IAllChainConfigQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerTxPages: Array<string>, blockExplorerAddressPages: Array<string>, chainId: string, chainUrl: string, chainName: string, chainType: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, enabled: boolean, iconUrls: { __typename?: 'IconUrl', sm: string, lg: string } }> } };
 
 export type IKeplrConfigFragment = { __typename?: 'KeplrConfig', chainId: string, coinType: number, chainName: string, rpc: string, rest: string, bip44: { __typename?: 'Bip44', coinType: number }, bech32Config: { __typename?: 'Bech32Config', bech32PrefixAccPub: string, bech32PrefixValPub: string, bech32PrefixAccAddr: string, bech32PrefixConsPub: string, bech32PrefixValAddr: string, bech32PrefixConsAddr: string }, currencies: Array<{ __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string }>, feeCurrencies: Array<{ __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string }>, gasPriceStep: { __typename?: 'GasPriceStep', average: number, low: number, high: number }, stakeCurrency: { __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string } };
 
@@ -239,7 +252,7 @@ export type IBech32configFragment = { __typename?: 'Bech32Config', bech32PrefixA
 
 export type IBech32configFragmentVariables = Exact<{ [key: string]: never; }>;
 
-export type IChainConfigFragment = { __typename?: 'ChainConfig', addressPrefix: string, blockExplorerTxPages: Array<string>, blockExplorerAddressPages: Array<string>, chainId: string, chainUrl: string, chainName: string, chainType: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', sm: string, lg: string } };
+export type IChainConfigFragment = { __typename?: 'ChainConfig', addressPrefix: string, blockExplorerTxPages: Array<string>, blockExplorerAddressPages: Array<string>, chainId: string, chainUrl: string, chainName: string, chainType: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, enabled: boolean, iconUrls: { __typename?: 'IconUrl', sm: string, lg: string } };
 
 
 export type IChainConfigFragmentVariables = Exact<{ [key: string]: never; }>;
@@ -256,20 +269,12 @@ export type IAllKeplrConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type IAllKeplrConfigQuery = { __typename?: 'Query', keplrConfigs: { __typename?: 'KeplrConfigQuery', allConfigs: Array<{ __typename?: 'KeplrConfig', chainId: string, coinType: number, chainName: string, rpc: string, rest: string, bip44: { __typename?: 'Bip44', coinType: number }, bech32Config: { __typename?: 'Bech32Config', bech32PrefixAccPub: string, bech32PrefixValPub: string, bech32PrefixAccAddr: string, bech32PrefixConsPub: string, bech32PrefixValAddr: string, bech32PrefixConsAddr: string }, currencies: Array<{ __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string }>, feeCurrencies: Array<{ __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string }>, gasPriceStep: { __typename?: 'GasPriceStep', average: number, low: number, high: number }, stakeCurrency: { __typename?: 'Currency', coinDenom: string, coinGeckoId: string, coinDecimals: number, coinMinimalDenom: string } }> } };
 
-export type ICodegenGeneratedAdoAddressListAndrIsoperatorQueryVariables = Exact<{
-  ADO_address_list_address: Scalars['String']['input'];
-  ADO_address_list_address_list_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoAddressListAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', address_list: { __typename?: 'AddressListAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
-
 export type ICodegenGeneratedAdoAddressListAndrQueryVariables = Exact<{
   ADO_address_list_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoAddressListAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', address_list: { __typename?: 'AddressListAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoAddressListAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', address_list: { __typename?: 'AddressListAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoAddressListIncludesaddressQueryVariables = Exact<{
   ADO_address_list_address: Scalars['String']['input'];
@@ -284,29 +289,29 @@ export type ICodegenGeneratedAdoAddressListQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoAddressListQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', address_list: { __typename?: 'AddressListAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
-
-export type ICodegenGeneratedAdoAdoAndrIsoperatorQueryVariables = Exact<{
-  ADO_ado_address: Scalars['String']['input'];
-  ADO_ado_ado_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoAdoAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoAddressListQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', address_list: { __typename?: 'AddressListAdo', address: string, chainId: string } } };
 
 export type ICodegenGeneratedAdoAdoAndrQueryVariables = Exact<{
   ADO_ado_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoAdoAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoAdoAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoAdoQueryVariables = Exact<{
   ADO_ado_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoAdoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoAdoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', address: string, chainId: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
+
+export type ICodegenGeneratedAdoAdosmartQueryVariables = Exact<{
+  ADO_adoSmart_address: Scalars['String']['input'];
+  ADO_adoSmart_query: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedAdoAdosmartQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', adoSmart: { __typename?: 'AdoSmartResponse', address: string, adoType: string, query: string, queryResult: any } } };
 
 export type ICodegenGeneratedAdoAppAddressesQueryVariables = Exact<{
   ADO_app_address: Scalars['String']['input'];
@@ -315,20 +320,12 @@ export type ICodegenGeneratedAdoAppAddressesQueryVariables = Exact<{
 
 export type ICodegenGeneratedAdoAppAddressesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', addresses: Array<{ __typename?: 'AppComponentAddress', address: string, name: string }> } } };
 
-export type ICodegenGeneratedAdoAppAndrIsoperatorQueryVariables = Exact<{
-  ADO_app_address: Scalars['String']['input'];
-  ADO_app_app_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoAppAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
-
 export type ICodegenGeneratedAdoAppAndrQueryVariables = Exact<{
   ADO_app_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoAppAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoAppAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoAppComponentexistsQueryVariables = Exact<{
   ADO_app_address: Scalars['String']['input'];
@@ -343,7 +340,7 @@ export type ICodegenGeneratedAdoAppComponentsQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoAppComponentsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', components: Array<{ __typename?: 'AppComponent', address: string, ado_type: string, instantiate_msg: string, name: string }> } } };
+export type ICodegenGeneratedAdoAppComponentsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', components: Array<{ __typename?: 'AppComponent', address: string, ado_type: string, instantiate_msg: any, name: string, type: string }> } } };
 
 export type ICodegenGeneratedAdoAppConfigQueryVariables = Exact<{
   ADO_app_address: Scalars['String']['input'];
@@ -365,22 +362,14 @@ export type ICodegenGeneratedAdoAppQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoAppQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', address: string, type: string, addresses: Array<{ __typename?: 'AppComponentAddress', address: string, name: string }>, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, components: Array<{ __typename?: 'AppComponent', address: string, ado_type: string, instantiate_msg: string, name: string }>, config: { __typename?: 'AppConfig', name: string, owner: string } } } };
-
-export type ICodegenGeneratedAdoAuctionAndrIsoperatorQueryVariables = Exact<{
-  ADO_auction_address: Scalars['String']['input'];
-  ADO_auction_auction_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoAuctionAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoAppQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', app: { __typename?: 'AppAdo', address: string, chainId: string, addresses: Array<{ __typename?: 'AppComponentAddress', address: string, name: string }>, components: Array<{ __typename?: 'AppComponent', address: string, ado_type: string, instantiate_msg: any, name: string, type: string }>, config: { __typename?: 'AppConfig', name: string, owner: string } } } };
 
 export type ICodegenGeneratedAdoAuctionAndrQueryVariables = Exact<{
   ADO_auction_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoAuctionAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoAuctionAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoAuctionAuctionidsQueryVariables = Exact<{
   ADO_auction_address: Scalars['String']['input'];
@@ -405,7 +394,7 @@ export type ICodegenGeneratedAdoAuctionAuctionstateQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoAuctionAuctionstateQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', auctionState: { __typename?: 'AuctionStateResponse', auction_id: number, coin_denom: string, end_time: any, high_bidder_addr: string, high_bidder_amount: number, is_cancelled: boolean, min_bid: number, start_time: any, summaryFields: number, whitelist: any } } } };
+export type ICodegenGeneratedAdoAuctionAuctionstateQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', auctionState: { __typename?: 'AuctionStateResponse', auction_id: number, coin_denom: string, end_time: any, high_bidder_addr: string, high_bidder_amount: number, is_cancelled: boolean, min_bid: number, start_time: any, whitelist: Array<string> } } } };
 
 export type ICodegenGeneratedAdoAuctionBidsBidsQueryVariables = Exact<{
   ADO_auction_address: Scalars['String']['input'];
@@ -414,7 +403,7 @@ export type ICodegenGeneratedAdoAuctionBidsBidsQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoAuctionBidsBidsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', bids: { __typename?: 'BidsResponse', bids: Array<{ __typename?: 'Bid', amount: number, bidder: string, timestamp: any }> } } } };
+export type ICodegenGeneratedAdoAuctionBidsBidsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', bids: { __typename?: 'BidsResponse', bids: Array<{ __typename?: 'Bid', amount: number, bidder: string, timestamp: string }> } } } };
 
 export type ICodegenGeneratedAdoAuctionBidsQueryVariables = Exact<{
   ADO_auction_address: Scalars['String']['input'];
@@ -423,7 +412,7 @@ export type ICodegenGeneratedAdoAuctionBidsQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoAuctionBidsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', bids: { __typename?: 'BidsResponse', bids: Array<{ __typename?: 'Bid', amount: number, bidder: string, timestamp: any }> } } } };
+export type ICodegenGeneratedAdoAuctionBidsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', bids: { __typename?: 'BidsResponse', bids: Array<{ __typename?: 'Bid', amount: number, bidder: string, timestamp: string }> } } } };
 
 export type ICodegenGeneratedAdoAuctionLatestauctionstateQueryVariables = Exact<{
   ADO_auction_address: Scalars['String']['input'];
@@ -432,7 +421,7 @@ export type ICodegenGeneratedAdoAuctionLatestauctionstateQueryVariables = Exact<
 }>;
 
 
-export type ICodegenGeneratedAdoAuctionLatestauctionstateQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', latestAuctionState: { __typename?: 'AuctionStateResponse', auction_id: number, coin_denom: string, end_time: any, high_bidder_addr: string, high_bidder_amount: number, is_cancelled: boolean, min_bid: number, start_time: any, summaryFields: number, whitelist: any } } } };
+export type ICodegenGeneratedAdoAuctionLatestauctionstateQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', latestAuctionState: { __typename?: 'AuctionStateResponse', auction_id: number, coin_denom: string, end_time: any, high_bidder_addr: string, high_bidder_amount: number, is_cancelled: boolean, min_bid: number, start_time: any, whitelist: Array<string> } } } };
 
 export type ICodegenGeneratedAdoAuctionSummaryfieldsQueryVariables = Exact<{
   ADO_auction_address: Scalars['String']['input'];
@@ -447,29 +436,28 @@ export type ICodegenGeneratedAdoAuctionQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoAuctionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoAuctionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', address: string, chainId: string } } };
 
-export type ICodegenGeneratedAdoCrowdfundAndrIsoperatorQueryVariables = Exact<{
-  ADO_crowdfund_address: Scalars['String']['input'];
-  ADO_crowdfund_crowdfund_andr_andr_isOperator_address: Scalars['String']['input'];
+export type ICodegenGeneratedAdoChainidQueryVariables = Exact<{
+  ADO_chainId_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCrowdfundAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoChainidQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', chainId: string } };
 
 export type ICodegenGeneratedAdoCrowdfundAndrQueryVariables = Exact<{
   ADO_crowdfund_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCrowdfundAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoCrowdfundAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoCrowdfundConfigQueryVariables = Exact<{
   ADO_crowdfund_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCrowdfundConfigQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', config: { __typename?: 'CrowdfundConfig', can_mint_after_sale: boolean, token_address: any } } } };
+export type ICodegenGeneratedAdoCrowdfundConfigQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', config: { __typename?: 'CrowdfundConfig', can_mint_after_sale: boolean, token_address: string } } } };
 
 export type ICodegenGeneratedAdoCrowdfundIstokenavailableQueryVariables = Exact<{
   ADO_crowdfund_address: Scalars['String']['input'];
@@ -486,19 +474,26 @@ export type ICodegenGeneratedAdoCrowdfundStatePriceQueryVariables = Exact<{
 
 export type ICodegenGeneratedAdoCrowdfundStatePriceQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', state: { __typename?: 'CrowdfundState', price: { __typename?: 'Coin', amount: string, denom: string } } } } };
 
+export type ICodegenGeneratedAdoCrowdfundStateRecipientQueryVariables = Exact<{
+  ADO_crowdfund_address: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedAdoCrowdfundStateRecipientQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', state: { __typename?: 'CrowdfundState', recipient: { __typename?: 'CrowdfundRecipient', address: string, ibc_recovery_address: string, msg: any } } } } };
+
 export type ICodegenGeneratedAdoCrowdfundStateQueryVariables = Exact<{
   ADO_crowdfund_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCrowdfundStateQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', state: { __typename?: 'CrowdfundState', amount_sold: number, amount_to_send: number, amount_transferred: number, expiration: any, max_amount_per_wallet: number, min_tokens_sold: number, recipient: any, price: { __typename?: 'Coin', amount: string, denom: string } } } } };
+export type ICodegenGeneratedAdoCrowdfundStateQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', state: { __typename?: 'CrowdfundState', amount_sold: number, amount_to_send: number, amount_transferred: number, end_time: any, max_amount_per_wallet: number, min_tokens_sold: number, price: { __typename?: 'Coin', amount: string, denom: string }, recipient: { __typename?: 'CrowdfundRecipient', address: string, ibc_recovery_address: string, msg: any } } } } };
 
 export type ICodegenGeneratedAdoCrowdfundQueryVariables = Exact<{
   ADO_crowdfund_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCrowdfundQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', address: string, availableTokens: Array<string>, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, config: { __typename?: 'CrowdfundConfig', can_mint_after_sale: boolean, token_address: any }, state: { __typename?: 'CrowdfundState', amount_sold: number, amount_to_send: number, amount_transferred: number, expiration: any, max_amount_per_wallet: number, min_tokens_sold: number, recipient: any, price: { __typename?: 'Coin', amount: string, denom: string } } } } };
+export type ICodegenGeneratedAdoCrowdfundQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', crowdfund: { __typename?: 'CrowdfundAdo', address: string, availableTokens: Array<string>, chainId: string, config: { __typename?: 'CrowdfundConfig', can_mint_after_sale: boolean, token_address: string }, state: { __typename?: 'CrowdfundState', amount_sold: number, amount_to_send: number, amount_transferred: number, end_time: any, max_amount_per_wallet: number, min_tokens_sold: number, price: { __typename?: 'Coin', amount: string, denom: string }, recipient: { __typename?: 'CrowdfundRecipient', address: string, ibc_recovery_address: string, msg: any } } } } };
 
 export type ICodegenGeneratedAdoCw20AllaccountsQueryVariables = Exact<{
   ADO_cw20_address: Scalars['String']['input'];
@@ -535,20 +530,12 @@ export type ICodegenGeneratedAdoCw20AllowanceQueryVariables = Exact<{
 
 export type ICodegenGeneratedAdoCw20AllowanceQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20: { __typename?: 'CW20Ado', allowance: { __typename?: 'Allowance', allowance: number, expires: any, owner: string, spender: string } } } };
 
-export type ICodegenGeneratedAdoCw20AndrIsoperatorQueryVariables = Exact<{
-  ADO_cw20_address: Scalars['String']['input'];
-  ADO_cw20_cw20_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoCw20AndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20: { __typename?: 'CW20Ado', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
-
 export type ICodegenGeneratedAdoCw20AndrQueryVariables = Exact<{
   ADO_cw20_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCw20AndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20: { __typename?: 'CW20Ado', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoCw20AndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20: { __typename?: 'CW20Ado', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoCw20BalanceQueryVariables = Exact<{
   ADO_cw20_address: Scalars['String']['input'];
@@ -570,7 +557,7 @@ export type ICodegenGeneratedAdoCw20MarketinginfoQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw20MarketinginfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20: { __typename?: 'CW20Ado', marketingInfo: { __typename?: 'MarketingInfo', allowance: number, description: string, logo: any, marketing: string, project: string } } } };
+export type ICodegenGeneratedAdoCw20MarketinginfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20: { __typename?: 'CW20Ado', marketingInfo: { __typename?: 'MarketingInfo', description: string, logo: any, marketing: string, project: string } } } };
 
 export type ICodegenGeneratedAdoCw20MinterQueryVariables = Exact<{
   ADO_cw20_address: Scalars['String']['input'];
@@ -591,22 +578,14 @@ export type ICodegenGeneratedAdoCw20QueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw20Query = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20: { __typename?: 'CW20Ado', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, downloadLogo: { __typename?: 'DownloadLogo', data: any, mime_type: string }, marketingInfo: { __typename?: 'MarketingInfo', allowance: number, description: string, logo: any, marketing: string, project: string }, minter: { __typename?: 'Minter', cap: number, minter: string }, tokenInfo: { __typename?: 'TokenInfo', decimals: number, name: string, symbol: string, total_supply: number } } } };
-
-export type ICodegenGeneratedAdoCw20ExchangeAndrIsoperatorQueryVariables = Exact<{
-  ADO_cw20_exchange_address: Scalars['String']['input'];
-  ADO_cw20_exchange_cw20_exchange_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoCw20ExchangeAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_exchange: { __typename?: 'CW20ExchangeAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoCw20Query = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20: { __typename?: 'CW20Ado', address: string, chainId: string, downloadLogo: { __typename?: 'DownloadLogo', data: any, mime_type: string }, marketingInfo: { __typename?: 'MarketingInfo', description: string, logo: any, marketing: string, project: string }, minter: { __typename?: 'Minter', cap: number, minter: string }, tokenInfo: { __typename?: 'TokenInfo', decimals: number, name: string, symbol: string, total_supply: number } } } };
 
 export type ICodegenGeneratedAdoCw20ExchangeAndrQueryVariables = Exact<{
   ADO_cw20_exchange_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCw20ExchangeAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_exchange: { __typename?: 'CW20ExchangeAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoCw20ExchangeAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_exchange: { __typename?: 'CW20ExchangeAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoCw20ExchangeSaleQueryVariables = Exact<{
   ADO_cw20_exchange_address: Scalars['String']['input'];
@@ -615,7 +594,7 @@ export type ICodegenGeneratedAdoCw20ExchangeSaleQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw20ExchangeSaleQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_exchange: { __typename?: 'CW20ExchangeAdo', sale: { __typename?: 'SaleResponse', amount: number, exchange_rate: number, recipient: string } } } };
+export type ICodegenGeneratedAdoCw20ExchangeSaleQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_exchange: { __typename?: 'CW20ExchangeAdo', sale: { __typename?: 'SaleResponse', amount: number, end_time: any, exchange_rate: number, recipient: string, start_amount: number, start_time: any } } } };
 
 export type ICodegenGeneratedAdoCw20ExchangeSaleassetsQueryVariables = Exact<{
   ADO_cw20_exchange_address: Scalars['String']['input'];
@@ -630,22 +609,14 @@ export type ICodegenGeneratedAdoCw20ExchangeQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw20ExchangeQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_exchange: { __typename?: 'CW20ExchangeAdo', address: string, tokenAddress: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
-
-export type ICodegenGeneratedAdoCw20StakingAndrIsoperatorQueryVariables = Exact<{
-  ADO_cw20_staking_address: Scalars['String']['input'];
-  ADO_cw20_staking_cw20_staking_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoCw20StakingAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_staking: { __typename?: 'CW20StakingAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoCw20ExchangeQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_exchange: { __typename?: 'CW20ExchangeAdo', address: string, chainId: string, tokenAddress: string } } };
 
 export type ICodegenGeneratedAdoCw20StakingAndrQueryVariables = Exact<{
   ADO_cw20_staking_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCw20StakingAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_staking: { __typename?: 'CW20StakingAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoCw20StakingAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_staking: { __typename?: 'CW20StakingAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoCw20StakingConfigStakingTokenQueryVariables = Exact<{
   ADO_cw20_staking_address: Scalars['String']['input'];
@@ -689,7 +660,7 @@ export type ICodegenGeneratedAdoCw20StakingQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw20StakingQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_staking: { __typename?: 'CW20StakingAdo', address: string, timestamp: any, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, config: { __typename?: 'ConfigStructure', number_of_reward_tokens: number, staking_token: { __typename?: 'AndrAddress', identifier: string } }, state: { __typename?: 'StateStructure', total_share: number } } } };
+export type ICodegenGeneratedAdoCw20StakingQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw20_staking: { __typename?: 'CW20StakingAdo', address: string, chainId: string, timestamp: any, config: { __typename?: 'ConfigStructure', number_of_reward_tokens: number, staking_token: { __typename?: 'AndrAddress', identifier: string } }, state: { __typename?: 'StateStructure', total_share: number } } } };
 
 export type ICodegenGeneratedAdoCw721AllnftinfoAccessApprovalsQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -709,15 +680,6 @@ export type ICodegenGeneratedAdoCw721AllnftinfoAccessQueryVariables = Exact<{
 
 export type ICodegenGeneratedAdoCw721AllnftinfoAccessQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', access: { __typename?: 'NftOwnerInfo', owner: string, approvals: Array<{ __typename?: 'NftApproval', expires: any, spender: string }> } } } } };
 
-export type ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionAttributesQueryVariables = Exact<{
-  ADO_cw721_address: Scalars['String']['input'];
-  ADO_cw721_cw721_allNftInfo_includeExpired: Scalars['Boolean']['input'];
-  ADO_cw721_cw721_allNftInfo_tokenId: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionAttributesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
-
 export type ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
   ADO_cw721_cw721_allNftInfo_includeExpired: Scalars['Boolean']['input'];
@@ -725,7 +687,16 @@ export type ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQueryVariables = Exa
 }>;
 
 
-export type ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', animation_url: string, description: string, external_url: string, image: string, image_data: string, name: string, publisher: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', publisher: string } } } } } };
+
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQueryVariables = Exact<{
+  ADO_cw721_address: Scalars['String']['input'];
+  ADO_cw721_cw721_allNftInfo_includeExpired: Scalars['Boolean']['input'];
+  ADO_cw721_cw721_allNftInfo_tokenId: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } } };
 
 export type ICodegenGeneratedAdoCw721AllnftinfoInfoQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -734,7 +705,7 @@ export type ICodegenGeneratedAdoCw721AllnftinfoInfoQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721AllnftinfoInfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', token_uri: string, extension: { __typename?: 'TokenExtension', animation_url: string, description: string, external_url: string, image: string, image_data: string, name: string, publisher: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
+export type ICodegenGeneratedAdoCw721AllnftinfoInfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', info: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } } };
 
 export type ICodegenGeneratedAdoCw721AllnftinfoQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -743,7 +714,7 @@ export type ICodegenGeneratedAdoCw721AllnftinfoQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721AllnftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', access: { __typename?: 'NftOwnerInfo', owner: string, approvals: Array<{ __typename?: 'NftApproval', expires: any, spender: string }> }, info: { __typename?: 'NftInfo', token_uri: string, extension: { __typename?: 'TokenExtension', animation_url: string, description: string, external_url: string, image: string, image_data: string, name: string, publisher: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } } };
+export type ICodegenGeneratedAdoCw721AllnftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allNftInfo: { __typename?: 'AllNftInfo', access: { __typename?: 'NftOwnerInfo', owner: string, approvals: Array<{ __typename?: 'NftApproval', expires: any, spender: string }> }, info: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } } };
 
 export type ICodegenGeneratedAdoCw721AlloperatorsQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -763,20 +734,12 @@ export type ICodegenGeneratedAdoCw721AlltokensQueryVariables = Exact<{
 
 export type ICodegenGeneratedAdoCw721AlltokensQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', allTokens: Array<string> } } };
 
-export type ICodegenGeneratedAdoCw721AndrIsoperatorQueryVariables = Exact<{
-  ADO_cw721_address: Scalars['String']['input'];
-  ADO_cw721_cw721_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoCw721AndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
-
 export type ICodegenGeneratedAdoCw721AndrQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCw721AndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoCw721AndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoCw721ApprovalQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -812,21 +775,21 @@ export type ICodegenGeneratedAdoCw721IsarchivedQueryVariables = Exact<{
 
 export type ICodegenGeneratedAdoCw721IsarchivedQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', isArchived: boolean } } };
 
-export type ICodegenGeneratedAdoCw721NftinfoExtensionAttributesQueryVariables = Exact<{
-  ADO_cw721_address: Scalars['String']['input'];
-  ADO_cw721_cw721_nftInfo_tokenId: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoCw721NftinfoExtensionAttributesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } };
-
 export type ICodegenGeneratedAdoCw721NftinfoExtensionQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
   ADO_cw721_cw721_nftInfo_tokenId: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoCw721NftinfoExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', animation_url: string, description: string, external_url: string, image: string, image_data: string, name: string, publisher: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } };
+export type ICodegenGeneratedAdoCw721NftinfoExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', publisher: string } } } } };
+
+export type ICodegenGeneratedAdoCw721NftinfoMetadataQueryVariables = Exact<{
+  ADO_cw721_address: Scalars['String']['input'];
+  ADO_cw721_cw721_nftInfo_tokenId: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedAdoCw721NftinfoMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } };
 
 export type ICodegenGeneratedAdoCw721NftinfoQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -834,7 +797,7 @@ export type ICodegenGeneratedAdoCw721NftinfoQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721NftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', token_uri: string, extension: { __typename?: 'TokenExtension', animation_url: string, description: string, external_url: string, image: string, image_data: string, name: string, publisher: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } } } } };
+export type ICodegenGeneratedAdoCw721NftinfoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', nftInfo: { __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } } } } };
 
 export type ICodegenGeneratedAdoCw721NumownersQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -862,21 +825,21 @@ export type ICodegenGeneratedAdoCw721OwnerofQueryVariables = Exact<{
 
 export type ICodegenGeneratedAdoCw721OwnerofQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', ownerOf: { __typename?: 'NftOwnerInfo', owner: string, approvals: Array<{ __typename?: 'NftApproval', expires: any, spender: string }> } } } };
 
-export type ICodegenGeneratedAdoCw721SearchtokensExtensionAttributesQueryVariables = Exact<{
-  ADO_cw721_address: Scalars['String']['input'];
-  ADO_cw721_cw721_searchTokens_attributes?: InputMaybe<Array<ISearchAttribute> | ISearchAttribute>;
-}>;
-
-
-export type ICodegenGeneratedAdoCw721SearchtokensExtensionAttributesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } }> } } };
-
 export type ICodegenGeneratedAdoCw721SearchtokensExtensionQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
   ADO_cw721_cw721_searchTokens_attributes?: InputMaybe<Array<ISearchAttribute> | ISearchAttribute>;
 }>;
 
 
-export type ICodegenGeneratedAdoCw721SearchtokensExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', animation_url: string, description: string, external_url: string, image: string, image_data: string, name: string, publisher: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } }> } } };
+export type ICodegenGeneratedAdoCw721SearchtokensExtensionQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', extension: { __typename?: 'TokenExtension', publisher: string } }> } } };
+
+export type ICodegenGeneratedAdoCw721SearchtokensMetadataQueryVariables = Exact<{
+  ADO_cw721_address: Scalars['String']['input'];
+  ADO_cw721_cw721_searchTokens_attributes?: InputMaybe<Array<ISearchAttribute> | ISearchAttribute>;
+}>;
+
+
+export type ICodegenGeneratedAdoCw721SearchtokensMetadataQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } }> } } };
 
 export type ICodegenGeneratedAdoCw721SearchtokensQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -884,7 +847,7 @@ export type ICodegenGeneratedAdoCw721SearchtokensQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721SearchtokensQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', token_uri: string, extension: { __typename?: 'TokenExtension', animation_url: string, description: string, external_url: string, image: string, image_data: string, name: string, publisher: string, youtube_url: string, attributes: Array<{ __typename?: 'MetadataAttribute', display_type: string, trait_type: string, value: string }> } }> } } };
+export type ICodegenGeneratedAdoCw721SearchtokensQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', searchTokens: Array<{ __typename?: 'NftInfo', tokenId: string, token_uri: string, extension: { __typename?: 'TokenExtension', publisher: string }, metadata: { __typename?: 'NFTMetadata', animation_url: string, attributes: Array<string>, background_color: string, description: string, external_url: string, image: string, image_data: string, name: string, youtube_url: string } }> } } };
 
 export type ICodegenGeneratedAdoCw721TokensQueryVariables = Exact<{
   ADO_cw721_address: Scalars['String']['input'];
@@ -932,22 +895,14 @@ export type ICodegenGeneratedAdoCw721QueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoCw721Query = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', address: string, minter: string, numTokens: number, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, contractInfo: { __typename?: 'NftContractInfo', name: string, symbol: string } } } };
-
-export type ICodegenGeneratedAdoFactoryAndrIsoperatorQueryVariables = Exact<{
-  ADO_factory_address: Scalars['String']['input'];
-  ADO_factory_factory_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoFactoryAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', factory: { __typename?: 'FactoryAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoCw721Query = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', cw721: { __typename?: 'CW721Ado', address: string, chainId: string, minter: string, numTokens: number, contractInfo: { __typename?: 'NftContractInfo', name: string, symbol: string } } } };
 
 export type ICodegenGeneratedAdoFactoryAndrQueryVariables = Exact<{
   ADO_factory_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoFactoryAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', factory: { __typename?: 'FactoryAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoFactoryAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', factory: { __typename?: 'FactoryAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoFactoryCodeIdQueryVariables = Exact<{
   ADO_factory_address: Scalars['String']['input'];
@@ -962,22 +917,14 @@ export type ICodegenGeneratedAdoFactoryQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoFactoryQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', factory: { __typename?: 'FactoryAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
-
-export type ICodegenGeneratedAdoLockdropAndrIsoperatorQueryVariables = Exact<{
-  ADO_lockdrop_address: Scalars['String']['input'];
-  ADO_lockdrop_lockdrop_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoLockdropAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', lockdrop: { __typename?: 'LockdropAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoFactoryQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', factory: { __typename?: 'FactoryAdo', address: string, chainId: string } } };
 
 export type ICodegenGeneratedAdoLockdropAndrQueryVariables = Exact<{
   ADO_lockdrop_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoLockdropAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', lockdrop: { __typename?: 'LockdropAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoLockdropAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', lockdrop: { __typename?: 'LockdropAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoLockdropConfigQueryVariables = Exact<{
   ADO_lockdrop_address: Scalars['String']['input'];
@@ -1014,22 +961,14 @@ export type ICodegenGeneratedAdoLockdropQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoLockdropQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', lockdrop: { __typename?: 'LockdropAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, config: { __typename?: 'LockdropConfig', deposit_window: number, incentive_token: string, init_timestamp: number, lockdrop_incentives: number, native_denom: string, withdrawal_window: number }, state: { __typename?: 'LockdropState', are_claims_allowed: boolean, total_native_locked: string } } } };
-
-export type ICodegenGeneratedAdoMarketplaceAndrIsoperatorQueryVariables = Exact<{
-  ADO_marketplace_address: Scalars['String']['input'];
-  ADO_marketplace_marketplace_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoMarketplaceAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', marketplace: { __typename?: 'MarketplaceAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoLockdropQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', lockdrop: { __typename?: 'LockdropAdo', address: string, chainId: string, config: { __typename?: 'LockdropConfig', deposit_window: number, incentive_token: string, init_timestamp: number, lockdrop_incentives: number, native_denom: string, withdrawal_window: number }, state: { __typename?: 'LockdropState', are_claims_allowed: boolean, total_native_locked: string } } } };
 
 export type ICodegenGeneratedAdoMarketplaceAndrQueryVariables = Exact<{
   ADO_marketplace_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoMarketplaceAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', marketplace: { __typename?: 'MarketplaceAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoMarketplaceAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', marketplace: { __typename?: 'MarketplaceAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoMarketplaceLatestsalestateQueryVariables = Exact<{
   ADO_marketplace_address: Scalars['String']['input'];
@@ -1071,22 +1010,14 @@ export type ICodegenGeneratedAdoMarketplaceQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoMarketplaceQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', marketplace: { __typename?: 'MarketplaceAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
-
-export type ICodegenGeneratedAdoMerkleAirdropAndrIsoperatorQueryVariables = Exact<{
-  ADO_merkle_airdrop_address: Scalars['String']['input'];
-  ADO_merkle_airdrop_merkle_airdrop_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoMerkleAirdropAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', merkle_airdrop: { __typename?: 'MerkleAirdropAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoMarketplaceQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', marketplace: { __typename?: 'MarketplaceAdo', address: string, chainId: string } } };
 
 export type ICodegenGeneratedAdoMerkleAirdropAndrQueryVariables = Exact<{
   ADO_merkle_airdrop_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoMerkleAirdropAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', merkle_airdrop: { __typename?: 'MerkleAirdropAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoMerkleAirdropAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', merkle_airdrop: { __typename?: 'MerkleAirdropAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoMerkleAirdropConfigQueryVariables = Exact<{
   ADO_merkle_airdrop_address: Scalars['String']['input'];
@@ -1125,22 +1056,14 @@ export type ICodegenGeneratedAdoMerkleAirdropQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoMerkleAirdropQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', merkle_airdrop: { __typename?: 'MerkleAirdropAdo', address: string, latestStage: number, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, config: { __typename?: 'MerkleAirdropConfig', asset_info: any } } } };
-
-export type ICodegenGeneratedAdoPrimitiveAndrIsoperatorQueryVariables = Exact<{
-  ADO_primitive_address: Scalars['String']['input'];
-  ADO_primitive_primitive_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoPrimitiveAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', primitive: { __typename?: 'PrimitiveAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoMerkleAirdropQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', merkle_airdrop: { __typename?: 'MerkleAirdropAdo', address: string, chainId: string, latestStage: number, config: { __typename?: 'MerkleAirdropConfig', asset_info: any } } } };
 
 export type ICodegenGeneratedAdoPrimitiveAndrQueryVariables = Exact<{
   ADO_primitive_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoPrimitiveAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', primitive: { __typename?: 'PrimitiveAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoPrimitiveAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', primitive: { __typename?: 'PrimitiveAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoPrimitiveGetvalueQueryVariables = Exact<{
   ADO_primitive_address: Scalars['String']['input'];
@@ -1155,7 +1078,7 @@ export type ICodegenGeneratedAdoPrimitiveQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoPrimitiveQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', primitive: { __typename?: 'PrimitiveAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoPrimitiveQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', primitive: { __typename?: 'PrimitiveAdo', address: string, chainId: string } } };
 
 export type ICodegenGeneratedAdoRateLimitingWithdrawalsAccountdetailsQueryVariables = Exact<{
   ADO_rate_limiting_withdrawals_address: Scalars['String']['input'];
@@ -1164,20 +1087,12 @@ export type ICodegenGeneratedAdoRateLimitingWithdrawalsAccountdetailsQueryVariab
 
 export type ICodegenGeneratedAdoRateLimitingWithdrawalsAccountdetailsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rate_limiting_withdrawals: { __typename?: 'RateLimitingWithdrawalsAdo', accountDetails: { __typename?: 'AccountDetails', balance: string, latest_withdrawal: string } } } };
 
-export type ICodegenGeneratedAdoRateLimitingWithdrawalsAndrIsoperatorQueryVariables = Exact<{
-  ADO_rate_limiting_withdrawals_address: Scalars['String']['input'];
-  ADO_rate_limiting_withdrawals_rate_limiting_withdrawals_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoRateLimitingWithdrawalsAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rate_limiting_withdrawals: { __typename?: 'RateLimitingWithdrawalsAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
-
 export type ICodegenGeneratedAdoRateLimitingWithdrawalsAndrQueryVariables = Exact<{
   ADO_rate_limiting_withdrawals_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoRateLimitingWithdrawalsAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rate_limiting_withdrawals: { __typename?: 'RateLimitingWithdrawalsAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoRateLimitingWithdrawalsAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rate_limiting_withdrawals: { __typename?: 'RateLimitingWithdrawalsAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoRateLimitingWithdrawalsCoinallowancedetailsQueryVariables = Exact<{
   ADO_rate_limiting_withdrawals_address: Scalars['String']['input'];
@@ -1191,22 +1106,14 @@ export type ICodegenGeneratedAdoRateLimitingWithdrawalsQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoRateLimitingWithdrawalsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rate_limiting_withdrawals: { __typename?: 'RateLimitingWithdrawalsAdo', address: string, type: string, accountDetails: { __typename?: 'AccountDetails', balance: string, latest_withdrawal: string }, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, coinAllowanceDetails: { __typename?: 'CoinAllowance', coin: string, limit: string, minimal_withdrawal_frequency: string } } } };
-
-export type ICodegenGeneratedAdoRatesAndrIsoperatorQueryVariables = Exact<{
-  ADO_rates_address: Scalars['String']['input'];
-  ADO_rates_rates_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoRatesAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rates: { __typename?: 'RatesAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoRateLimitingWithdrawalsQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rate_limiting_withdrawals: { __typename?: 'RateLimitingWithdrawalsAdo', address: string, chainId: string, accountDetails: { __typename?: 'AccountDetails', balance: string, latest_withdrawal: string }, coinAllowanceDetails: { __typename?: 'CoinAllowance', coin: string, limit: string, minimal_withdrawal_frequency: string } } } };
 
 export type ICodegenGeneratedAdoRatesAndrQueryVariables = Exact<{
   ADO_rates_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoRatesAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rates: { __typename?: 'RatesAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoRatesAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rates: { __typename?: 'RatesAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoRatesPaymentsRateExternalQueryVariables = Exact<{
   ADO_rates_address: Scalars['String']['input'];
@@ -1248,22 +1155,14 @@ export type ICodegenGeneratedAdoRatesQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoRatesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rates: { __typename?: 'RatesAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, payments: Array<{ __typename?: 'RateInfo', description: string, is_additive: boolean, receivers: Array<any>, rate: { __typename?: 'Rate', external: { __typename?: 'ADORate', address: string, key: string }, flat: { __typename?: 'Coin', amount: string, denom: string }, percent: { __typename?: 'PercentRate', decimal: number } } }> } } };
-
-export type ICodegenGeneratedAdoSplitterAndrIsoperatorQueryVariables = Exact<{
-  ADO_splitter_address: Scalars['String']['input'];
-  ADO_splitter_splitter_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoSplitterAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', splitter: { __typename?: 'SplitterAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoRatesQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', rates: { __typename?: 'RatesAdo', address: string, chainId: string, payments: Array<{ __typename?: 'RateInfo', description: string, is_additive: boolean, receivers: Array<any>, rate: { __typename?: 'Rate', external: { __typename?: 'ADORate', address: string, key: string }, flat: { __typename?: 'Coin', amount: string, denom: string }, percent: { __typename?: 'PercentRate', decimal: number } } }> } } };
 
 export type ICodegenGeneratedAdoSplitterAndrQueryVariables = Exact<{
   ADO_splitter_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoSplitterAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', splitter: { __typename?: 'SplitterAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoSplitterAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', splitter: { __typename?: 'SplitterAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoSplitterConfigRecipientsQueryVariables = Exact<{
   ADO_splitter_address: Scalars['String']['input'];
@@ -1284,22 +1183,14 @@ export type ICodegenGeneratedAdoSplitterQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoSplitterQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', splitter: { __typename?: 'SplitterAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, config: { __typename?: 'Splitter', lock: any, recipients: Array<{ __typename?: 'AddressPercent', percent: string, recipient: any }> } } } };
-
-export type ICodegenGeneratedAdoTimelockAndrIsoperatorQueryVariables = Exact<{
-  ADO_timelock_address: Scalars['String']['input'];
-  ADO_timelock_timelock_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoTimelockAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', timelock: { __typename?: 'TimelockAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoSplitterQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', splitter: { __typename?: 'SplitterAdo', address: string, chainId: string, config: { __typename?: 'Splitter', lock: any, recipients: Array<{ __typename?: 'AddressPercent', percent: string, recipient: any }> } } } };
 
 export type ICodegenGeneratedAdoTimelockAndrQueryVariables = Exact<{
   ADO_timelock_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoTimelockAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', timelock: { __typename?: 'TimelockAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoTimelockAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', timelock: { __typename?: 'TimelockAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoTimelockGetlockedfundsCoinsQueryVariables = Exact<{
   ADO_timelock_address: Scalars['String']['input'];
@@ -1378,22 +1269,14 @@ export type ICodegenGeneratedAdoTimelockQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoTimelockQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', timelock: { __typename?: 'TimelockAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
-
-export type ICodegenGeneratedAdoVaultAndrIsoperatorQueryVariables = Exact<{
-  ADO_vault_address: Scalars['String']['input'];
-  ADO_vault_vault_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoVaultAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', vault: { __typename?: 'VaultAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoTimelockQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', timelock: { __typename?: 'TimelockAdo', address: string, chainId: string } } };
 
 export type ICodegenGeneratedAdoVaultAndrQueryVariables = Exact<{
   ADO_vault_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoVaultAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', vault: { __typename?: 'VaultAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoVaultAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', vault: { __typename?: 'VaultAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoVaultBalanceQueryVariables = Exact<{
   ADO_vault_address: Scalars['String']['input'];
@@ -1416,22 +1299,14 @@ export type ICodegenGeneratedAdoVaultQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoVaultQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', vault: { __typename?: 'VaultAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
-
-export type ICodegenGeneratedAdoVestingAndrIsoperatorQueryVariables = Exact<{
-  ADO_vesting_address: Scalars['String']['input'];
-  ADO_vesting_vesting_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoVestingAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', vesting: { __typename?: 'VestingAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoVaultQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', vault: { __typename?: 'VaultAdo', address: string, chainId: string } } };
 
 export type ICodegenGeneratedAdoVestingAndrQueryVariables = Exact<{
   ADO_vesting_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoVestingAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', vesting: { __typename?: 'VestingAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoVestingAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', vesting: { __typename?: 'VestingAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoVestingBatchQueryVariables = Exact<{
   ADO_vesting_address: Scalars['String']['input'];
@@ -1460,22 +1335,14 @@ export type ICodegenGeneratedAdoVestingQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedAdoVestingQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', vesting: { __typename?: 'VestingAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, batches: Array<{ __typename?: 'VestingBatchInfo', amount: string, amount_available_to_claim: string, amount_claimed: string, id: number, last_claimed_release_time: number, lockup_end: number, number_of_available_claims: string, release_amount: any, release_unit: number }>, config: { __typename?: 'VestingConfig', denom: string, is_multi_batch_enabled: boolean, recipient: any, unbonding_duration: any } } } };
-
-export type ICodegenGeneratedAdoWeightedDistributionSplitterAndrIsoperatorQueryVariables = Exact<{
-  ADO_weighted_distribution_splitter_address: Scalars['String']['input'];
-  ADO_weighted_distribution_splitter_weighted_distribution_splitter_andr_andr_isOperator_address: Scalars['String']['input'];
-}>;
-
-
-export type ICodegenGeneratedAdoWeightedDistributionSplitterAndrIsoperatorQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', weighted_distribution_splitter: { __typename?: 'WeightedDistributionSplitterAdo', andr: { __typename?: 'AndrQuery', isOperator: boolean } } } };
+export type ICodegenGeneratedAdoVestingQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', vesting: { __typename?: 'VestingAdo', address: string, chainId: string, batches: Array<{ __typename?: 'VestingBatchInfo', amount: string, amount_available_to_claim: string, amount_claimed: string, id: number, last_claimed_release_time: number, lockup_end: number, number_of_available_claims: string, release_amount: any, release_unit: number }>, config: { __typename?: 'VestingConfig', denom: string, is_multi_batch_enabled: boolean, recipient: any, unbonding_duration: any } } } };
 
 export type ICodegenGeneratedAdoWeightedDistributionSplitterAndrQueryVariables = Exact<{
   ADO_weighted_distribution_splitter_address: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAdoWeightedDistributionSplitterAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', weighted_distribution_splitter: { __typename?: 'WeightedDistributionSplitterAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string } } } };
+export type ICodegenGeneratedAdoWeightedDistributionSplitterAndrQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', weighted_distribution_splitter: { __typename?: 'WeightedDistributionSplitterAdo', andr: { __typename?: 'AndrQuery', address: string, admin: string, appContract: string, blockHeightUponCreation: number, codeId: number, creator: string, ibcPortId: string, kernelAddress: string, label: string, originalPublisher: string, owner: string, ownershipRequest: any, permissionedActions: Array<string>, type: string, version: string } } } };
 
 export type ICodegenGeneratedAdoWeightedDistributionSplitterConfigRecipientsQueryVariables = Exact<{
   ADO_weighted_distribution_splitter_address: Scalars['String']['input'];
@@ -1504,7 +1371,7 @@ export type ICodegenGeneratedAdoWeightedDistributionSplitterQueryVariables = Exa
 }>;
 
 
-export type ICodegenGeneratedAdoWeightedDistributionSplitterQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', weighted_distribution_splitter: { __typename?: 'WeightedDistributionSplitterAdo', address: string, type: string, andr: { __typename?: 'AndrQuery', address: string, admin: string, blockHeightUponCreation: number, codeId: number, contractVersion: string, creator: string, ibcPortId: string, label: string, operators: Array<string>, originalPublisher: string, owner: string, queries_expected: Array<string>, type: string, version: string }, config: { __typename?: 'Splitter', lock: any, recipients: Array<{ __typename?: 'AddressPercent', percent: string, recipient: any }> } } } };
+export type ICodegenGeneratedAdoWeightedDistributionSplitterQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', weighted_distribution_splitter: { __typename?: 'WeightedDistributionSplitterAdo', address: string, chainId: string, config: { __typename?: 'Splitter', lock: any, recipients: Array<{ __typename?: 'AddressPercent', percent: string, recipient: any }> } } } };
 
 export type ICodegenGeneratedAdoQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1538,31 +1405,43 @@ export type ICodegenGeneratedAdopQueryVariables = Exact<{ [key: string]: never; 
 export type ICodegenGeneratedAdopQuery = { __typename?: 'Query', ADOP: { __typename?: 'ADOPQuery', adoTypes: Array<string> } };
 
 export type ICodegenGeneratedAccountsAssetsComponentsQueryVariables = Exact<{
-  accounts_assets_adoType?: InputMaybe<IAdoType>;
-  accounts_assets_limit?: InputMaybe<Scalars['Int']['input']>;
-  accounts_assets_offset?: InputMaybe<Scalars['Int']['input']>;
+  accounts_assets_adoType?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_appContract?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_instantiateOwner?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_kernel?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_limit: Scalars['Int']['input'];
+  accounts_assets_memo?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_offset: Scalars['Int']['input'];
   accounts_assets_orderBy?: InputMaybe<IAndrOrderBy>;
+  accounts_assets_owner?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_ownershipRequest?: InputMaybe<Scalars['String']['input']>;
   accounts_assets_search?: InputMaybe<Scalars['String']['input']>;
   accounts_assets_walletAddress: Scalars['String']['input'];
   accounts_assets_assets_components_componentType?: InputMaybe<IAdoType>;
-  accounts_assets_assets_components_limit?: InputMaybe<Scalars['Int']['input']>;
-  accounts_assets_assets_components_offset?: InputMaybe<Scalars['Int']['input']>;
+  accounts_assets_assets_components_limit: Scalars['Int']['input'];
+  accounts_assets_assets_components_offset: Scalars['Int']['input'];
 }>;
 
 
 export type ICodegenGeneratedAccountsAssetsComponentsQuery = { __typename?: 'Query', accounts: { __typename?: 'AccountsQuery', assets: Array<{ __typename?: 'AssetResult', components: Array<{ __typename?: 'Component', address: string, ado_type: string, instantiate_msg: string, name: string }> }> } };
 
 export type ICodegenGeneratedAccountsAssetsQueryVariables = Exact<{
-  accounts_assets_adoType?: InputMaybe<IAdoType>;
-  accounts_assets_limit?: InputMaybe<Scalars['Int']['input']>;
-  accounts_assets_offset?: InputMaybe<Scalars['Int']['input']>;
+  accounts_assets_adoType?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_appContract?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_instantiateOwner?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_kernel?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_limit: Scalars['Int']['input'];
+  accounts_assets_memo?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_offset: Scalars['Int']['input'];
   accounts_assets_orderBy?: InputMaybe<IAndrOrderBy>;
+  accounts_assets_owner?: InputMaybe<Scalars['String']['input']>;
+  accounts_assets_ownershipRequest?: InputMaybe<Scalars['String']['input']>;
   accounts_assets_search?: InputMaybe<Scalars['String']['input']>;
   accounts_assets_walletAddress: Scalars['String']['input'];
 }>;
 
 
-export type ICodegenGeneratedAccountsAssetsQuery = { __typename?: 'Query', accounts: { __typename?: 'AccountsQuery', assets: Array<{ __typename?: 'AssetResult', address: string, adoType: string, appContract: string, chainId: string, instantiateHash: string, instantiateHeight: number, lastUpdatedHash: string, lastUpdatedHeight: number, name: string, owner: string }> } };
+export type ICodegenGeneratedAccountsAssetsQuery = { __typename?: 'Query', accounts: { __typename?: 'AccountsQuery', assets: Array<{ __typename?: 'AssetResult', address: string, adoType: string, appContract: string, chainId: string, disowned: boolean, instantiateHash: string, instantiateHeight: number, instantiateOwner: string, kernel: string, lastUpdatedHash: string, lastUpdatedHeight: number, memo: string, minter: string, name: string, owner: string, ownershipRequest: string }> } };
 
 export type ICodegenGeneratedAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1577,7 +1456,17 @@ export type ICodegenGeneratedChainconfigsAllconfigsIconurlsQuery = { __typename?
 export type ICodegenGeneratedChainconfigsAllconfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ICodegenGeneratedChainconfigsAllconfigsQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerAddressPages: Array<string>, blockExplorerTxPages: Array<string>, chainId: string, chainName: string, chainType: string, chainUrl: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', lg: string, sm: string } }> } };
+export type ICodegenGeneratedChainconfigsAllconfigsQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerAddressPages: Array<string>, blockExplorerTxPages: Array<string>, chainId: string, chainName: string, chainType: string, chainUrl: string, defaultFee: string, enabled: boolean, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', lg: string, sm: string } }> } };
+
+export type ICodegenGeneratedChainconfigsAllstoredconfigsIconurlsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ICodegenGeneratedChainconfigsAllstoredconfigsIconurlsQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allStoredConfigs: Array<{ __typename?: 'ChainConfig', iconUrls: { __typename?: 'IconUrl', lg: string, sm: string } }> } };
+
+export type ICodegenGeneratedChainconfigsAllstoredconfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ICodegenGeneratedChainconfigsAllstoredconfigsQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allStoredConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerAddressPages: Array<string>, blockExplorerTxPages: Array<string>, chainId: string, chainName: string, chainType: string, chainUrl: string, defaultFee: string, enabled: boolean, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', lg: string, sm: string } }> } };
 
 export type ICodegenGeneratedChainconfigsConfigIconurlsQueryVariables = Exact<{
   chainConfigs_config_identifier: Scalars['String']['input'];
@@ -1591,12 +1480,12 @@ export type ICodegenGeneratedChainconfigsConfigQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedChainconfigsConfigQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', config: { __typename?: 'ChainConfig', addressPrefix: string, blockExplorerAddressPages: Array<string>, blockExplorerTxPages: Array<string>, chainId: string, chainName: string, chainType: string, chainUrl: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', lg: string, sm: string } } } };
+export type ICodegenGeneratedChainconfigsConfigQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', config: { __typename?: 'ChainConfig', addressPrefix: string, blockExplorerAddressPages: Array<string>, blockExplorerTxPages: Array<string>, chainId: string, chainName: string, chainType: string, chainUrl: string, defaultFee: string, enabled: boolean, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', lg: string, sm: string } } } };
 
 export type ICodegenGeneratedChainconfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ICodegenGeneratedChainconfigsQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerAddressPages: Array<string>, blockExplorerTxPages: Array<string>, chainId: string, chainName: string, chainType: string, chainUrl: string, defaultFee: string, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', lg: string, sm: string } }> } };
+export type ICodegenGeneratedChainconfigsQuery = { __typename?: 'Query', chainConfigs: { __typename?: 'ChainConfigQuery', allConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerAddressPages: Array<string>, blockExplorerTxPages: Array<string>, chainId: string, chainName: string, chainType: string, chainUrl: string, defaultFee: string, enabled: boolean, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', lg: string, sm: string } }>, allStoredConfigs: Array<{ __typename?: 'ChainConfig', addressPrefix: string, blockExplorerAddressPages: Array<string>, blockExplorerTxPages: Array<string>, chainId: string, chainName: string, chainType: string, chainUrl: string, defaultFee: string, enabled: boolean, kernelAddress: string, name: string, registryAddress: string, iconUrls: { __typename?: 'IconUrl', lg: string, sm: string } }> } };
 
 export type ICodegenGeneratedKeplrconfigsAllconfigsBech32ConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1707,6 +1596,16 @@ export type ICodegenGeneratedTxByaccountEventsQueryVariables = Exact<{
 
 export type ICodegenGeneratedTxByaccountEventsQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byAccount: Array<{ __typename?: 'TxInfo', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> } };
 
+export type ICodegenGeneratedTxByaccountMsgresponsesQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byAccount_maxHeight?: InputMaybe<Scalars['Int']['input']>;
+  tx_byAccount_minHeight?: InputMaybe<Scalars['Int']['input']>;
+  tx_byAccount_sentFromOrTo: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByaccountMsgresponsesQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byAccount: Array<{ __typename?: 'TxInfo', msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }> }> } };
+
 export type ICodegenGeneratedTxByaccountTxlogEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
   tx_byAccount_maxHeight?: InputMaybe<Scalars['Int']['input']>;
@@ -1745,7 +1644,7 @@ export type ICodegenGeneratedTxByaccountQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedTxByaccountQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byAccount: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
+export type ICodegenGeneratedTxByaccountQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byAccount: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, txIndex: number, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
 
 export type ICodegenGeneratedTxBycontractEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -1766,6 +1665,16 @@ export type ICodegenGeneratedTxBycontractEventsQueryVariables = Exact<{
 
 
 export type ICodegenGeneratedTxBycontractEventsQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byContract: Array<{ __typename?: 'TxInfo', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> } };
+
+export type ICodegenGeneratedTxBycontractMsgresponsesQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byContract_address: Scalars['String']['input'];
+  tx_byContract_maxHeight?: InputMaybe<Scalars['Int']['input']>;
+  tx_byContract_minHeight?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type ICodegenGeneratedTxBycontractMsgresponsesQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byContract: Array<{ __typename?: 'TxInfo', msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }> }> } };
 
 export type ICodegenGeneratedTxBycontractTxlogEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -1805,7 +1714,7 @@ export type ICodegenGeneratedTxBycontractQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedTxBycontractQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byContract: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
+export type ICodegenGeneratedTxBycontractQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byContract: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, txIndex: number, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
 
 export type ICodegenGeneratedTxByhashEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -1822,6 +1731,14 @@ export type ICodegenGeneratedTxByhashEventsQueryVariables = Exact<{
 
 
 export type ICodegenGeneratedTxByhashEventsQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byHash: { __typename?: 'TxInfo', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> } } };
+
+export type ICodegenGeneratedTxByhashMsgresponsesQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byHash_hash: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByhashMsgresponsesQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byHash: { __typename?: 'TxInfo', msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }> } } };
 
 export type ICodegenGeneratedTxByhashTxlogEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -1853,7 +1770,7 @@ export type ICodegenGeneratedTxByhashQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedTxByhashQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byHash: { __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> } } };
+export type ICodegenGeneratedTxByhashQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byHash: { __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, txIndex: number, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> } } };
 
 export type ICodegenGeneratedTxByheightEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -1870,6 +1787,14 @@ export type ICodegenGeneratedTxByheightEventsQueryVariables = Exact<{
 
 
 export type ICodegenGeneratedTxByheightEventsQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byHeight: Array<{ __typename?: 'TxInfo', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> } };
+
+export type ICodegenGeneratedTxByheightMsgresponsesQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byHeight_height: Scalars['Float']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByheightMsgresponsesQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byHeight: Array<{ __typename?: 'TxInfo', msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }> }> } };
 
 export type ICodegenGeneratedTxByheightTxlogEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -1901,7 +1826,7 @@ export type ICodegenGeneratedTxByheightQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedTxByheightQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byHeight: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
+export type ICodegenGeneratedTxByheightQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byHeight: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, txIndex: number, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
 
 export type ICodegenGeneratedTxByownerEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -1922,6 +1847,16 @@ export type ICodegenGeneratedTxByownerEventsQueryVariables = Exact<{
 
 
 export type ICodegenGeneratedTxByownerEventsQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byOwner: Array<{ __typename?: 'TxInfo', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> } };
+
+export type ICodegenGeneratedTxByownerMsgresponsesQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byOwner_maxHeight?: InputMaybe<Scalars['Int']['input']>;
+  tx_byOwner_minHeight?: InputMaybe<Scalars['Int']['input']>;
+  tx_byOwner_walletAddress: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByownerMsgresponsesQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byOwner: Array<{ __typename?: 'TxInfo', msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }> }> } };
 
 export type ICodegenGeneratedTxByownerTxlogEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -1961,7 +1896,63 @@ export type ICodegenGeneratedTxByownerQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedTxByownerQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byOwner: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
+export type ICodegenGeneratedTxByownerQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byOwner: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, txIndex: number, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
+
+export type ICodegenGeneratedTxByrawstringEventsAttributesQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byRawString_query: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByrawstringEventsAttributesQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byRawString: Array<{ __typename?: 'TxInfo', events: Array<{ __typename?: 'TxEvent', attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> } };
+
+export type ICodegenGeneratedTxByrawstringEventsQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byRawString_query: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByrawstringEventsQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byRawString: Array<{ __typename?: 'TxInfo', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> } };
+
+export type ICodegenGeneratedTxByrawstringMsgresponsesQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byRawString_query: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByrawstringMsgresponsesQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byRawString: Array<{ __typename?: 'TxInfo', msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }> }> } };
+
+export type ICodegenGeneratedTxByrawstringTxlogEventsAttributesQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byRawString_query: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByrawstringTxlogEventsAttributesQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byRawString: Array<{ __typename?: 'TxInfo', txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
+
+export type ICodegenGeneratedTxByrawstringTxlogEventsQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byRawString_query: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByrawstringTxlogEventsQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byRawString: Array<{ __typename?: 'TxInfo', txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
+
+export type ICodegenGeneratedTxByrawstringTxlogQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byRawString_query: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByrawstringTxlogQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byRawString: Array<{ __typename?: 'TxInfo', txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
+
+export type ICodegenGeneratedTxByrawstringQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byRawString_query: Scalars['String']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxByrawstringQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byRawString: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, txIndex: number, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
 
 export type ICodegenGeneratedTxBytagEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -1982,6 +1973,16 @@ export type ICodegenGeneratedTxBytagEventsQueryVariables = Exact<{
 
 
 export type ICodegenGeneratedTxBytagEventsQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byTag: Array<{ __typename?: 'TxInfo', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> } };
+
+export type ICodegenGeneratedTxBytagMsgresponsesQueryVariables = Exact<{
+  chainId: Scalars['String']['input'];
+  tx_byTag_maxHeight?: InputMaybe<Scalars['Int']['input']>;
+  tx_byTag_minHeight?: InputMaybe<Scalars['Int']['input']>;
+  tx_byTag_tags: Scalars['JSON']['input'];
+}>;
+
+
+export type ICodegenGeneratedTxBytagMsgresponsesQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byTag: Array<{ __typename?: 'TxInfo', msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }> }> } };
 
 export type ICodegenGeneratedTxBytagTxlogEventsAttributesQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -2021,7 +2022,7 @@ export type ICodegenGeneratedTxBytagQueryVariables = Exact<{
 }>;
 
 
-export type ICodegenGeneratedTxBytagQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byTag: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
+export type ICodegenGeneratedTxBytagQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearchResult', byTag: Array<{ __typename?: 'TxInfo', code: number, gasUsed: number, gasWanted: number, hash: string, height: number, rawLog: string, tx: any, txIndex: number, events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }>, msgResponses: Array<{ __typename?: 'TxMsgResponses', typeUrl: string, value: any }>, txLog: Array<{ __typename?: 'TxLog', events: Array<{ __typename?: 'TxEvent', type: string, attributes: Array<{ __typename?: 'TxEventAttribute', key: string, value: string }> }> }> }> } };
 
 export type ICodegenGeneratedTxQueryVariables = Exact<{
   chainId: Scalars['String']['input'];
@@ -2087,18 +2088,19 @@ export type ITxByHashQuery = { __typename?: 'Query', tx: { __typename?: 'TxSearc
 
 export const AndrFragmentFragmentDoc = /*#__PURE__*/ gql`
     fragment andrFragment on AndrQuery {
-  admin
   address
+  admin
+  appContract
   blockHeightUponCreation
   codeId
   creator
-  contractVersion
   ibcPortId
+  kernelAddress
   label
-  owner
-  operators
   originalPublisher
-  queries_expected
+  owner
+  ownershipRequest
+  permissionedActions
   type
   version
 }
@@ -2117,6 +2119,7 @@ export const AppComponentFragmentDoc = /*#__PURE__*/ gql`
   ado_type
   instantiate_msg
   name
+  type
 }
     `;
 export const Bech32configFragmentDoc = /*#__PURE__*/ gql`
@@ -2184,6 +2187,7 @@ export const ChainConfigFragmentDoc = /*#__PURE__*/ gql`
   kernelAddress
   name
   registryAddress
+  enabled
 }
     `;
 export const TxInfoFragmentDoc = /*#__PURE__*/ gql`
@@ -2245,32 +2249,43 @@ export const AppConfigAndComponentsDocument = /*#__PURE__*/ gql`
       components {
         ...appComponent
       }
-      type
     }
   }
 }
     ${AppComponentFragmentDoc}`;
 export const AssetsDocument = /*#__PURE__*/ gql`
-    query ASSETS($walletAddress: String!, $limit: Int!, $offset: Int!, $search: String, $adoType: AdoType, $orderBy: AndrOrderBy) {
+    query ASSETS($walletAddress: String!, $adoType: String, $appContract: String, $instantiateOwner: String, $kernel: String, $limit: Int!, $memo: String, $offset: Int!, $orderBy: AndrOrderBy, $owner: String, $ownershipRequest: String, $search: String) {
   accounts {
     assets(
-      walletAddress: $walletAddress
-      limit: $limit
-      offset: $offset
-      search: $search
       adoType: $adoType
+      appContract: $appContract
+      instantiateOwner: $instantiateOwner
+      kernel: $kernel
+      limit: $limit
+      memo: $memo
+      offset: $offset
       orderBy: $orderBy
+      owner: $owner
+      ownershipRequest: $ownershipRequest
+      search: $search
+      walletAddress: $walletAddress
     ) {
       address
       adoType
       appContract
       chainId
+      disowned
       instantiateHash
       instantiateHeight
+      instantiateOwner
+      kernel
       lastUpdatedHash
       lastUpdatedHeight
+      memo
+      minter
       name
       owner
+      ownershipRequest
     }
   }
 }
@@ -2280,7 +2295,7 @@ export const BaseAdoDocument = /*#__PURE__*/ gql`
   ADO {
     ado(address: $contractAddress) {
       address
-      type
+      chainId
       andr {
         ...andrFragment
       }
@@ -2288,6 +2303,20 @@ export const BaseAdoDocument = /*#__PURE__*/ gql`
   }
 }
     ${AndrFragmentFragmentDoc}`;
+export const MiniBaseAdoDocument = /*#__PURE__*/ gql`
+    query MINI_BASE_ADO($contractAddress: String!) {
+  ADO {
+    ado(address: $contractAddress) {
+      address
+      chainId
+      andr {
+        type
+        version
+      }
+    }
+  }
+}
+    `;
 export const CrowdfundAvailableTokensDocument = /*#__PURE__*/ gql`
     query CROWDFUND_AVAILABLE_TOKENS($contractAddress: String!) {
   ADO {
@@ -2327,14 +2356,18 @@ export const CrowdfundStateDocument = /*#__PURE__*/ gql`
         amount_sold
         amount_to_send
         amount_transferred
-        expiration
+        end_time
         max_amount_per_wallet
         min_tokens_sold
         price {
           amount
           denom
         }
-        recipient
+        recipient {
+          address
+          ibc_recovery_address
+          msg
+        }
       }
     }
   }
@@ -2360,28 +2393,7 @@ export const Cw20Document = /*#__PURE__*/ gql`
   ADO {
     cw20(address: $contractAddress) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      downloadLogo {
-        data
-        mime_type
-      }
       marketingInfo {
-        allowance
         description
         logo
         marketing
@@ -2391,7 +2403,6 @@ export const Cw20Document = /*#__PURE__*/ gql`
         cap
         minter
       }
-      type
     }
   }
 }
@@ -2447,17 +2458,6 @@ export const AllKeplrConfigDocument = /*#__PURE__*/ gql`
   }
 }
     ${KeplrConfigFragmentDoc}`;
-export const CodegenGeneratedAdoAddressListAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_ADDRESS_LIST_ANDR_ISOPERATOR($ADO_address_list_address: String!, $ADO_address_list_address_list_andr_andr_isOperator_address: String!) {
-  ADO {
-    address_list(address: $ADO_address_list_address) {
-      andr {
-        isOperator(address: $ADO_address_list_address_list_andr_andr_isOperator_address)
-      }
-    }
-  }
-}
-    `;
 export const CodegenGeneratedAdoAddressListAndrDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_ADDRESS_LIST_ANDR($ADO_address_list_address: String!) {
   ADO {
@@ -2465,16 +2465,17 @@ export const CodegenGeneratedAdoAddressListAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2498,34 +2499,7 @@ export const CodegenGeneratedAdoAddressListDocument = /*#__PURE__*/ gql`
   ADO {
     address_list(address: $ADO_address_list_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoAdoAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_ADO_ANDR_ISOPERATOR($ADO_ado_address: String!, $ADO_ado_ado_andr_andr_isOperator_address: String!) {
-  ADO {
-    ado(address: $ADO_ado_address) {
-      andr {
-        isOperator(address: $ADO_ado_ado_andr_andr_isOperator_address)
-      }
+      chainId
     }
   }
 }
@@ -2537,16 +2511,17 @@ export const CodegenGeneratedAdoAdoAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2562,20 +2537,33 @@ export const CodegenGeneratedAdoAdoDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
-      type
+      chainId
+    }
+  }
+}
+    `;
+export const CodegenGeneratedAdoAdosmartDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_ADOSMART($ADO_adoSmart_address: String!, $ADO_adoSmart_query: String!) {
+  ADO {
+    adoSmart(address: $ADO_adoSmart_address, query: $ADO_adoSmart_query) {
+      address
+      adoType
+      query
+      queryResult
     }
   }
 }
@@ -2592,17 +2580,6 @@ export const CodegenGeneratedAdoAppAddressesDocument = /*#__PURE__*/ gql`
   }
 }
     `;
-export const CodegenGeneratedAdoAppAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_APP_ANDR_ISOPERATOR($ADO_app_address: String!, $ADO_app_app_andr_andr_isOperator_address: String!) {
-  ADO {
-    app(address: $ADO_app_address) {
-      andr {
-        isOperator(address: $ADO_app_app_andr_andr_isOperator_address)
-      }
-    }
-  }
-}
-    `;
 export const CodegenGeneratedAdoAppAndrDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_APP_ANDR($ADO_app_address: String!) {
   ADO {
@@ -2610,16 +2587,17 @@ export const CodegenGeneratedAdoAppAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2645,6 +2623,7 @@ export const CodegenGeneratedAdoAppComponentsDocument = /*#__PURE__*/ gql`
         ado_type
         instantiate_msg
         name
+        type
       }
     }
   }
@@ -2680,43 +2659,17 @@ export const CodegenGeneratedAdoAppDocument = /*#__PURE__*/ gql`
         address
         name
       }
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       components {
         address
         ado_type
         instantiate_msg
         name
+        type
       }
       config {
         name
         owner
-      }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoAuctionAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_AUCTION_ANDR_ISOPERATOR($ADO_auction_address: String!, $ADO_auction_auction_andr_andr_isOperator_address: String!) {
-  ADO {
-    auction(address: $ADO_auction_address) {
-      andr {
-        isOperator(address: $ADO_auction_auction_andr_andr_isOperator_address)
       }
     }
   }
@@ -2729,16 +2682,17 @@ export const CodegenGeneratedAdoAuctionAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2788,7 +2742,6 @@ export const CodegenGeneratedAdoAuctionAuctionstateDocument = /*#__PURE__*/ gql`
         is_cancelled
         min_bid
         start_time
-        summaryFields
         whitelist
       }
     }
@@ -2847,7 +2800,6 @@ export const CodegenGeneratedAdoAuctionLatestauctionstateDocument = /*#__PURE__*
         is_cancelled
         min_bid
         start_time
-        summaryFields
         whitelist
       }
     }
@@ -2872,35 +2824,15 @@ export const CodegenGeneratedAdoAuctionDocument = /*#__PURE__*/ gql`
   ADO {
     auction(address: $ADO_auction_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
+      chainId
     }
   }
 }
     `;
-export const CodegenGeneratedAdoCrowdfundAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_CROWDFUND_ANDR_ISOPERATOR($ADO_crowdfund_address: String!, $ADO_crowdfund_crowdfund_andr_andr_isOperator_address: String!) {
+export const CodegenGeneratedAdoChainidDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CHAINID($ADO_chainId_address: String!) {
   ADO {
-    crowdfund(address: $ADO_crowdfund_address) {
-      andr {
-        isOperator(address: $ADO_crowdfund_crowdfund_andr_andr_isOperator_address)
-      }
-    }
+    chainId(address: $ADO_chainId_address)
   }
 }
     `;
@@ -2911,16 +2843,17 @@ export const CodegenGeneratedAdoCrowdfundAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -2963,6 +2896,21 @@ export const CodegenGeneratedAdoCrowdfundStatePriceDocument = /*#__PURE__*/ gql`
   }
 }
     `;
+export const CodegenGeneratedAdoCrowdfundStateRecipientDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CROWDFUND_STATE_RECIPIENT($ADO_crowdfund_address: String!) {
+  ADO {
+    crowdfund(address: $ADO_crowdfund_address) {
+      state {
+        recipient {
+          address
+          ibc_recovery_address
+          msg
+        }
+      }
+    }
+  }
+}
+    `;
 export const CodegenGeneratedAdoCrowdfundStateDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CROWDFUND_STATE($ADO_crowdfund_address: String!) {
   ADO {
@@ -2971,14 +2919,18 @@ export const CodegenGeneratedAdoCrowdfundStateDocument = /*#__PURE__*/ gql`
         amount_sold
         amount_to_send
         amount_transferred
-        expiration
+        end_time
         max_amount_per_wallet
         min_tokens_sold
         price {
           amount
           denom
         }
-        recipient
+        recipient {
+          address
+          ibc_recovery_address
+          msg
+        }
       }
     }
   }
@@ -2989,23 +2941,8 @@ export const CodegenGeneratedAdoCrowdfundDocument = /*#__PURE__*/ gql`
   ADO {
     crowdfund(address: $ADO_crowdfund_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
       availableTokens
+      chainId
       config {
         can_mint_after_sale
         token_address
@@ -3014,16 +2951,19 @@ export const CodegenGeneratedAdoCrowdfundDocument = /*#__PURE__*/ gql`
         amount_sold
         amount_to_send
         amount_transferred
-        expiration
+        end_time
         max_amount_per_wallet
         min_tokens_sold
         price {
           amount
           denom
         }
-        recipient
+        recipient {
+          address
+          ibc_recovery_address
+          msg
+        }
       }
-      type
     }
   }
 }
@@ -3088,17 +3028,6 @@ export const CodegenGeneratedAdoCw20AllowanceDocument = /*#__PURE__*/ gql`
   }
 }
     `;
-export const CodegenGeneratedAdoCw20AndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_CW20_ANDR_ISOPERATOR($ADO_cw20_address: String!, $ADO_cw20_cw20_andr_andr_isOperator_address: String!) {
-  ADO {
-    cw20(address: $ADO_cw20_address) {
-      andr {
-        isOperator(address: $ADO_cw20_cw20_andr_andr_isOperator_address)
-      }
-    }
-  }
-}
-    `;
 export const CodegenGeneratedAdoCw20AndrDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW20_ANDR($ADO_cw20_address: String!) {
   ADO {
@@ -3106,16 +3035,17 @@ export const CodegenGeneratedAdoCw20AndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -3149,7 +3079,6 @@ export const CodegenGeneratedAdoCw20MarketinginfoDocument = /*#__PURE__*/ gql`
   ADO {
     cw20(address: $ADO_cw20_address) {
       marketingInfo {
-        allowance
         description
         logo
         marketing
@@ -3190,28 +3119,12 @@ export const CodegenGeneratedAdoCw20Document = /*#__PURE__*/ gql`
   ADO {
     cw20(address: $ADO_cw20_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       downloadLogo {
         data
         mime_type
       }
       marketingInfo {
-        allowance
         description
         logo
         marketing
@@ -3227,20 +3140,6 @@ export const CodegenGeneratedAdoCw20Document = /*#__PURE__*/ gql`
         symbol
         total_supply
       }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoCw20ExchangeAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_CW20_EXCHANGE_ANDR_ISOPERATOR($ADO_cw20_exchange_address: String!, $ADO_cw20_exchange_cw20_exchange_andr_andr_isOperator_address: String!) {
-  ADO {
-    cw20_exchange(address: $ADO_cw20_exchange_address) {
-      andr {
-        isOperator(
-          address: $ADO_cw20_exchange_cw20_exchange_andr_andr_isOperator_address
-        )
-      }
     }
   }
 }
@@ -3252,16 +3151,17 @@ export const CodegenGeneratedAdoCw20ExchangeAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -3278,8 +3178,11 @@ export const CodegenGeneratedAdoCw20ExchangeSaleDocument = /*#__PURE__*/ gql`
         native: $ADO_cw20_exchange_cw20_exchange_sale_native
       ) {
         amount
+        end_time
         exchange_rate
         recipient
+        start_amount
+        start_time
       }
     }
   }
@@ -3299,35 +3202,8 @@ export const CodegenGeneratedAdoCw20ExchangeDocument = /*#__PURE__*/ gql`
   ADO {
     cw20_exchange(address: $ADO_cw20_exchange_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       tokenAddress
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoCw20StakingAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_CW20_STAKING_ANDR_ISOPERATOR($ADO_cw20_staking_address: String!, $ADO_cw20_staking_cw20_staking_andr_andr_isOperator_address: String!) {
-  ADO {
-    cw20_staking(address: $ADO_cw20_staking_address) {
-      andr {
-        isOperator(address: $ADO_cw20_staking_cw20_staking_andr_andr_isOperator_address)
-      }
     }
   }
 }
@@ -3339,16 +3215,17 @@ export const CodegenGeneratedAdoCw20StakingAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -3425,22 +3302,7 @@ export const CodegenGeneratedAdoCw20StakingDocument = /*#__PURE__*/ gql`
   ADO {
     cw20_staking(address: $ADO_cw20_staking_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       config {
         number_of_reward_tokens
         staking_token {
@@ -3451,7 +3313,6 @@ export const CodegenGeneratedAdoCw20StakingDocument = /*#__PURE__*/ gql`
         total_share
       }
       timestamp
-      type
     }
   }
 }
@@ -3495,28 +3356,6 @@ export const CodegenGeneratedAdoCw721AllnftinfoAccessDocument = /*#__PURE__*/ gq
   }
 }
     `;
-export const CodegenGeneratedAdoCw721AllnftinfoInfoExtensionAttributesDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
-  ADO {
-    cw721(address: $ADO_cw721_address) {
-      allNftInfo(
-        includeExpired: $ADO_cw721_cw721_allNftInfo_includeExpired
-        tokenId: $ADO_cw721_cw721_allNftInfo_tokenId
-      ) {
-        info {
-          extension {
-            attributes {
-              display_type
-              trait_type
-              value
-            }
-          }
-        }
-      }
-    }
-  }
-}
-    `;
 export const CodegenGeneratedAdoCw721AllnftinfoInfoExtensionDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
   ADO {
@@ -3527,18 +3366,32 @@ export const CodegenGeneratedAdoCw721AllnftinfoInfoExtensionDocument = /*#__PURE
       ) {
         info {
           extension {
+            publisher
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedAdoCw721AllnftinfoInfoMetadataDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_allNftInfo_includeExpired: Boolean!, $ADO_cw721_cw721_allNftInfo_tokenId: String!) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      allNftInfo(
+        includeExpired: $ADO_cw721_cw721_allNftInfo_includeExpired
+        tokenId: $ADO_cw721_cw721_allNftInfo_tokenId
+      ) {
+        info {
+          metadata {
             animation_url
-            attributes {
-              display_type
-              trait_type
-              value
-            }
+            attributes
+            background_color
             description
             external_url
             image
             image_data
             name
-            publisher
             youtube_url
           }
         }
@@ -3557,20 +3410,20 @@ export const CodegenGeneratedAdoCw721AllnftinfoInfoDocument = /*#__PURE__*/ gql`
       ) {
         info {
           extension {
+            publisher
+          }
+          metadata {
             animation_url
-            attributes {
-              display_type
-              trait_type
-              value
-            }
+            attributes
+            background_color
             description
             external_url
             image
             image_data
             name
-            publisher
             youtube_url
           }
+          tokenId
           token_uri
         }
       }
@@ -3595,20 +3448,20 @@ export const CodegenGeneratedAdoCw721AllnftinfoDocument = /*#__PURE__*/ gql`
         }
         info {
           extension {
+            publisher
+          }
+          metadata {
             animation_url
-            attributes {
-              display_type
-              trait_type
-              value
-            }
+            attributes
+            background_color
             description
             external_url
             image
             image_data
             name
-            publisher
             youtube_url
           }
+          tokenId
           token_uri
         }
       }
@@ -3641,17 +3494,6 @@ export const CodegenGeneratedAdoCw721AlltokensDocument = /*#__PURE__*/ gql`
   }
 }
     `;
-export const CodegenGeneratedAdoCw721AndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_CW721_ANDR_ISOPERATOR($ADO_cw721_address: String!, $ADO_cw721_cw721_andr_andr_isOperator_address: String!) {
-  ADO {
-    cw721(address: $ADO_cw721_address) {
-      andr {
-        isOperator(address: $ADO_cw721_cw721_andr_andr_isOperator_address)
-      }
-    }
-  }
-}
-    `;
 export const CodegenGeneratedAdoCw721AndrDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW721_ANDR($ADO_cw721_address: String!) {
   ADO {
@@ -3659,16 +3501,17 @@ export const CodegenGeneratedAdoCw721AndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -3728,41 +3571,33 @@ export const CodegenGeneratedAdoCw721IsarchivedDocument = /*#__PURE__*/ gql`
   }
 }
     `;
-export const CodegenGeneratedAdoCw721NftinfoExtensionAttributesDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
-  ADO {
-    cw721(address: $ADO_cw721_address) {
-      nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
-        extension {
-          attributes {
-            display_type
-            trait_type
-            value
-          }
-        }
-      }
-    }
-  }
-}
-    `;
 export const CodegenGeneratedAdoCw721NftinfoExtensionDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
         extension {
+          publisher
+        }
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedAdoCw721NftinfoMetadataDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_nftInfo_tokenId: String!) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
+        metadata {
           animation_url
-          attributes {
-            display_type
-            trait_type
-            value
-          }
+          attributes
+          background_color
           description
           external_url
           image
           image_data
           name
-          publisher
           youtube_url
         }
       }
@@ -3776,20 +3611,20 @@ export const CodegenGeneratedAdoCw721NftinfoDocument = /*#__PURE__*/ gql`
     cw721(address: $ADO_cw721_address) {
       nftInfo(tokenId: $ADO_cw721_cw721_nftInfo_tokenId) {
         extension {
+          publisher
+        }
+        metadata {
           animation_url
-          attributes {
-            display_type
-            trait_type
-            value
-          }
+          attributes
+          background_color
           description
           external_url
           image
           image_data
           name
-          publisher
           youtube_url
         }
+        tokenId
         token_uri
       }
     }
@@ -3840,41 +3675,33 @@ export const CodegenGeneratedAdoCw721OwnerofDocument = /*#__PURE__*/ gql`
   }
 }
     `;
-export const CodegenGeneratedAdoCw721SearchtokensExtensionAttributesDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION_ATTRIBUTES($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
-  ADO {
-    cw721(address: $ADO_cw721_address) {
-      searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
-        extension {
-          attributes {
-            display_type
-            trait_type
-            value
-          }
-        }
-      }
-    }
-  }
-}
-    `;
 export const CodegenGeneratedAdoCw721SearchtokensExtensionDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
   ADO {
     cw721(address: $ADO_cw721_address) {
       searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
         extension {
+          publisher
+        }
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedAdoCw721SearchtokensMetadataDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA($ADO_cw721_address: String!, $ADO_cw721_cw721_searchTokens_attributes: [SearchAttribute!]) {
+  ADO {
+    cw721(address: $ADO_cw721_address) {
+      searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
+        metadata {
           animation_url
-          attributes {
-            display_type
-            trait_type
-            value
-          }
+          attributes
+          background_color
           description
           external_url
           image
           image_data
           name
-          publisher
           youtube_url
         }
       }
@@ -3888,20 +3715,20 @@ export const CodegenGeneratedAdoCw721SearchtokensDocument = /*#__PURE__*/ gql`
     cw721(address: $ADO_cw721_address) {
       searchTokens(attributes: $ADO_cw721_cw721_searchTokens_attributes) {
         extension {
+          publisher
+        }
+        metadata {
           animation_url
-          attributes {
-            display_type
-            trait_type
-            value
-          }
+          attributes
+          background_color
           description
           external_url
           image
           image_data
           name
-          publisher
           youtube_url
         }
+        tokenId
         token_uri
       }
     }
@@ -4000,40 +3827,13 @@ export const CodegenGeneratedAdoCw721Document = /*#__PURE__*/ gql`
   ADO {
     cw721(address: $ADO_cw721_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       contractInfo {
         name
         symbol
       }
       minter
       numTokens
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoFactoryAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_FACTORY_ANDR_ISOPERATOR($ADO_factory_address: String!, $ADO_factory_factory_andr_andr_isOperator_address: String!) {
-  ADO {
-    factory(address: $ADO_factory_address) {
-      andr {
-        isOperator(address: $ADO_factory_factory_andr_andr_isOperator_address)
-      }
     }
   }
 }
@@ -4045,16 +3845,17 @@ export const CodegenGeneratedAdoFactoryAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -4076,34 +3877,7 @@ export const CodegenGeneratedAdoFactoryDocument = /*#__PURE__*/ gql`
   ADO {
     factory(address: $ADO_factory_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoLockdropAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_LOCKDROP_ANDR_ISOPERATOR($ADO_lockdrop_address: String!, $ADO_lockdrop_lockdrop_andr_andr_isOperator_address: String!) {
-  ADO {
-    lockdrop(address: $ADO_lockdrop_address) {
-      andr {
-        isOperator(address: $ADO_lockdrop_lockdrop_andr_andr_isOperator_address)
-      }
+      chainId
     }
   }
 }
@@ -4115,16 +3889,17 @@ export const CodegenGeneratedAdoLockdropAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -4190,22 +3965,7 @@ export const CodegenGeneratedAdoLockdropDocument = /*#__PURE__*/ gql`
   ADO {
     lockdrop(address: $ADO_lockdrop_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       config {
         deposit_window
         incentive_token
@@ -4218,18 +3978,6 @@ export const CodegenGeneratedAdoLockdropDocument = /*#__PURE__*/ gql`
         are_claims_allowed
         total_native_locked
       }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoMarketplaceAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_MARKETPLACE_ANDR_ISOPERATOR($ADO_marketplace_address: String!, $ADO_marketplace_marketplace_andr_andr_isOperator_address: String!) {
-  ADO {
-    marketplace(address: $ADO_marketplace_address) {
-      andr {
-        isOperator(address: $ADO_marketplace_marketplace_andr_andr_isOperator_address)
-      }
     }
   }
 }
@@ -4241,16 +3989,17 @@ export const CodegenGeneratedAdoMarketplaceAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -4324,36 +4073,7 @@ export const CodegenGeneratedAdoMarketplaceDocument = /*#__PURE__*/ gql`
   ADO {
     marketplace(address: $ADO_marketplace_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoMerkleAirdropAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_MERKLE_AIRDROP_ANDR_ISOPERATOR($ADO_merkle_airdrop_address: String!, $ADO_merkle_airdrop_merkle_airdrop_andr_andr_isOperator_address: String!) {
-  ADO {
-    merkle_airdrop(address: $ADO_merkle_airdrop_address) {
-      andr {
-        isOperator(
-          address: $ADO_merkle_airdrop_merkle_airdrop_andr_andr_isOperator_address
-        )
-      }
+      chainId
     }
   }
 }
@@ -4365,16 +4085,17 @@ export const CodegenGeneratedAdoMerkleAirdropAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -4433,38 +4154,11 @@ export const CodegenGeneratedAdoMerkleAirdropDocument = /*#__PURE__*/ gql`
   ADO {
     merkle_airdrop(address: $ADO_merkle_airdrop_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       config {
         asset_info
       }
       latestStage
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoPrimitiveAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_PRIMITIVE_ANDR_ISOPERATOR($ADO_primitive_address: String!, $ADO_primitive_primitive_andr_andr_isOperator_address: String!) {
-  ADO {
-    primitive(address: $ADO_primitive_address) {
-      andr {
-        isOperator(address: $ADO_primitive_primitive_andr_andr_isOperator_address)
-      }
     }
   }
 }
@@ -4476,16 +4170,17 @@ export const CodegenGeneratedAdoPrimitiveAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -4510,23 +4205,7 @@ export const CodegenGeneratedAdoPrimitiveDocument = /*#__PURE__*/ gql`
   ADO {
     primitive(address: $ADO_primitive_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
+      chainId
     }
   }
 }
@@ -4543,19 +4222,6 @@ export const CodegenGeneratedAdoRateLimitingWithdrawalsAccountdetailsDocument = 
   }
 }
     `;
-export const CodegenGeneratedAdoRateLimitingWithdrawalsAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ANDR_ISOPERATOR($ADO_rate_limiting_withdrawals_address: String!, $ADO_rate_limiting_withdrawals_rate_limiting_withdrawals_andr_andr_isOperator_address: String!) {
-  ADO {
-    rate_limiting_withdrawals(address: $ADO_rate_limiting_withdrawals_address) {
-      andr {
-        isOperator(
-          address: $ADO_rate_limiting_withdrawals_rate_limiting_withdrawals_andr_andr_isOperator_address
-        )
-      }
-    }
-  }
-}
-    `;
 export const CodegenGeneratedAdoRateLimitingWithdrawalsAndrDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ANDR($ADO_rate_limiting_withdrawals_address: String!) {
   ADO {
@@ -4563,16 +4229,17 @@ export const CodegenGeneratedAdoRateLimitingWithdrawalsAndrDocument = /*#__PURE_
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -4602,38 +4269,11 @@ export const CodegenGeneratedAdoRateLimitingWithdrawalsDocument = /*#__PURE__*/ 
         latest_withdrawal
       }
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       coinAllowanceDetails {
         coin
         limit
         minimal_withdrawal_frequency
-      }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoRatesAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_RATES_ANDR_ISOPERATOR($ADO_rates_address: String!, $ADO_rates_rates_andr_andr_isOperator_address: String!) {
-  ADO {
-    rates(address: $ADO_rates_address) {
-      andr {
-        isOperator(address: $ADO_rates_rates_andr_andr_isOperator_address)
       }
     }
   }
@@ -4646,16 +4286,17 @@ export const CodegenGeneratedAdoRatesAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -4764,22 +4405,7 @@ export const CodegenGeneratedAdoRatesDocument = /*#__PURE__*/ gql`
   ADO {
     rates(address: $ADO_rates_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       payments {
         description
         is_additive
@@ -4798,18 +4424,6 @@ export const CodegenGeneratedAdoRatesDocument = /*#__PURE__*/ gql`
         }
         receivers
       }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoSplitterAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_SPLITTER_ANDR_ISOPERATOR($ADO_splitter_address: String!, $ADO_splitter_splitter_andr_andr_isOperator_address: String!) {
-  ADO {
-    splitter(address: $ADO_splitter_address) {
-      andr {
-        isOperator(address: $ADO_splitter_splitter_andr_andr_isOperator_address)
-      }
     }
   }
 }
@@ -4821,16 +4435,17 @@ export const CodegenGeneratedAdoSplitterAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -4872,40 +4487,13 @@ export const CodegenGeneratedAdoSplitterDocument = /*#__PURE__*/ gql`
   ADO {
     splitter(address: $ADO_splitter_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       config {
         lock
         recipients {
           percent
           recipient
         }
-      }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoTimelockAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_TIMELOCK_ANDR_ISOPERATOR($ADO_timelock_address: String!, $ADO_timelock_timelock_andr_andr_isOperator_address: String!) {
-  ADO {
-    timelock(address: $ADO_timelock_address) {
-      andr {
-        isOperator(address: $ADO_timelock_timelock_andr_andr_isOperator_address)
       }
     }
   }
@@ -4918,16 +4506,17 @@ export const CodegenGeneratedAdoTimelockAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -5102,34 +4691,7 @@ export const CodegenGeneratedAdoTimelockDocument = /*#__PURE__*/ gql`
   ADO {
     timelock(address: $ADO_timelock_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoVaultAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_VAULT_ANDR_ISOPERATOR($ADO_vault_address: String!, $ADO_vault_vault_andr_andr_isOperator_address: String!) {
-  ADO {
-    vault(address: $ADO_vault_address) {
-      andr {
-        isOperator(address: $ADO_vault_vault_andr_andr_isOperator_address)
-      }
+      chainId
     }
   }
 }
@@ -5141,16 +4703,17 @@ export const CodegenGeneratedAdoVaultAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -5187,34 +4750,7 @@ export const CodegenGeneratedAdoVaultDocument = /*#__PURE__*/ gql`
   ADO {
     vault(address: $ADO_vault_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoVestingAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_VESTING_ANDR_ISOPERATOR($ADO_vesting_address: String!, $ADO_vesting_vesting_andr_andr_isOperator_address: String!) {
-  ADO {
-    vesting(address: $ADO_vesting_address) {
-      andr {
-        isOperator(address: $ADO_vesting_vesting_andr_andr_isOperator_address)
-      }
+      chainId
     }
   }
 }
@@ -5226,16 +4762,17 @@ export const CodegenGeneratedAdoVestingAndrDocument = /*#__PURE__*/ gql`
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -5300,22 +4837,6 @@ export const CodegenGeneratedAdoVestingDocument = /*#__PURE__*/ gql`
   ADO {
     vesting(address: $ADO_vesting_address) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
       batches {
         amount
         amount_available_to_claim
@@ -5327,27 +4848,12 @@ export const CodegenGeneratedAdoVestingDocument = /*#__PURE__*/ gql`
         release_amount
         release_unit
       }
+      chainId
       config {
         denom
         is_multi_batch_enabled
         recipient
         unbonding_duration
-      }
-      type
-    }
-  }
-}
-    `;
-export const CodegenGeneratedAdoWeightedDistributionSplitterAndrIsoperatorDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ADO_WEIGHTED_DISTRIBUTION_SPLITTER_ANDR_ISOPERATOR($ADO_weighted_distribution_splitter_address: String!, $ADO_weighted_distribution_splitter_weighted_distribution_splitter_andr_andr_isOperator_address: String!) {
-  ADO {
-    weighted_distribution_splitter(
-      address: $ADO_weighted_distribution_splitter_address
-    ) {
-      andr {
-        isOperator(
-          address: $ADO_weighted_distribution_splitter_weighted_distribution_splitter_andr_andr_isOperator_address
-        )
       }
     }
   }
@@ -5362,16 +4868,17 @@ export const CodegenGeneratedAdoWeightedDistributionSplitterAndrDocument = /*#__
       andr {
         address
         admin
+        appContract
         blockHeightUponCreation
         codeId
-        contractVersion
         creator
         ibcPortId
+        kernelAddress
         label
-        operators
         originalPublisher
         owner
-        queries_expected
+        ownershipRequest
+        permissionedActions
         type
         version
       }
@@ -5435,22 +4942,7 @@ export const CodegenGeneratedAdoWeightedDistributionSplitterDocument = /*#__PURE
       address: $ADO_weighted_distribution_splitter_address
     ) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
+      chainId
       config {
         lock
         recipients {
@@ -5458,7 +4950,6 @@ export const CodegenGeneratedAdoWeightedDistributionSplitterDocument = /*#__PURE
           recipient
         }
       }
-      type
     }
   }
 }
@@ -5529,13 +5020,19 @@ export const CodegenGeneratedAdopDocument = /*#__PURE__*/ gql`
 }
     `;
 export const CodegenGeneratedAccountsAssetsComponentsDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ACCOUNTS_ASSETS_COMPONENTS($accounts_assets_adoType: AdoType, $accounts_assets_limit: Int, $accounts_assets_offset: Int, $accounts_assets_orderBy: AndrOrderBy, $accounts_assets_search: String, $accounts_assets_walletAddress: String!, $accounts_assets_assets_components_componentType: AdoType, $accounts_assets_assets_components_limit: Int, $accounts_assets_assets_components_offset: Int) {
+    query CODEGEN_GENERATED_ACCOUNTS_ASSETS_COMPONENTS($accounts_assets_adoType: String, $accounts_assets_appContract: String, $accounts_assets_instantiateOwner: String, $accounts_assets_kernel: String, $accounts_assets_limit: Int!, $accounts_assets_memo: String, $accounts_assets_offset: Int!, $accounts_assets_orderBy: AndrOrderBy, $accounts_assets_owner: String, $accounts_assets_ownershipRequest: String, $accounts_assets_search: String, $accounts_assets_walletAddress: String!, $accounts_assets_assets_components_componentType: AdoType, $accounts_assets_assets_components_limit: Int!, $accounts_assets_assets_components_offset: Int!) {
   accounts {
     assets(
       adoType: $accounts_assets_adoType
+      appContract: $accounts_assets_appContract
+      instantiateOwner: $accounts_assets_instantiateOwner
+      kernel: $accounts_assets_kernel
       limit: $accounts_assets_limit
+      memo: $accounts_assets_memo
       offset: $accounts_assets_offset
       orderBy: $accounts_assets_orderBy
+      owner: $accounts_assets_owner
+      ownershipRequest: $accounts_assets_ownershipRequest
       search: $accounts_assets_search
       walletAddress: $accounts_assets_walletAddress
     ) {
@@ -5554,13 +5051,19 @@ export const CodegenGeneratedAccountsAssetsComponentsDocument = /*#__PURE__*/ gq
 }
     `;
 export const CodegenGeneratedAccountsAssetsDocument = /*#__PURE__*/ gql`
-    query CODEGEN_GENERATED_ACCOUNTS_ASSETS($accounts_assets_adoType: AdoType, $accounts_assets_limit: Int, $accounts_assets_offset: Int, $accounts_assets_orderBy: AndrOrderBy, $accounts_assets_search: String, $accounts_assets_walletAddress: String!) {
+    query CODEGEN_GENERATED_ACCOUNTS_ASSETS($accounts_assets_adoType: String, $accounts_assets_appContract: String, $accounts_assets_instantiateOwner: String, $accounts_assets_kernel: String, $accounts_assets_limit: Int!, $accounts_assets_memo: String, $accounts_assets_offset: Int!, $accounts_assets_orderBy: AndrOrderBy, $accounts_assets_owner: String, $accounts_assets_ownershipRequest: String, $accounts_assets_search: String, $accounts_assets_walletAddress: String!) {
   accounts {
     assets(
       adoType: $accounts_assets_adoType
+      appContract: $accounts_assets_appContract
+      instantiateOwner: $accounts_assets_instantiateOwner
+      kernel: $accounts_assets_kernel
       limit: $accounts_assets_limit
+      memo: $accounts_assets_memo
       offset: $accounts_assets_offset
       orderBy: $accounts_assets_orderBy
+      owner: $accounts_assets_owner
+      ownershipRequest: $accounts_assets_ownershipRequest
       search: $accounts_assets_search
       walletAddress: $accounts_assets_walletAddress
     ) {
@@ -5568,12 +5071,18 @@ export const CodegenGeneratedAccountsAssetsDocument = /*#__PURE__*/ gql`
       adoType
       appContract
       chainId
+      disowned
       instantiateHash
       instantiateHeight
+      instantiateOwner
+      kernel
       lastUpdatedHash
       lastUpdatedHeight
+      memo
+      minter
       name
       owner
+      ownershipRequest
     }
   }
 }
@@ -5609,6 +5118,43 @@ export const CodegenGeneratedChainconfigsAllconfigsDocument = /*#__PURE__*/ gql`
       chainType
       chainUrl
       defaultFee
+      enabled
+      iconUrls {
+        lg
+        sm
+      }
+      kernelAddress
+      name
+      registryAddress
+    }
+  }
+}
+    `;
+export const CodegenGeneratedChainconfigsAllstoredconfigsIconurlsDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_CHAINCONFIGS_ALLSTOREDCONFIGS_ICONURLS {
+  chainConfigs {
+    allStoredConfigs {
+      iconUrls {
+        lg
+        sm
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedChainconfigsAllstoredconfigsDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_CHAINCONFIGS_ALLSTOREDCONFIGS {
+  chainConfigs {
+    allStoredConfigs {
+      addressPrefix
+      blockExplorerAddressPages
+      blockExplorerTxPages
+      chainId
+      chainName
+      chainType
+      chainUrl
+      defaultFee
+      enabled
       iconUrls {
         lg
         sm
@@ -5644,6 +5190,7 @@ export const CodegenGeneratedChainconfigsConfigDocument = /*#__PURE__*/ gql`
       chainType
       chainUrl
       defaultFee
+      enabled
       iconUrls {
         lg
         sm
@@ -5667,6 +5214,25 @@ export const CodegenGeneratedChainconfigsDocument = /*#__PURE__*/ gql`
       chainType
       chainUrl
       defaultFee
+      enabled
+      iconUrls {
+        lg
+        sm
+      }
+      kernelAddress
+      name
+      registryAddress
+    }
+    allStoredConfigs {
+      addressPrefix
+      blockExplorerAddressPages
+      blockExplorerTxPages
+      chainId
+      chainName
+      chainType
+      chainUrl
+      defaultFee
+      enabled
       iconUrls {
         lg
         sm
@@ -6020,6 +5586,22 @@ export const CodegenGeneratedTxByaccountEventsDocument = /*#__PURE__*/ gql`
   }
 }
     `;
+export const CodegenGeneratedTxByaccountMsgresponsesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYACCOUNT_MSGRESPONSES($chainId: String!, $tx_byAccount_maxHeight: Int, $tx_byAccount_minHeight: Int, $tx_byAccount_sentFromOrTo: String!) {
+  tx(chainId: $chainId) {
+    byAccount(
+      maxHeight: $tx_byAccount_maxHeight
+      minHeight: $tx_byAccount_minHeight
+      sentFromOrTo: $tx_byAccount_sentFromOrTo
+    ) {
+      msgResponses {
+        typeUrl
+        value
+      }
+    }
+  }
+}
+    `;
 export const CodegenGeneratedTxByaccountTxlogEventsAttributesDocument = /*#__PURE__*/ gql`
     query CODEGEN_GENERATED_TX_BYACCOUNT_TXLOG_EVENTS_ATTRIBUTES($chainId: String!, $tx_byAccount_maxHeight: Int, $tx_byAccount_minHeight: Int, $tx_byAccount_sentFromOrTo: String!) {
   tx(chainId: $chainId) {
@@ -6102,8 +5684,13 @@ export const CodegenGeneratedTxByaccountDocument = /*#__PURE__*/ gql`
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -6149,6 +5736,22 @@ export const CodegenGeneratedTxBycontractEventsDocument = /*#__PURE__*/ gql`
           value
         }
         type
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxBycontractMsgresponsesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYCONTRACT_MSGRESPONSES($chainId: String!, $tx_byContract_address: String!, $tx_byContract_maxHeight: Int, $tx_byContract_minHeight: Int) {
+  tx(chainId: $chainId) {
+    byContract(
+      address: $tx_byContract_address
+      maxHeight: $tx_byContract_maxHeight
+      minHeight: $tx_byContract_minHeight
+    ) {
+      msgResponses {
+        typeUrl
+        value
       }
     }
   }
@@ -6236,8 +5839,13 @@ export const CodegenGeneratedTxBycontractDocument = /*#__PURE__*/ gql`
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -6275,6 +5883,18 @@ export const CodegenGeneratedTxByhashEventsDocument = /*#__PURE__*/ gql`
           value
         }
         type
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxByhashMsgresponsesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYHASH_MSGRESPONSES($chainId: String!, $tx_byHash_hash: String!) {
+  tx(chainId: $chainId) {
+    byHash(hash: $tx_byHash_hash) {
+      msgResponses {
+        typeUrl
+        value
       }
     }
   }
@@ -6346,8 +5966,13 @@ export const CodegenGeneratedTxByhashDocument = /*#__PURE__*/ gql`
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -6385,6 +6010,18 @@ export const CodegenGeneratedTxByheightEventsDocument = /*#__PURE__*/ gql`
           value
         }
         type
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxByheightMsgresponsesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYHEIGHT_MSGRESPONSES($chainId: String!, $tx_byHeight_height: Float!) {
+  tx(chainId: $chainId) {
+    byHeight(height: $tx_byHeight_height) {
+      msgResponses {
+        typeUrl
+        value
       }
     }
   }
@@ -6456,8 +6093,13 @@ export const CodegenGeneratedTxByheightDocument = /*#__PURE__*/ gql`
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -6503,6 +6145,22 @@ export const CodegenGeneratedTxByownerEventsDocument = /*#__PURE__*/ gql`
           value
         }
         type
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxByownerMsgresponsesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYOWNER_MSGRESPONSES($chainId: String!, $tx_byOwner_maxHeight: Int, $tx_byOwner_minHeight: Int, $tx_byOwner_walletAddress: String!) {
+  tx(chainId: $chainId) {
+    byOwner(
+      maxHeight: $tx_byOwner_maxHeight
+      minHeight: $tx_byOwner_minHeight
+      walletAddress: $tx_byOwner_walletAddress
+    ) {
+      msgResponses {
+        typeUrl
+        value
       }
     }
   }
@@ -6590,8 +6248,140 @@ export const CodegenGeneratedTxByownerDocument = /*#__PURE__*/ gql`
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
+      txLog {
+        events {
+          attributes {
+            key
+            value
+          }
+          type
+        }
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxByrawstringEventsAttributesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYRAWSTRING_EVENTS_ATTRIBUTES($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      events {
+        attributes {
+          key
+          value
+        }
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxByrawstringEventsDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYRAWSTRING_EVENTS($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      events {
+        attributes {
+          key
+          value
+        }
+        type
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxByrawstringMsgresponsesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYRAWSTRING_MSGRESPONSES($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      msgResponses {
+        typeUrl
+        value
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxByrawstringTxlogEventsAttributesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG_EVENTS_ATTRIBUTES($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      txLog {
+        events {
+          attributes {
+            key
+            value
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxByrawstringTxlogEventsDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG_EVENTS($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      txLog {
+        events {
+          attributes {
+            key
+            value
+          }
+          type
+        }
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxByrawstringTxlogDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      txLog {
+        events {
+          attributes {
+            key
+            value
+          }
+          type
+        }
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxByrawstringDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYRAWSTRING($chainId: String!, $tx_byRawString_query: String!) {
+  tx(chainId: $chainId) {
+    byRawString(query: $tx_byRawString_query) {
+      code
+      events {
+        attributes {
+          key
+          value
+        }
+        type
+      }
+      gasUsed
+      gasWanted
+      hash
+      height
+      msgResponses {
+        typeUrl
+        value
+      }
+      rawLog
+      tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -6637,6 +6427,22 @@ export const CodegenGeneratedTxBytagEventsDocument = /*#__PURE__*/ gql`
           value
         }
         type
+      }
+    }
+  }
+}
+    `;
+export const CodegenGeneratedTxBytagMsgresponsesDocument = /*#__PURE__*/ gql`
+    query CODEGEN_GENERATED_TX_BYTAG_MSGRESPONSES($chainId: String!, $tx_byTag_maxHeight: Int, $tx_byTag_minHeight: Int, $tx_byTag_tags: JSON!) {
+  tx(chainId: $chainId) {
+    byTag(
+      maxHeight: $tx_byTag_maxHeight
+      minHeight: $tx_byTag_minHeight
+      tags: $tx_byTag_tags
+    ) {
+      msgResponses {
+        typeUrl
+        value
       }
     }
   }
@@ -6724,8 +6530,13 @@ export const CodegenGeneratedTxBytagDocument = /*#__PURE__*/ gql`
       gasWanted
       hash
       height
+      msgResponses {
+        typeUrl
+        value
+      }
       rawLog
       tx
+      txIndex
       txLog {
         events {
           attributes {
@@ -6850,6 +6661,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     BASE_ADO(variables: IBaseAdoQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<IBaseAdoQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<IBaseAdoQuery>(BaseAdoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'BASE_ADO', 'query');
     },
+    MINI_BASE_ADO(variables: IMiniBaseAdoQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<IMiniBaseAdoQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<IMiniBaseAdoQuery>(MiniBaseAdoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'MINI_BASE_ADO', 'query');
+    },
     CROWDFUND_AVAILABLE_TOKENS(variables: ICrowdfundAvailableTokensQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICrowdfundAvailableTokensQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICrowdfundAvailableTokensQuery>(CrowdfundAvailableTokensDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CROWDFUND_AVAILABLE_TOKENS', 'query');
     },
@@ -6883,9 +6697,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     ALL_KEPLR_CONFIG(variables?: IAllKeplrConfigQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<IAllKeplrConfigQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<IAllKeplrConfigQuery>(AllKeplrConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ALL_KEPLR_CONFIG', 'query');
     },
-    CODEGEN_GENERATED_ADO_ADDRESS_LIST_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoAddressListAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAddressListAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAddressListAndrIsoperatorQuery>(CodegenGeneratedAdoAddressListAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_ADDRESS_LIST_ANDR_ISOPERATOR', 'query');
-    },
     CODEGEN_GENERATED_ADO_ADDRESS_LIST_ANDR(variables: ICodegenGeneratedAdoAddressListAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAddressListAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAddressListAndrQuery>(CodegenGeneratedAdoAddressListAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_ADDRESS_LIST_ANDR', 'query');
     },
@@ -6895,20 +6706,17 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_ADDRESS_LIST(variables: ICodegenGeneratedAdoAddressListQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAddressListQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAddressListQuery>(CodegenGeneratedAdoAddressListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_ADDRESS_LIST', 'query');
     },
-    CODEGEN_GENERATED_ADO_ADO_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoAdoAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAdoAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAdoAndrIsoperatorQuery>(CodegenGeneratedAdoAdoAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_ADO_ANDR_ISOPERATOR', 'query');
-    },
     CODEGEN_GENERATED_ADO_ADO_ANDR(variables: ICodegenGeneratedAdoAdoAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAdoAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAdoAndrQuery>(CodegenGeneratedAdoAdoAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_ADO_ANDR', 'query');
     },
     CODEGEN_GENERATED_ADO_ADO(variables: ICodegenGeneratedAdoAdoQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAdoQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAdoQuery>(CodegenGeneratedAdoAdoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_ADO', 'query');
     },
+    CODEGEN_GENERATED_ADO_ADOSMART(variables: ICodegenGeneratedAdoAdosmartQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAdosmartQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAdosmartQuery>(CodegenGeneratedAdoAdosmartDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_ADOSMART', 'query');
+    },
     CODEGEN_GENERATED_ADO_APP_ADDRESSES(variables: ICodegenGeneratedAdoAppAddressesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAppAddressesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAppAddressesQuery>(CodegenGeneratedAdoAppAddressesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_APP_ADDRESSES', 'query');
-    },
-    CODEGEN_GENERATED_ADO_APP_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoAppAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAppAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAppAndrIsoperatorQuery>(CodegenGeneratedAdoAppAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_APP_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_APP_ANDR(variables: ICodegenGeneratedAdoAppAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAppAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAppAndrQuery>(CodegenGeneratedAdoAppAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_APP_ANDR', 'query');
@@ -6927,9 +6735,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_APP(variables: ICodegenGeneratedAdoAppQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAppQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAppQuery>(CodegenGeneratedAdoAppDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_APP', 'query');
-    },
-    CODEGEN_GENERATED_ADO_AUCTION_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoAuctionAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAuctionAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAuctionAndrIsoperatorQuery>(CodegenGeneratedAdoAuctionAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_AUCTION_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_AUCTION_ANDR(variables: ICodegenGeneratedAdoAuctionAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAuctionAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAuctionAndrQuery>(CodegenGeneratedAdoAuctionAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_AUCTION_ANDR', 'query');
@@ -6958,8 +6763,8 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_AUCTION(variables: ICodegenGeneratedAdoAuctionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoAuctionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoAuctionQuery>(CodegenGeneratedAdoAuctionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_AUCTION', 'query');
     },
-    CODEGEN_GENERATED_ADO_CROWDFUND_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoCrowdfundAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCrowdfundAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCrowdfundAndrIsoperatorQuery>(CodegenGeneratedAdoCrowdfundAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CROWDFUND_ANDR_ISOPERATOR', 'query');
+    CODEGEN_GENERATED_ADO_CHAINID(variables: ICodegenGeneratedAdoChainidQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoChainidQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoChainidQuery>(CodegenGeneratedAdoChainidDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CHAINID', 'query');
     },
     CODEGEN_GENERATED_ADO_CROWDFUND_ANDR(variables: ICodegenGeneratedAdoCrowdfundAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCrowdfundAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCrowdfundAndrQuery>(CodegenGeneratedAdoCrowdfundAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CROWDFUND_ANDR', 'query');
@@ -6972,6 +6777,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_CROWDFUND_STATE_PRICE(variables: ICodegenGeneratedAdoCrowdfundStatePriceQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCrowdfundStatePriceQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCrowdfundStatePriceQuery>(CodegenGeneratedAdoCrowdfundStatePriceDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CROWDFUND_STATE_PRICE', 'query');
+    },
+    CODEGEN_GENERATED_ADO_CROWDFUND_STATE_RECIPIENT(variables: ICodegenGeneratedAdoCrowdfundStateRecipientQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCrowdfundStateRecipientQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCrowdfundStateRecipientQuery>(CodegenGeneratedAdoCrowdfundStateRecipientDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CROWDFUND_STATE_RECIPIENT', 'query');
     },
     CODEGEN_GENERATED_ADO_CROWDFUND_STATE(variables: ICodegenGeneratedAdoCrowdfundStateQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCrowdfundStateQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCrowdfundStateQuery>(CodegenGeneratedAdoCrowdfundStateDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CROWDFUND_STATE', 'query');
@@ -6990,9 +6798,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_CW20_ALLOWANCE(variables: ICodegenGeneratedAdoCw20AllowanceQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw20AllowanceQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw20AllowanceQuery>(CodegenGeneratedAdoCw20AllowanceDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW20_ALLOWANCE', 'query');
-    },
-    CODEGEN_GENERATED_ADO_CW20_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoCw20AndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw20AndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw20AndrIsoperatorQuery>(CodegenGeneratedAdoCw20AndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW20_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_CW20_ANDR(variables: ICodegenGeneratedAdoCw20AndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw20AndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw20AndrQuery>(CodegenGeneratedAdoCw20AndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW20_ANDR', 'query');
@@ -7015,9 +6820,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_CW20(variables: ICodegenGeneratedAdoCw20QueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw20Query> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw20Query>(CodegenGeneratedAdoCw20Document, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW20', 'query');
     },
-    CODEGEN_GENERATED_ADO_CW20_EXCHANGE_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoCw20ExchangeAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw20ExchangeAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw20ExchangeAndrIsoperatorQuery>(CodegenGeneratedAdoCw20ExchangeAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW20_EXCHANGE_ANDR_ISOPERATOR', 'query');
-    },
     CODEGEN_GENERATED_ADO_CW20_EXCHANGE_ANDR(variables: ICodegenGeneratedAdoCw20ExchangeAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw20ExchangeAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw20ExchangeAndrQuery>(CodegenGeneratedAdoCw20ExchangeAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW20_EXCHANGE_ANDR', 'query');
     },
@@ -7029,9 +6831,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_CW20_EXCHANGE(variables: ICodegenGeneratedAdoCw20ExchangeQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw20ExchangeQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw20ExchangeQuery>(CodegenGeneratedAdoCw20ExchangeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW20_EXCHANGE', 'query');
-    },
-    CODEGEN_GENERATED_ADO_CW20_STAKING_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoCw20StakingAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw20StakingAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw20StakingAndrIsoperatorQuery>(CodegenGeneratedAdoCw20StakingAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW20_STAKING_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_CW20_STAKING_ANDR(variables: ICodegenGeneratedAdoCw20StakingAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw20StakingAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw20StakingAndrQuery>(CodegenGeneratedAdoCw20StakingAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW20_STAKING_ANDR', 'query');
@@ -7060,11 +6859,11 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_ACCESS(variables: ICodegenGeneratedAdoCw721AllnftinfoAccessQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AllnftinfoAccessQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AllnftinfoAccessQuery>(CodegenGeneratedAdoCw721AllnftinfoAccessDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_ACCESS', 'query');
     },
-    CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION_ATTRIBUTES(variables: ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionAttributesQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionAttributesQuery>(CodegenGeneratedAdoCw721AllnftinfoInfoExtensionAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION_ATTRIBUTES', 'query');
-    },
     CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION(variables: ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AllnftinfoInfoExtensionQuery>(CodegenGeneratedAdoCw721AllnftinfoInfoExtensionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_EXTENSION', 'query');
+    },
+    CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA(variables: ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AllnftinfoInfoMetadataQuery>(CodegenGeneratedAdoCw721AllnftinfoInfoMetadataDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO_METADATA', 'query');
     },
     CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO(variables: ICodegenGeneratedAdoCw721AllnftinfoInfoQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AllnftinfoInfoQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AllnftinfoInfoQuery>(CodegenGeneratedAdoCw721AllnftinfoInfoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ALLNFTINFO_INFO', 'query');
@@ -7077,9 +6876,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_CW721_ALLTOKENS(variables: ICodegenGeneratedAdoCw721AlltokensQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AlltokensQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AlltokensQuery>(CodegenGeneratedAdoCw721AlltokensDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ALLTOKENS', 'query');
-    },
-    CODEGEN_GENERATED_ADO_CW721_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoCw721AndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AndrIsoperatorQuery>(CodegenGeneratedAdoCw721AndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_CW721_ANDR(variables: ICodegenGeneratedAdoCw721AndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721AndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721AndrQuery>(CodegenGeneratedAdoCw721AndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ANDR', 'query');
@@ -7096,11 +6892,11 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_CW721_ISARCHIVED(variables: ICodegenGeneratedAdoCw721IsarchivedQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721IsarchivedQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721IsarchivedQuery>(CodegenGeneratedAdoCw721IsarchivedDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_ISARCHIVED', 'query');
     },
-    CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION_ATTRIBUTES(variables: ICodegenGeneratedAdoCw721NftinfoExtensionAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721NftinfoExtensionAttributesQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721NftinfoExtensionAttributesQuery>(CodegenGeneratedAdoCw721NftinfoExtensionAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION_ATTRIBUTES', 'query');
-    },
     CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION(variables: ICodegenGeneratedAdoCw721NftinfoExtensionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721NftinfoExtensionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721NftinfoExtensionQuery>(CodegenGeneratedAdoCw721NftinfoExtensionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_NFTINFO_EXTENSION', 'query');
+    },
+    CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA(variables: ICodegenGeneratedAdoCw721NftinfoMetadataQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721NftinfoMetadataQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721NftinfoMetadataQuery>(CodegenGeneratedAdoCw721NftinfoMetadataDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_NFTINFO_METADATA', 'query');
     },
     CODEGEN_GENERATED_ADO_CW721_NFTINFO(variables: ICodegenGeneratedAdoCw721NftinfoQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721NftinfoQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721NftinfoQuery>(CodegenGeneratedAdoCw721NftinfoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_NFTINFO', 'query');
@@ -7114,11 +6910,11 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_CW721_OWNEROF(variables: ICodegenGeneratedAdoCw721OwnerofQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721OwnerofQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721OwnerofQuery>(CodegenGeneratedAdoCw721OwnerofDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_OWNEROF', 'query');
     },
-    CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION_ATTRIBUTES(variables: ICodegenGeneratedAdoCw721SearchtokensExtensionAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721SearchtokensExtensionAttributesQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721SearchtokensExtensionAttributesQuery>(CodegenGeneratedAdoCw721SearchtokensExtensionAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION_ATTRIBUTES', 'query');
-    },
     CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION(variables: ICodegenGeneratedAdoCw721SearchtokensExtensionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721SearchtokensExtensionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721SearchtokensExtensionQuery>(CodegenGeneratedAdoCw721SearchtokensExtensionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_EXTENSION', 'query');
+    },
+    CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA(variables: ICodegenGeneratedAdoCw721SearchtokensMetadataQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721SearchtokensMetadataQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721SearchtokensMetadataQuery>(CodegenGeneratedAdoCw721SearchtokensMetadataDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS_METADATA', 'query');
     },
     CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS(variables: ICodegenGeneratedAdoCw721SearchtokensQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721SearchtokensQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721SearchtokensQuery>(CodegenGeneratedAdoCw721SearchtokensDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721_SEARCHTOKENS', 'query');
@@ -7141,9 +6937,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_CW721(variables: ICodegenGeneratedAdoCw721QueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoCw721Query> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoCw721Query>(CodegenGeneratedAdoCw721Document, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_CW721', 'query');
     },
-    CODEGEN_GENERATED_ADO_FACTORY_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoFactoryAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoFactoryAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoFactoryAndrIsoperatorQuery>(CodegenGeneratedAdoFactoryAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_FACTORY_ANDR_ISOPERATOR', 'query');
-    },
     CODEGEN_GENERATED_ADO_FACTORY_ANDR(variables: ICodegenGeneratedAdoFactoryAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoFactoryAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoFactoryAndrQuery>(CodegenGeneratedAdoFactoryAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_FACTORY_ANDR', 'query');
     },
@@ -7152,9 +6945,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_FACTORY(variables: ICodegenGeneratedAdoFactoryQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoFactoryQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoFactoryQuery>(CodegenGeneratedAdoFactoryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_FACTORY', 'query');
-    },
-    CODEGEN_GENERATED_ADO_LOCKDROP_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoLockdropAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoLockdropAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoLockdropAndrIsoperatorQuery>(CodegenGeneratedAdoLockdropAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_LOCKDROP_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_LOCKDROP_ANDR(variables: ICodegenGeneratedAdoLockdropAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoLockdropAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoLockdropAndrQuery>(CodegenGeneratedAdoLockdropAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_LOCKDROP_ANDR', 'query');
@@ -7174,9 +6964,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_LOCKDROP(variables: ICodegenGeneratedAdoLockdropQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoLockdropQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoLockdropQuery>(CodegenGeneratedAdoLockdropDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_LOCKDROP', 'query');
     },
-    CODEGEN_GENERATED_ADO_MARKETPLACE_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoMarketplaceAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoMarketplaceAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoMarketplaceAndrIsoperatorQuery>(CodegenGeneratedAdoMarketplaceAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_MARKETPLACE_ANDR_ISOPERATOR', 'query');
-    },
     CODEGEN_GENERATED_ADO_MARKETPLACE_ANDR(variables: ICodegenGeneratedAdoMarketplaceAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoMarketplaceAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoMarketplaceAndrQuery>(CodegenGeneratedAdoMarketplaceAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_MARKETPLACE_ANDR', 'query');
     },
@@ -7194,9 +6981,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_MARKETPLACE(variables: ICodegenGeneratedAdoMarketplaceQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoMarketplaceQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoMarketplaceQuery>(CodegenGeneratedAdoMarketplaceDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_MARKETPLACE', 'query');
-    },
-    CODEGEN_GENERATED_ADO_MERKLE_AIRDROP_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoMerkleAirdropAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoMerkleAirdropAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoMerkleAirdropAndrIsoperatorQuery>(CodegenGeneratedAdoMerkleAirdropAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_MERKLE_AIRDROP_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_MERKLE_AIRDROP_ANDR(variables: ICodegenGeneratedAdoMerkleAirdropAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoMerkleAirdropAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoMerkleAirdropAndrQuery>(CodegenGeneratedAdoMerkleAirdropAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_MERKLE_AIRDROP_ANDR', 'query');
@@ -7216,9 +7000,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_MERKLE_AIRDROP(variables: ICodegenGeneratedAdoMerkleAirdropQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoMerkleAirdropQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoMerkleAirdropQuery>(CodegenGeneratedAdoMerkleAirdropDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_MERKLE_AIRDROP', 'query');
     },
-    CODEGEN_GENERATED_ADO_PRIMITIVE_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoPrimitiveAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoPrimitiveAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoPrimitiveAndrIsoperatorQuery>(CodegenGeneratedAdoPrimitiveAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_PRIMITIVE_ANDR_ISOPERATOR', 'query');
-    },
     CODEGEN_GENERATED_ADO_PRIMITIVE_ANDR(variables: ICodegenGeneratedAdoPrimitiveAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoPrimitiveAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoPrimitiveAndrQuery>(CodegenGeneratedAdoPrimitiveAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_PRIMITIVE_ANDR', 'query');
     },
@@ -7231,9 +7012,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ACCOUNTDETAILS(variables: ICodegenGeneratedAdoRateLimitingWithdrawalsAccountdetailsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoRateLimitingWithdrawalsAccountdetailsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoRateLimitingWithdrawalsAccountdetailsQuery>(CodegenGeneratedAdoRateLimitingWithdrawalsAccountdetailsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ACCOUNTDETAILS', 'query');
     },
-    CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoRateLimitingWithdrawalsAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoRateLimitingWithdrawalsAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoRateLimitingWithdrawalsAndrIsoperatorQuery>(CodegenGeneratedAdoRateLimitingWithdrawalsAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ANDR_ISOPERATOR', 'query');
-    },
     CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ANDR(variables: ICodegenGeneratedAdoRateLimitingWithdrawalsAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoRateLimitingWithdrawalsAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoRateLimitingWithdrawalsAndrQuery>(CodegenGeneratedAdoRateLimitingWithdrawalsAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS_ANDR', 'query');
     },
@@ -7242,9 +7020,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS(variables: ICodegenGeneratedAdoRateLimitingWithdrawalsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoRateLimitingWithdrawalsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoRateLimitingWithdrawalsQuery>(CodegenGeneratedAdoRateLimitingWithdrawalsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_RATE_LIMITING_WITHDRAWALS', 'query');
-    },
-    CODEGEN_GENERATED_ADO_RATES_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoRatesAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoRatesAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoRatesAndrIsoperatorQuery>(CodegenGeneratedAdoRatesAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_RATES_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_RATES_ANDR(variables: ICodegenGeneratedAdoRatesAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoRatesAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoRatesAndrQuery>(CodegenGeneratedAdoRatesAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_RATES_ANDR', 'query');
@@ -7267,9 +7042,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_RATES(variables: ICodegenGeneratedAdoRatesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoRatesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoRatesQuery>(CodegenGeneratedAdoRatesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_RATES', 'query');
     },
-    CODEGEN_GENERATED_ADO_SPLITTER_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoSplitterAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoSplitterAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoSplitterAndrIsoperatorQuery>(CodegenGeneratedAdoSplitterAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_SPLITTER_ANDR_ISOPERATOR', 'query');
-    },
     CODEGEN_GENERATED_ADO_SPLITTER_ANDR(variables: ICodegenGeneratedAdoSplitterAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoSplitterAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoSplitterAndrQuery>(CodegenGeneratedAdoSplitterAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_SPLITTER_ANDR', 'query');
     },
@@ -7281,9 +7053,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_SPLITTER(variables: ICodegenGeneratedAdoSplitterQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoSplitterQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoSplitterQuery>(CodegenGeneratedAdoSplitterDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_SPLITTER', 'query');
-    },
-    CODEGEN_GENERATED_ADO_TIMELOCK_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoTimelockAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoTimelockAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoTimelockAndrIsoperatorQuery>(CodegenGeneratedAdoTimelockAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_TIMELOCK_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_TIMELOCK_ANDR(variables: ICodegenGeneratedAdoTimelockAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoTimelockAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoTimelockAndrQuery>(CodegenGeneratedAdoTimelockAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_TIMELOCK_ANDR', 'query');
@@ -7315,9 +7084,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_ADO_TIMELOCK(variables: ICodegenGeneratedAdoTimelockQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoTimelockQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoTimelockQuery>(CodegenGeneratedAdoTimelockDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_TIMELOCK', 'query');
     },
-    CODEGEN_GENERATED_ADO_VAULT_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoVaultAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoVaultAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoVaultAndrIsoperatorQuery>(CodegenGeneratedAdoVaultAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_VAULT_ANDR_ISOPERATOR', 'query');
-    },
     CODEGEN_GENERATED_ADO_VAULT_ANDR(variables: ICodegenGeneratedAdoVaultAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoVaultAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoVaultAndrQuery>(CodegenGeneratedAdoVaultAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_VAULT_ANDR', 'query');
     },
@@ -7329,9 +7095,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_VAULT(variables: ICodegenGeneratedAdoVaultQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoVaultQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoVaultQuery>(CodegenGeneratedAdoVaultDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_VAULT', 'query');
-    },
-    CODEGEN_GENERATED_ADO_VESTING_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoVestingAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoVestingAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoVestingAndrIsoperatorQuery>(CodegenGeneratedAdoVestingAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_VESTING_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_VESTING_ANDR(variables: ICodegenGeneratedAdoVestingAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoVestingAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoVestingAndrQuery>(CodegenGeneratedAdoVestingAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_VESTING_ANDR', 'query');
@@ -7347,9 +7110,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_ADO_VESTING(variables: ICodegenGeneratedAdoVestingQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoVestingQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoVestingQuery>(CodegenGeneratedAdoVestingDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_VESTING', 'query');
-    },
-    CODEGEN_GENERATED_ADO_WEIGHTED_DISTRIBUTION_SPLITTER_ANDR_ISOPERATOR(variables: ICodegenGeneratedAdoWeightedDistributionSplitterAndrIsoperatorQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoWeightedDistributionSplitterAndrIsoperatorQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoWeightedDistributionSplitterAndrIsoperatorQuery>(CodegenGeneratedAdoWeightedDistributionSplitterAndrIsoperatorDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_WEIGHTED_DISTRIBUTION_SPLITTER_ANDR_ISOPERATOR', 'query');
     },
     CODEGEN_GENERATED_ADO_WEIGHTED_DISTRIBUTION_SPLITTER_ANDR(variables: ICodegenGeneratedAdoWeightedDistributionSplitterAndrQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedAdoWeightedDistributionSplitterAndrQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedAdoWeightedDistributionSplitterAndrQuery>(CodegenGeneratedAdoWeightedDistributionSplitterAndrDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_ADO_WEIGHTED_DISTRIBUTION_SPLITTER_ANDR', 'query');
@@ -7395,6 +7155,12 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_CHAINCONFIGS_ALLCONFIGS(variables?: ICodegenGeneratedChainconfigsAllconfigsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedChainconfigsAllconfigsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedChainconfigsAllconfigsQuery>(CodegenGeneratedChainconfigsAllconfigsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_CHAINCONFIGS_ALLCONFIGS', 'query');
+    },
+    CODEGEN_GENERATED_CHAINCONFIGS_ALLSTOREDCONFIGS_ICONURLS(variables?: ICodegenGeneratedChainconfigsAllstoredconfigsIconurlsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedChainconfigsAllstoredconfigsIconurlsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedChainconfigsAllstoredconfigsIconurlsQuery>(CodegenGeneratedChainconfigsAllstoredconfigsIconurlsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_CHAINCONFIGS_ALLSTOREDCONFIGS_ICONURLS', 'query');
+    },
+    CODEGEN_GENERATED_CHAINCONFIGS_ALLSTOREDCONFIGS(variables?: ICodegenGeneratedChainconfigsAllstoredconfigsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedChainconfigsAllstoredconfigsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedChainconfigsAllstoredconfigsQuery>(CodegenGeneratedChainconfigsAllstoredconfigsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_CHAINCONFIGS_ALLSTOREDCONFIGS', 'query');
     },
     CODEGEN_GENERATED_CHAINCONFIGS_CONFIG_ICONURLS(variables: ICodegenGeneratedChainconfigsConfigIconurlsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedChainconfigsConfigIconurlsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedChainconfigsConfigIconurlsQuery>(CodegenGeneratedChainconfigsConfigIconurlsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_CHAINCONFIGS_CONFIG_ICONURLS', 'query');
@@ -7456,6 +7222,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_TX_BYACCOUNT_EVENTS(variables: ICodegenGeneratedTxByaccountEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByaccountEventsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByaccountEventsQuery>(CodegenGeneratedTxByaccountEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYACCOUNT_EVENTS', 'query');
     },
+    CODEGEN_GENERATED_TX_BYACCOUNT_MSGRESPONSES(variables: ICodegenGeneratedTxByaccountMsgresponsesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByaccountMsgresponsesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByaccountMsgresponsesQuery>(CodegenGeneratedTxByaccountMsgresponsesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYACCOUNT_MSGRESPONSES', 'query');
+    },
     CODEGEN_GENERATED_TX_BYACCOUNT_TXLOG_EVENTS_ATTRIBUTES(variables: ICodegenGeneratedTxByaccountTxlogEventsAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByaccountTxlogEventsAttributesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByaccountTxlogEventsAttributesQuery>(CodegenGeneratedTxByaccountTxlogEventsAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYACCOUNT_TXLOG_EVENTS_ATTRIBUTES', 'query');
     },
@@ -7473,6 +7242,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_TX_BYCONTRACT_EVENTS(variables: ICodegenGeneratedTxBycontractEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxBycontractEventsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxBycontractEventsQuery>(CodegenGeneratedTxBycontractEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYCONTRACT_EVENTS', 'query');
+    },
+    CODEGEN_GENERATED_TX_BYCONTRACT_MSGRESPONSES(variables: ICodegenGeneratedTxBycontractMsgresponsesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxBycontractMsgresponsesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxBycontractMsgresponsesQuery>(CodegenGeneratedTxBycontractMsgresponsesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYCONTRACT_MSGRESPONSES', 'query');
     },
     CODEGEN_GENERATED_TX_BYCONTRACT_TXLOG_EVENTS_ATTRIBUTES(variables: ICodegenGeneratedTxBycontractTxlogEventsAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxBycontractTxlogEventsAttributesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxBycontractTxlogEventsAttributesQuery>(CodegenGeneratedTxBycontractTxlogEventsAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYCONTRACT_TXLOG_EVENTS_ATTRIBUTES', 'query');
@@ -7492,6 +7264,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_TX_BYHASH_EVENTS(variables: ICodegenGeneratedTxByhashEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByhashEventsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByhashEventsQuery>(CodegenGeneratedTxByhashEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYHASH_EVENTS', 'query');
     },
+    CODEGEN_GENERATED_TX_BYHASH_MSGRESPONSES(variables: ICodegenGeneratedTxByhashMsgresponsesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByhashMsgresponsesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByhashMsgresponsesQuery>(CodegenGeneratedTxByhashMsgresponsesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYHASH_MSGRESPONSES', 'query');
+    },
     CODEGEN_GENERATED_TX_BYHASH_TXLOG_EVENTS_ATTRIBUTES(variables: ICodegenGeneratedTxByhashTxlogEventsAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByhashTxlogEventsAttributesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByhashTxlogEventsAttributesQuery>(CodegenGeneratedTxByhashTxlogEventsAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYHASH_TXLOG_EVENTS_ATTRIBUTES', 'query');
     },
@@ -7509,6 +7284,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CODEGEN_GENERATED_TX_BYHEIGHT_EVENTS(variables: ICodegenGeneratedTxByheightEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByheightEventsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByheightEventsQuery>(CodegenGeneratedTxByheightEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYHEIGHT_EVENTS', 'query');
+    },
+    CODEGEN_GENERATED_TX_BYHEIGHT_MSGRESPONSES(variables: ICodegenGeneratedTxByheightMsgresponsesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByheightMsgresponsesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByheightMsgresponsesQuery>(CodegenGeneratedTxByheightMsgresponsesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYHEIGHT_MSGRESPONSES', 'query');
     },
     CODEGEN_GENERATED_TX_BYHEIGHT_TXLOG_EVENTS_ATTRIBUTES(variables: ICodegenGeneratedTxByheightTxlogEventsAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByheightTxlogEventsAttributesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByheightTxlogEventsAttributesQuery>(CodegenGeneratedTxByheightTxlogEventsAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYHEIGHT_TXLOG_EVENTS_ATTRIBUTES', 'query');
@@ -7528,6 +7306,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_TX_BYOWNER_EVENTS(variables: ICodegenGeneratedTxByownerEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByownerEventsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByownerEventsQuery>(CodegenGeneratedTxByownerEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYOWNER_EVENTS', 'query');
     },
+    CODEGEN_GENERATED_TX_BYOWNER_MSGRESPONSES(variables: ICodegenGeneratedTxByownerMsgresponsesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByownerMsgresponsesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByownerMsgresponsesQuery>(CodegenGeneratedTxByownerMsgresponsesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYOWNER_MSGRESPONSES', 'query');
+    },
     CODEGEN_GENERATED_TX_BYOWNER_TXLOG_EVENTS_ATTRIBUTES(variables: ICodegenGeneratedTxByownerTxlogEventsAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByownerTxlogEventsAttributesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByownerTxlogEventsAttributesQuery>(CodegenGeneratedTxByownerTxlogEventsAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYOWNER_TXLOG_EVENTS_ATTRIBUTES', 'query');
     },
@@ -7540,11 +7321,35 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     CODEGEN_GENERATED_TX_BYOWNER(variables: ICodegenGeneratedTxByownerQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByownerQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByownerQuery>(CodegenGeneratedTxByownerDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYOWNER', 'query');
     },
+    CODEGEN_GENERATED_TX_BYRAWSTRING_EVENTS_ATTRIBUTES(variables: ICodegenGeneratedTxByrawstringEventsAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByrawstringEventsAttributesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByrawstringEventsAttributesQuery>(CodegenGeneratedTxByrawstringEventsAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYRAWSTRING_EVENTS_ATTRIBUTES', 'query');
+    },
+    CODEGEN_GENERATED_TX_BYRAWSTRING_EVENTS(variables: ICodegenGeneratedTxByrawstringEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByrawstringEventsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByrawstringEventsQuery>(CodegenGeneratedTxByrawstringEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYRAWSTRING_EVENTS', 'query');
+    },
+    CODEGEN_GENERATED_TX_BYRAWSTRING_MSGRESPONSES(variables: ICodegenGeneratedTxByrawstringMsgresponsesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByrawstringMsgresponsesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByrawstringMsgresponsesQuery>(CodegenGeneratedTxByrawstringMsgresponsesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYRAWSTRING_MSGRESPONSES', 'query');
+    },
+    CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG_EVENTS_ATTRIBUTES(variables: ICodegenGeneratedTxByrawstringTxlogEventsAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByrawstringTxlogEventsAttributesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByrawstringTxlogEventsAttributesQuery>(CodegenGeneratedTxByrawstringTxlogEventsAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG_EVENTS_ATTRIBUTES', 'query');
+    },
+    CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG_EVENTS(variables: ICodegenGeneratedTxByrawstringTxlogEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByrawstringTxlogEventsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByrawstringTxlogEventsQuery>(CodegenGeneratedTxByrawstringTxlogEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG_EVENTS', 'query');
+    },
+    CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG(variables: ICodegenGeneratedTxByrawstringTxlogQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByrawstringTxlogQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByrawstringTxlogQuery>(CodegenGeneratedTxByrawstringTxlogDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYRAWSTRING_TXLOG', 'query');
+    },
+    CODEGEN_GENERATED_TX_BYRAWSTRING(variables: ICodegenGeneratedTxByrawstringQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxByrawstringQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxByrawstringQuery>(CodegenGeneratedTxByrawstringDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYRAWSTRING', 'query');
+    },
     CODEGEN_GENERATED_TX_BYTAG_EVENTS_ATTRIBUTES(variables: ICodegenGeneratedTxBytagEventsAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxBytagEventsAttributesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxBytagEventsAttributesQuery>(CodegenGeneratedTxBytagEventsAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYTAG_EVENTS_ATTRIBUTES', 'query');
     },
     CODEGEN_GENERATED_TX_BYTAG_EVENTS(variables: ICodegenGeneratedTxBytagEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxBytagEventsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxBytagEventsQuery>(CodegenGeneratedTxBytagEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYTAG_EVENTS', 'query');
+    },
+    CODEGEN_GENERATED_TX_BYTAG_MSGRESPONSES(variables: ICodegenGeneratedTxBytagMsgresponsesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxBytagMsgresponsesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxBytagMsgresponsesQuery>(CodegenGeneratedTxBytagMsgresponsesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYTAG_MSGRESPONSES', 'query');
     },
     CODEGEN_GENERATED_TX_BYTAG_TXLOG_EVENTS_ATTRIBUTES(variables: ICodegenGeneratedTxBytagTxlogEventsAttributesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ICodegenGeneratedTxBytagTxlogEventsAttributesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ICodegenGeneratedTxBytagTxlogEventsAttributesQuery>(CodegenGeneratedTxBytagTxlogEventsAttributesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CODEGEN_GENERATED_TX_BYTAG_TXLOG_EVENTS_ATTRIBUTES', 'query');

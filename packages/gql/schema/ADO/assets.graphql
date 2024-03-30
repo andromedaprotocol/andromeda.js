@@ -1,30 +1,48 @@
 query ASSETS(
   $walletAddress: String!
+  $adoType: String
+  $appContract: String
+  $instantiateOwner: String
+  $kernel: String
   $limit: Int!
+  $memo: String
   $offset: Int!
-  $search: String
-  $adoType: AdoType
   $orderBy: AndrOrderBy
+  $owner: String
+  $ownershipRequest: String
+  $search: String
 ) {
   accounts {
     assets(
-      walletAddress: $walletAddress
-      limit: $limit
-      offset: $offset
-      search: $search
       adoType: $adoType
+      appContract: $appContract
+      instantiateOwner: $instantiateOwner
+      kernel: $kernel
+      limit: $limit
+      memo: $memo
+      offset: $offset
       orderBy: $orderBy
+      owner: $owner
+      ownershipRequest: $ownershipRequest
+      search: $search
+      walletAddress: $walletAddress
     ) {
       address
       adoType
       appContract
       chainId
+      disowned
       instantiateHash
       instantiateHeight
+      instantiateOwner
+      kernel
       lastUpdatedHash
       lastUpdatedHeight
+      memo
+      minter
       name
       owner
+      ownershipRequest
     }
   }
 }

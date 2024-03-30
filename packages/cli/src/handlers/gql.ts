@@ -56,13 +56,15 @@ async function appHandler(input: string[]) {
       components,
     } = app;
 
+    console.log("");
     console.log(`${pc.bold("Owner:")} ${owner}`);
     console.log(`${pc.bold("App Name:")} ${name}`);
     console.log();
     const componentTable = new Table(logTableConfig);
-    console.log(pc.bold("Components"));
+    console.log(pc.bold("Components:\n"));
+    componentTable.push(["Name", "ADO Type", "Address", "Component Type"].map(l => pc.bold(l)));
     components.forEach((comp) => {
-      componentTable.push([comp.name, comp.ado_type, comp.address]);
+      componentTable.push([pc.bold(comp.name), comp.ado_type, comp.address, comp.type]);
     });
     console.log(componentTable.toString());
   } catch (error) {

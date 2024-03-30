@@ -124,8 +124,8 @@ export default class TerraClient
       code: codeIdAttr ? parseInt(codeIdAttr.value, 10) : -1,
       transactionHash: resp.txhash,
       events: _.flatten(resp.logs.map((log) => log.events)),
-      gasUsed: resp.gas_used,
-      gasWanted: resp.gas_wanted,
+      gasUsed: BigInt(resp.gas_used),
+      gasWanted: BigInt(resp.gas_wanted),
       rawLog: resp.raw_log,
       // This is required but we don't have this
       txIndex: null as any,

@@ -16,28 +16,7 @@ query CW20($contractAddress: String!) {
   ADO {
     cw20(address: $contractAddress) {
       address
-      andr {
-        address
-        admin
-        blockHeightUponCreation
-        codeId
-        contractVersion
-        creator
-        ibcPortId
-        label
-        operators
-        originalPublisher
-        owner
-        queries_expected
-        type
-        version
-      }
-      downloadLogo {
-        data
-        mime_type
-      }
       marketingInfo {
-        allowance
         description
         logo
         marketing
@@ -47,7 +26,6 @@ query CW20($contractAddress: String!) {
         cap
         minter
       }
-      type
     }
   }
 }

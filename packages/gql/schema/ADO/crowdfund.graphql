@@ -36,14 +36,18 @@ query CROWDFUND_STATE($contractAddress: String!) {
         amount_sold
         amount_to_send
         amount_transferred
-        expiration
+        end_time
         max_amount_per_wallet
         min_tokens_sold
         price {
           amount
           denom
         }
-        recipient
+        recipient {
+          address
+          ibc_recovery_address
+          msg
+        }
       }
     }
   }

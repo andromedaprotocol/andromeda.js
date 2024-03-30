@@ -2,7 +2,7 @@ import { CodegenConfig } from '@graphql-codegen/cli'
 
 
 const config: CodegenConfig = {
-  schema: 'https://gql.testnet.andromedaprotocol.io/graphql',
+  schema: 'http://localhost:8085/graphql',
   documents: 'schema/**/*.graphql',
   ignoreNoDocuments: true,
   generates: {
