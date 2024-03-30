@@ -15,7 +15,7 @@ const vfsHandler = generateHandler(vfsCommands, "os vfs");
 
 const commands: Commands = {
     address: {
-        description: "Gets the current address for the db",
+        description: "Gets the current address for Kernel",
         usage: "os address",
         handler: getAddressHandler,
         color: pc.green,
@@ -35,7 +35,7 @@ const commands: Commands = {
     key: {
         handler: getKeyHandler,
         usage: "os key <key>",
-        description: "Query keyaddress from kernel",
+        description: "Query key address from kernel",
         color: pc.yellow,
         inputs: [
             {
