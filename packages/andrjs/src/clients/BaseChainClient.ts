@@ -1,4 +1,5 @@
 import {
+  InstantiateOptions,
   MsgExecuteContractEncodeObject,
   MsgInstantiateContractEncodeObject,
   MsgMigrateContractEncodeObject,
@@ -7,7 +8,6 @@ import {
 import { Coin } from "@cosmjs/proto-signing";
 import { MsgSendEncodeObject } from "@cosmjs/stargate";
 import { isUndefined } from "lodash";
-import Long from "long";
 import { Msg } from "..";
 import ChainClient from "./ChainClient";
 
@@ -63,15 +63,18 @@ export default class BaseChainClient implements Partial<ChainClient> {
   encodeInstantiateMsg(
     codeId: number,
     msg: Msg,
-    label: string
+    label: string,
+    options?: InstantiateOptions
   ): MsgInstantiateContractEncodeObject {
     return {
       typeUrl: "/cosmwasm.wasm.v1.MsgInstantiateContract",
       value: {
         sender: this.signer,
-        codeId: Long.fromInt(codeId),
+        codeId: BigInt(codeId),
         msg: JsonToArray(msg),
         label,
+        'admin': options?.admin,
+        'funds': options?.funds as any
       },
     };
   }
@@ -95,7 +98,7 @@ export default class BaseChainClient implements Partial<ChainClient> {
       typeUrl: "/cosmwasm.wasm.v1.MsgMigrateContract",
       value: {
         sender: this.signer,
-        codeId: Long.fromNumber(codeId),
+        codeId: BigInt(codeId),
         contract: address,
         msg: JsonToArray(msg),
       },

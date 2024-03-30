@@ -1,0 +1,49 @@
+query TX_BY_ACCOUNT(
+  $chainId: String!
+  $sentFromOrTo: String!
+  $minHeight: Int
+  $maxHeight: Int
+) {
+  tx(chainId: $chainId) {
+    byAccount(
+      maxHeight: $maxHeight
+      minHeight: $minHeight
+      sentFromOrTo: $sentFromOrTo
+    ) {
+      ...txInfo
+    }
+  }
+}
+
+query TX_BY_CONTRACT(
+  $chainId: String!
+  $contractAddress: String!
+  $minHeight: Int
+  $maxHeight: Int
+) {
+  tx(chainId: $chainId) {
+    byContract(
+      address: $contractAddress
+      minHeight: $minHeight
+      maxHeight: $maxHeight
+    ) {
+      ...txInfo
+    }
+  }
+}
+
+query TX_BY_HEIGHT($chainId: String!, $height: Float!) {
+  tx(chainId: $chainId) {
+    byHeight(height: $height) {
+      ...txInfo
+    }
+  }
+}
+
+query TX_BY_HASH($chainId: String!, $hash: String!) {
+  tx(chainId: $chainId) {
+    byHash(hash: $hash) {
+      ...txInfo
+    }
+  }
+}

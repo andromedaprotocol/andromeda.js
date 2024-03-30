@@ -1,7 +1,7 @@
 import { Msg } from "@andromedaprotocol/andromeda.js";
 import { Coin, parseCoins } from "@cosmjs/proto-signing";
 import { StdFee } from "@cosmjs/stargate";
-import { promptWithExit } from "cmd";
+import { promptWithExit } from "../cmd";
 import fs from "fs";
 import path from "path";
 import pc from "picocolors";
@@ -321,7 +321,6 @@ export async function executeMessage(
     console.log(pc.red("Transaction cancelled"));
     return;
   }
-
   const resp = await displaySpinnerAsync(
     "Executing Tx...",
     async () => await client.execute(address, msg, fee, memo, msgFunds)

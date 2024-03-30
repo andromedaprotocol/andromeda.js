@@ -1,0 +1,24 @@
+{
+  "name": "@andromedaprotocol/adocodegen",
+  "version": "0.3.8-beta.2",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
+  },
+  "description": "",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "files": [
+    "./src"
+  ],
+  "exports": {
+    ".": "./src"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^18.14.1",
+    "typescript": "^5.2.2"
+  }
+}

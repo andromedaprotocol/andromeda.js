@@ -1,3 +1,4 @@
+import { IChainConfig } from "@andromedaprotocol/gql";
 import type { Coin } from "@cosmjs/proto-signing";
 import type { StdFee } from "@cosmjs/stargate";
 
@@ -47,33 +48,7 @@ export type PrimitiveValue =
   | BoolPrimitive
   | VecPrimitive;
 
-export interface ChainConfig {
-  /** The name of the chain */
-  chainName: string;
-  /** The name of the config */
-  name: string;
-  /** The ID for the chain */
-  chainId: string;
-  /** The URL for the chain */
-  chainUrl: string;
-  /** The address of the Andromeda Registry */
-  registryAddress: string;
-  /** The prefix for any addresses on this chain */
-  addressPrefix: string;
-  /** The default fee value for the chain, e.g. "0.025ujunox" */
-  defaultFee: string;
-  /** Block explorer transaction pages */
-  blockExplorerTxPages: string[];
-  /** Block explorer address pages */
-  blockExplorerAddressPages: string[];
-  /** Block explorer address pages */
-  chainType: "testnet" | "mainnet";
-  /** The URL for the chain icon */
-  iconUrls?: {
-    sm?: string;
-    lg?: string;
-  };
-}
+export type ChainConfig = IChainConfig
 
 /**
  * Object used to define an address used with the Andromeda ecosystem
@@ -91,4 +66,13 @@ export interface Module {
   is_mutable: boolean;
   /** The module idx (if it is already stored within a contract) */
   idx?: number;
+}
+
+/**
+ * Object used to define optional parameters that can be used for an execute message.
+ */
+export interface OptionalExecuteParams {
+  funds?: readonly Coin[] | Coin[];
+  memo?: string;
+  fee?: StdFee;
 }

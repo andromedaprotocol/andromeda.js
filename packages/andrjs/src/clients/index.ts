@@ -1,3 +1,4 @@
+import ArchwayClient from "./ArchwayClient";
 import ChainClient from "./ChainClient";
 import CosmClient from "./CosmClient";
 import InjectiveClient from "./InjectiveClient";
@@ -10,6 +11,8 @@ export default function createClient(addressPrefix: string): ChainClient {
   switch (addressPrefix) {
     // case "terra":
     //   return new TerraClient();
+    case "archway":
+      return new ArchwayClient();
     case "inj":
       return new InjectiveClient();
     default:

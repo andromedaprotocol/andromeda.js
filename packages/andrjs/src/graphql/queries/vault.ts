@@ -1,73 +1,26 @@
-import { query } from "../client";
-import { gql } from "graphql-request";
-import { ContractAddressQuery } from "./types";
-import { Coin } from "@cosmjs/proto-signing";
-
-export type StrategyType = "Anchor";
-export interface VaultStrategy {
-  address: string;
-  strategyType: StrategyType;
-}
-
-export interface QueryVaultBalance extends ContractAddressQuery {
-  address: string;
-}
-export interface QueryVaultBalanceResponse {
-  balance: Coin[];
-}
-
-export const QUERY_VAULT_BALANCE = gql`
-  query QUERY_VAULT_BALANCE($contractAddress: String!, $address: String!) {
-    vault(contractAddress: $contractAddress) {
-      balance(address: $address) {
-        amount
-        denom
-      }
-    }
-  }
-`;
+import { IAndrStrategyType } from "@andromedaprotocol/gql";
+import { querySdk } from "../client";
 
 export async function queryBalance(
   contractAddress: string,
   address: string
-): Promise<Coin[]> {
-  const resp = await query<QueryVaultBalance, QueryVaultBalanceResponse>(
-    QUERY_VAULT_BALANCE,
-    { contractAddress, address }
-  );
+) {
+  const resp = await querySdk.CODEGEN_GENERATED_ADO_VAULT_BALANCE({
+    'ADO_vault_address': contractAddress,
+    'ADO_vault_vault_balance_address': address
+  })
 
-  return resp.balance;
+  return resp.ADO.vault.balance;
 }
-
-export interface QueryVaultStrategyAddress extends ContractAddressQuery {
-  strategy: StrategyType;
-}
-export interface QueryVaultStrategyAddressResponse {
-  strategyAddress: VaultStrategy;
-}
-
-export const QUERY_VAULT_STRATEGY_ADDRESS = gql`
-  query QUERY_VAULT_STRATEGY_ADDRESS(
-    $contractAddress: String!
-    $strategy: String!
-  ) {
-    vault(contractAddress: $contractAddress) {
-      strategyAddress(strategy: $strategy) {
-        address
-        strategyType
-      }
-    }
-  }
-`;
 
 export async function queryStrategyAddress(
   contractAddress: string,
-  strategy: StrategyType
-): Promise<VaultStrategy> {
-  const resp = await query<
-    QueryVaultStrategyAddress,
-    QueryVaultStrategyAddressResponse
-  >(QUERY_VAULT_STRATEGY_ADDRESS, { contractAddress, strategy });
+  strategy: IAndrStrategyType
+) {
+  const resp = await querySdk.CODEGEN_GENERATED_ADO_VAULT_STRATEGYADDRESS({
+    'ADO_vault_address': contractAddress,
+    'ADO_vault_vault_strategyAddress_strategy': strategy
+  })
 
-  return resp.strategyAddress;
+  return resp.ADO.vault.strategyAddress;
 }

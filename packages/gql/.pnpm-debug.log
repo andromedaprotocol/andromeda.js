@@ -1,0 +1,250 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 4,
+    "total": 4,
+    "workspacePrefix": "/Users/connorbarr/dev/andromeda/andromeda-js"
+  },
+  "1 debug pnpm:package-manifest": {
+    "initial": {
+      "name": "andromeda.js",
+      "version": "0.2.12",
+      "description": "",
+      "main": "index.js",
+      "scripts": {
+        "build": "pnpm --filter \"./packages/*\" run build"
+      },
+      "keywords": [],
+      "author": "",
+      "license": "ISC",
+      "devDependencies": {
+        "rimraf": "^4.4.0"
+      }
+    },
+    "prefix": "/Users/connorbarr/dev/andromeda/andromeda-js"
+  },
+  "2 debug pnpm:package-manifest": {
+    "initial": {
+      "name": "@andromedaprotocol/gql",
+      "version": "0.3.4",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
+      },
+      "description": "",
+      "main": "./dist/index.js",
+      "scripts": {
+        "build": "rimraf ./dist && tsc && tsc-alias",
+        "build:plugin": "rimraf ./plugins/dist && tsc -p tsconfig.plugin.json && tsc-alias -p tsconfig.plugin.json",
+        "tsc": "tsc --noEmit",
+        "depcheck": "depcheck",
+        "codegen:master": "npm run build:plugin && graphql-codegen --config codegen.master.ts",
+        "codegen:build": "rimraf ./__generated && graphql-codegen --config codegen.build.ts",
+        "codegen": "npm run codegen:master && npm run codegen:build"
+      },
+      "keywords": [],
+      "author": "",
+      "license": "ISC",
+      "files": [
+        "dist/**/*"
+      ],
+      "dependencies": {
+        "@apollo/client": "^3.7.17",
+        "graphql": "^16.7.1",
+        "graphql-request": "^6.1.0",
+        "graphql-tag": "^2.12.6"
+      },
+      "devDependencies": {
+        "@graphql-codegen/cli": "5.0.0",
+        "@graphql-codegen/core": "^4.0.0",
+        "@graphql-codegen/plugin-helpers": "^5.0.1",
+        "@graphql-codegen/schema-ast": "^4.0.0",
+        "@graphql-codegen/typescript": "^4.0.1",
+        "@graphql-codegen/typescript-apollo-client-helpers": "^2.2.6",
+        "@graphql-codegen/typescript-graphql-request": "^5.0.0",
+        "@graphql-codegen/typescript-operations": "^4.0.1",
+        "@graphql-codegen/typescript-react-apollo": "^3.3.7",
+        "@graphql-codegen/visitor-plugin-common": "^4.0.1",
+        "@graphql-tools/utils": "^10.0.4",
+        "@types/node": "^18.14.1",
+        "depcheck": "^1.4.3",
+        "tsc-alias": "^1.8.3",
+        "typescript": "^4.9.5"
+      }
+    },
+    "prefix": "/Users/connorbarr/dev/andromeda/andromeda-js/packages/gql"
+  },
+  "3 debug pnpm:package-manifest": {
+    "initial": {
+      "name": "@andromedaprotocol/andromeda.js",
+      "version": "0.3.4",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
+      },
+      "description": "",
+      "main": "./dist/index.js",
+      "scripts": {
+        "start": "nodemon --watch 'src/**/*.ts' --ext 'ts,json' --exec \"npm run\" build",
+        "create": "npm run build && npm run test",
+        "build": "rimraf ./dist && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+        "test": "jest",
+        "tsc": "tsc --noEmit",
+        "depcheck": "depcheck"
+      },
+      "keywords": [],
+      "author": "",
+      "license": "ISC",
+      "files": [
+        "dist/**/*"
+      ],
+      "dependencies": {
+        "@archwayhq/arch3.js": "^0.4.0",
+        "@andromedaprotocol/gql": "workspace:../gql",
+        "@cosmjs/cosmwasm-stargate": "^0.29.5",
+        "@cosmjs/crypto": "^0.29.5",
+        "@cosmjs/encoding": "^0.29.5",
+        "@cosmjs/proto-signing": "^0.29.5",
+        "@cosmjs/stargate": "^0.29.5",
+        "@graphql-typed-document-node/core": "^3.2.0",
+        "@injectivelabs/networks": "^1.0.93",
+        "@injectivelabs/sdk-ts": "1.0.452",
+        "@injectivelabs/utils": "1.0.81",
+        "@keplr-wallet/types": "^0.11.44",
+        "@terra-money/terra.js": "^3.1.7",
+        "axios": "^1.3.4",
+        "bech32": "^2.0.0",
+        "cosmjs-types": "^0.6.1",
+        "crypto-js": "^4.1.1",
+        "ethers": "^5.7.2",
+        "graphql-request": "^6.1.0",
+        "jsonschema": "^1.4.1",
+        "libsodium-wrappers": "0.7.6",
+        "lodash": "^4.17.21",
+        "long": "^5.2.1",
+        "pako": "^2.1.0"
+      },
+      "devDependencies": {
+        "@types/crypto-js": "^4.1.1",
+        "@types/lodash": "^4.14.191",
+        "@types/pako": "^2.0.0",
+        "depcheck": "^1.4.3",
+        "jest": "^29.5.0",
+        "nodemon": "^2.0.20",
+        "tsc-alias": "^1.8.3",
+        "typescript": "^4.9.4"
+      }
+    },
+    "prefix": "/Users/connorbarr/dev/andromeda/andromeda-js/packages/andrjs"
+  },
+  "4 debug pnpm:package-manifest": {
+    "initial": {
+      "name": "@andromedaprotocol/cli",
+      "version": "0.3.4",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
+      },
+      "description": "",
+      "main": "./dist/index.js",
+      "bin": {
+        "andr": "dist/cli.js"
+      },
+      "scripts": {
+        "start": "nodemon --exec \"npm run\" dev",
+        "start:windows": "nodemon --exec \"npm run\" build",
+        "create": "npm run build && npm run test",
+        "build": "rimraf ./dist && tsc -p tsconfig.build.json && tsc-alias tsc -p tsconfig.build.json",
+        "install:local": "ts-node ./scripts/install.ts",
+        "uninstall:local": "ts-node ./scripts/uninstall.ts",
+        "test": "jest",
+        "tsc": "tsc -p tsconfig.json --noEmit",
+        "depcheck": "depcheck",
+        "dev": "ts-node-dev -r tsconfig-paths/register src/cli.ts",
+        "list-global": "npm --global ls"
+      },
+      "keywords": [],
+      "author": "",
+      "license": "ISC",
+      "files": [
+        "dist/**/*"
+      ],
+      "dependencies": {
+        "@andromedaprotocol/andromeda.js": "workspace:../andrjs",
+        "@cosmjs/amino": "^0.30.0",
+        "@cosmjs/crypto": "^0.29.5",
+        "@cosmjs/proto-signing": "^0.29.5",
+        "@cosmjs/stargate": "^0.29.5",
+        "cli-spinner": "^0.2.10",
+        "cli-table": "^0.3.11",
+        "convict": "^6.2.4",
+        "convict-format-with-validator": "^6.2.0",
+        "figlet": "^1.5.2",
+        "gradient-string": "^2.0.2",
+        "inquirer": "8.2.4",
+        "inquirer-command-prompt": "^0.1.0",
+        "jsonschema": "^1.4.1",
+        "keytar": "^7.9.0",
+        "lodash": "^4.17.21",
+        "long": "^5.2.1",
+        "minimist": "^1.2.8",
+        "module-alias": "^2.2.2",
+        "picocolors": "^1.0.0"
+      },
+      "devDependencies": {
+        "@types/async": "^3.2.18",
+        "@types/cli-spinner": "^0.2.1",
+        "@types/cli-table": "^0.3.1",
+        "@types/convict": "^6.1.1",
+        "@types/convict-format-with-validator": "^6.0.2",
+        "@types/figlet": "^1.5.5",
+        "@types/gradient-string": "^1.1.2",
+        "@types/inquirer": "^8.2.4",
+        "@types/jest": "^29.4.0",
+        "@types/lodash": "^4.14.191",
+        "@types/minimist": "^1.2.2",
+        "@types/node": "^18.14.1",
+        "async": "^3.2.4",
+        "depcheck": "^1.4.3",
+        "jest": "^29.5.0",
+        "nodemon": "^2.0.20",
+        "ts-jest": "^29.0.5",
+        "ts-node": "^10.9.1",
+        "ts-node-dev": "^2.0.0",
+        "tsc-alias": "^1.8.3",
+        "tsconfig-paths": "^4.2.0",
+        "typescript": "^4.9.4"
+      }
+    },
+    "prefix": "/Users/connorbarr/dev/andromeda/andromeda-js/packages/cli"
+  },
+  "5 warn pnpm": {
+    "message": "Ignoring broken lockfile at /Users/connorbarr/dev/andromeda/andromeda-js: Lockfile /Users/connorbarr/dev/andromeda/andromeda-js/pnpm-lock.yaml not compatible with current pnpm",
+    "prefix": "/Users/connorbarr/dev/andromeda/andromeda-js"
+  },
+  "6 debug pnpm:context": {
+    "currentLockfileExists": true,
+    "storeDir": "/Users/connorbarr/.pnpm-store/v3",
+    "virtualStoreDir": "/Users/connorbarr/dev/andromeda/andromeda-js/node_modules/.pnpm"
+  },
+  "7 debug pnpm:stage": {
+    "prefix": "/Users/connorbarr/dev/andromeda/andromeda-js",
+    "stage": "resolution_started"
+  },
+  "8 warn pnpm": {
+    "message": "Moving @types/crypto-js that was installed by a different package manager to \"node_modules/.ignored",
+    "prefix": "/Users/connorbarr/dev/andromeda/andromeda-js/packages/andrjs"
+  },
+  "9 error pnpm": {
+    "errno": -66,
+    "code": "ENOTEMPTY",
+    "syscall": "rename",
+    "path": "/Users/connorbarr/dev/andromeda/andromeda-js/packages/andrjs/node_modules/@types/crypto-js",
+    "dest": "/Users/connorbarr/dev/andromeda/andromeda-js/packages/andrjs/node_modules/.ignored/@types/crypto-js",
+    "err": {
+      "name": "Error",
+      "message": "ENOTEMPTY: directory not empty, rename '/Users/connorbarr/dev/andromeda/andromeda-js/packages/andrjs/node_modules/@types/crypto-js' -> '/Users/connorbarr/dev/andromeda/andromeda-js/packages/andrjs/node_modules/.ignored/@types/crypto-js'",
+      "code": "ENOTEMPTY",
+      "stack": "Error: ENOTEMPTY: directory not empty, rename '/Users/connorbarr/dev/andromeda/andromeda-js/packages/andrjs/node_modules/@types/crypto-js' -> '/Users/connorbarr/dev/andromeda/andromeda-js/packages/andrjs/node_modules/.ignored/@types/crypto-js'"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+query ADDRESS_LIST_CONTAINS_ADDRESS(
+  $contractAddress: String!
+  $address: String!
+) {
+  ADO {
+    address_list(address: $contractAddress) {
+      includesAddress(address: $address) {
+        included
+      }
+    }
+  }
+}

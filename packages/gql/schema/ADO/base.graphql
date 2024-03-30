@@ -1,0 +1,24 @@
+query BASE_ADO($contractAddress: String!) {
+  ADO {
+    ado(address: $contractAddress) {
+      address
+      chainId
+      andr {
+        ...andrFragment
+      }
+    }
+  }
+}
+
+query MINI_BASE_ADO($contractAddress: String!) {
+  ADO {
+    ado(address: $contractAddress) {
+      address
+      chainId
+      andr {
+        type
+        version
+      }
+    }
+  }
+}

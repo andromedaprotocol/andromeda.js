@@ -4,12 +4,30 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "pnpm --filter \"./packages/*\" run build"
+    "build": "pnpm --filter \"./packages/*\" run build",
+    "prepack": "rimraf packages/*/andromedaprotocol-*.tgz",
+    "pack": "npm run build &&  pnpm --filter \"./packages/*\" exec pnpm pack",
+    "postpack": "npm run collect",
+    "collect": "rimraf local_libs && cpy ./packages/*/andromedaprotocol-*.tgz local_libs --flat",
+    "clean": "rimraf -g packages/*/dist packages/*/*.tgz **/node_modules local_libs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
+    "cpy-cli": "^5.0.0",
     "rimraf": "^4.4.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss@<8.4.31": ">=8.4.31",
+      "graphql@>=16.3.0 <16.8.1": ">=16.8.1",
+      "@babel/traverse@<7.23.2": ">=7.23.2",
+      "semver@>=7.0.0 <7.5.2": ">=7.5.2",
+      "axios@>=0.8.1 <0.28.0": "^1.6.7", 
+      "jose@>=3.0.0 <=4.15.4": ">=4.15.5",
+      "follow-redirects@<=1.15.5": ">=1.15.6"
+    }
   }
 }
