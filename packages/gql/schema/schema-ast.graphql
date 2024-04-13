@@ -283,7 +283,7 @@ type AuctionAdo implements IBaseAdoQuery {
   admin: String @deprecated(reason: "Moved to `andr` query resolver, use `admin` field on `andr` to resolve this query.")
   andr: AndrQuery!
   auctionIDs(tokenAddress: String!, tokenId: String!): AuctionIDsResponse
-  auctionInfosForAddress(tokenAddress: String!): AuctionInfosForAddressResponse
+  auctionInfosForAddress(tokenAddress: String!): [AuctionInfosForAddressResponse!]
   auctionState(auctionId: Float!): AuctionStateResponse
   bids(auctionId: Float!, options: AndrSearchOptions): BidsResponse
   chainId: String!
@@ -470,9 +470,9 @@ type CrowdfundConfig {
 }
 
 type CrowdfundRecipient {
-  address: String!
-  ibc_recovery_address: String!
-  msg: JSON!
+  address: String
+  ibc_recovery_address: String
+  msg: JSON
 }
 
 type CrowdfundState {

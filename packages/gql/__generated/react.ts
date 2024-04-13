@@ -391,7 +391,7 @@ export type ICodegenGeneratedAdoAuctionAuctioninfosforaddressQueryVariables = Ex
 }>;
 
 
-export type ICodegenGeneratedAdoAuctionAuctioninfosforaddressQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', auctionInfosForAddress: { __typename?: 'AuctionInfosForAddressResponse', auction_ids: Array<number>, token_address: string, token_id: string } } } };
+export type ICodegenGeneratedAdoAuctionAuctioninfosforaddressQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', auction: { __typename?: 'AuctionAdo', auctionInfosForAddress: Array<{ __typename?: 'AuctionInfosForAddressResponse', auction_ids: Array<number>, token_address: string, token_id: string }> } } };
 
 export type ICodegenGeneratedAdoAuctionAuctionstateQueryVariables = Exact<{
   ADO_auction_address: Scalars['String']['input'];
