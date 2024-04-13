@@ -4,7 +4,7 @@ import { getSdk } from "@andromedaprotocol/gql/dist/__generated/node";
 
 export const GQL_URLS = {
   TESTNET: 'https://api.andromedaprotocol.io/graphql/testnet',
-  MAINNET: 'https://gql.andromedaprotocol.io/',
+  MAINNET: 'https://gql.andromedaprotocol.io/graphql',
   DEVNET: 'https://api.andromedaprotocol.io/graphql/dev'
 } as const;
 
@@ -14,7 +14,7 @@ export const GQL_URLS = {
  * PROD - gql.andromedaprotocol.io/graphql
  * TESTNET - api.andromedaprotocol.io/graphql/testnet
 */
-let URI: Readonly<string> = process.env.GQL_URL ?? GQL_URLS.TESTNET;
+let URI: Readonly<string> = GQL_URLS[process.env.GQL_URL as keyof typeof GQL_URLS] || process.env.GQL_URL || GQL_URLS.TESTNET;
 const gqlClient = new GraphQLClient(URI);
 
 /**
