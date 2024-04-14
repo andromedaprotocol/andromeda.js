@@ -499,7 +499,7 @@ export type IAuctionAdo = IIBaseAdoQuery & {
   admin: Maybe<Scalars['String']['output']>;
   andr: IAndrQuery;
   auctionIDs: Maybe<IAuctionIDsResponse>;
-  auctionInfosForAddress: Maybe<IAuctionInfosForAddressResponse>;
+  auctionInfosForAddress: Maybe<Array<IAuctionInfosForAddressResponse>>;
   auctionState: Maybe<IAuctionStateResponse>;
   bids: Maybe<IBidsResponse>;
   chainId: Scalars['String']['output'];
@@ -878,9 +878,9 @@ export type ICrowdfundConfig = {
 
 export type ICrowdfundRecipient = {
   __typename?: 'CrowdfundRecipient';
-  address: Scalars['String']['output'];
-  ibc_recovery_address: Scalars['String']['output'];
-  msg: Scalars['JSON']['output'];
+  address: Maybe<Scalars['String']['output']>;
+  ibc_recovery_address: Maybe<Scalars['String']['output']>;
+  msg: Maybe<Scalars['JSON']['output']>;
 };
 
 export type ICrowdfundState = {
