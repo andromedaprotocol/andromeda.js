@@ -8,6 +8,7 @@
     "@andromedaprotocol/gql": "0.3.8-beta.3"
   },
   "changesets": [
-    "purple-geckos-mix"
+    "purple-geckos-mix",
+    "soft-grapes-study"
   ]
 }

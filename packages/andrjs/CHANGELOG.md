@@ -1,5 +1,13 @@
 # @andromedaprotocol/andromeda.js
 
+## 0.3.8-beta.4
+
+### Patch Changes
+
+- Updates to gql url and new commands in cli `gql url get` and `gql url set <url>`
+- Updated dependencies
+  - @andromedaprotocol/gql@0.3.8-beta.4
+
 ## 0.3.8-beta.3
 
 ### Patch Changes
