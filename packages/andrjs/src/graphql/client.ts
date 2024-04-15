@@ -14,7 +14,7 @@ export const GQL_URLS = {
  * PROD - gql.andromedaprotocol.io/graphql
  * TESTNET - api.andromedaprotocol.io/graphql/testnet
 */
-let URI: Readonly<string> = GQL_URLS[process.env.GQL_URL as keyof typeof GQL_URLS] || process.env.GQL_URL || GQL_URLS.TESTNET;
+let URI: Readonly<string> = GQL_URLS[process.env.GQL_URL as keyof typeof GQL_URLS] || process.env.GQL_URL || GQL_URLS.MAINNET;
 const gqlClient = new GraphQLClient(URI);
 
 /**
