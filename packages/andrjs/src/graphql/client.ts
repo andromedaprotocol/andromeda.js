@@ -4,7 +4,7 @@ import { getSdk } from "@andromedaprotocol/gql/dist/__generated/node";
 
 export const GQL_URLS = {
   TESTNET: 'https://api.andromedaprotocol.io/graphql/testnet',
-  MAINNET: 'https://gql.andromedaprotocol.io/graphql',
+  MAINNET: 'https://api.andromedaprotocol.io/graphql/mainnet',
   DEVNET: 'https://api.andromedaprotocol.io/graphql/dev'
 } as const;
 
