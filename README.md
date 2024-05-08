@@ -12,5 +12,8 @@ The Andromeda.js repository contains two packages:
 
 ## Licensing
 
-[Terms and Conditions](https://github.com/andromedaprotocol/andromeda-core/blob/development/LICENSE/LICENSE.md)
+[License](https://github.com/andromedaprotocol/andromeda-core/blob/development/LICENSE/LICENSE.md)
+
+[Terms and Conditions](TERMS_AND_CONDITIONS.md)
+
 
