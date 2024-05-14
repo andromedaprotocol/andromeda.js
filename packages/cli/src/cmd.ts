@@ -152,7 +152,7 @@ export async function title() {
   console.log(
     pc.blue(
       `Terms & Conditions: ${pc.bold(
-        "https://github.com/andromedaprotocol/andromeda-core/blob/development/TERMS_AND_CONDITIONS.md"
+        "https://github.com/andromedaprotocol/andromeda.js/blob/development/TERMS_AND_CONDITIONS.md"
       )}`
     )
   );
