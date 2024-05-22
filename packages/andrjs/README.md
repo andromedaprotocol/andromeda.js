@@ -47,8 +47,6 @@ Please check the [docs](https://docs.andromedaprotocol.io/andromeda.js/) for not
 
 Queries that can be performed on Andromeda ADOs using GraphQL. Documentation on the different queries can be found [here](https://docs.andromedaprotocol.io/andromeda.js/queries/graphql-queries).
 
-
 ## Terms and Conditions
 
 [Terms and Conditions](/TERMS_AND_CONDITIONS.md)
-

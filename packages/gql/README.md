@@ -33,7 +33,6 @@ For external projects, like a React project, navigate to the `gql` package direc
 
 We might be able to reference this package using a GitHub link in the future. However, this hasn't been tested yet, so it's not recommended for now.
 
-
 ## Terms and Conditions
 
 [Terms and Conditions](/TERMS_AND_CONDITIONS.md)
