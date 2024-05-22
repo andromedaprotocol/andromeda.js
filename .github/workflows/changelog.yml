@@ -50,13 +50,14 @@ jobs:
             fi
 
             # Regular expression to match version numbers
-            if [ -z "$(grep -E "^## [0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?" packages/$package/CHANGELOG.md)" ]; then
+            version_line=$(grep -E "^## [0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?" packages/$package/CHANGELOG.md | head -n 1)
+            if [ -z "$version_line" ]; then
               errors+=("Error: No version bump found in packages/$package/CHANGELOG.md")
               continue
             fi
 
             # Extracting the version number from the changelog entry
-            current_version=$(grep -E "^## ([0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?)" packages/$package/CHANGELOG.md | head -n 1 | sed -E "s/^## ([0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?) .*/\1/")
+            current_version=$(echo "$version_line" | sed -E "s/^## ([0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?).*$/\1/")
 
             # Parsing the version number from the package.json
             package_version=$(cat packages/$package/package.json | jq -r .version)
