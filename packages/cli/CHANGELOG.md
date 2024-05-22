@@ -1,5 +1,11 @@
 # @andromedaprotocol/cli
 
+## 1.0.1
+
+### Patch Changes
+
+- Improved autocomplete list functionality with exit option
+
 ## 1.0.0
 
 ### Major Changes
