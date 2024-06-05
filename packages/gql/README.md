@@ -32,3 +32,7 @@ Being a monorepo makes it easy to test local changes in the CLI and `andrjs`. En
 For external projects, like a React project, navigate to the `gql` package directory and execute `npm run build && pnpm pack`. This will generate a local package which you can then integrate into your React project without having to deploy the package to a registry.
 
 We might be able to reference this package using a GitHub link in the future. However, this hasn't been tested yet, so it's not recommended for now.
+
+## Terms and Conditions
+
+[Terms and Conditions](/TERMS_AND_CONDITIONS.md)

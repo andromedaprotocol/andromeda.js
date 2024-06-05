@@ -19,12 +19,10 @@ const InterruptedPrompt = require("inquirer-interrupted-prompt");
 import AutocompletePrompt from "inquirer-autocomplete-prompt";
 class CustomAutocompletePrompt extends AutocompletePrompt<any> {
   onSubmit(line: string) {
-    let selected_value = this.currentChoices.getChoice(this.selected).value;
-
+    let selected_value = this.currentChoices.getChoice(this.selected)?.value;
     if (!line && selected_value) {
       line = selected_value;
     }
-    
     super.onSubmit(line);
   }
 }

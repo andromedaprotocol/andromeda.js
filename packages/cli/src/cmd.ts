@@ -1,7 +1,7 @@
 import pc from "picocolors";
 import Table from "cli-table";
 import gradient from "gradient-string";
-import inquirer from "inquirer";
+import inquirer, { Answers } from "inquirer";
 import { logTableConfig } from "./common";
 import {
   adoHandler,
@@ -144,8 +144,15 @@ export async function title() {
   );
   console.log(
     pc.blue(
-      `Terms & Agreements: ${pc.bold(
+      `License: ${pc.bold(
         "https://github.com/andromedaprotocol/andromeda-core/blob/development/LICENSE/LICENSE.md"
+      )}`
+    )
+  );
+  console.log(
+    pc.blue(
+      `Terms & Conditions: ${pc.bold(
+        "https://github.com/andromedaprotocol/andromeda.js/blob/development/TERMS_AND_CONDITIONS.md"
       )}`
     )
   );
@@ -319,12 +326,17 @@ export async function promptWithExit<T extends inquirer.DistinctQuestion>(
         return question.validate ? question.validate(input) : true;
       },
     };
-    // If the question is multiple choice include an exit choice
     if (mappedQuestion.type === "list" || mappedQuestion.type === "rawlist") {
       mappedQuestion.choices = [
         ...(mappedQuestion.choices as Array<any>),
         { name: pc.red("exit"), value: "exit" },
       ];
+    }
+    if (mappedQuestion.type as any === "autocomplete" && "source" in mappedQuestion) {
+      const oldFunc: (answers: Answers, input?: string) => string[] = mappedQuestion.source as any;
+      mappedQuestion.source = (answers: Answers, input = '') => {
+        return oldFunc(answers, input).concat('exit');
+      }
     }
     return mappedQuestion;
   };
@@ -342,7 +354,6 @@ export async function promptWithExit<T extends inquirer.DistinctQuestion>(
     const question = questions[i];
 
     const resp = await inquirer.prompt(question);
-
     // If the user selects exit then throw exit error
     if (exitInputs.includes(resp[question.name!]))
       throw new Error("Command exited");

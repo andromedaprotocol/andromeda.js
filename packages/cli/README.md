@@ -50,3 +50,7 @@ GQL_URL='https://your_gql_url' npm run dev
 ```
 
 You can also use gql commands to get and update gql url. run `gql url --help` to learn more about the commands.
+
+## Terms and Conditions
+
+[Terms and Conditions](/TERMS_AND_CONDITIONS.md)

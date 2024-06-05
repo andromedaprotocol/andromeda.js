@@ -1,0 +1,77 @@
+name: Changelog and Version Bump Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - development
+
+jobs:
+  check-changelog-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get list of changed files
+        id: changed-files
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          echo "::set-output name=files::$(git diff --name-only origin/${{ github.event.pull_request.base.ref }} ${{ github.sha }} | tr '\n' ' ')"
+
+      - name: Determine changed packages
+        id: determine-packages
+        run: |
+          CHANGED_FILES="${{ steps.changed-files.outputs.files }}"
+          CHANGED_PACKAGES=()
+          for file in $CHANGED_FILES; do
+            if [[ "$file" == packages/*/src/* ]]; then
+              package=$(echo $file | cut -d'/' -f2)
+              if [[ ! " ${CHANGED_PACKAGES[@]} " =~ " ${package} " ]]; then
+                CHANGED_PACKAGES+=($package)
+              fi
+            fi
+          done
+          echo "Changed packages: ${CHANGED_PACKAGES[@]}"
+          echo "::set-output name=packages::$(IFS=,; echo "${CHANGED_PACKAGES[*]}")"
+
+      - name: Check changelog and version bump in each changed package
+        run: |
+          CHANGED_PACKAGES="${{ steps.determine-packages.outputs.packages }}"
+          IFS=',' read -r -a packages <<< "$CHANGED_PACKAGES"
+          errors=()
+          for package in "${packages[@]}"; do
+            echo "Checking package: packages/$package"
+            if [ ! -f "packages/$package/CHANGELOG.md" ]; then
+              errors+=("Warning: CHANGELOG.md not found in packages/$package.")
+              continue
+            fi
+
+            # Regular expression to match version numbers
+            version_line=$(grep -E "^## [0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?" packages/$package/CHANGELOG.md | head -n 1)
+            if [ -z "$version_line" ]; then
+              errors+=("Error: No version bump found in packages/$package/CHANGELOG.md")
+              continue
+            fi
+
+            # Extracting the version number from the changelog entry
+            current_version=$(echo "$version_line" | sed -E "s/^## ([0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?).*$/\1/")
+
+            # Parsing the version number from the package.json
+            package_version=$(cat packages/$package/package.json | jq -r .version)
+
+            # Comparing the versions
+            if [ "$current_version" != "$package_version" ]; then
+              errors+=("Error: Version mismatch in packages/$package (package.json: $package_version, CHANGELOG.md: $current_version)")
+            fi
+          done
+          if [ ${#errors[@]} -ne 0 ]; then
+            printf '%s\n' "${errors[@]}"
+            exit 1
+          fi
+
+      - name: Success message
+        if: success()
+        run: echo "Changelog and version bump check passed for all changed packages."
