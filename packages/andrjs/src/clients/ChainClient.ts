@@ -231,7 +231,8 @@ export default interface ChainClient {
   encodeInstantiateMsg(
     codeId: number,
     msg: Msg,
-    label: string
+    label: string,
+    options: InstantiateOptions
   ): MsgInstantiateContractEncodeObject;
   /**
    * Converts an upload message to an EncodeObject for signing or simulating

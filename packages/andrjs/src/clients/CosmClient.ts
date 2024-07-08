@@ -163,7 +163,7 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     fee?: StdFee,
     options?: InstantiateOptions
   ): Promise<number | undefined> {
-    const message = this.encodeInstantiateMsg(codeId, msg, label);
+    const message = this.encodeInstantiateMsg(codeId, msg, label, options);
     return this.simulate(message, fee, options?.memo);
   }
 
