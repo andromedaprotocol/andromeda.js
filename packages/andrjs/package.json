@@ -23,6 +23,7 @@
   ],
   "dependencies": {
     "@andromedaprotocol/gql": "workspace:*",
+    "@andromedaprotocol/adocodegen": "workspace:*",
     "@archwayhq/arch3.js": "^0.7.0",
     "@cosmjs/cosmwasm-stargate": "^0.32.3",
     "@cosmjs/crypto": "^0.32.3",
