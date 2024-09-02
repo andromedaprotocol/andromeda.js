@@ -8,6 +8,7 @@ import {
   UploadResult,
   wasmTypes,
 } from "@cosmjs/cosmwasm-stargate";
+
 import {
   Coin,
   EncodeObject,
@@ -46,7 +47,7 @@ import ChainClient from "./ChainClient";
 import { findAttribute, Log } from "@cosmjs/stargate/build/logs";
 import { assert, assertDefined } from "@cosmjs/utils";
 import { decodeOptionalPubkey, encodePubkey } from "./pubkey";
-import { encodeSecp256k1Pubkey } from "@cosmjs/amino";
+import { encodeSecp256k1Pubkey, makeSignDoc as makeSignDocAmino } from "@cosmjs/amino";
 import { Int53, Uint64 } from "@cosmjs/math";
 import { fromBase64 } from "@cosmjs/encoding";
 import {
@@ -55,14 +56,15 @@ import {
   Tendermint37Client,
 } from "@cosmjs/tendermint-rpc";
 import { Any } from "cosmjs-types/google/protobuf/any";
+import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 
 export default class CosmClient extends BaseChainClient implements ChainClient {
-  protected signingClient?: SigningStargateClient;
   public queryClient?: ChainClient["queryClient"];
   public txQueryClient?: ChainClient["txQueryClient"];
   public gasPrice?: GasPrice;
-  public signerWallet?: OfflineSigner | OfflineDirectSigner;
+  private signerWallet?: OfflineSigner | OfflineDirectSigner;
   public commectClient?: CometClient | undefined;
+  public aminoTypes?: AminoTypes | undefined;
 
   async connect(
     endpoint: string,
@@ -82,15 +84,17 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
       setupTxExtension
     );
     if (signer) {
+      const aminoTypes = options?.aminoTypes ?? new AminoTypes({
+        ...createDefaultAminoConverters(),
+        ...createWasmAminoConverters(),
+      });
+      this.aminoTypes = aminoTypes;
       this.signingClient = await SigningStargateClient.createWithSigner(
         cometClient,
         signer,
         {
           broadcastTimeoutMs: 30000,
-          aminoTypes: new AminoTypes({
-            ...createDefaultAminoConverters(),
-            ...createWasmAminoConverters(),
-          }),
+          aminoTypes,
           registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
           accountParser: andromedaAccountParser,
           ...options,
@@ -111,9 +115,81 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     delete this.gasPrice;
   }
 
-  async sign(messages: EncodeObject[], fee: StdFee, memo = ""): Promise<TxRaw> {
+
+  async broadcast(tx: TxRaw): ReturnType<ChainClient["broadcast"]> {
     this.preMessage(true);
-    return await this.signingClient!.sign(this.signer, messages, fee, memo);
+    const txBytes = TxRaw.encode(tx).finish();
+    return await this.signingClient!.broadcastTx(txBytes);
+  }
+
+  public async simulateMulti(
+    messages: EncodeObject[],
+    _fee?: Fee,
+    memo?: string
+  ): Promise<number> {
+    return this.signingClient!.simulate(this.signer, messages, memo);
+  }
+
+  async signAndBroadcast(
+    messages: EncodeObject[],
+    fee: Fee = "auto",
+    memo?: string | undefined
+  ): Promise<DeliverTxResponse> {
+    this.preMessage(true);
+    const txRaw = await this.sign(messages, fee, memo);
+    const txBytes = TxRaw.encode(txRaw).finish();
+    return this.signingClient!.broadcastTx(txBytes);
+  }
+
+  async sign(
+    messages: EncodeObject[],
+    fee: Fee = "auto",
+    memo = ""
+  ): Promise<TxRaw> {
+    this.preMessage(true);
+
+    let usedFee: StdFee;
+    if (fee == "auto" || typeof fee === "number") {
+      assertDefined(
+        this.gasPrice,
+        "Gas price must be set in the client options when auto gas is used."
+      );
+      const gasEstimation = await this.simulateMulti(messages, fee, memo);
+      const multiplier =
+        typeof fee === "number" ? fee : this.config.defaultFeeMultiplier;
+      usedFee = calculateFee(
+        Math.round(gasEstimation * multiplier),
+        this.gasPrice
+      );
+    } else {
+      usedFee = fee;
+    }
+
+    const accountFromSigner = await this.signerWallet
+      ?.getAccounts()
+      .then((accounts) => accounts.find((a) => a.address === this.signer));
+    if (!accountFromSigner) {
+      throw new Error("Failed to retrieve account from signer");
+    }
+
+    const pk = encodeSecp256k1Pubkey(accountFromSigner.pubkey) as any;
+    if (this.config.accountPubKeyTypeUrl) {
+      pk.type = this.config.accountPubKeyTypeUrl;
+    }
+    const pubkey = encodePubkey(pk);
+    const { accountNumber, sequence } = await this.signingClient!.getSequence(
+      this.signer
+    );
+    const chainId = await this.signingClient!.getChainId();
+    const signerData: SignerData = {
+      accountNumber: accountNumber,
+      sequence: sequence,
+      chainId: chainId,
+    };
+
+    return isOfflineDirectSigner(this.signerWallet!)
+      ? this.signDirect(messages, signerData, pubkey, usedFee, memo)
+      : this.signAmino(messages, signerData, pubkey, usedFee, memo);
   }
 
   private async signDirect(
@@ -121,7 +197,7 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     { accountNumber, sequence, chainId }: SignerData,
     pubkey: Any,
     fee: StdFee,
-    memo?: string | undefined,
+    memo?: string | undefined
   ) {
     assert(isOfflineDirectSigner(this.signerWallet!));
     const txBodyEncodeObject: TxBodyEncodeObject = {
@@ -157,73 +233,44 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     });
   }
 
-  async broadcast(tx: TxRaw): ReturnType<ChainClient["broadcast"]> {
-    this.preMessage(true);
-    const txBytes = TxRaw.encode(tx).finish();
-    return await this.signingClient!.broadcastTx(txBytes);
-  }
-
-  public async simulateMulti(
+  private async signAmino(
     messages: EncodeObject[],
-    _fee?: Fee,
-    memo?: string
-  ): Promise<number> {
-    return this.signingClient!.simulate(this.signer, messages, memo);
-    // const anyMsgs = messages.map((m) => this.signingClient!.registry.encodeAsAny(m));
-    // const accountFromSigner = (await this.signerWallet!.getAccounts()).find(
-    //   (account) => account.address === this.signer,
-    // );
-    // if (!accountFromSigner) {
-    //   throw new Error("Failed to retrieve account from signer");
-    // }
-    // const pubkey = encodeSecp256k1Pubkey(accountFromSigner.pubkey);
-    // const { sequence } = await this.signingClient!.getSequence(this.signer);
-    // const { gasInfo } = await this.txQueryClient!.tx.simulate(anyMsgs, memo, pubkey, sequence);
-    // assertDefined(gasInfo);
-    // return Uint53.fromString(gasInfo.gasUsed.toString()).toNumber();
-  }
-
-  async signAndBroadcast(
-    messages: EncodeObject[],
-    fee: Fee = "auto",
+    { accountNumber, sequence, chainId }: SignerData,
+    pubkey: Any,
+    fee: StdFee,
     memo?: string | undefined
-  ): Promise<DeliverTxResponse> {
-    this.preMessage(true);
+  ) {
+    assert(!isOfflineDirectSigner(this.signerWallet!));
+    const signMode = SignMode.SIGN_MODE_LEGACY_AMINO_JSON;
+    const msgs = messages.map((msg) => this.aminoTypes!.toAmino(msg));
+    const signDoc = makeSignDocAmino(msgs, fee, chainId, memo, accountNumber, sequence);
+    const { signature, signed } = await this.signerWallet!.signAmino(this.signer, signDoc);
+    const signedTxBody = {
+      messages: signed.msgs.map((msg) => this.aminoTypes!.fromAmino(msg)),
+      memo: signed.memo,
+    };
 
-    let usedFee: StdFee;
-    if (fee == "auto" || typeof fee === "number") {
-      assertDefined(
-        this.gasPrice,
-        "Gas price must be set in the client options when auto gas is used."
-      );
-      const gasEstimation = await this.simulateMulti(messages, fee, memo);
-      const multiplier =
-        typeof fee === "number" ? fee : this.config.defaultFeeMultiplier;
-      usedFee = calculateFee(
-        Math.round(gasEstimation * multiplier),
-        this.gasPrice
-      );
-    } else {
-      usedFee = fee;
-    }
-    const { accountNumber, sequence } = await this.signingClient!.getSequence(
-      this.signer
+    const signedTxBodyEncodeObject: TxBodyEncodeObject = {
+      typeUrl: "/cosmos.tx.v1beta1.TxBody",
+      value: signedTxBody,
+    };
+
+    const signedTxBodyBytes = this.signingClient!.registry.encode(signedTxBodyEncodeObject);
+    const signedGasLimit = Int53.fromString(signed.fee.gas).toNumber();
+    const signedSequence = Int53.fromString(signed.sequence).toNumber();
+    const signedAuthInfoBytes = makeAuthInfoBytes(
+      [{ pubkey, sequence: signedSequence }],
+      signed.fee.amount,
+      signedGasLimit,
+      signed.fee.granter,
+      signed.fee.payer,
+      signMode,
     );
-    const chainId = await this.signingClient!.getChainId();
-    const accountFromSigner = await this.signerWallet
-      ?.getAccounts()
-      .then((accounts) => accounts.find((a) => a.address === this.signer));
-    if (!accountFromSigner) {
-      throw new Error("Failed to retrieve account from signer");
-    }
-    const pk = encodeSecp256k1Pubkey(accountFromSigner.pubkey) as any;
-    if (this.config.accountPubKeyTypeUrl) {
-      pk.type = this.config.accountPubKeyTypeUrl;
-    }
-    const pubkey = encodePubkey(pk);
-
-    const txBytes = TxRaw.encode(txRaw).finish();
-    return this.signingClient!.broadcastTx(txBytes);
+    return TxRaw.fromPartial({
+      bodyBytes: signedTxBodyBytes,
+      authInfoBytes: signedAuthInfoBytes,
+      signatures: [fromBase64(signature.signature)],
+    });
   }
 
   async simulate(

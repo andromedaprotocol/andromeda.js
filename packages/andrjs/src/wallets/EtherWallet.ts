@@ -28,7 +28,6 @@ export default class EtherWallet extends Wallet {
 
   async getWallet(password: string) {
     const mnemonic = await this.decrypt(password);
-    console.log(mnemonic, this.hdpath);
     const wallet = HDNodeWallet.fromPhrase(mnemonic, undefined, this.hdpath);
 
     const privKeyArray = Uint8Array.from(

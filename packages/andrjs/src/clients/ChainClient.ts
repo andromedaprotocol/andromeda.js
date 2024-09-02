@@ -12,7 +12,7 @@ import type {
   UploadResult,
 } from "@cosmjs/cosmwasm-stargate";
 import type { Coin, EncodeObject, OfflineDirectSigner, OfflineSigner } from "@cosmjs/proto-signing";
-import type { GasPrice, MsgSendEncodeObject, QueryClient, SigningStargateClient, SigningStargateClientOptions, TxExtension } from "@cosmjs/stargate";
+import type { AminoTypes, GasPrice, MsgSendEncodeObject, QueryClient, SigningStargateClient, SigningStargateClientOptions, TxExtension } from "@cosmjs/stargate";
 import type { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import type { Fee, Msg } from "../types";
 import { CometClient } from "@cosmjs/tendermint-rpc";
@@ -30,8 +30,8 @@ export default interface ChainClient {
   txQueryClient?: QueryClient & TxExtension
   // The current signer address
   signer: string;
-  signerWallet?: OfflineSigner | OfflineDirectSigner;
   commectClient?: CometClient;
+  aminoTypes?: AminoTypes;
   // Whether the current chain is connected
   isConnected: boolean;
   gasPrice?: GasPrice;
