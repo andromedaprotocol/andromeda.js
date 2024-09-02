@@ -1,39 +1,100 @@
 import {
   CosmWasmClient,
+  createWasmAminoConverters,
   ExecuteResult,
   InstantiateOptions,
   InstantiateResult,
   MigrateResult,
-  SigningCosmWasmClient,
-  SigningCosmWasmClientOptions,
+  UploadResult,
+  wasmTypes,
 } from "@cosmjs/cosmwasm-stargate";
-import { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
-import { DeliverTxResponse, GasPrice, StdFee } from "@cosmjs/stargate";
+import {
+  Coin,
+  EncodeObject,
+  isOfflineDirectSigner,
+  makeAuthInfoBytes,
+  makeSignDoc,
+  OfflineDirectSigner,
+  OfflineSigner,
+  Registry,
+  TxBodyEncodeObject,
+} from "@cosmjs/proto-signing";
+import {
+  BaseAccount,
+  ModuleAccount,
+} from "cosmjs-types/cosmos/auth/v1beta1/auth";
+import {
+  Account,
+  accountFromAny,
+  AminoTypes,
+  calculateFee,
+  createDefaultAminoConverters,
+  defaultRegistryTypes,
+  DeliverTxResponse,
+  GasPrice,
+  QueryClient,
+  setupTxExtension,
+  SignerData,
+  SigningStargateClient,
+  SigningStargateClientOptions,
+  StdFee,
+} from "@cosmjs/stargate";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { Fee, Msg } from "..";
 import BaseChainClient from "./BaseChainClient";
 import ChainClient from "./ChainClient";
+import { findAttribute, Log } from "@cosmjs/stargate/build/logs";
+import { assert, assertDefined } from "@cosmjs/utils";
+import { decodeOptionalPubkey, encodePubkey } from "./pubkey";
+import { encodeSecp256k1Pubkey } from "@cosmjs/amino";
+import { Int53, Uint64 } from "@cosmjs/math";
+import { fromBase64 } from "@cosmjs/encoding";
+import {
+  CometClient,
+  HttpBatchClient,
+  Tendermint37Client,
+} from "@cosmjs/tendermint-rpc";
+import { Any } from "cosmjs-types/google/protobuf/any";
 
 export default class CosmClient extends BaseChainClient implements ChainClient {
-  public signingClient?: SigningCosmWasmClient;
-  public queryClient?: CosmWasmClient;
+  protected signingClient?: SigningStargateClient;
+  public queryClient?: ChainClient["queryClient"];
+  public txQueryClient?: ChainClient["txQueryClient"];
   public gasPrice?: GasPrice;
+  public signerWallet?: OfflineSigner | OfflineDirectSigner;
+  public commectClient?: CometClient | undefined;
 
   async connect(
     endpoint: string,
-    signer?: OfflineSigner,
-    options?: SigningCosmWasmClientOptions
+    signer?: OfflineSigner | OfflineDirectSigner,
+    options?: SigningStargateClientOptions
   ): Promise<void> {
     delete this.signingClient;
     delete this.queryClient;
     this.gasPrice = options?.gasPrice;
-
-    this.queryClient = await CosmWasmClient.connect(endpoint);
+    this.signerWallet = signer;
+    const rpcClient = new HttpBatchClient(endpoint);
+    const cometClient = await Tendermint37Client.create(rpcClient);
+    this.commectClient = cometClient;
+    this.queryClient = await CosmWasmClient.create(cometClient);
+    this.txQueryClient = await QueryClient.withExtensions(
+      cometClient,
+      setupTxExtension
+    );
     if (signer) {
-      this.signingClient = await SigningCosmWasmClient.connectWithSigner(
-        endpoint,
+      this.signingClient = await SigningStargateClient.createWithSigner(
+        cometClient,
         signer,
-        { broadcastTimeoutMs: 30000, ...options }
+        {
+          broadcastTimeoutMs: 30000,
+          aminoTypes: new AminoTypes({
+            ...createDefaultAminoConverters(),
+            ...createWasmAminoConverters(),
+          }),
+          registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
+          accountParser: andromedaAccountParser,
+          ...options,
+        }
       );
 
       const [account] = await signer.getAccounts();
@@ -43,7 +104,6 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
 
   async disconnect(): Promise<void> {
     if (this.signingClient) this.signingClient.disconnect();
-    if (this.queryClient) this.queryClient.disconnect();
 
     delete this.signingClient;
     delete this.queryClient;
@@ -56,10 +116,71 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     return await this.signingClient!.sign(this.signer, messages, fee, memo);
   }
 
+  private async signDirect(
+    messages: EncodeObject[],
+    { accountNumber, sequence, chainId }: SignerData,
+    pubkey: Any,
+    fee: StdFee,
+    memo?: string | undefined,
+  ) {
+    assert(isOfflineDirectSigner(this.signerWallet!));
+    const txBodyEncodeObject: TxBodyEncodeObject = {
+      typeUrl: "/cosmos.tx.v1beta1.TxBody",
+      value: {
+        messages: messages,
+        memo: memo,
+      },
+    };
+    const txBodyBytes = this.signingClient!.registry.encode(txBodyEncodeObject);
+    const gasLimit = Int53.fromString(fee.gas).toNumber();
+    const authInfoBytes = makeAuthInfoBytes(
+      [{ pubkey, sequence }],
+      fee.amount,
+      gasLimit,
+      fee.granter,
+      fee.payer
+    );
+    const signDoc = makeSignDoc(
+      txBodyBytes,
+      authInfoBytes,
+      chainId,
+      accountNumber
+    );
+    const { signature, signed } = await this.signerWallet!.signDirect(
+      this.signer,
+      signDoc
+    );
+    return TxRaw.fromPartial({
+      bodyBytes: signed.bodyBytes,
+      authInfoBytes: signed.authInfoBytes,
+      signatures: [fromBase64(signature.signature)],
+    });
+  }
+
   async broadcast(tx: TxRaw): ReturnType<ChainClient["broadcast"]> {
     this.preMessage(true);
     const txBytes = TxRaw.encode(tx).finish();
     return await this.signingClient!.broadcastTx(txBytes);
+  }
+
+  public async simulateMulti(
+    messages: EncodeObject[],
+    _fee?: Fee,
+    memo?: string
+  ): Promise<number> {
+    return this.signingClient!.simulate(this.signer, messages, memo);
+    // const anyMsgs = messages.map((m) => this.signingClient!.registry.encodeAsAny(m));
+    // const accountFromSigner = (await this.signerWallet!.getAccounts()).find(
+    //   (account) => account.address === this.signer,
+    // );
+    // if (!accountFromSigner) {
+    //   throw new Error("Failed to retrieve account from signer");
+    // }
+    // const pubkey = encodeSecp256k1Pubkey(accountFromSigner.pubkey);
+    // const { sequence } = await this.signingClient!.getSequence(this.signer);
+    // const { gasInfo } = await this.txQueryClient!.tx.simulate(anyMsgs, memo, pubkey, sequence);
+    // assertDefined(gasInfo);
+    // return Uint53.fromString(gasInfo.gasUsed.toString()).toNumber();
   }
 
   async signAndBroadcast(
@@ -69,21 +190,40 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
   ): Promise<DeliverTxResponse> {
     this.preMessage(true);
 
-    return await this.signingClient!.signAndBroadcast(
-      this.signer,
-      messages,
-      fee,
-      memo
+    let usedFee: StdFee;
+    if (fee == "auto" || typeof fee === "number") {
+      assertDefined(
+        this.gasPrice,
+        "Gas price must be set in the client options when auto gas is used."
+      );
+      const gasEstimation = await this.simulateMulti(messages, fee, memo);
+      const multiplier =
+        typeof fee === "number" ? fee : this.config.defaultFeeMultiplier;
+      usedFee = calculateFee(
+        Math.round(gasEstimation * multiplier),
+        this.gasPrice
+      );
+    } else {
+      usedFee = fee;
+    }
+    const { accountNumber, sequence } = await this.signingClient!.getSequence(
+      this.signer
     );
-  }
+    const chainId = await this.signingClient!.getChainId();
+    const accountFromSigner = await this.signerWallet
+      ?.getAccounts()
+      .then((accounts) => accounts.find((a) => a.address === this.signer));
+    if (!accountFromSigner) {
+      throw new Error("Failed to retrieve account from signer");
+    }
+    const pk = encodeSecp256k1Pubkey(accountFromSigner.pubkey) as any;
+    if (this.config.accountPubKeyTypeUrl) {
+      pk.type = this.config.accountPubKeyTypeUrl;
+    }
+    const pubkey = encodePubkey(pk);
 
-  async simulateMulti(
-    messages: EncodeObject[],
-    _fee: Fee = "auto",
-    memo?: string | undefined
-  ): Promise<number> {
-    this.preMessage();
-    return this.signingClient!.simulate(this.signer, messages, memo);
+    const txBytes = TxRaw.encode(txRaw).finish();
+    return this.signingClient!.broadcastTx(txBytes);
   }
 
   async simulate(
@@ -100,17 +240,19 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     msg: Msg,
     fee?: Fee | undefined,
     memo?: string | undefined,
-    funds?: readonly Coin[] | undefined
+    funds?: Coin[] | undefined
   ): Promise<ExecuteResult> {
     this.preMessage(true);
-    return await this.signingClient!.execute(
-      this.signer,
-      contractAddress,
-      msg,
-      fee ?? "auto",
-      memo,
-      funds
-    );
+    const executeMsg = this.encodeExecuteMsg(contractAddress, msg, funds ?? []);
+    const tx = await this.signAndBroadcast([executeMsg], fee, memo);
+    return {
+      events: tx.events,
+      gasUsed: tx.gasUsed,
+      gasWanted: tx.gasWanted,
+      height: tx.height,
+      transactionHash: tx.transactionHash,
+      logs: [{ msg_index: 0, log: "", events: tx.events }],
+    };
   }
 
   async simulateExecute(
@@ -124,9 +266,37 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     return this.simulate(message, undefined, memo);
   }
 
-  async upload(code: Uint8Array, fee: Fee = "auto", memo?: string | undefined) {
+  async upload(
+    code: Uint8Array,
+    fee: Fee = "auto",
+    memo?: string | undefined
+  ): Promise<UploadResult> {
     this.preMessage();
-    return this.signingClient!.upload(this.signer, code, fee, memo);
+    const encodeMsg = this.encodeUploadMessage(code);
+    const tx = await this.signAndBroadcast([encodeMsg], fee, memo);
+    const logs: Log[] = [{ msg_index: 0, log: "", events: tx.events }];
+    const codeIdAttr = findAttribute(
+      logs,
+      this.config.storeCodeEvent,
+      "code_id"
+    );
+    const checksumAttr = findAttribute(
+      logs,
+      this.config.storeCodeEvent,
+      "checksum"
+    );
+    return {
+      events: tx.events,
+      gasUsed: tx.gasUsed,
+      gasWanted: tx.gasWanted,
+      height: tx.height,
+      transactionHash: tx.transactionHash,
+      logs,
+      codeId: parseInt(codeIdAttr.value),
+      originalSize: code.length,
+      compressedSize: encodeMsg.value.wasmByteCode?.length || 0,
+      checksum: checksumAttr.value,
+    };
   }
 
   async simulateUpload(
@@ -146,14 +316,23 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     options?: InstantiateOptions
   ): Promise<InstantiateResult> {
     this.preMessage(true);
-    return this.signingClient!.instantiate(
-      this.signer,
-      codeId,
-      msg,
-      label,
-      fee,
-      options
+    const encodeMsg = this.encodeInstantiateMsg(codeId, msg, label, options);
+    const tx = await this.signAndBroadcast([encodeMsg], fee, options?.memo);
+    const logs: Log[] = [{ msg_index: 0, log: "", events: tx.events }];
+    const instantiateAttr = findAttribute(
+      logs,
+      "instantiate",
+      "_contract_address"
     );
+    return {
+      events: tx.events,
+      gasUsed: tx.gasUsed,
+      gasWanted: tx.gasWanted,
+      height: tx.height,
+      transactionHash: tx.transactionHash,
+      logs: logs,
+      contractAddress: instantiateAttr.value,
+    };
   }
 
   async simulateInstantiate(
@@ -175,14 +354,17 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     memo?: string | undefined
   ): Promise<MigrateResult> {
     this.preMessage(true);
-    return this.signingClient!.migrate(
-      this.signer,
-      contractAddress,
-      codeId,
-      msg,
-      fee,
-      memo
-    );
+    const encodeMsg = this.encodeMigrateMessage(contractAddress, codeId, msg);
+    const tx = await this.signAndBroadcast([encodeMsg], fee, memo);
+    const logs: Log[] = [{ msg_index: 0, log: "", events: tx.events }];
+    return {
+      events: tx.events,
+      gasUsed: tx.gasUsed,
+      gasWanted: tx.gasWanted,
+      height: tx.height,
+      transactionHash: tx.transactionHash,
+      logs: logs,
+    };
   }
 
   async simulateMigrate(
@@ -210,4 +392,31 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
       memo
     );
   }
+}
+
+export const andromedaAccountParser = (account: Any) => {
+  switch (account.typeUrl) {
+    case "/injective.types.v1beta1.EthAccount":
+    case "/ethermint.types.v1.EthAccount": {
+      const baseAccount = ModuleAccount.decode(account.value).baseAccount;
+      assert(baseAccount);
+      return accountFromBaseAccount(baseAccount);
+    }
+    default:
+      return accountFromAny(account);
+  }
+};
+
+function accountFromBaseAccount(input: BaseAccount): Account {
+  const { address, pubKey, accountNumber, sequence } = input;
+  const pubkey = decodeOptionalPubkey(pubKey);
+  return {
+    address: address,
+    pubkey: pubkey,
+    accountNumber: uint64FromProto(accountNumber).toNumber(),
+    sequence: uint64FromProto(sequence).toNumber(),
+  };
+}
+function uint64FromProto(input: number | bigint): Uint64 {
+  return Uint64.fromString(input.toString());
 }

@@ -11,33 +11,48 @@ import {
   storageFileExists,
   writeStorageFile,
 } from "../config/storage";
+import { V_1_0_0_WalletStore } from "./archive/wallet";
+import { getCoinTypeFromPrefix } from "./utils";
 
 const STORAGE_FILE = "keys.json";
 const KEYCHAIN_SERVICE = "andr-cli";
 
+const STORE_VERSION = '1.0.0';
 interface StoredData {
-  wallets: StoredWalletData[];
-  defaults: Record<string, string>;
+  wallets: Record<string, StoredWalletData>;
+  default: string;
+  version: string
 }
 
+
 export interface StoredWalletData {
-  name: string;
   key: string;
-  address: string;
-  chainId: string;
+  // Any address that has been linked to this wallet during cli interaction
+  // Getting address for all chains and wallet can be expensive so better to provide
+  // the utility to search a wallet based on past address linked in cli
+  addresses: {
+    [bech32: string]: string
+  }
 }
 
 /**
- * Used to store wallets based on Chain IDs and Keys
+ * Used to store wallets
  */
 export default class WalletStore {
   constructor() {
     // Create storage data if it does not exist
-    if (!storageFileExists(STORAGE_FILE))
+    if (!storageFileExists(STORAGE_FILE)) {
+      const data: StoredData = {
+        wallets: {},
+        default: '',
+        version: STORE_VERSION
+      };
       writeStorageFile(
         STORAGE_FILE,
-        JSON.stringify({ wallets: [], defaults: {} })
+        JSON.stringify(data)
       );
+
+    }
   }
 
   /**
@@ -53,7 +68,40 @@ export default class WalletStore {
    */
   protected get storageData(): StoredData {
     const walletsJSON = loadStorageFile(STORAGE_FILE);
-    return JSON.parse(walletsJSON.toString());
+    const data = JSON.parse(walletsJSON.toString());
+    if (data['version'] === STORE_VERSION) return data;
+
+    try {
+
+      // This is probably old storage data, lets migrate it to new storage version
+      const oldData = data as V_1_0_0_WalletStore.StoredData;
+
+      const wallets: StoredData['wallets'] = {};
+      oldData.wallets.forEach(({ name, key, address, chainId }) => {
+        if (!wallets[name]) {
+          wallets[name] = {
+            key,
+            addresses: {
+              [chainId]: address
+            }
+          }
+        } else if (wallets[name].key === key) {
+          wallets[name].addresses[chainId] = address
+        }
+      })
+      this.storageData = {
+        wallets,
+        version: STORE_VERSION,
+        default: ''
+      };
+      return {
+        wallets,
+        version: STORE_VERSION,
+        default: ''
+      }
+    } catch (_) {
+      throw new Error("OPPS! Looks there the keys file is corrupted. Delete your config files and try again");
+    }
   }
 
   /**
@@ -65,7 +113,7 @@ export default class WalletStore {
 
   /**
    * Gets all stored wallets
-   * @returns An array of wallet data
+   * @returns Wallets map
    */
   get wallets() {
     try {
@@ -74,14 +122,14 @@ export default class WalletStore {
       return storedData.wallets;
     } catch (error) {
       console.error(error);
-      return [];
+      return {};
     }
   }
 
   /**
    * Writes new wallets to stored data, used when a wallet is added/removed
    */
-  protected set wallets(wallets: StoredWalletData[]) {
+  protected set wallets(wallets: StoredData['wallets']) {
     const newData = {
       ...this.storageData,
       wallets,
@@ -94,17 +142,17 @@ export default class WalletStore {
    * Gets the default wallets for each chain
    * @returns A mapping between chain ID and wallet name
    */
-  get defaultWallets() {
-    return this.storageData.defaults;
+  get defaultWallet() {
+    return this.storageData.default;
   }
 
   /**
    * Writes a new default wallets object to storage
    */
-  protected set defaultWallets(defaultWallets: Record<string, string>) {
-    const newData = {
+  protected set defaultWallet(defaultWallet: string) {
+    const newData: StoredData = {
       ...this.storageData,
-      defaults: defaultWallets,
+      default: defaultWallet,
     };
 
     this.storageData = newData;
@@ -115,9 +163,7 @@ export default class WalletStore {
    * @returns A Wallet class for the current wallet
    */
   get currentWallet() {
-    const chainId = config.get("chain.chainId");
-    const walletName = this.defaultWallets[chainId];
-    const wallet = this.getWalletByName(walletName, chainId);
+    const wallet = this.getWallet(this.defaultWallet);
     return wallet;
   }
 
@@ -130,18 +176,10 @@ export default class WalletStore {
     return fee.replaceAll(/\d/g, '').replaceAll(".", '');
   }
 
-  get currentWalletAddress() {
-    const chainId = config.get("chain.chainId");
-    const walletName = this.defaultWallets[chainId];
-    const walletAddress = this.getWalletAddress(walletName, chainId);
-
+  async currentWalletAddress() {
+    if (!this.currentWallet) return undefined;
+    const walletAddress = await this.getWalletAddress(this.currentWallet.name);
     return walletAddress;
-  }
-  /**
-   * Gets an array of all currently stored chain IDs
-   */
-  get chainIDs() {
-    return Object.keys(this.defaultWallets);
   }
 
   /**
@@ -149,33 +187,27 @@ export default class WalletStore {
    * @param name
    * @returns The wallet's address if it exists
    */
-  getWalletAddress(name: string, chainId: string) {
-    const walletData = this.wallets.find(
-      (wallet) => wallet.name === name && wallet.chainId === chainId
-    );
+  async getWalletAddress(name: string) {
+    const wallet = this.getWallet(name);
+    if (!wallet) return undefined;
 
-    return walletData ? walletData.address : undefined;
+    return await wallet.getAddress(await this.getWalletPassphrase(name))
   }
 
   /**
    * Adds a new wallet to storage
    * @param walletData The new wallet data
    */
-  storeWalletData(walletData: StoredWalletData) {
-    this.wallets = [...this.wallets, walletData];
+  storeWalletData(name: string, walletData: StoredWalletData) {
+    if (this.wallets[name]) {
+      throw new Error(`Wallet with name - ${name} already stored`)
+    }
+    this.wallets = {
+      ...this.wallets,
+      [name]: walletData
+    }
   }
 
-  /**
-   * Returns a chain ID if the given wallet name is a default wallet for any chain
-   * @param name The name of the wallet
-   * @returns The chain ID for the wallet, undefined if the given name is not a default wallet for any chain
-   */
-  getChainIdByDefaultWallet(name: string) {
-    const chainIds = this.chainIDs;
-    const defaults = this.defaultWallets;
-
-    return chainIds.find((chainId) => defaults[chainId] === name);
-  }
 
   /**
    * Generates a new wallet and stores it
@@ -186,41 +218,31 @@ export default class WalletStore {
    * @returns The newly generated wallet
    */
   async generateWallet(
-    chainId: string,
     name: string,
     passphrase: string,
-    mnemonic: string
+    mnemonic: string,
   ) {
-    const wallets = this.wallets;
-    if (
-      wallets.some(
-        ({ name: walletName, chainId: walletChainId }) =>
-          walletName === name && walletChainId === chainId
-      )
-    )
+    if (this.wallets[name])
       throw new Error("Wallet name already in use");
-
-    // Trim passed chain ID before checking
-    const trimmedChainId = chainId.trim();
-    if (trimmedChainId.length === 0) throw new Error("Invalid Chain ID");
 
     const addressPrefix = config.get("chain.addressPrefix");
     const newWallet = await generateWalletFromMnemonic(
       name,
       mnemonic,
       passphrase,
-      addressPrefix
+      addressPrefix,
+      getCoinTypeFromPrefix(addressPrefix)
     );
 
     await keychain.setPassword(KEYCHAIN_SERVICE, name, passphrase);
     const address = await newWallet.getAddress(passphrase);
 
     // Store new wallet
-    this.storeWalletData({
-      name,
-      address,
-      chainId: trimmedChainId,
+    this.storeWalletData(name, {
       key: newWallet.key,
+      addresses: {
+        [addressPrefix]: address
+      }
     });
 
     return newWallet;
@@ -236,28 +258,21 @@ export default class WalletStore {
     if (trimmedIdentifier.length === 0)
       throw new Error("Invalid Wallet Identifier");
 
-    const wallet = this.wallets.find(
-      ({ name: walletName, address: walletAddress }) =>
-        walletName === trimmedIdentifier || walletAddress === trimmedIdentifier
-    );
 
-    if (!wallet)
+
+    if (!this.wallets[identifier])
       throw new Error(
         `No wallet found by name or address: ${trimmedIdentifier}`
       );
 
-    // If the removed wallet is a default, make sure to assign a new default wallet
-    const chainId = this.getChainIdByDefaultWallet(wallet.name);
-    if (chainId) {
-      this.onRemoveDefaultWallet(chainId);
+    if (this.defaultWallet === identifier) {
+      this.defaultWallet = '';
     }
-
-    this.wallets = this.wallets.filter(
-      (_wallet) => _wallet.name !== wallet!.name
-    );
+    delete this.wallets[identifier];
+    this.wallets = this.wallets;
 
     // Remove any stored passphrases for the current wallet
-    await keychain.deletePassword(KEYCHAIN_SERVICE, wallet.name);
+    await keychain.deletePassword(KEYCHAIN_SERVICE, identifier);
   }
 
   /**
@@ -265,89 +280,58 @@ export default class WalletStore {
    * @param chainId
    * @returns An array of wallets for the given chain ID
    */
-  getWallets(chainId: string) {
-    const trimmedChainId = chainId.trim();
-    if (trimmedChainId.length === 0) throw new Error("Invalid Chain ID");
-    return (
-      this.wallets.filter(
-        ({ chainId: walletChainId }) => chainId === walletChainId
-      ) ?? []
-    );
+  get getWallets() {
+    return this.wallets;
   }
 
   /**
-   * Get a wallet by Identifier, identifier being a name or address
-   * @param identifier The identifier for the wallet (name or address)
+ * Gets all wallets name
+ * @param chainId
+ * @returns An array of wallets for the given chain ID
+ */
+  get getWalletNames() {
+    return Object.keys(this.wallets);
+  }
+
+  /**
+   * Get a wallet by Identifier, identifier being a name
+   * @param identifier The identifier for the wallet
    * @returns
    */
   getWallet(identifier: string) {
-    const chainId = config.get("chain.chainId");
-    const walletData = this.wallets.find(
-      ({ name, address, chainId: walletChainId }) =>
-        chainId === walletChainId &&
-        (name === identifier.trim() || address === identifier.trim())
-    );
+    const walletData = this.wallets[identifier]
     if (!walletData) return;
+    const prefix = config.get("chain.addressPrefix");
     const wallet = newWallet(
-      walletData.name,
+      identifier,
       walletData.key,
-      config.get("chain.addressPrefix")
+      prefix,
+      getCoinTypeFromPrefix(prefix)
     );
     return wallet;
   }
 
-  // /**
-  //  * Get a wallet by identifier, identifier being a name or address. Ignores chain IDs.
-  //  * @param identifier The identifier for the wallet (name or address)
-  //  * @returns
-  //  */
-  // getWalletRaw(identifier: string) {
-  //   const wallet = this.getWalletByName(identifier);
-  //   if (!wallet) return this.getWalletByAddress(identifier);
-  //   return wallet;
-  // }
 
   /**
-   * Get a wallet by Chain ID/Name combination
-   * @param name The assigned name for the wallet
-   * @returns
-   */
-  getWalletByName(name: string, chainId: string) {
-    const walletData = this.wallets.find(
-      (wallet) => wallet.name === name && wallet.chainId === chainId
-    );
-    if (!walletData) return;
-
-    return newWallet(name, walletData.key, config.get("chain.addressPrefix"));
-  }
-
-  /**
-   * Get a wallet by Chain ID/Address combination
+   * Get a wallet by Address combination
    * @param address The address of the wallet
    * @returns
    */
   getWalletByAddress(address: string) {
-    const walletData = this.wallets.find(
-      ({ address: walletAddress }) => walletAddress === address
+    const walletData = Object.entries(this.wallets).find(
+      ([_, { addresses }]) => Object.values(addresses).includes(address)
     );
     if (!walletData)
       throw new Error(`Wallet not found with address ${address}`);
-    return newWallet(
-      walletData.name,
-      walletData.key,
-      config.get("chain.addressPrefix")
-    );
+    return this.getWallet(walletData[0])
   }
 
   /**
    * Sets the default wallet for a given chain ID
    * @param chainId
    */
-  setDefaultWallet(chainId: string, name: string) {
-    this.defaultWallets = {
-      ...this.defaultWallets,
-      [chainId]: name,
-    };
+  setDefaultWallet(name: string) {
+    this.defaultWallet = name
   }
 
   /**
@@ -355,27 +339,14 @@ export default class WalletStore {
    * @param chainId Gets the default wallet for a given chain ID
    * @returns
    */
-  getDefaultWallet(chainId: string): Wallet | undefined {
-    const walletName = this.defaultWallets[chainId];
+  getDefaultWallet(): Wallet | undefined {
+    const walletName = this.defaultWallet;
     if (!walletName) return;
 
-    const wallet = this.getWalletByName(walletName, chainId);
+    const wallet = this.getWallet(walletName);
     return wallet;
   }
 
-  /**
-   * Removes the default wallet for a given chain ID. Sets the first indexed wallet for the chain ID as the new default.
-   * @param chainId
-   */
-  onRemoveDefaultWallet(chainId: string) {
-    const wallets = this.getWallets(chainId);
-    delete this.defaultWallets[chainId];
-
-    // Assign new default wallet if any are left
-    if (wallets.length > 0) {
-      this.setDefaultWallet(chainId, wallets[0].name);
-    }
-  }
 
   /**
    * Retrieves the stored passphrase for the given wallet name from the OS keychain.
@@ -383,8 +354,8 @@ export default class WalletStore {
    * @param name
    * @returns The passphrase for the given wallet
    */
-  async getWalletPassphrase(name: string, chainId: string) {
-    const wallet = this.getWalletByName(name, chainId);
+  async getWalletPassphrase(name: string) {
+    const wallet = this.getWallet(name);
     if (!wallet) throw new Error(`Wallet not found with name ${name}`);
     // Check keychain
     let passphrase = await keychain.getPassword(KEYCHAIN_SERVICE, name);

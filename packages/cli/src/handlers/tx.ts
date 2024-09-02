@@ -99,7 +99,7 @@ async function txAddressHandler(inputs: string[]) {
  * Prints all transactions and their types for the current wallet
  */
 async function txHistoryHandler() {
-  const walletAddr = State.wallets.currentWalletAddress;
+  const walletAddr = await State.wallets.currentWalletAddress();
   if (!walletAddr) throw new Error("No wallet currently assigned");
 
   await txAddressHandler([walletAddr]);

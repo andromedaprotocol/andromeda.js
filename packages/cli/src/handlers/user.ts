@@ -19,7 +19,7 @@ export const commands: Commands = {
   getusername: {
     handler: async () => {
       if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
-      const walletAddr = State.wallets.currentWalletAddress;
+      const walletAddr = await State.wallets.currentWalletAddress();
       if (!walletAddr) throw new Error("No wallet currently assigned");
 
       const resp = await client.os.vfs?.getUsername(walletAddr);
@@ -37,7 +37,7 @@ export const commands: Commands = {
  */
 async function registerHandler(flags: Flags) {
   if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
-  const walletAddr = State.wallets.currentWalletAddress;
+  const walletAddr = await State.wallets.currentWalletAddress();
   if (!walletAddr) throw new Error("No wallet currently assigned");
 
   const resp = await client.os.vfs?.getUsername(walletAddr);

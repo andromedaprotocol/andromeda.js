@@ -94,7 +94,7 @@ async function appHandler(input: string[]) {
  * @param flags
  */
 async function assetsHandler(_input: string[], flags: Flags) {
-    const walletAddr = State.wallets.currentWalletAddress;
+    const walletAddr = await State.wallets.currentWalletAddress();
     if (!walletAddr) throw new Error("No wallet currently assigned");
     const { type, search } = flags;
 

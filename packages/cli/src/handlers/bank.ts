@@ -60,7 +60,7 @@ export const commands: Commands = {
             return true;
           return validateAddressInput(input);
         },
-        default: async () => State.wallets.currentWalletAddress || ''
+        default: async () => await State.wallets.currentWalletAddress() || ''
       },
     ],
   },

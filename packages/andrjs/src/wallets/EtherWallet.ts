@@ -1,30 +1,39 @@
 import Wallet from "./Wallet";
 import { HDNodeWallet } from "ethers";
-import Crypto from "crypto-js";
-import { DEFAULT_DERIVATION_PATH, InjectiveDirectEthSecp256k1Wallet } from "@injectivelabs/sdk-ts";
+import { DirectEthSecp256k1Wallet } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/DirectEthSecp256k1Wallet";
+import { DEFAULT_ETH_HDPATH } from "./constant";
 
 /**
  * Used to generate an Ethereum wallet for use with Injective chain
  */
 export default class EtherWallet extends Wallet {
+  constructor(
+    public name: string,
+    public key: string,
+    public prefix: string,
+    public hdpath = DEFAULT_ETH_HDPATH,
+  ) {
+    super(name, key, prefix, hdpath)
+  }
   static async fromMnemonic(
     name: string,
     mnemonic: string,
-    passphrase: string
+    password: string,
+    prefix: string,
+    hdpath = DEFAULT_ETH_HDPATH
   ): Promise<Wallet> {
-    // Injective wallets use Ethers wallet for generation
-    const wallet = HDNodeWallet.fromPhrase(mnemonic, undefined, DEFAULT_DERIVATION_PATH);
-    const key = Crypto.AES.encrypt(wallet.privateKey, passphrase).toString();
-    return new EtherWallet(name, key, "inj");
+    const key = await this.encrypt(mnemonic, password);
+    return new EtherWallet(name, key, prefix, hdpath);
   }
 
-  async getWallet(passphrase: string) {
-    const storedKey = Crypto.AES.decrypt(this.key, passphrase).toString(
-      Crypto.enc.Utf8
-    );
+  async getWallet(password: string) {
+    const mnemonic = await this.decrypt(password);
+    console.log(mnemonic, this.hdpath);
+    const wallet = HDNodeWallet.fromPhrase(mnemonic, undefined, this.hdpath);
+
     const privKeyArray = Uint8Array.from(
-      Buffer.from(storedKey.replace("0x", ""), "hex")
+      Buffer.from(wallet.privateKey.replace("0x", ""), "hex")
     );
-    return await InjectiveDirectEthSecp256k1Wallet.fromKey(privKeyArray);
+    return await DirectEthSecp256k1Wallet.fromKey(privKeyArray);
   }
 }

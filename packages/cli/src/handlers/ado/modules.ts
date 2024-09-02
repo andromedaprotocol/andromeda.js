@@ -143,7 +143,7 @@ async function promptForModule(module?: Module): Promise<Module> {
  */
 async function addModuleHandler(input: string[], flags: Flags) {
   const [address] = input;
-  const currWallet = wallets.currentWalletAddress;
+  const currWallet = await wallets.currentWalletAddress();
   if (!isADOOwner(address, currWallet!))
     throw new Error("Cannot add modules to an ADO you do not own");
 
@@ -191,7 +191,7 @@ async function listModulesHandler(input: string[]) {
  */
 async function removeModuleHandler(input: string[], flags: Flags) {
   const [address] = input;
-  const currWallet = wallets.currentWalletAddress;
+  const currWallet = await wallets.currentWalletAddress();
   if (!isADOOwner(address, currWallet!))
     throw new Error("Cannot add modules to an ADO you do not own");
 
@@ -226,7 +226,7 @@ async function removeModuleHandler(input: string[], flags: Flags) {
  */
 async function editModuleHandler(input: string[], flags: Flags) {
   const [address] = input;
-  const currWallet = wallets.currentWalletAddress;
+  const currWallet = await wallets.currentWalletAddress();
   if (!isADOOwner(address, currWallet!))
     throw new Error("Cannot add modules to an ADO you do not own");
 

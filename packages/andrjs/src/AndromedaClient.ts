@@ -1,21 +1,20 @@
 import {
   InstantiateOptions,
-  SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
 import {
   DeliverTxResponse,
+  SigningStargateClientOptions,
   StdFee,
   calculateFee,
 } from "@cosmjs/stargate";
 import { ADOAPI } from "./api";
 
-import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
+import type { Coin, EncodeObject, OfflineDirectSigner, OfflineSigner } from "@cosmjs/proto-signing";
 import OperatingSystemAPI from "api/OperatingSystemAPI";
 import { isUndefined } from "lodash";
 import type { ChainClient } from "./clients";
 import createClient from "./clients";
 import type { Fee, Msg } from "./types";
-import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
 import ADOSchemaAPI from "api/ADOSchemaAPI";
 
 /**
@@ -55,7 +54,7 @@ export default class AndromedaClient {
     addressPrefix: string,
     signer?: OfflineSigner | OfflineDirectSigner,
     // Only used for Cosmos Clients
-    options?: SigningCosmWasmClientOptions
+    options?: SigningStargateClientOptions
   ) {
     delete this.chainClient;
 
@@ -179,7 +178,7 @@ export default class AndromedaClient {
    */
   async queryContract<T = any>(address: string, query: Msg) {
     this.preMessage();
-    return (await this.chainClient!.queryClient!!.queryContractSmart(
+    return (await this.chainClient!.queryClient!.queryContractSmart(
       address,
       query
     )) as T;
@@ -269,14 +268,14 @@ export default class AndromedaClient {
     msg: Msg,
     label: string,
     fee?: StdFee,
-    memo?: string
+    options?: InstantiateOptions
   ) {
     this.preMessage();
     console.log(msg);
     return this.simulateMsgs(
-      [this.chainClient!.encodeInstantiateMsg(codeId, msg, label)],
+      [this.chainClient!.encodeInstantiateMsg(codeId, msg, label, options)],
       fee,
-      memo
+      options?.memo
     );
   }
 

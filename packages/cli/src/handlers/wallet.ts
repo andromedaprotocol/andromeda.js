@@ -55,7 +55,7 @@ const commands: Commands = {
       {
         requestMessage: "Select wallet to remove:",
         options: () =>
-          store.getWallets(config.get("chain.chainId")).map(({ name }) => name),
+          store.getWalletNames,
       },
     ],
   },
@@ -68,7 +68,7 @@ const commands: Commands = {
       {
         requestMessage: "Select wallet to use:",
         options: () =>
-          store.getWallets(config.get("chain.chainId")).map(({ name }) => name),
+          store.getWalletNames,
       },
     ],
   },
@@ -137,8 +137,6 @@ async function addWalletHandler(input: string[], flags: Flags) {
   }
 
   let mnemonic;
-  const chainId = config.get("chain.chainId");
-  const wallets = store.getWallets(chainId);
   while (flags.recover && !(await validateMnemonic(mnemonic))) {
     if (mnemonic) console.error(pc.red("Invalid mnemonic"));
     const mnemonicInput = await promptWithExit({
@@ -163,7 +161,6 @@ async function addWalletHandler(input: string[], flags: Flags) {
   }
 
   const newWallet = await store.generateWallet(
-    config.get("chain.chainId"),
     name,
     passphrase,
     mnemonic
@@ -178,7 +175,7 @@ async function addWalletHandler(input: string[], flags: Flags) {
 
   console.log(pc.green(`Wallet ${name} added!`));
 
-  if (wallets.length === 0) {
+  if (!store.currentWallet) {
     await setCurrentWallet(newWallet);
   }
 }
@@ -239,14 +236,14 @@ async function newWalletConfirmation(seed: string) {
  */
 async function removeWalletHandler(input: string[]) {
   const [walletId] = input;
-  await removeWalletByNameOrAddress(walletId);
+  await removeWalletByName(walletId);
 }
 
 /**
  * Removes a wallet by given name or address
  * @param input
  */
-async function removeWalletByNameOrAddress(input: string) {
+async function removeWalletByName(input: string) {
   const wallet = store.getWallet(input.trim());
   if (!wallet) {
     throw new Error(`Could not find wallet with name/address ${input.trim()}`);
@@ -265,16 +262,16 @@ async function removeWalletByNameOrAddress(input: string) {
  * Prints all wallets in table format
  */
 async function listWalletsHandler() {
-  const chainId = config.get("chain.chainId");
-  await listWallets(store.getWallets(chainId));
+  await listWallets(store.wallets);
 }
 
 /**
  * Prints all provided wallets in table format
  * @param wallets
  */
-async function listWallets(wallets: StoredWalletData[]) {
-  if (wallets.length === 0) {
+async function listWallets(wallets: Record<string, StoredWalletData>) {
+  const names = Object.keys(wallets);
+  if (names.length === 0) {
     throw new Error(`No wallets to display
 
 You can add a wallet by using the add command:
@@ -287,16 +284,19 @@ You can add a wallet by using the add command:
   });
   const current = store.currentWallet;
 
-  for (let i = 0; i < wallets.length; i++) {
-    const wallet = wallets[i];
+  const chainId = config.get('chain.chainId');
+
+  for (const name of names) {
+    const wallet = wallets[name];
     // Highlight the currently selected wallet
-    const isCurrent = current && wallet.name === current.name;
-    const addr = wallet.address;
+    const isCurrent = current && name === current.name;
+    const addr = wallet.addresses[chainId] || Object.values(wallet.addresses)[0] || '';
     walletTable.push([
       isCurrent ? "*" : "",
-      isCurrent ? pc.green(wallet.name ?? i) : wallet.name ?? i,
-      isCurrent ? pc.green(addr ?? i) : addr ?? i,
+      isCurrent ? pc.green(name) : name,
+      isCurrent ? pc.green(addr) : addr,
     ]);
+
   }
   console.log(walletTable.toString());
 }
@@ -321,10 +321,9 @@ async function useWalletHandler(input: string[]) {
  * @returns A signer if the wallet is valid
  */
 export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
-  const chainId = config.get("chain.chainId");
-  const passphrase = await store.getWalletPassphrase(wallet.name, chainId);
+  const passphrase = await store.getWalletPassphrase(wallet.name);
   const signer = await wallet.getWallet(passphrase);
-  store.setDefaultWallet(chainId, wallet.name);
+  store.setDefaultWallet(wallet.name);
   if (!autoConnect) return signer;
 
   try {

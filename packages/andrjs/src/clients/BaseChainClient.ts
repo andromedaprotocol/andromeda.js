@@ -6,16 +6,18 @@ import {
   MsgStoreCodeEncodeObject,
 } from "@cosmjs/cosmwasm-stargate";
 import { Coin } from "@cosmjs/proto-signing";
-import { MsgSendEncodeObject } from "@cosmjs/stargate";
+import { MsgSendEncodeObject, SigningStargateClient } from "@cosmjs/stargate";
 import { isUndefined } from "lodash";
 import { Msg } from "..";
 import ChainClient from "./ChainClient";
+import { gzip } from "pako";
 
 /**
  * Helper function to convert JSON to Uint8Array
  * @param json JSON object to convert to Uint8Array
  * @returns
  */
+// Question: Can we remove this? there is toUtf8 helper function in cosmjs
 const JsonToArray = function (json: Record<string, any>) {
   var str = JSON.stringify(json, null, 0);
   var ret = new Uint8Array(str.length);
@@ -25,10 +27,22 @@ const JsonToArray = function (json: Record<string, any>) {
   return ret;
 };
 
+const DEFAULT_CONFIG: ChainClient['config'] = {
+  storeCodeEvent: 'store_code',
+  defaultFeeMultiplier: 1.4
+}
 export default class BaseChainClient implements Partial<ChainClient> {
-  public signingClient?: ChainClient["signingClient"];
+  protected signingClient?: SigningStargateClient;
   public queryClient?: ChainClient["queryClient"];
   public signer = "";
+  public config = DEFAULT_CONFIG;
+
+  constructor(config?: Partial<ChainClient['config']>) {
+    this.config = {
+      ...DEFAULT_CONFIG,
+      ...config,
+    }
+  }
 
   protected preMessage(signed = true) {
     if (!this.isConnected) throw new Error("Client not connected");
@@ -80,11 +94,12 @@ export default class BaseChainClient implements Partial<ChainClient> {
   }
 
   encodeUploadMessage(wasmByteCode: Uint8Array): MsgStoreCodeEncodeObject {
+    const compressed = gzip(wasmByteCode, { level: 9 });
     return {
       typeUrl: "/cosmwasm.wasm.v1.MsgStoreCode",
       value: {
         sender: this.signer,
-        wasmByteCode,
+        wasmByteCode: compressed,
       },
     };
   }

@@ -70,7 +70,7 @@ const config = convict({
         if (!val.some((page) => page.includes("${txHash}")))
           throw new Error("Tx page URLs must include '${txHash}'");
       },
-      default: [""],
+      default: [""] as string[],
     },
     blockExplorerAddressPages: {
       format: Array<string>,
@@ -85,7 +85,7 @@ const config = convict({
         if (!val.some((page) => page.includes("${address}")))
           throw new Error("Address page URLs must include '${address}'");
       },
-      default: [""],
+      default: [""] as string[],
     },
     chainType: {
       default: "mainnet",

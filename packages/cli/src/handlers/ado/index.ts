@@ -271,7 +271,7 @@ async function transferHandler(input: string[], flags: Flags) {
   const [address, recipient] = input;
 
   const owner = await client.ado.getOwner(address);
-  const currWallet = wallets.currentWalletAddress;
+  const currWallet = await wallets.currentWalletAddress();
 
   if (!currWallet || owner !== currWallet)
     throw new Error("Cannot transfer an ADO you do not own");

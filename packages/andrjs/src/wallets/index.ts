@@ -1,5 +1,5 @@
+import { getDerivationPath } from "./constant";
 import EtherWallet from "./EtherWallet";
-import TerraWallet from "./TerraWallet";
 import Wallet from "./Wallet";
 
 export { default as Wallet } from "./Wallet";
@@ -8,25 +8,23 @@ export async function generateWalletFromMnemonic(
   name: string,
   mnemonic: string,
   passphrase: string,
-  prefix: string
+  prefix: string,
+  coinType: number,
+  hdpath?: string
 ): Promise<Wallet> {
-  switch (prefix) {
-    case "inj":
-      return EtherWallet.fromMnemonic(name, mnemonic, passphrase);
-    case "terra":
-      return TerraWallet.fromMnemonic(name, mnemonic, passphrase);
+  switch (coinType) {
+    case 60:
+      return EtherWallet.fromMnemonic(name, mnemonic, passphrase, prefix, hdpath);
     default:
-      return Wallet.fromMnemonic(name, mnemonic, passphrase, prefix);
+      return Wallet.fromMnemonic(name, mnemonic, passphrase, prefix, hdpath ?? getDerivationPath(coinType));
   }
 }
 
-export function newWallet(name: string, key: string, prefix: string) {
-  switch (prefix) {
-    case "inj":
-      return new EtherWallet(name, key, prefix);
-    case "terra":
-      return new TerraWallet(name, key, prefix);
+export function newWallet(name: string, key: string, prefix: string, coinType: number, hdpath?: string) {
+  switch (coinType) {
+    case 60:
+      return new EtherWallet(name, key, prefix, hdpath);
     default:
-      return new Wallet(name, key, prefix);
+      return new Wallet(name, key, prefix, hdpath ?? getDerivationPath(coinType));
   }
 }
