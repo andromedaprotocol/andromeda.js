@@ -59,12 +59,14 @@ import { Any } from "cosmjs-types/google/protobuf/any";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 
 export default class CosmClient extends BaseChainClient implements ChainClient {
+  private signerWallet?: OfflineSigner | OfflineDirectSigner;
+
   public queryClient?: ChainClient["queryClient"];
   public txQueryClient?: ChainClient["txQueryClient"];
-  public gasPrice?: GasPrice;
-  private signerWallet?: OfflineSigner | OfflineDirectSigner;
-  public commectClient?: CometClient | undefined;
+  public cometClient?: CometClient | undefined;
+
   public aminoTypes?: AminoTypes | undefined;
+  public gasPrice?: GasPrice;
 
   async connect(
     endpoint: string,
@@ -77,7 +79,7 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     this.signerWallet = signer;
     const rpcClient = new HttpBatchClient(endpoint);
     const cometClient = await Tendermint37Client.create(rpcClient);
-    this.commectClient = cometClient;
+    this.cometClient = cometClient;
     this.queryClient = await CosmWasmClient.create(cometClient);
     this.txQueryClient = await QueryClient.withExtensions(
       cometClient,

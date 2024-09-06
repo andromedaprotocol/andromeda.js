@@ -6,7 +6,6 @@ import Table from "cli-table";
 import { promptWithExit } from "..";
 import {
   clearPreviousLines,
-  displaySpinnerAsync,
   logTableConfig,
   ordinalSuffix,
 } from "../common";
@@ -55,7 +54,20 @@ const commands: Commands = {
       {
         requestMessage: "Select wallet to remove:",
         options: () =>
-          store.getWalletNames,
+          store.wallets.map(wallet => wallet.name),
+      },
+    ],
+  },
+  'legacy-migrate': {
+    handler: migrateLegacyWalletHandler,
+    color: pc.red,
+    description: "Remove a wallet by address",
+    usage: "wallets rm <name>",
+    inputs: [
+      {
+        requestMessage: "Select wallet to remove:",
+        options: () =>
+          store.legacyWallets.map(wallet => wallet.name),
       },
     ],
   },
@@ -68,7 +80,7 @@ const commands: Commands = {
       {
         requestMessage: "Select wallet to use:",
         options: () =>
-          store.getWalletNames,
+          store.wallets.map(wallet => wallet.name),
       },
     ],
   },
@@ -231,7 +243,7 @@ async function newWalletConfirmation(seed: string) {
 }
 
 /**
- * Removes a wallet by name/address/index
+ * Removes a wallet by name
  * @param input
  */
 async function removeWalletHandler(input: string[]) {
@@ -269,9 +281,8 @@ async function listWalletsHandler() {
  * Prints all provided wallets in table format
  * @param wallets
  */
-async function listWallets(wallets: Record<string, StoredWalletData>) {
-  const names = Object.keys(wallets);
-  if (names.length === 0) {
+async function listWallets(wallets: StoredWalletData[]) {
+  if (wallets.length === 0) {
     throw new Error(`No wallets to display
 
 You can add a wallet by using the add command:
@@ -286,14 +297,13 @@ You can add a wallet by using the add command:
 
   const chainId = config.get('chain.chainId');
 
-  for (const name of names) {
-    const wallet = wallets[name];
+  for (const wallet of wallets) {
     // Highlight the currently selected wallet
-    const isCurrent = current && name === current.name;
+    const isCurrent = current && wallet.name === current.name;
     const addr = wallet.addresses[chainId] || Object.values(wallet.addresses)[0] || '';
     walletTable.push([
       isCurrent ? "*" : "",
-      isCurrent ? pc.green(name) : name,
+      isCurrent ? pc.green(wallet.name) : wallet.name,
       isCurrent ? pc.green(addr) : addr,
     ]);
 
@@ -315,6 +325,46 @@ async function useWalletHandler(input: string[]) {
 }
 
 /**
+ * Migrate legacy a wallet by name
+ * @deprecated will be removed in next update
+ * @param input
+ */
+async function migrateLegacyWalletHandler(input: string[]) {
+  const [walletId] = input;
+  await migrateLegacyWallet(walletId);
+}
+
+/**
+ * Removes a wallet by given name or address
+ * @deprecated will be removed in next update
+ * @param input
+ */
+async function migrateLegacyWallet(legacyName: string) {
+  const updatedWallet = await store.migrateLegacyWallet(legacyName);
+  if (!updatedWallet) return;
+  const name = await promptWithExit({
+    name: 'name',
+    type: "input",
+    message: 'Enter new name for the wallet',
+    default: legacyName,
+    validate: (answer) => {
+      const existing = store.wallets[answer.trim()];
+      if (existing) {
+        console.log('Already have a wallet with this name');
+        return false;
+      }
+      return true;
+    }
+  })
+  updatedWallet.name = name.name.trim();
+  store.addWallet(updatedWallet);
+  if (legacyName !== updatedWallet.name) {
+    store.removeLegacyWallet(legacyName);
+  }
+}
+
+
+/**
  * Sets the currently used wallet
  * @param wallet
  * @param autoConnect
@@ -323,14 +373,11 @@ async function useWalletHandler(input: string[]) {
 export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
   const passphrase = await store.getWalletPassphrase(wallet.name);
   const signer = await wallet.getWallet(passphrase);
-  store.setDefaultWallet(wallet.name);
+  store.defaultWallet = wallet.name;
   if (!autoConnect) return signer;
 
   try {
-    await displaySpinnerAsync(
-      "Connecting client...",
-      async () => await State.connectClient()
-    );
+    await State.connectClient(passphrase)
     return signer;
   } catch (error) {
     console.warn();

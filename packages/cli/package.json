@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/cli",
-  "version": "1.0.1",
+  "version": "2.0.0-beta1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -40,6 +40,7 @@
     "cli-table": "^0.3.11",
     "convict": "^6.2.4",
     "convict-format-with-validator": "^6.2.0",
+    "crypto-js": "^4.2.0",
     "figlet": "^1.5.2",
     "gradient-string": "^2.0.2",
     "inquirer": "8.2.4",
@@ -60,6 +61,7 @@
     "@types/cli-table": "^0.3.1",
     "@types/convict": "^6.1.1",
     "@types/convict-format-with-validator": "^6.0.2",
+    "@types/crypto-js": "^4.2.2",
     "@types/figlet": "^1.5.5",
     "@types/gradient-string": "^1.1.2",
     "@types/inquirer": "^8.2.4",

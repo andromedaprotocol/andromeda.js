@@ -27,12 +27,19 @@ export default class EtherWallet extends Wallet {
   }
 
   async getWallet(password: string) {
-    const mnemonic = await this.decrypt(password);
-    const wallet = HDNodeWallet.fromPhrase(mnemonic, undefined, this.hdpath);
+    const mnemonicOrPrivKey = await this.decrypt(password);
+    let privKeyArray: Uint8Array;
+    if (mnemonicOrPrivKey.includes(' ')) {
+      const wallet = HDNodeWallet.fromPhrase(mnemonicOrPrivKey, undefined, this.hdpath);
 
-    const privKeyArray = Uint8Array.from(
-      Buffer.from(wallet.privateKey.replace("0x", ""), "hex")
-    );
+      privKeyArray = Uint8Array.from(
+        Buffer.from(wallet.privateKey.replace("0x", ""), "hex")
+      );
+    } else {
+      privKeyArray = Uint8Array.from(
+        Buffer.from(mnemonicOrPrivKey.replace("0x", ""), "hex")
+      );
+    }
     return await DirectEthSecp256k1Wallet.fromKey(privKeyArray);
   }
 }

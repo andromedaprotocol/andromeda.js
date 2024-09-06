@@ -30,9 +30,13 @@ export default class AndromedaClient {
 
   // API for shared ADO messages
   public ado = new ADOAPI(this);
-  public schema = new ADOSchemaAPI(this);
+  public schema;
   // API for aOS
   public os = new OperatingSystemAPI(this);
+
+  constructor({ schemaUrl }: { schemaUrl: string }) {
+    this.schema = new ADOSchemaAPI(schemaUrl, this);
+  }
 
   /**
    * A pre-message hook to check that the client is connected and functioning

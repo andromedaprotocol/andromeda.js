@@ -4,6 +4,7 @@ import wasmCommands from "./wasm";
 import adoCommands from "./ado";
 import osCommands from "./os";
 import gqlCommands from "./gql";
+import envCommands from "./env";
 import bankCommands from "./bank";
 import txCommands from "./tx";
 import userCommands from "./user";
@@ -14,6 +15,7 @@ export * as wasm from "./wasm";
 export * as chain from "./chain";
 export * as ado from "./ado";
 export * as gql from "./gql";
+export * as env from "./env";
 export * as bank from "./bank";
 export * as tx from "./tx";
 export * as vfs from "./user";
@@ -26,6 +28,7 @@ export const adoHandler = generateHandler(adoCommands, "ado");
 export const osHandler = generateHandler(osCommands, "os");
 export const bankHandler = generateHandler(bankCommands, "bank");
 export const gqlHandler = generateHandler(gqlCommands, "gql");
+export const envHandler = generateHandler(envCommands, "env");
 export const txHandler = generateHandler(txCommands, "tx");
 export const userHandler = generateHandler(userCommands, "user");
 
@@ -37,6 +40,7 @@ export const allCommands = [
   ...Object.keys(adoCommands).map((cmd) => `ado ${cmd}`),
   ...Object.keys(osCommands).map((cmd) => `os ${cmd}`),
   ...Object.keys(gqlCommands).map((cmd) => `gql ${cmd}`),
+  ...Object.keys(envCommands).map((cmd) => `env ${cmd}`),
   ...Object.keys(bankCommands).map((cmd) => `bank ${cmd}`),
   ...Object.keys(userCommands).map((cmd) => `user ${cmd}`),
 ];

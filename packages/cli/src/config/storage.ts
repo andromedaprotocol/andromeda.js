@@ -21,8 +21,8 @@ if (!fs.existsSync(CONFIG_DIRECTORY)) {
  * @param file The path to the file to load
  * @returns A buffer containing the file data
  */
-export function loadStorageFile(file: string) {
-  const filePath = path.join(CONFIG_DIRECTORY, file);
+export function loadStorageFile(env: string, file: string) {
+  const filePath = path.join(CONFIG_DIRECTORY, env, file);
   if (!fs.existsSync(filePath)) {
     throw new Error(`File ${file} does not exist`);
   }
@@ -35,8 +35,12 @@ export function loadStorageFile(file: string) {
  * @param file The path of where to write the data
  * @param data The data to write
  */
-export function writeStorageFile(file: string, data: string) {
-  const filePath = path.join(CONFIG_DIRECTORY, file);
+export function writeStorageFile(env: string, file: string, data: string) {
+  const envDir = path.join(CONFIG_DIRECTORY, env);
+  const filePath = path.join(envDir, file);
+  if (!fs.existsSync(envDir)) {
+    fs.mkdirSync(envDir, { recursive: true })
+  }
   fs.writeFileSync(filePath, data);
 }
 
@@ -45,8 +49,8 @@ export function writeStorageFile(file: string, data: string) {
  * @param file The file to check for
  * @returns
  */
-export function storageFileExists(file: string) {
-  const filePath = path.join(CONFIG_DIRECTORY, file);
+export function storageFileExists(env: string, file: string) {
+  const filePath = path.join(CONFIG_DIRECTORY, env, file);
   return fs.existsSync(filePath);
 }
 

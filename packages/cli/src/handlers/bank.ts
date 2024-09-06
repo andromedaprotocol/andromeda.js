@@ -5,6 +5,7 @@ import { displaySpinnerAsync, printTransactionUrl } from "../common";
 import State from "../state";
 import { Commands } from "../types";
 import { validateAddressInput } from "./utils";
+import WalletStore from "state/WalletStore";
 
 const { client } = State;
 
@@ -45,7 +46,7 @@ export const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Denom:",
-        default: async () => State.wallets.currentWalletDenom
+        default: async () => WalletStore.feeDenom
       },
       {
         requestMessage: `Input Address${typeof State.wallets.currentWallet !== "undefined"

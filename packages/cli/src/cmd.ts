@@ -8,6 +8,7 @@ import {
   allCommands,
   bankHandler,
   chainHandler,
+  envHandler,
   gqlHandler,
   osHandler,
   txHandler,
@@ -19,6 +20,7 @@ import State from "./state";
 import { Command, Commands } from "./types";
 import { getCurrentPackage, getLatestNpmVersion } from "./utils/npm";
 import { figletAsync } from "utils/fonts";
+import { envConfig } from "config";
 
 
 /**
@@ -107,6 +109,12 @@ export const baseCommands: Commands = {
     usage: "gql <cmd>",
     disabled: () => !State.client.isConnected,
   },
+  env: {
+    handler: envHandler,
+    description: "Configure CLI Environment",
+    color: pc.magenta,
+    usage: "env <cmd>",
+  },
   version: {
     handler: async () => {
       const npmPackage = getCurrentPackage()
@@ -133,7 +141,6 @@ export const baseCommands: Commands = {
 export async function title() {
   console.clear();
   // const version = await getLatestNpmVersion();
-
   console.log();
   console.log(
     pc.red(
@@ -170,6 +177,10 @@ export async function title() {
   if (version !== latest) {
     console.log(pc.bold(pc.green("Update available")) + ", update using the following command: " + pc.bgBlack(" npm update -g @andromeda-protocol/cli "));
   }
+  const env = envConfig.get('name');
+  const envMsg = pc.bold("Environment - " + env + " ");
+  console.log(envMsg);
+
   const msg = await figletAsync("Andromeda CLI", {
     font: "Standard",
   });

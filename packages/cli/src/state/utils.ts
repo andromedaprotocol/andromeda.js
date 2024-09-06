@@ -1,6 +1,8 @@
 export const getCoinTypeFromPrefix = (prefix: string) => {
     switch (prefix) {
         case "inj":
+        case "titan":
+        case "uptick":
             return 60;
         case "terra":
             return 330;

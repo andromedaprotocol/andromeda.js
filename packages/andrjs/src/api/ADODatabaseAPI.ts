@@ -1,6 +1,6 @@
 import type AndromedaClient from "../AndromedaClient";
 import ADOAPI from "./ADOAPI";
-import { AdodbContractTsQueryMsgBuilder, AdodbContractTsExecuteMsgBuilder } from '@andromedaprotocol/adocodegen/dist/adodb/1.0.0/AdodbContractTs.message-builder'
+import { AdodbContractTsQueryMsgBuilder, AdodbContractTsExecuteMsgBuilder } from './codegen/AdodbContractTs.message-builder'
 export default class ADODatabaseAPI extends ADOAPI {
   public queryMsgs = AdodbContractTsQueryMsgBuilder;
   public executeMsgs = AdodbContractTsExecuteMsgBuilder;

@@ -48,9 +48,6 @@ importers:
 
   packages/andrjs:
     dependencies:
-      '@andromedaprotocol/adocodegen':
-        specifier: workspace:*
-        version: link:../adocodegen
       '@andromedaprotocol/gql':
         specifier: workspace:*
         version: link:../gql
@@ -135,6 +132,9 @@ importers:
       pako:
         specifier: ^2.1.0
         version: 2.1.0
+      type-fest:
+        specifier: ^4.26.0
+        version: 4.26.0
     devDependencies:
       '@types/crypto-js':
         specifier: ^4.2.2
@@ -193,6 +193,9 @@ importers:
       convict-format-with-validator:
         specifier: ^6.2.0
         version: 6.2.0
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       figlet:
         specifier: ^1.5.2
         version: 1.6.0
@@ -248,6 +251,9 @@ importers:
       '@types/convict-format-with-validator':
         specifier: ^6.0.2
         version: 6.0.3
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@types/figlet':
         specifier: ^1.5.5
         version: 1.5.6
@@ -8643,6 +8649,11 @@ packages:
 
   /type-fest@4.21.0:
     resolution: {integrity: sha512-ADn2w7hVPcK6w1I0uWnM//y1rLXZhzB9mr0a3OirzclKF1Wp6VzevUmzz/NRAWunOT6E8HrnpGY7xOfc6K57fA==}
+    engines: {node: '>=16'}
+    dev: false
+
+  /type-fest@4.26.0:
+    resolution: {integrity: sha512-OduNjVJsFbifKb57UqZ2EMP1i4u64Xwow3NYXUtBbD4vIwJdQd4+xl8YDou1dlm4DVrtwT/7Ky8z8WyCULVfxw==}
     engines: {node: '>=16'}
     dev: false
 

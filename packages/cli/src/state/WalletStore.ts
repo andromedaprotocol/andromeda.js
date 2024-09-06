@@ -4,103 +4,69 @@ import {
   newWallet,
 } from "@andromedaprotocol/andromeda.js";
 import keychain from "keytar";
-import { promptPassphrase } from "..";
-import config from "../config";
+import Crypto from "crypto-js";
+import { promptPassphrase, promptWithExit } from "..";
+import config, { envConfig } from "../config";
 import {
   loadStorageFile,
-  storageFileExists,
   writeStorageFile,
 } from "../config/storage";
-import { V_1_0_0_WalletStore } from "./archive/wallet";
 import { getCoinTypeFromPrefix } from "./utils";
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
 const STORAGE_FILE = "keys.json";
 const KEYCHAIN_SERVICE = "andr-cli";
 
-const STORE_VERSION = '1.0.0';
+const STORE_VERSION = "1.0.0";
 interface StoredData {
-  wallets: Record<string, StoredWalletData>;
+  wallets: StoredWalletData[];
   default: string;
-  version: string
+  version: string;
 }
 
-
 export interface StoredWalletData {
+  name: string;
+  description?: string;
   key: string;
+  type: "phrase" | "private_key";
   // Any address that has been linked to this wallet during cli interaction
   // Getting address for all chains and wallet can be expensive so better to provide
   // the utility to search a wallet based on past address linked in cli
   addresses: {
-    [bech32: string]: string
-  }
+    [bech32: string]: string;
+  };
+  /** @deprecated Will be removed in next update */
+  chainId?: string;
+  /** @deprecated Will be removed in next update */
+  address?: string;
 }
 
 /**
  * Used to store wallets
  */
 export default class WalletStore {
-  constructor() {
-    // Create storage data if it does not exist
-    if (!storageFileExists(STORAGE_FILE)) {
-      const data: StoredData = {
-        wallets: {},
-        default: '',
-        version: STORE_VERSION
-      };
-      writeStorageFile(
-        STORAGE_FILE,
-        JSON.stringify(data)
-      );
-
-    }
-  }
-
-  /**
-   * Gets the string to be printed before each command prompt
-   */
-  get CLIPrefix() {
-    const wallet = this.currentWallet;
-    return wallet ? wallet.name : "";
-  }
 
   /**
    * Gets the data stored in the config file
    */
   protected get storageData(): StoredData {
-    const walletsJSON = loadStorageFile(STORAGE_FILE);
-    const data = JSON.parse(walletsJSON.toString());
-    if (data['version'] === STORE_VERSION) return data;
-
     try {
-
-      // This is probably old storage data, lets migrate it to new storage version
-      const oldData = data as V_1_0_0_WalletStore.StoredData;
-
-      const wallets: StoredData['wallets'] = {};
-      oldData.wallets.forEach(({ name, key, address, chainId }) => {
-        if (!wallets[name]) {
-          wallets[name] = {
-            key,
-            addresses: {
-              [chainId]: address
-            }
-          }
-        } else if (wallets[name].key === key) {
-          wallets[name].addresses[chainId] = address
-        }
-      })
-      this.storageData = {
-        wallets,
-        version: STORE_VERSION,
-        default: ''
-      };
-      return {
-        wallets,
-        version: STORE_VERSION,
-        default: ''
+      const walletsJSON = loadStorageFile(envConfig.get('name'), STORAGE_FILE);
+      const data = JSON.parse(walletsJSON.toString()) as StoredData;
+      if (!data.version) {
+        data["version"] = STORE_VERSION;
       }
-    } catch (_) {
-      throw new Error("OPPS! Looks there the keys file is corrupted. Delete your config files and try again");
+      this.storageData = data;
+      return data;
+    } catch (err) {
+      const data: StoredData = {
+        wallets: [],
+        default: "",
+        version: STORE_VERSION,
+      };
+      writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(data));
+      this.storageData = data;
+      return data;
     }
   }
 
@@ -108,34 +74,7 @@ export default class WalletStore {
    * Writes new data to storage, overriding any current data, called when a default wallet is updated or a wallet is added/removed
    */
   protected set storageData(newData: StoredData) {
-    writeStorageFile(STORAGE_FILE, JSON.stringify(newData));
-  }
-
-  /**
-   * Gets all stored wallets
-   * @returns Wallets map
-   */
-  get wallets() {
-    try {
-      const storedData = this.storageData;
-
-      return storedData.wallets;
-    } catch (error) {
-      console.error(error);
-      return {};
-    }
-  }
-
-  /**
-   * Writes new wallets to stored data, used when a wallet is added/removed
-   */
-  protected set wallets(wallets: StoredData['wallets']) {
-    const newData = {
-      ...this.storageData,
-      wallets,
-    };
-
-    this.storageData = newData;
+    writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(newData));
   }
 
   /**
@@ -149,7 +88,7 @@ export default class WalletStore {
   /**
    * Writes a new default wallets object to storage
    */
-  protected set defaultWallet(defaultWallet: string) {
+  set defaultWallet(defaultWallet: string) {
     const newData: StoredData = {
       ...this.storageData,
       default: defaultWallet,
@@ -159,27 +98,101 @@ export default class WalletStore {
   }
 
   /**
+   * All stored wallets
+   * @returns StoredWalletData[]
+   */
+  get wallets() {
+    try {
+      const storedData = this.storageData;
+      return storedData.wallets.filter((w) => !this.isLegacyWallet(w));
+    } catch (error) {
+      return [];
+    }
+  }
+
+  /**
+   * Writes new wallets to stored data, used when a wallet is added/removed
+   */
+  protected set wallets(wallets: StoredData["wallets"]) {
+    const newData = {
+      ...this.storageData,
+      wallets: [...wallets, ...this.legacyWallets],
+    };
+
+    this.storageData = newData;
+  }
+
+
+  /**
+   * Get a wallet by name
+   * @returns StoredWalletData[]
+   */
+  protected wallet(name: string) {
+    return this.wallets.find((wallet) => wallet.name === name);
+  }
+
+  /**
+   * Updates a wallet by name
+   */
+  protected updateWallet(name: string, data: Partial<StoredWalletData>) {
+    const wallet = this.wallet(name);
+    if (!wallet) throw new Error(`Wallet with name - ${name} not stored`);
+    this.wallets = this.wallets
+      .filter((w) => w.name !== name)
+      .concat({
+        ...wallet,
+        ...data,
+        addresses: { ...wallet.addresses, ...data.addresses },
+        name: name,
+      });
+  }
+
+  /**
+   * Adds a new wallet to storage
+   * @param walletData The new wallet data
+   */
+  addWallet(walletData: StoredWalletData) {
+    const wallet = this.wallet(walletData.name);
+    if (wallet) throw new Error(`Wallet with name - ${walletData.name} already stored`);
+    this.wallets = this.wallets.concat(walletData);
+  }
+
+  /**
+   * Removes a wallet by its name
+   * @param name The name of the wallet to remove
+   */
+  async removeWallet(name: string) {
+    name = name.trim();
+
+    if (name.length === 0) throw new Error("Invalid Wallet Identifier");
+
+    const wallet = this.wallet(name);
+    if (!wallet) throw new Error(`Wallet with name - ${name} not stored`);
+
+    if (this.defaultWallet === name) {
+      this.defaultWallet = "";
+    }
+
+    this.wallets = this.wallets.filter((w) => w.name !== name);
+
+    // Remove any stored passphrases for the current wallet
+    await keychain.deletePassword(KEYCHAIN_SERVICE, name);
+  }
+
+  /**
+   * Gets the string to be printed before each command prompt
+   */
+  get CLIPrefix() {
+    const wallet = this.currentWallet;
+    return wallet ? wallet.name : "";
+  }
+
+  /**
    * Gets the current wallet being used, based on default wallets and current chain ID
    * @returns A Wallet class for the current wallet
    */
   get currentWallet() {
-    const wallet = this.getWallet(this.defaultWallet);
-    return wallet;
-  }
-
-  /**
- * Gets the current wallet fee denom by removing numeric values from the defaultFee config
- * @returns A Wallet class for the current wallet
- */
-  get currentWalletDenom() {
-    const fee = config.get("chain.defaultFee");
-    return fee.replaceAll(/\d/g, '').replaceAll(".", '');
-  }
-
-  async currentWalletAddress() {
-    if (!this.currentWallet) return undefined;
-    const walletAddress = await this.getWalletAddress(this.currentWallet.name);
-    return walletAddress;
+    return this.getWallet(this.defaultWallet);
   }
 
   /**
@@ -187,27 +200,24 @@ export default class WalletStore {
    * @param name
    * @returns The wallet's address if it exists
    */
-  async getWalletAddress(name: string) {
+  async getWalletAddress(name: string, passphrase?: string) {
     const wallet = this.getWallet(name);
     if (!wallet) return undefined;
-
-    return await wallet.getAddress(await this.getWalletPassphrase(name))
+    const address = await wallet.getAddress(
+      passphrase ?? (await this.getWalletPassphrase(name))
+    );
+    this.updateWallet(name, { addresses: { [wallet.prefix]: address } })
+    return address;
   }
 
   /**
-   * Adds a new wallet to storage
-   * @param walletData The new wallet data
-   */
-  storeWalletData(name: string, walletData: StoredWalletData) {
-    if (this.wallets[name]) {
-      throw new Error(`Wallet with name - ${name} already stored`)
-    }
-    this.wallets = {
-      ...this.wallets,
-      [name]: walletData
-    }
+ * Gets the address of current wallet
+ * @param name
+ * @returns The wallet's address if it exists
+ */
+  async currentWalletAddress(passphrase?: string) {
+    return this.getWalletAddress(this.currentWallet?.name || '', passphrase)
   }
-
 
   /**
    * Generates a new wallet and stores it
@@ -217,13 +227,9 @@ export default class WalletStore {
    * @param mnemonic An optional mnemonic to generate the wallet (used on recovery)
    * @returns The newly generated wallet
    */
-  async generateWallet(
-    name: string,
-    passphrase: string,
-    mnemonic: string,
-  ) {
-    if (this.wallets[name])
-      throw new Error("Wallet name already in use");
+  async generateWallet(name: string, passphrase: string, mnemonic: string) {
+    const wallet = this.wallet(name);
+    if (wallet) throw new Error(`Wallet with name - ${name} already stored`);
 
     const addressPrefix = config.get("chain.addressPrefix");
     const newWallet = await generateWalletFromMnemonic(
@@ -238,59 +244,16 @@ export default class WalletStore {
     const address = await newWallet.getAddress(passphrase);
 
     // Store new wallet
-    this.storeWalletData(name, {
+    this.addWallet({
       key: newWallet.key,
+      name: name,
       addresses: {
-        [addressPrefix]: address
-      }
+        [addressPrefix]: address,
+      },
+      type: "phrase",
     });
 
     return newWallet;
-  }
-
-  /**
-   * Removes a wallet by its name/address
-   * @param identifier The name/address of the wallet to remove
-   */
-  async removeWallet(identifier: string) {
-    const trimmedIdentifier = identifier.trim();
-
-    if (trimmedIdentifier.length === 0)
-      throw new Error("Invalid Wallet Identifier");
-
-
-
-    if (!this.wallets[identifier])
-      throw new Error(
-        `No wallet found by name or address: ${trimmedIdentifier}`
-      );
-
-    if (this.defaultWallet === identifier) {
-      this.defaultWallet = '';
-    }
-    delete this.wallets[identifier];
-    this.wallets = this.wallets;
-
-    // Remove any stored passphrases for the current wallet
-    await keychain.deletePassword(KEYCHAIN_SERVICE, identifier);
-  }
-
-  /**
-   * Gets all wallets for a given chain ID
-   * @param chainId
-   * @returns An array of wallets for the given chain ID
-   */
-  get getWallets() {
-    return this.wallets;
-  }
-
-  /**
- * Gets all wallets name
- * @param chainId
- * @returns An array of wallets for the given chain ID
- */
-  get getWalletNames() {
-    return Object.keys(this.wallets);
   }
 
   /**
@@ -298,12 +261,12 @@ export default class WalletStore {
    * @param identifier The identifier for the wallet
    * @returns
    */
-  getWallet(identifier: string) {
-    const walletData = this.wallets[identifier]
+  getWallet(name: string) {
+    let walletData = this.wallet(name);
     if (!walletData) return;
     const prefix = config.get("chain.addressPrefix");
     const wallet = newWallet(
-      identifier,
+      name,
       walletData.key,
       prefix,
       getCoinTypeFromPrefix(prefix)
@@ -311,42 +274,19 @@ export default class WalletStore {
     return wallet;
   }
 
-
   /**
    * Get a wallet by Address combination
    * @param address The address of the wallet
    * @returns
    */
   getWalletByAddress(address: string) {
-    const walletData = Object.entries(this.wallets).find(
-      ([_, { addresses }]) => Object.values(addresses).includes(address)
+    const walletData = Object.entries(this.wallets).find(([_, { addresses }]) =>
+      Object.values(addresses).includes(address)
     );
     if (!walletData)
       throw new Error(`Wallet not found with address ${address}`);
-    return this.getWallet(walletData[0])
+    return this.getWallet(walletData[0]);
   }
-
-  /**
-   * Sets the default wallet for a given chain ID
-   * @param chainId
-   */
-  setDefaultWallet(name: string) {
-    this.defaultWallet = name
-  }
-
-  /**
-   *
-   * @param chainId Gets the default wallet for a given chain ID
-   * @returns
-   */
-  getDefaultWallet(): Wallet | undefined {
-    const walletName = this.defaultWallet;
-    if (!walletName) return;
-
-    const wallet = this.getWallet(walletName);
-    return wallet;
-  }
-
 
   /**
    * Retrieves the stored passphrase for the given wallet name from the OS keychain.
@@ -355,15 +295,104 @@ export default class WalletStore {
    * @returns The passphrase for the given wallet
    */
   async getWalletPassphrase(name: string) {
-    const wallet = this.getWallet(name);
-    if (!wallet) throw new Error(`Wallet not found with name ${name}`);
     // Check keychain
     let passphrase = await keychain.getPassword(KEYCHAIN_SERVICE, name);
     // Otherwise prompt
     if (!passphrase) {
-      passphrase = await promptPassphrase(wallet.name);
+      passphrase = await promptPassphrase(name);
     }
 
+    await keychain.setPassword(KEYCHAIN_SERVICE, name, passphrase);
+
     return passphrase ?? "";
+  }
+
+  /** @deprecated Will be removed in next update */
+  private isLegacyWallet(wallet: StoredWalletData) {
+    return !!(wallet.address || wallet.chainId);
+  }
+  /** @deprecated Will be removed in next update */
+  async migrateLegacyWallet(
+    name: string,
+  ) {
+    let walletData = this.legacyWallets.find(w => w.name === name);
+    if (!walletData) throw new Error(`Legacy wallet - ${name} not found`);
+    const passphrase = await promptWithExit({
+      message: `Input passphrase for wallet ${name}:`,
+      type: "password",
+      name: "passphrase",
+    }).then(res => res.passphrase.trim() || '');
+    if (walletData.address && walletData.address.startsWith("inj")) {
+      // Its an injective wallet and key is stored using crypto AES encyrpt method
+      const key = Crypto.AES.decrypt(walletData.key, passphrase);
+      let privKey = key.toString(Crypto.enc.Utf8);
+      if (privKey.startsWith('0x')) {
+        privKey = privKey.substring(2);
+      }
+      walletData.key = await Wallet.encrypt(privKey, passphrase);
+      walletData.type = "private_key";
+    } else {
+      const wallet = await DirectSecp256k1HdWallet.deserialize(
+        walletData.key,
+        passphrase
+      );
+      walletData.key = await Wallet.encrypt(wallet.mnemonic, passphrase);
+      walletData.type = "phrase";
+    }
+    walletData.address = undefined;
+    walletData.chainId = undefined;
+    try {
+      const prefix = config.get("chain.addressPrefix");
+      const wallet = newWallet(
+        name,
+        walletData.key,
+        prefix,
+        getCoinTypeFromPrefix(prefix)
+      );
+      const address = await wallet.getAddress(passphrase);
+      walletData.addresses = {
+        [prefix]: address
+      }
+      return walletData;
+    } catch (err) {
+      console.log(err)
+      console.log("Unable to migrate, either you have entered wrong passphrase or data is corrupted");
+      return undefined
+    }
+  }
+
+  /**
+   * All stored legacy wallets
+   * @deprecated will be removed in next version update
+   * @returns StoredWalletData[]
+   */
+  get legacyWallets() {
+    try {
+      const storedData = this.storageData;
+      return storedData.wallets.filter((w) => this.isLegacyWallet(w));
+    } catch (error) {
+      return [];
+    }
+  }
+
+  /**
+ * All stored legacy wallets
+ * @deprecated will be removed in next version update
+ * @returns StoredWalletData[]
+ */
+  async removeLegacyWallet(name: string) {
+    const storedData = this.storageData;
+    storedData.wallets = storedData.wallets.filter(wallet => !(wallet.name === name && this.isLegacyWallet(wallet)))
+    this.storageData = storedData;
+    await keychain.deletePassword(KEYCHAIN_SERVICE, name);
+  }
+
+  /**
+   * Gets the fee denom by removing numeric values from the defaultFee config
+   * @returns fee denom string
+   */
+  static get feeDenom() {
+    const fee = config.get("chain.defaultFee");
+    return fee.replaceAll(/\d/g, "").replaceAll(".", "");
   }
 }

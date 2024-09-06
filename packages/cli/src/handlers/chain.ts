@@ -9,10 +9,8 @@ import pc from "picocolors";
 
 import { promptWithExit } from "../cmd";
 import { displaySpinnerAsync, logTableConfig } from "../common";
-import config from "../config";
+import config, { envConfig, IChainConfig, localChains } from "../config";
 import {
-  loadStorageFile,
-  storageFileExists,
   writeStorageFile,
 } from "../config/storage";
 import State from "../state";
@@ -108,7 +106,7 @@ const commands: Commands = {
           return true;
         },
         options: async () => [
-          ...localConfigs.map(({ name }) => name),
+          ...localChains.get('chains').map(({ name }) => name),
           ...(await queryAllConfigsSafe()).map(({ name }) => name),
         ],
       },
@@ -136,7 +134,7 @@ const commands: Commands = {
 
           return true;
         },
-        options: async () => [...localConfigs.map(({ name }) => name)],
+        options: async () => [...localChains.get('chains').map(({ name }) => name)],
       },
     ],
   },
@@ -199,28 +197,6 @@ async function queryChainConfigSafe(
   }
 }
 
-// Used for when the user creates their own config
-let localConfigs: ChainConfig[] = [];
-
-/**
- * Loads all local configs from storage
- */
-function loadLocalConfigs() {
-  try {
-    if (!storageFileExists(STORAGE_FILE)) {
-      writeStorageFile(STORAGE_FILE, JSON.stringify([]));
-      return;
-    }
-
-    const loadedConfigsBuffer = loadStorageFile(STORAGE_FILE);
-    localConfigs = JSON.parse(loadedConfigsBuffer.toString()) as ChainConfig[];
-  } catch (error) {
-    console.error("Problem loading local chain configs");
-    console.error(error);
-  }
-}
-
-loadLocalConfigs();
 
 /**
  * Gets the description of a given key from config
@@ -243,11 +219,11 @@ function getConfigDoc(key: ConfigKey): string {
  */
 async function getCLIChainConfig(
   identifier: string
-): Promise<ChainConfig | undefined> {
+): Promise<IChainConfig | undefined> {
   try {
     const config =
       (await queryChainConfigSafe(identifier)) ??
-      localConfigs.find(
+      localChains.get('chains').find(
         (config) => config.name === identifier || config.chainId === identifier
       );
     return config;
@@ -313,16 +289,17 @@ async function setKey(key: string, value: string) {
   const name = config.get("chain.name");
   config.set(`chain.${trimmedKey}`, trimmedValue);
 
-  const localConfig = localConfigs.find(
+  const localConfig = localChains.get('chains').find(
     ({ name: localConfigName }) => localConfigName === name
   );
 
   // Save any updates to local configs
   if (localConfig) {
-    localConfigs = localConfigs.map((config) =>
+    const localConfigs = localChains.get('chains').map((config) =>
       config.name === name ? { ...config, [trimmedKey]: trimmedValue } : config
     );
-    writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
+    localChains.set('chains', localConfigs)
+    writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties()));
   }
 }
 
@@ -332,7 +309,7 @@ async function setKey(key: string, value: string) {
 async function listConfigsHandler() {
   const configTable = new Table(logTableConfig);
   configTable.push([pc.bold("Name"), pc.bold("Chain ID")]);
-  [...(await queryAllConfigsSafe()), ...localConfigs].forEach((chainConfig) =>
+  [...(await queryAllConfigsSafe()), ...localChains.get('chains')].forEach((chainConfig) =>
     config.get("chain.name") === chainConfig.name
       ? configTable.push([
         pc.green(chainConfig.name),
@@ -362,6 +339,7 @@ async function useConfigHandler(input: string[]) {
     throw new Error(`No chain config for chain ID: ${chainId}`);
   }
   config.set("chain", chainConfig);
+  writeStorageFile(envConfig.get('name'), 'config.json', JSON.stringify(config.getProperties()));
   console.log(pc.green(`Config loaded!`));
   const wallet = State.wallets.currentWallet;
   if (wallet) {
@@ -369,10 +347,7 @@ async function useConfigHandler(input: string[]) {
     await setCurrentWallet(wallet);
   } else {
     // If no wallet, connect the client without a signer
-    await displaySpinnerAsync(
-      "Connecting client...",
-      async () => await State.connectClient()
-    );
+    async () => await State.connectClient()
   }
 }
 
@@ -477,9 +452,10 @@ export async function newConfigHandler(input: string[]) {
     blockExplorerAddressPages: [],
     blockExplorerTxPages: [],
   };
-
+  const localConfigs = localChains.get('chains');
   localConfigs.push(fullConfig);
-  writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
+  localChains.set('chains', localConfigs);
+  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties()));
   await useConfigHandler(input);
 }
 
@@ -493,8 +469,11 @@ async function copyConfigHandler(input: string[]) {
   if (!oldConfig) throw new Error(`Config '${oldConfigName}' not found`);
 
   const newConfig = { ...oldConfig!, name: newConfigName };
+
+  const localConfigs = localChains.get('chains');
   localConfigs.push(newConfig);
-  writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
+  localChains.set('chains', localConfigs);
+  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties()));
 
   await useConfigHandler([newConfigName]);
 }
@@ -508,15 +487,16 @@ async function removeConfigHandler(input: string[]) {
   const defaultConfig = await queryChainConfigSafe(configName);
   if (defaultConfig) throw new Error("Cannot remove a default config");
 
-  const localConfig = localConfigs.find(
+  const localConfig = localChains.get('chains').find(
     ({ name, chainId }) => name === configName || chainId === configName
   );
   if (!localConfig) throw new Error(`Config '${configName}' not found`);
 
-  localConfigs = localConfigs.filter(
+  const localConfigs = localChains.get('chains').filter(
     ({ name, chainId }) => name !== configName && chainId !== configName
   );
-  writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
+  localChains.set('chains', localConfigs);
+  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties()));
 
   if (localConfig.name === config.get("chain.name")) {
     const replacementConfig = await promptWithExit({

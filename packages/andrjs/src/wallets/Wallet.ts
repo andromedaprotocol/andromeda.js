@@ -1,5 +1,5 @@
 import { Random, stringToPath, xchacha20NonceLength, Xchacha20poly1305Ietf } from "@cosmjs/crypto";
-import { DirectSecp256k1HdWallet, executeKdf, KdfConfiguration } from "@cosmjs/proto-signing";
+import { DirectSecp256k1HdWallet, DirectSecp256k1Wallet, executeKdf, KdfConfiguration } from "@cosmjs/proto-signing";
 import { DirectEthSecp256k1Wallet } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/DirectEthSecp256k1Wallet";
 import { DEFAULT_COSMOS_HDPATH } from "./constant";
 
@@ -52,12 +52,18 @@ export default class Wallet {
    */
   async getWallet(
     password: string,
-  ): Promise<DirectSecp256k1HdWallet | DirectEthSecp256k1Wallet> {
-    const mnemonic = await this.decrypt(password);
-    return await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
-      prefix: this.prefix,
-      hdPaths: [stringToPath(this.hdpath)]
-    });
+  ): Promise<DirectSecp256k1HdWallet | DirectSecp256k1Wallet | DirectEthSecp256k1Wallet> {
+    const mnemonicOrPrivKey = await this.decrypt(password);
+    if (mnemonicOrPrivKey.includes(' ')) {
+      // Its a mnemonic phrase
+      return await DirectSecp256k1HdWallet.fromMnemonic(mnemonicOrPrivKey, {
+        prefix: this.prefix,
+        hdPaths: [stringToPath(this.hdpath)]
+      })
+    } else {
+      // Its a private Key
+      return await DirectSecp256k1Wallet.fromKey(Buffer.from(mnemonicOrPrivKey, 'hex'), this.prefix)
+    }
   }
 
   /**
@@ -78,16 +84,17 @@ export default class Wallet {
   }
 
   static async encrypt(
-    plaintext: string,
+    key: string, // Mnemonic or private key
     password: string,
   ): Promise<string> {
+    // TODO:: See keplr implementation
     const kdfConfiguration = basicPasswordHashingOptions;
     const encryptionKey = await executeKdf(password, kdfConfiguration);
     const nonce = Random.getBytes(xchacha20NonceLength);
     // Prepend fixed-length nonce to ciphertext as suggested in the example from https://github.com/jedisct1/libsodium.js#api
     return Buffer.from([
       ...nonce,
-      ...(await Xchacha20poly1305Ietf.encrypt(Buffer.from(plaintext, 'ascii'), encryptionKey, nonce)),
+      ...(await Xchacha20poly1305Ietf.encrypt(Buffer.from(key, 'ascii'), encryptionKey, nonce)),
     ]).toString('hex');
   }
 
