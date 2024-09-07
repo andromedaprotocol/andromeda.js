@@ -7,7 +7,7 @@ import Table from "cli-table";
 import inquirer from "inquirer";
 import pc from "picocolors";
 
-import { promptWithExit } from "../cmd";
+import { promptWithExit, title } from "../cmd";
 import { displaySpinnerAsync, logTableConfig } from "../common";
 import config, { envConfig, IChainConfig, localChains } from "../config";
 import {
@@ -31,7 +31,7 @@ const commands: Commands = {
   list: {
     handler: listConfigsHandler,
     color: pc.blue,
-    description: "Lists all the currently saved configs",
+    description: "Lists all the currently locally saved configs",
     usage: "chain list",
   },
   use: {
@@ -45,7 +45,7 @@ const commands: Commands = {
         options: async () => {
           const configs = await displaySpinnerAsync(
             "Loading configs...",
-            queryAllConfigsSafe
+            async () => [...await queryAllConfigsSafe(), ...localChains.get('chains')]
           );
           return configs.map((conf) => conf.name);
         },
@@ -57,18 +57,23 @@ const commands: Commands = {
     color: pc.cyan,
     description: "Displays current value for a given key",
     usage: "chain get <key>",
+    inputs: [
+      {
+        requestMessage: "Input Config Key:",
+        options: Object.keys(config.getSchema()._cvtProperties.chain._cvtProperties)
+      },
+    ]
   },
   set: {
     handler: configSetHandler,
     color: pc.black,
-    description: "Sets the value for a given config key",
+    description: "Sets the value for a given config key (Only available for custom configs)",
     usage: "chain set <key> <value>",
-    disabled: async () =>
-      typeof (await queryChainConfigSafe(config.get("chain.name"))) !==
-      "undefined",
+    disabled: () => !localChains.get('chains').some(c => config.get('chain.name') === c.name),
     inputs: [
       {
         requestMessage: "Input Config Key:",
+        options: Object.keys(config.getSchema()._cvtProperties.chain._cvtProperties)
       },
       {
         requestMessage: "Input Value:",
@@ -268,6 +273,7 @@ async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
   console.log(pc.green("Current chain config"));
   console.log();
   console.log(configTable.toString());
+  console.log();
 }
 
 /**
@@ -299,7 +305,7 @@ async function setKey(key: string, value: string) {
       config.name === name ? { ...config, [trimmedKey]: trimmedValue } : config
     );
     localChains.set('chains', localConfigs)
-    writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties()));
+    writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties().chains));
   }
 }
 
@@ -309,7 +315,7 @@ async function setKey(key: string, value: string) {
 async function listConfigsHandler() {
   const configTable = new Table(logTableConfig);
   configTable.push([pc.bold("Name"), pc.bold("Chain ID")]);
-  [...(await queryAllConfigsSafe()), ...localChains.get('chains')].forEach((chainConfig) =>
+  [...localChains.get('chains')].forEach((chainConfig) =>
     config.get("chain.name") === chainConfig.name
       ? configTable.push([
         pc.green(chainConfig.name),
@@ -317,8 +323,9 @@ async function listConfigsHandler() {
       ])
       : configTable.push([chainConfig.name, chainConfig.chainId])
   );
-
+  console.log()
   console.log(configTable.toString());
+  console.log()
 }
 
 /**
@@ -349,6 +356,7 @@ async function useConfigHandler(input: string[]) {
     // If no wallet, connect the client without a signer
     async () => await State.connectClient()
   }
+  await title();
 }
 
 /**
@@ -421,9 +429,9 @@ export async function newConfigHandler(input: string[]) {
       validate: (input: string) => input.length > 0,
     },
     {
-      name: "registryAddress",
+      name: "kernelAddress",
       message:
-        "Input the address of the Andromeda Registry for this chain (optional):",
+        "Input the address of the Andromeda Kernel Address for this chain:",
       type: "input",
     },
     {
@@ -432,6 +440,16 @@ export async function newConfigHandler(input: string[]) {
       type: "input",
       validate: (input: string) =>
         input.length >= 4 ? true : "Invalid Address Prefix",
+    },
+    {
+      name: "coinType",
+      message: "Input coin type for this chain:",
+      type: "input",
+      validate: (input: string) => {
+        const regex = /^[0-9]+$/gm;
+        return regex.test(input) ? true : "Invalid Coin Type";
+      },
+      default: "118"
     },
     {
       name: "defaultFee",
@@ -444,10 +462,11 @@ export async function newConfigHandler(input: string[]) {
     },
   ];
   // Any type to allow construction
-  let config: any = await promptWithExit(questions);
+  let newConfig: any = await promptWithExit(questions);
+
 
   const fullConfig: ChainConfig = {
-    ...config,
+    ...newConfig,
     name,
     blockExplorerAddressPages: [],
     blockExplorerTxPages: [],
@@ -455,7 +474,7 @@ export async function newConfigHandler(input: string[]) {
   const localConfigs = localChains.get('chains');
   localConfigs.push(fullConfig);
   localChains.set('chains', localConfigs);
-  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties()));
+  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties().chains));
   await useConfigHandler(input);
 }
 
@@ -473,7 +492,7 @@ async function copyConfigHandler(input: string[]) {
   const localConfigs = localChains.get('chains');
   localConfigs.push(newConfig);
   localChains.set('chains', localConfigs);
-  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties()));
+  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties().chains));
 
   await useConfigHandler([newConfigName]);
 }
@@ -496,7 +515,7 @@ async function removeConfigHandler(input: string[]) {
     ({ name, chainId }) => name !== configName && chainId !== configName
   );
   localChains.set('chains', localConfigs);
-  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties()));
+  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties().chains));
 
   if (localConfig.name === config.get("chain.name")) {
     const replacementConfig = await promptWithExit({

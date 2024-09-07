@@ -3,7 +3,7 @@ import pc from "picocolors";
 // import Table from "cli-table";
 import { Bip39, Random } from "@cosmjs/crypto";
 import Table from "cli-table";
-import { promptWithExit } from "..";
+import { promptWithExit, title } from "..";
 import {
   clearPreviousLines,
   logTableConfig,
@@ -11,27 +11,52 @@ import {
 } from "../common";
 import config from "../config";
 import State, { StoredWalletData } from "../state";
-import { Commands, Flags } from "../types";
+import { Commands } from "../types";
+import state from "state/State";
 
 const store = State.wallets;
 
 const commands: Commands = {
-  add: {
-    handler: addWalletHandler,
+  recover: {
+    handler: recoverWalletHandler,
     color: pc.green,
     description:
-      "Adds a new wallet. Can be used with the --recover flag to add a wallet by mnemonic.",
-    usage: "wallets add <name>",
-    flags: {
-      recover: {
-        description: "Recovers a wallet by mnemonic",
-      },
-    },
+      "Add a wallet using mnemonic or private key",
+    usage: "wallets recover <name> <passphrase> <mnemonic|private_key>",
     inputs: [
       {
         requestMessage: "Input Wallet Name:",
         validate: (input: string) => {
-          const wallet = store.getWallet(input);
+          const wallet = store.wallet(input);
+          return typeof wallet === "undefined"
+            ? true
+            : "Wallet name already in use for this chain";
+        },
+        transform: parseWalletName,
+      },
+      {
+        requestMessage: "Input Passphrase:",
+        validate: (input: string) => input.length > 0,
+        hiddenInput: true,
+      },
+      {
+        requestMessage: "Input Mnemonic or Private Key:",
+        validate: (input: string) => input.trim().length > 0,
+        hiddenInput: false,
+      },
+    ],
+  },
+  generate: {
+    handler: generateWalletHandler,
+    color: pc.green,
+    description:
+      "Generates a new wallet mnemonic",
+    usage: "wallets generate <name> <passphrase>",
+    inputs: [
+      {
+        requestMessage: "Input Wallet Name:",
+        validate: (input: string) => {
+          const wallet = store.wallet(input);
           return typeof wallet === "undefined"
             ? true
             : "Wallet name already in use for this chain";
@@ -58,14 +83,26 @@ const commands: Commands = {
       },
     ],
   },
-  'legacy-migrate': {
-    handler: migrateLegacyWalletHandler,
+  rename: {
+    handler: renameWalletHandler,
     color: pc.red,
     description: "Remove a wallet by address",
     usage: "wallets rm <name>",
+    disabled: () => !State.wallets.currentWallet,
     inputs: [
       {
-        requestMessage: "Select wallet to remove:",
+        requestMessage: "New Name for wallet:",
+      },
+    ],
+  },
+  'migrate-legacy': {
+    handler: migrateLegacyWalletHandler,
+    color: pc.red,
+    description: "Migrates a legacy wallet that was created with old cli version",
+    usage: "wallets migrate-legacy <name>",
+    inputs: [
+      {
+        requestMessage: "Select wallet to migrate:",
         options: () =>
           store.legacyWallets.map(wallet => wallet.name),
       },
@@ -127,12 +164,78 @@ function parseWalletName(name: string) {
 }
 
 /**
- * Adds a wallet with given name. Can be used to recover a wallet with a mnemonic or generate a new one.
+ * Adds a wallet with given name and mnemonic/private_key
  * @param input
  * @param flags
  * @returns
  */
-async function addWalletHandler(input: string[], flags: Flags) {
+async function recoverWalletHandler(input: string[]) {
+  let [name, passphrase, ...mnemonicOrPrivateKey] = input;
+
+  let phrase = mnemonicOrPrivateKey.join(' ');
+
+  if (mnemonicOrPrivateKey.length > 1) {
+    const valid = await validateMnemonic(phrase);
+    if (!valid) {
+      console.error(pc.red("Invalid mnemonic"));
+      const mnemonicInput = await promptWithExit({
+        type: "input",
+        message: "Input the wallet mnemonic:",
+        name: "addwalletmnemonic",
+        validate: (input: string) => {
+          return input.trim().length > 0;
+        },
+      });
+      phrase = mnemonicInput.addwalletmnemonic.trim();
+    }
+  }
+
+  if (phrase === "exit") return;
+  if (!phrase.includes(' ')) {
+    // If there is a space in phrase, then its probably private key
+    const confirmed: boolean = await promptWithExit({
+      name: "confirmprivatekey",
+      type: "confirm",
+      message: `Private Key are for advanced users, you will find mismatch in addresses. Do you want to proceed?`,
+    }).then(res => res.confirmprivatekey);
+    if (!confirmed) {
+      console.log("\nOperation Aborted!\n");
+      return
+    };
+  }
+
+  if (passphrase.length > 0) {
+    await promptWithExit({
+      name: "repeatphrase",
+      validate: (input: string) => {
+        if (passphrase !== input) return "Passphrases do not match";
+
+        return true;
+      },
+      message: "Repeat your passphrase:",
+      type: "password",
+    });
+  }
+
+  console.log("");
+  try {
+    const wallet = await store.generateWallet(name, passphrase, phrase);
+    await setCurrentWallet(wallet, passphrase)
+    console.log(pc.green(`Wallet ${name} added!`));
+  } catch (error) {
+    console.error(pc.red(error as string));
+    return;
+  }
+
+}
+
+/**
+ * Adds a wallet with given name and mnemonic/private_key
+ * @param input
+ * @param flags
+ * @returns
+ */
+async function generateWalletHandler(input: string[]) {
   let [name, passphrase] = input;
 
   if (passphrase.length > 0) {
@@ -148,29 +251,11 @@ async function addWalletHandler(input: string[], flags: Flags) {
     });
   }
 
-  let mnemonic;
-  while (flags.recover && !(await validateMnemonic(mnemonic))) {
-    if (mnemonic) console.error(pc.red("Invalid mnemonic"));
-    const mnemonicInput = await promptWithExit({
-      type: "input",
-      message: "Input the wallet mnemonic:",
-      name: "addwalletmnemonic",
-      validate: (input: string) => {
-        return input.trim().length > 0;
-      },
-    });
-
-    mnemonic = mnemonicInput.addwalletmnemonic.trim();
-    if (mnemonic === "exit") return;
-  }
-
   console.log("");
-  if (!mnemonic || mnemonic.length === 0) {
-    const length = 4 * Math.floor((11 * 24) / 33);
-    const entropy = Random.getBytes(length);
-    mnemonic = Bip39.encode(entropy).toString();
-    await newWalletConfirmation(mnemonic);
-  }
+  const length = 4 * Math.floor((11 * 24) / 33);
+  const entropy = Random.getBytes(length);
+  const mnemonic = Bip39.encode(entropy).toString();
+  await newWalletConfirmation(mnemonic);
 
   const newWallet = await store.generateWallet(
     name,
@@ -184,12 +269,8 @@ async function addWalletHandler(input: string[], flags: Flags) {
     console.error(pc.red(error as string));
     return;
   }
-
   console.log(pc.green(`Wallet ${name} added!`));
-
-  if (!store.currentWallet) {
-    await setCurrentWallet(newWallet);
-  }
+  await setCurrentWallet(newWallet, passphrase);
 }
 
 /**
@@ -249,6 +330,27 @@ async function newWalletConfirmation(seed: string) {
 async function removeWalletHandler(input: string[]) {
   const [walletId] = input;
   await removeWalletByName(walletId);
+}
+
+/**
+ * Removes a wallet by name
+ * @param input
+ */
+async function renameWalletHandler(input: string[]) {
+  const [newName] = input;
+  if (!state.wallets.currentWallet) {
+    console.log(pc.red("You need to connect to a wallet first to rename it"))
+    return;
+  }
+  const confirmed = await promptWithExit({
+    name: "rmwalletconfirm",
+    type: "confirm",
+    message: `Are you sure you want to remove wallet ${state.wallets.currentWallet?.name}?`,
+  });
+  if (confirmed) {
+    await store.renameWallet(state.wallets.currentWallet?.name, newName);
+    await title();
+  }
 }
 
 /**
@@ -358,9 +460,7 @@ async function migrateLegacyWallet(legacyName: string) {
   })
   updatedWallet.name = name.name.trim();
   store.addWallet(updatedWallet);
-  if (legacyName !== updatedWallet.name) {
-    store.removeLegacyWallet(legacyName);
-  }
+  store.removeLegacyWallet(legacyName);
 }
 
 
@@ -370,8 +470,8 @@ async function migrateLegacyWallet(legacyName: string) {
  * @param autoConnect
  * @returns A signer if the wallet is valid
  */
-export async function setCurrentWallet(wallet: Wallet, autoConnect = true) {
-  const passphrase = await store.getWalletPassphrase(wallet.name);
+export async function setCurrentWallet(wallet: Wallet, passphrase?: string, autoConnect = true) {
+  passphrase = passphrase ?? await store.getWalletPassphrase(wallet.name);
   const signer = await wallet.getWallet(passphrase);
   store.defaultWallet = wallet.name;
   if (!autoConnect) return signer;

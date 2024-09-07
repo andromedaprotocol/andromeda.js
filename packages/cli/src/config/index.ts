@@ -5,6 +5,7 @@ import { addExitHandler, CONFIG_DIRECTORY, loadStorageFile, writeStorageFile } f
 import path from "path";
 import fs from 'fs';
 import { getCurrentPackage } from "utils/npm";
+import { displaySpinnerAsync } from "common";
 
 convict.addFormats(convictFormatWithValidator);
 
@@ -166,14 +167,14 @@ export const envConfig = convict({
 /**
  * Loads the config used by the CLI on startup
  */
-export function loadDefaultEnv() {
+export async function loadDefaultEnv() {
   try {
     if (!fs.existsSync(ROOT_ENV_PATH)) {
       fs.writeFileSync(ROOT_ENV_PATH, JSON.stringify({ default: FALLBACK_ENV, envs: [FALLBACK_ENV] }));
     }
     const envData = JSON.parse(fs.readFileSync(ROOT_ENV_PATH).toString());
     envConfig.set('envs', envData.envs ?? [])
-    loadEnv(envData.default)
+    await loadEnv(envData.default)
   } catch (error) {
   }
 }
@@ -193,8 +194,8 @@ export async function loadEnv(env: string, data?: Partial<ReturnType<typeof envC
   }
   envConfig.set('envs', all_envs)
   setGQLSdkUri(envConfig.get('gql'));
-  await loadDefaultConfig();
-  await loadLocalChains();
+  await displaySpinnerAsync("Loading config...", loadDefaultConfig);
+  loadLocalChains()
 }
 
 /**
@@ -212,6 +213,14 @@ export function createEnv(env: string, data?: Partial<ReturnType<typeof envConfi
   envConfig.set('envs', all_envs)
 }
 
+/**
+ * Rename env with its folder
+ */
+export function renameEnv(env: string, newName: string) {
+  fs.renameSync(path.join(CONFIG_DIRECTORY, env), path.join(CONFIG_DIRECTORY, newName));
+  envConfig.set('envs', envConfig.get('envs').filter(name => name !== newName).concat(newName));
+}
+
 
 /**
  * Loads the config used by the CLI on startup
@@ -223,7 +232,7 @@ export async function loadDefaultConfig() {
     config.load(parsedSavedConfig);
   } catch (error) {
     const defaultConfig = {
-      chain: await queryChainConfig(FALLBACK_ENV === DEFAULT_ENVS.MAINNET ? "andromeda-1" : "galileo-4").catch(_ => config.getProperties().chain),
+      chain: await queryChainConfig(envConfig.get('gql').includes('mainnet') ? "andromeda-1" : "galileo-4").catch(_ => config.getProperties().chain),
     };
     config.load(defaultConfig);
   }
@@ -232,11 +241,11 @@ export async function loadDefaultConfig() {
 /**
  * Loads the config used by the CLI on startup
  */
-export async function loadLocalChains() {
+export function loadLocalChains() {
   try {
     const savedConfig = loadStorageFile(envConfig.get('name'), "chainConfigs.json");
     const parsedSavedConfig = JSON.parse(savedConfig.toString());
-    localChains.set('chains', parsedSavedConfig);
+    localChains.set("chains", parsedSavedConfig);
   } catch (error) {
     const defaultConfig = {
       chains: [],
@@ -250,7 +259,6 @@ export async function loadLocalChains() {
  * @deprecated will be removed in next update
  */
 export function migrateLegacyEnv() {
-  console.log(fs.readdirSync(CONFIG_DIRECTORY))
   try {
     if (fs.existsSync(path.join(CONFIG_DIRECTORY, 'env.json'))) {
       return;

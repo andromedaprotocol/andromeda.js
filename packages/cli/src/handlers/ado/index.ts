@@ -172,7 +172,6 @@ async function queryAdoSchema(address: string) {
   }
   const schema = await client.schema!.getSchemaFromCodeId(codeId, undefined, fallbackType);
   return schema;
-
 }
 
 /**
@@ -185,7 +184,7 @@ export async function executeHandler(input: string[], flags: Flags) {
 
   const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () => await queryAdoSchema(address).catch(() => { throw new Error(`Not a valid ADO`) })
+    async () => await queryAdoSchema(address)
   );
 
   const msg = await promptQueryOrExecuteMessage(
@@ -203,18 +202,9 @@ export async function executeHandler(input: string[], flags: Flags) {
 export async function queryHandler(input: string[]) {
   const [address] = input;
 
-  let codeId = -1;
-  try {
-    codeId = await queryCodeId(address);
-  } catch (error) {
-    console.error(pc.red("Contract is not a valid ADO"));
-    return;
-  }
-
   const adoSchema = await displaySpinnerAsync(
     "Fetching schema...",
-    async () =>
-      await client!.schema!.getSchemaFromCodeId(codeId)
+    () => queryAdoSchema(address)
   );
 
   const msg = await promptQueryOrExecuteMessage(

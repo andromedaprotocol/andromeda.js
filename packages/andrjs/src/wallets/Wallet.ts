@@ -31,19 +31,19 @@ export default class Wallet {
   /**
    * Generates a new wallet from a given mnemonic
    * @param name
-   * @param mnemonic
+   * @param mnemonicOrPrivKey
    * @param passphrase
    * @param prefix
    * @returns
    */
-  static async fromMnemonic(
+  static async fromMnemonicOrPrivateKey(
     name: string,
-    mnemonic: string,
+    mnemonicOrPrivKey: string,
     password: string,
     prefix: string,
     hdpath = DEFAULT_COSMOS_HDPATH,
   ) {
-    const key = await this.encrypt(mnemonic, password);
+    const key = await this.encrypt(mnemonicOrPrivKey, password);
     return new Wallet(name, key, prefix, hdpath);
   }
 

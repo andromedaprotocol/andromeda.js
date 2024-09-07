@@ -20,7 +20,7 @@ import State from "./state";
 import { Command, Commands } from "./types";
 import { getCurrentPackage, getLatestNpmVersion } from "./utils/npm";
 import { figletAsync } from "utils/fonts";
-import { envConfig } from "config";
+import config, { envConfig } from "config";
 
 
 /**
@@ -177,8 +177,7 @@ export async function title() {
   if (version !== latest) {
     console.log(pc.bold(pc.green("Update available")) + ", update using the following command: " + pc.bgBlack(" npm update -g @andromeda-protocol/cli "));
   }
-  const env = envConfig.get('name');
-  const envMsg = pc.bold("Environment - " + env + " ");
+  const envMsg = pc.gray("Environment - " + envConfig.get('name') + " , " + `Chain Config - ${config.get('chain.name')}` + " ");
   console.log(envMsg);
 
   const msg = await figletAsync("Andromeda CLI", {

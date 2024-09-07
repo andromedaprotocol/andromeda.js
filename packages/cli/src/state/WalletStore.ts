@@ -1,6 +1,6 @@
 import {
-  generateWalletFromMnemonic,
   Wallet,
+  generateWalletFromMnemonicOrPrivateKey,
   newWallet,
 } from "@andromedaprotocol/andromeda.js";
 import keychain from "keytar";
@@ -127,7 +127,7 @@ export default class WalletStore {
    * Get a wallet by name
    * @returns StoredWalletData[]
    */
-  protected wallet(name: string) {
+  wallet(name: string) {
     return this.wallets.find((wallet) => wallet.name === name);
   }
 
@@ -145,6 +145,27 @@ export default class WalletStore {
         addresses: { ...wallet.addresses, ...data.addresses },
         name: name,
       });
+  }
+
+  /**
+  * rename a wallet by name
+  */
+  async renameWallet(name: string, newName: string, passphrase?: string) {
+    if (this.wallet(newName)) throw new Error(`Wallet with name - ${newName} already present`);
+    const wallet = this.wallet(name)
+    if (!wallet) throw new Error(`Wallet with name - ${name} not present`);
+    passphrase = passphrase ?? await this.getWalletPassphrase(name);
+    await this.removeKeychain(name);
+    await this.storeKeychain(newName, passphrase)
+    this.wallets = this.wallets
+      .filter((w) => w.name !== name)
+      .concat({
+        ...wallet,
+        name: newName
+      });
+    if (this.defaultWallet === name) {
+      this.defaultWallet = newName
+    }
   }
 
   /**
@@ -211,6 +232,17 @@ export default class WalletStore {
   }
 
   /**
+ * Gets the address for a given wallet name
+ * @param name
+ * @returns The wallet's address if it exists
+ */
+  async getWalletAddressWithoutPassphrase(name: string, prefix: string) {
+    const wallet = this.wallet(name);
+    if (!wallet) return '';
+    return wallet.addresses[prefix] ?? '';
+  }
+
+  /**
  * Gets the address of current wallet
  * @param name
  * @returns The wallet's address if it exists
@@ -227,20 +259,20 @@ export default class WalletStore {
    * @param mnemonic An optional mnemonic to generate the wallet (used on recovery)
    * @returns The newly generated wallet
    */
-  async generateWallet(name: string, passphrase: string, mnemonic: string) {
+  async generateWallet(name: string, passphrase: string, mnemonicOrPrivateKey: string) {
     const wallet = this.wallet(name);
     if (wallet) throw new Error(`Wallet with name - ${name} already stored`);
 
     const addressPrefix = config.get("chain.addressPrefix");
-    const newWallet = await generateWalletFromMnemonic(
+    const newWallet = await generateWalletFromMnemonicOrPrivateKey(
       name,
-      mnemonic,
+      mnemonicOrPrivateKey,
       passphrase,
       addressPrefix,
       getCoinTypeFromPrefix(addressPrefix)
     );
 
-    await keychain.setPassword(KEYCHAIN_SERVICE, name, passphrase);
+    await this.storeKeychain(name, passphrase);
     const address = await newWallet.getAddress(passphrase);
 
     // Store new wallet
@@ -254,6 +286,14 @@ export default class WalletStore {
     });
 
     return newWallet;
+  }
+
+  async storeKeychain(name: string, passphrase: string) {
+    await keychain.setPassword(KEYCHAIN_SERVICE, name, passphrase);
+  }
+
+  async removeKeychain(name: string) {
+    await keychain.deletePassword(KEYCHAIN_SERVICE, name);
   }
 
   /**

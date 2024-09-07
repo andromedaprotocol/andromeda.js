@@ -34,7 +34,7 @@ inquirer.registerPrompt("command", inquirerCommandPrompt);
 async function onStartup() {
   try {
     migrateLegacyEnv();
-    loadDefaultEnv();
+    await loadDefaultEnv();
   } catch (error) {
     console.error(error);
   }
@@ -42,7 +42,6 @@ async function onStartup() {
 
 export async function start() {
   await onStartup();
-  console.clear();
   const inputs = process.argv.slice(2);
   if (inputs.length === 0) {
     await title();

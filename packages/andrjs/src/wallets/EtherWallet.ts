@@ -15,14 +15,14 @@ export default class EtherWallet extends Wallet {
   ) {
     super(name, key, prefix, hdpath)
   }
-  static async fromMnemonic(
+  static async fromMnemonicOrPrivateKey(
     name: string,
-    mnemonic: string,
+    mnemonicOrPrivKey: string,
     password: string,
     prefix: string,
     hdpath = DEFAULT_ETH_HDPATH
   ): Promise<Wallet> {
-    const key = await this.encrypt(mnemonic, password);
+    const key = await this.encrypt(mnemonicOrPrivKey, password);
     return new EtherWallet(name, key, prefix, hdpath);
   }
 
