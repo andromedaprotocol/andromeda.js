@@ -1,6 +1,6 @@
 {
   "name": "@andromedaprotocol/gql",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
@@ -23,26 +23,26 @@
     "dist/**/*"
   ],
   "dependencies": {
-    "@apollo/client": "^3.7.17",
-    "graphql": "^16.7.1",
+    "@apollo/client": "^3.11.8",
+    "graphql": "^16.9.0",
     "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.0",
-    "@graphql-codegen/core": "^4.0.0",
-    "@graphql-codegen/plugin-helpers": "^5.0.1",
-    "@graphql-codegen/schema-ast": "^4.0.0",
-    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/core": "^4.0.2",
+    "@graphql-codegen/plugin-helpers": "^5.0.4",
+    "@graphql-codegen/schema-ast": "^4.1.0",
+    "@graphql-codegen/typescript": "^4.0.9",
     "@graphql-codegen/typescript-apollo-client-helpers": "^2.2.6",
     "@graphql-codegen/typescript-graphql-request": "^5.0.0",
-    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@graphql-codegen/typescript-operations": "^4.2.3",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
-    "@graphql-codegen/visitor-plugin-common": "^4.0.1",
-    "@graphql-tools/utils": "^10.0.4",
-    "@types/node": "^18.14.1",
-    "depcheck": "^1.4.3",
-    "tsc-alias": "^1.8.3",
-    "typescript": "^5.2.2"
+    "@graphql-codegen/visitor-plugin-common": "^4.1.2",
+    "@graphql-tools/utils": "^10.5.4",
+    "@types/node": "^18.19.50",
+    "depcheck": "^1.4.7",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.5.4"
   }
 }
