@@ -51,8 +51,6 @@ export class State {
     const signer = currentWallet
       ? await currentWallet.getWallet(passphrase)
       : undefined;
-    const address = await wallets.currentWalletAddress(passphrase);
-    console.log("Wallet Address - ", address);
     return await displaySpinnerAsync(
       "Connecting Client...",
       () => new Promise<void>((resolve, reject) => {

@@ -3,6 +3,7 @@ import minimist from "minimist";
 import {
   ask,
   baseCommands,
+  displaySpinnerAsync,
   handle,
   loadDefaultEnv,
   migrateLegacyEnv,
@@ -34,7 +35,7 @@ inquirer.registerPrompt("command", inquirerCommandPrompt);
 async function onStartup() {
   try {
     migrateLegacyEnv();
-    await loadDefaultEnv();
+    await displaySpinnerAsync("Loading env..", loadDefaultEnv);
   } catch (error) {
     console.error(error);
   }

@@ -4,11 +4,7 @@ import pc from "picocolors";
 import { Bip39, Random } from "@cosmjs/crypto";
 import Table from "cli-table";
 import { promptWithExit, title } from "..";
-import {
-  clearPreviousLines,
-  logTableConfig,
-  ordinalSuffix,
-} from "../common";
+import { clearPreviousLines, displaySpinnerAsync, logTableConfig, ordinalSuffix } from "../common";
 import config from "../config";
 import State, { StoredWalletData } from "../state";
 import { Commands } from "../types";
@@ -17,116 +13,145 @@ import state from "state/State";
 const store = State.wallets;
 
 const commands: Commands = {
-  recover: {
-    handler: recoverWalletHandler,
-    color: pc.green,
-    description:
-      "Add a wallet using mnemonic or private key",
-    usage: "wallets recover <name> <passphrase> <mnemonic|private_key>",
-    inputs: [
-      {
-        requestMessage: "Input Wallet Name:",
-        validate: (input: string) => {
-          const wallet = store.wallet(input);
-          return typeof wallet === "undefined"
-            ? true
-            : "Wallet name already in use for this chain";
-        },
-        transform: parseWalletName,
-      },
-      {
-        requestMessage: "Input Passphrase:",
-        validate: (input: string) => input.length > 0,
-        hiddenInput: true,
-      },
-      {
-        requestMessage: "Input Mnemonic or Private Key:",
-        validate: (input: string) => input.trim().length > 0,
-        hiddenInput: false,
-      },
-    ],
-  },
-  generate: {
-    handler: generateWalletHandler,
-    color: pc.green,
-    description:
-      "Generates a new wallet mnemonic",
-    usage: "wallets generate <name> <passphrase>",
-    inputs: [
-      {
-        requestMessage: "Input Wallet Name:",
-        validate: (input: string) => {
-          const wallet = store.wallet(input);
-          return typeof wallet === "undefined"
-            ? true
-            : "Wallet name already in use for this chain";
-        },
-        transform: parseWalletName,
-      },
-      {
-        requestMessage: "Input Passphrase:",
-        validate: (input: string) => input.length > 0,
-        hiddenInput: true,
-      },
-    ],
-  },
-  rm: {
-    handler: removeWalletHandler,
-    color: pc.red,
-    description: "Remove a wallet by address",
-    usage: "wallets rm <name>",
-    inputs: [
-      {
-        requestMessage: "Select wallet to remove:",
-        options: () =>
-          store.wallets.map(wallet => wallet.name),
-      },
-    ],
-  },
-  rename: {
-    handler: renameWalletHandler,
-    color: pc.red,
-    description: "Remove a wallet by address",
-    usage: "wallets rm <name>",
-    disabled: () => !State.wallets.currentWallet,
-    inputs: [
-      {
-        requestMessage: "New Name for wallet:",
-      },
-    ],
-  },
-  'migrate-legacy': {
-    handler: migrateLegacyWalletHandler,
-    color: pc.red,
-    description: "Migrates a legacy wallet that was created with old cli version",
-    usage: "wallets migrate-legacy <name>",
-    inputs: [
-      {
-        requestMessage: "Select wallet to migrate:",
-        options: () =>
-          store.legacyWallets.map(wallet => wallet.name),
-      },
-    ],
-  },
-  use: {
-    handler: useWalletHandler,
-    color: pc.blue,
-    description: "Sets the default wallet to use",
-    usage: "wallets use <name>",
-    inputs: [
-      {
-        requestMessage: "Select wallet to use:",
-        options: () =>
-          store.wallets.map(wallet => wallet.name),
-      },
-    ],
-  },
-  list: {
-    handler: listWalletsHandler,
-    color: pc.white,
-    description: "Lists all added wallets",
-    usage: "wallets list",
-  },
+    recover: {
+        handler: recoverWalletHandler,
+        color: pc.green,
+        description: "Add a wallet using mnemonic or private key",
+        usage: "wallets recover <name> <passphrase> <mnemonic|private_key>",
+        inputs: [
+            {
+                requestMessage: "Input Wallet Name:",
+                validate: (input: string) => {
+                    const wallet = store.wallet(input);
+                    return typeof wallet === "undefined"
+                        ? true
+                        : "Wallet name already in use for this chain";
+                },
+                transform: parseWalletName,
+            },
+            {
+                requestMessage: "Input Passphrase:",
+                validate: (input: string) => input.length > 0,
+                hiddenInput: true,
+            },
+            {
+                requestMessage: "Input Mnemonic or Private Key:",
+                validate: (input: string) => input.trim().length > 0,
+                hiddenInput: false,
+            },
+        ],
+    },
+    generate: {
+        handler: generateWalletHandler,
+        color: pc.green,
+        description: "Generates a new wallet mnemonic",
+        usage: "wallets generate <name> <passphrase>",
+        inputs: [
+            {
+                requestMessage: "Input Wallet Name:",
+                validate: (input: string) => {
+                    const wallet = store.wallet(input);
+                    return typeof wallet === "undefined"
+                        ? true
+                        : "Wallet name already in use for this chain";
+                },
+                transform: parseWalletName,
+            },
+            {
+                requestMessage: "Input Passphrase:",
+                validate: (input: string) => input.length > 0,
+                hiddenInput: true,
+            },
+        ],
+    },
+    rm: {
+        handler: removeWalletHandler,
+        color: pc.red,
+        description: "Remove a wallet by address",
+        usage: "wallets rm <name>",
+        inputs: [
+            {
+                requestMessage: "Select wallet to remove:",
+                options: () => store.wallets.map((wallet) => wallet.name),
+            },
+        ],
+    },
+    rename: {
+        handler: renameWalletHandler,
+        color: pc.white,
+        description: "Remove a wallet by address",
+        usage: "wallets rm <name>",
+        disabled: () => !State.wallets.currentWallet,
+        inputs: [
+            {
+                requestMessage: "New Name for wallet:",
+            },
+        ],
+    },
+    "migrate-legacy": {
+        handler: migrateLegacyWalletHandler,
+        color: pc.gray,
+        description:
+            "Migrates a legacy wallet that was created with old cli version",
+        usage: "wallets migrate-legacy <name>",
+        inputs: [
+            {
+                requestMessage: "Select wallet to migrate:",
+                options: () => store.legacyWallets.map((wallet) => wallet.name),
+            },
+        ],
+    },
+    use: {
+        handler: useWalletHandler,
+        color: pc.blue,
+        description: "Sets the default wallet to use",
+        usage: "wallets use <name> [passphrase]",
+        inputs: [
+            {
+                requestMessage: "Select wallet to use:",
+                options: () => store.wallets.map((wallet) => wallet.name),
+            }
+        ],
+    },
+    list: {
+        handler: listWalletsHandler,
+        color: pc.white,
+        description: "Lists all added wallets",
+        usage: "wallets list",
+    },
+    reveal: {
+        handler: revealWalletHandler,
+        color: pc.red,
+        description: "Reveal wallet Mnemonic or Private Key",
+        usage: "wallets reveal <name> <passphrase>",
+        inputs: [
+            {
+                requestMessage: "Select wallet:",
+                options: () => store.wallets.map((wallet) => wallet.name),
+            },
+            {
+                requestMessage: "Input Passphrase:",
+                validate: (input: string) => input.length > 0,
+                hiddenInput: true,
+            },
+        ],
+    },
+    'autosave': {
+        handler: autosaveWalletHandler,
+        color: pc.white,
+        description: "Password are stored in keychain so you don't need to enter password everytimg. Use this setting to disable default feature.",
+        usage: "wallets autosave <enable|disable>",
+        inputs: [
+            {
+                requestMessage: "Select wallet: ",
+                options: () => store.wallets.map((wallet) => wallet.name),
+            },
+            {
+                requestMessage: "Autosave: ",
+                options: ['enable', 'disable'],
+            },
+        ],
+    },
 };
 
 /**
@@ -135,17 +160,17 @@ const commands: Commands = {
  * @returns Whether the probided mnemonic is valid
  */
 async function validateMnemonic(input: string) {
-  if (
-    !input ||
-    input.length === 0 ||
-    !(
-      input.split(" ").filter((str) => str.trim().length > 0).length === 24 ||
-      input.split(" ").filter((str) => str.trim().length > 0).length === 12
+    if (
+        !input ||
+        input.length === 0 ||
+        !(
+            input.split(" ").filter((str) => str.trim().length > 0).length === 24 ||
+            input.split(" ").filter((str) => str.trim().length > 0).length === 12
+        )
     )
-  )
-    return false;
+        return false;
 
-  return true;
+    return true;
 }
 
 /**
@@ -154,13 +179,13 @@ async function validateMnemonic(input: string) {
  * @returns The stripped wallet name
  */
 function parseWalletName(name: string) {
-  const parsedName = name.trim().split(" ").join("");
-  if (parsedName.length === 0) {
-    console.log(pc.red("Invalid wallet name"));
-    return "";
-  }
+    const parsedName = name.trim().split(" ").join("");
+    if (parsedName.length === 0) {
+        console.log(pc.red("Invalid wallet name"));
+        return "";
+    }
 
-  return parsedName;
+    return parsedName;
 }
 
 /**
@@ -170,63 +195,62 @@ function parseWalletName(name: string) {
  * @returns
  */
 async function recoverWalletHandler(input: string[]) {
-  let [name, passphrase, ...mnemonicOrPrivateKey] = input;
+    let [name, passphrase, ...mnemonicOrPrivateKey] = input;
 
-  let phrase = mnemonicOrPrivateKey.join(' ');
+    let phrase = mnemonicOrPrivateKey.join(" ");
 
-  if (mnemonicOrPrivateKey.length > 1) {
-    const valid = await validateMnemonic(phrase);
-    if (!valid) {
-      console.error(pc.red("Invalid mnemonic"));
-      const mnemonicInput = await promptWithExit({
-        type: "input",
-        message: "Input the wallet mnemonic:",
-        name: "addwalletmnemonic",
-        validate: (input: string) => {
-          return input.trim().length > 0;
-        },
-      });
-      phrase = mnemonicInput.addwalletmnemonic.trim();
+    if (mnemonicOrPrivateKey.length > 1) {
+        const valid = await validateMnemonic(phrase);
+        if (!valid) {
+            console.error(pc.red("Invalid mnemonic"));
+            const mnemonicInput = await promptWithExit({
+                type: "input",
+                message: "Input the wallet mnemonic:",
+                name: "addwalletmnemonic",
+                validate: (input: string) => {
+                    return input.trim().length > 0;
+                },
+            });
+            phrase = mnemonicInput.addwalletmnemonic.trim();
+        }
     }
-  }
 
-  if (phrase === "exit") return;
-  if (!phrase.includes(' ')) {
-    // If there is a space in phrase, then its probably private key
-    const confirmed: boolean = await promptWithExit({
-      name: "confirmprivatekey",
-      type: "confirm",
-      message: `Private Key are for advanced users, you will find mismatch in addresses. Do you want to proceed?`,
-    }).then(res => res.confirmprivatekey);
-    if (!confirmed) {
-      console.log("\nOperation Aborted!\n");
-      return
-    };
-  }
+    if (phrase === "exit") return;
+    if (!phrase.includes(" ")) {
+        // If there is a space in phrase, then its probably private key
+        const confirmed: boolean = await promptWithExit({
+            name: "confirmprivatekey",
+            type: "confirm",
+            message: `Private Key are for advanced users, you will find mismatch in addresses. Do you want to proceed?`,
+        }).then((res) => res.confirmprivatekey);
+        if (!confirmed) {
+            console.log("\nOperation Aborted!\n");
+            return;
+        }
+    }
 
-  if (passphrase.length > 0) {
-    await promptWithExit({
-      name: "repeatphrase",
-      validate: (input: string) => {
-        if (passphrase !== input) return "Passphrases do not match";
+    if (passphrase.length > 0) {
+        await promptWithExit({
+            name: "repeatphrase",
+            validate: (input: string) => {
+                if (passphrase !== input) return "Passphrases do not match";
 
-        return true;
-      },
-      message: "Repeat your passphrase:",
-      type: "password",
-    });
-  }
+                return true;
+            },
+            message: "Repeat your passphrase:",
+            type: "password",
+        });
+    }
 
-  console.log("");
-  try {
-    const wallet = await store.generateWallet(name, passphrase, phrase);
-    await setCurrentWallet(wallet, passphrase)
-    console.log(pc.green(`Wallet ${name} added!`));
-  } catch (error) {
-    console.error(pc.red(error as string));
-    return;
-  }
-
+    console.log("");
+    try {
+        const wallet = await store.generateWallet(name, passphrase, phrase);
+        await setCurrentWallet(wallet, passphrase);
+        console.log(pc.green(`Wallet ${name} added!`));
+    } catch (error) {
+        console.error(pc.red(error as string));
+        return;
+    }
 }
 
 /**
@@ -236,41 +260,37 @@ async function recoverWalletHandler(input: string[]) {
  * @returns
  */
 async function generateWalletHandler(input: string[]) {
-  let [name, passphrase] = input;
+    let [name, passphrase] = input;
 
-  if (passphrase.length > 0) {
-    await promptWithExit({
-      name: "repeatphrase",
-      validate: (input: string) => {
-        if (passphrase !== input) return "Passphrases do not match";
+    if (passphrase.length > 0) {
+        await promptWithExit({
+            name: "repeatphrase",
+            validate: (input: string) => {
+                if (passphrase !== input) return "Passphrases do not match";
 
-        return true;
-      },
-      message: "Repeat your passphrase:",
-      type: "password",
-    });
-  }
+                return true;
+            },
+            message: "Repeat your passphrase:",
+            type: "password",
+        });
+    }
 
-  console.log("");
-  const length = 4 * Math.floor((11 * 24) / 33);
-  const entropy = Random.getBytes(length);
-  const mnemonic = Bip39.encode(entropy).toString();
-  await newWalletConfirmation(mnemonic);
+    console.log("");
+    const length = 4 * Math.floor((11 * 24) / 33);
+    const entropy = Random.getBytes(length);
+    const mnemonic = Bip39.encode(entropy).toString();
+    await newWalletConfirmation(mnemonic);
 
-  const newWallet = await store.generateWallet(
-    name,
-    passphrase,
-    mnemonic
-  );
+    const newWallet = await store.generateWallet(name, passphrase, mnemonic);
 
-  try {
-    await newWallet.getWallet(passphrase);
-  } catch (error) {
-    console.error(pc.red(error as string));
-    return;
-  }
-  console.log(pc.green(`Wallet ${name} added!`));
-  await setCurrentWallet(newWallet, passphrase);
+    try {
+        await newWallet.getWallet(passphrase);
+    } catch (error) {
+        console.error(pc.red(error as string));
+        return;
+    }
+    console.log(pc.green(`Wallet ${name} added!`));
+    await setCurrentWallet(newWallet, passphrase);
 }
 
 /**
@@ -278,49 +298,49 @@ async function generateWalletHandler(input: string[]) {
  * @param seed The seed phrase for the wallet
  */
 async function newWalletConfirmation(seed: string) {
-  console.log();
-  console.log("Your seed phrase is:");
-  console.log(pc.bold(seed));
-  console.log();
-  console.log(
-    pc.red(
-      pc.bold(
-        "Do not share this with anyone. Please make sure to store this for future reference, without it you cannot recover your wallet."
-      )
-    )
-  );
+    console.log();
+    console.log("Your seed phrase is:");
+    console.log(pc.bold(seed));
+    console.log();
+    console.log(
+        pc.red(
+            pc.bold(
+                "Do not share this with anyone. Please make sure to store this for future reference, without it you cannot recover your wallet."
+            )
+        )
+    );
 
-  let confirmed = false;
-  while (!confirmed) {
-    const confirmSaved = await promptWithExit({
-      name: "confirm",
-      type: "confirm",
-      message: "Have you saved your seed phrase?",
-    });
-    confirmed = confirmSaved.confirm;
-  }
+    let confirmed = false;
+    while (!confirmed) {
+        const confirmSaved = await promptWithExit({
+            name: "confirm",
+            type: "confirm",
+            message: "Have you saved your seed phrase?",
+        });
+        confirmed = confirmSaved.confirm;
+    }
 
-  clearPreviousLines(5);
-  const mnemonicLength = seed.split(" ").length;
-  const inputIndices: number[] = [];
-  while (inputIndices.length < 3) {
-    const index = Math.floor(Math.random() * mnemonicLength);
-    if (!inputIndices.includes(index)) inputIndices.push(index);
-  }
+    clearPreviousLines(5);
+    const mnemonicLength = seed.split(" ").length;
+    const inputIndices: number[] = [];
+    while (inputIndices.length < 3) {
+        const index = Math.floor(Math.random() * mnemonicLength);
+        if (!inputIndices.includes(index)) inputIndices.push(index);
+    }
 
-  for (let i = 0; i < inputIndices.length; i++) {
-    const index = inputIndices.sort((a, b) => a - b)[i];
-    const answer = seed.split(" ")[index];
-    await promptWithExit({
-      name: "input",
-      message: `Input the ${ordinalSuffix(
-        index + 1
-      )} word of your seed phrase:`,
-      validate: (input: string) => {
-        return input.trim() === answer ? true : "Incorrect answer";
-      },
-    });
-  }
+    for (let i = 0; i < inputIndices.length; i++) {
+        const index = inputIndices.sort((a, b) => a - b)[i];
+        const answer = seed.split(" ")[index];
+        await promptWithExit({
+            name: "input",
+            message: `Input the ${ordinalSuffix(
+                index + 1
+            )} word of your seed phrase:`,
+            validate: (input: string) => {
+                return input.trim() === answer ? true : "Incorrect answer";
+            },
+        });
+    }
 }
 
 /**
@@ -328,8 +348,8 @@ async function newWalletConfirmation(seed: string) {
  * @param input
  */
 async function removeWalletHandler(input: string[]) {
-  const [walletId] = input;
-  await removeWalletByName(walletId);
+    const [walletId] = input;
+    await removeWalletByName(walletId);
 }
 
 /**
@@ -337,20 +357,20 @@ async function removeWalletHandler(input: string[]) {
  * @param input
  */
 async function renameWalletHandler(input: string[]) {
-  const [newName] = input;
-  if (!state.wallets.currentWallet) {
-    console.log(pc.red("You need to connect to a wallet first to rename it"))
-    return;
-  }
-  const confirmed = await promptWithExit({
-    name: "rmwalletconfirm",
-    type: "confirm",
-    message: `Are you sure you want to remove wallet ${state.wallets.currentWallet?.name}?`,
-  });
-  if (confirmed) {
-    await store.renameWallet(state.wallets.currentWallet?.name, newName);
-    await title();
-  }
+    const [newName] = input;
+    if (!state.wallets.currentWallet) {
+        console.log(pc.red("You need to connect to a wallet first to rename it"));
+        return;
+    }
+    const confirmed = await promptWithExit({
+        name: "rmwalletconfirm",
+        type: "confirm",
+        message: `Are you sure you want to remove wallet ${state.wallets.currentWallet?.name}?`,
+    });
+    if (confirmed) {
+        await store.renameWallet(state.wallets.currentWallet?.name, newName);
+        await title();
+    }
 }
 
 /**
@@ -358,25 +378,25 @@ async function renameWalletHandler(input: string[]) {
  * @param input
  */
 async function removeWalletByName(input: string) {
-  const wallet = store.getWallet(input.trim());
-  if (!wallet) {
-    throw new Error(`Could not find wallet with name/address ${input.trim()}`);
-  }
-  const confirmed = await promptWithExit({
-    name: "rmwalletconfirm",
-    type: "confirm",
-    message: `Are you sure you want to remove wallet ${wallet.name}?`,
-  });
-  if (confirmed) {
-    await store.removeWallet(input);
-  }
+    const wallet = store.getWallet(input.trim());
+    if (!wallet) {
+        throw new Error(`Could not find wallet with name/address ${input.trim()}`);
+    }
+    const confirmed = await promptWithExit({
+        name: "rmwalletconfirm",
+        type: "confirm",
+        message: `Are you sure you want to remove wallet ${wallet.name}?`,
+    });
+    if (confirmed) {
+        await store.removeWallet(input);
+    }
 }
 
 /**
  * Prints all wallets in table format
  */
 async function listWalletsHandler() {
-  await listWallets(store.wallets);
+    await listWallets(store.wallets);
 }
 
 /**
@@ -384,46 +404,46 @@ async function listWalletsHandler() {
  * @param wallets
  */
 async function listWallets(wallets: StoredWalletData[]) {
-  if (wallets.length === 0) {
-    throw new Error(`No wallets to display
+    if (wallets.length === 0) {
+        throw new Error(`No wallets to display
 
 You can add a wallet by using the add command:
   ${pc.green("wallets add")}
       `);
-  }
-  const walletTable = new Table({
-    ...logTableConfig,
-    colWidths: [2],
-  });
-  const current = store.currentWallet;
+    }
+    const walletTable = new Table({
+        ...logTableConfig,
+        colWidths: [2],
+    });
+    const current = store.currentWallet;
 
-  const chainId = config.get('chain.chainId');
+    const chainId = config.get("chain.chainId");
 
-  for (const wallet of wallets) {
-    // Highlight the currently selected wallet
-    const isCurrent = current && wallet.name === current.name;
-    const addr = wallet.addresses[chainId] || Object.values(wallet.addresses)[0] || '';
-    walletTable.push([
-      isCurrent ? "*" : "",
-      isCurrent ? pc.green(wallet.name) : wallet.name,
-      isCurrent ? pc.green(addr) : addr,
-    ]);
-
-  }
-  console.log(walletTable.toString());
+    for (const wallet of wallets) {
+        // Highlight the currently selected wallet
+        const isCurrent = current && wallet.name === current.name;
+        const addr =
+            wallet.addresses[chainId] || Object.values(wallet.addresses)[0] || "";
+        walletTable.push([
+            isCurrent ? "*" : "",
+            isCurrent ? pc.green(wallet.name) : wallet.name,
+            isCurrent ? pc.green(addr) : addr,
+        ]);
+    }
+    console.log(walletTable.toString());
 }
 
 /**
  * Sets the default wallet for the current chain
  */
 async function useWalletHandler(input: string[]) {
-  const [walletName] = input;
-  const wallet = store.getWallet(walletName);
-  if (!wallet) {
-    throw new Error("Wallet not found");
-  } else {
-    await setCurrentWallet(wallet);
-  }
+    const [walletName, passphrase] = input;
+    const wallet = store.getWallet(walletName);
+    if (!wallet) {
+        throw new Error("Wallet not found");
+    } else {
+        await setCurrentWallet(wallet, passphrase);
+    }
 }
 
 /**
@@ -432,8 +452,8 @@ async function useWalletHandler(input: string[]) {
  * @param input
  */
 async function migrateLegacyWalletHandler(input: string[]) {
-  const [walletId] = input;
-  await migrateLegacyWallet(walletId);
+    const [walletId] = input;
+    await migrateLegacyWallet(walletId);
 }
 
 /**
@@ -442,27 +462,26 @@ async function migrateLegacyWalletHandler(input: string[]) {
  * @param input
  */
 async function migrateLegacyWallet(legacyName: string) {
-  const updatedWallet = await store.migrateLegacyWallet(legacyName);
-  if (!updatedWallet) return;
-  const name = await promptWithExit({
-    name: 'name',
-    type: "input",
-    message: 'Enter new name for the wallet',
-    default: legacyName,
-    validate: (answer) => {
-      const existing = store.wallets[answer.trim()];
-      if (existing) {
-        console.log('Already have a wallet with this name');
-        return false;
-      }
-      return true;
-    }
-  })
-  updatedWallet.name = name.name.trim();
-  store.addWallet(updatedWallet);
-  store.removeLegacyWallet(legacyName);
+    const updatedWallet = await store.migrateLegacyWallet(legacyName);
+    if (!updatedWallet) return;
+    const name = await promptWithExit({
+        name: "name",
+        type: "input",
+        message: "Enter new name for the wallet",
+        default: legacyName,
+        validate: (answer) => {
+            const existing = store.wallets[answer.trim()];
+            if (existing) {
+                console.log("Already have a wallet with this name");
+                return false;
+            }
+            return true;
+        },
+    });
+    updatedWallet.name = name.name.trim();
+    store.addWallet(updatedWallet);
+    store.removeLegacyWallet(legacyName);
 }
-
 
 /**
  * Sets the currently used wallet
@@ -470,20 +489,71 @@ async function migrateLegacyWallet(legacyName: string) {
  * @param autoConnect
  * @returns A signer if the wallet is valid
  */
-export async function setCurrentWallet(wallet: Wallet, passphrase?: string, autoConnect = true) {
-  passphrase = passphrase ?? await store.getWalletPassphrase(wallet.name);
-  const signer = await wallet.getWallet(passphrase);
-  store.defaultWallet = wallet.name;
-  if (!autoConnect) return signer;
+export async function setCurrentWallet(
+    wallet: Wallet,
+    passphrase?: string,
+    autoConnect = true
+) {
+    passphrase = passphrase ?? (await store.getWalletPassphrase(wallet.name));
+    const signer = await wallet.getWallet(passphrase);
+    store.defaultWallet = wallet.name;
+    if (!autoConnect) return signer;
 
-  try {
-    await State.connectClient(passphrase)
-    return signer;
-  } catch (error) {
-    console.warn();
-    console.warn(error);
-    return;
-  }
+    try {
+        await State.connectClient(passphrase);
+        return signer;
+    } catch (error) {
+        console.warn();
+        console.warn(error);
+        return;
+    }
+}
+
+/**
+ * Removes a wallet by name
+ * @param input
+ */
+async function revealWalletHandler(input: string[]) {
+    const [walletId, passphrase] = input;
+    const wallet = store.getWallet(walletId);
+    if (!wallet) {
+        console.log(pc.red(`No wallet with name - ${walletId}`));
+        return;
+    }
+    const reveal = await promptWithExit({
+        message: `Are you sure you want to reveal wallet - ${wallet.name}?`,
+        type: "confirm",
+        name: 'reveal'
+    }).then(res => res.reveal);
+    if (!reveal) return;
+    const mnemonicOrPrivateKey = await wallet.decrypt(passphrase);
+    console.log();
+    if (mnemonicOrPrivateKey.includes(' ')) {
+        console.log(`Wallet Mnemonic: `);
+    } else {
+        console.log(`Wallet Private Key: `)
+    }
+    console.log(pc.green(mnemonicOrPrivateKey));
+    console.log()
+}
+
+/**
+ * Reset keychain for selected wallet
+ * @param input
+ */
+async function autosaveWalletHandler(input: string[]) {
+    const [walletId, autosave] = input;
+    const options = ["enable", "disable"];
+    if (!options.includes(autosave)) {
+        console.log(pc.red(`Invalid autosave option. Valid input - ${options.join(' | ')}`))
+        return;
+    }
+    if (autosave === 'disable') {
+        store.updateWallet(walletId, { storePassword: false });
+        await displaySpinnerAsync("Removing keychain password...", () => store.removeKeychain(walletId));
+    } else {
+        store.updateWallet(walletId, { storePassword: true });
+    }
 }
 
 export default commands;

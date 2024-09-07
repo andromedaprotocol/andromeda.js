@@ -29,6 +29,7 @@ export interface StoredWalletData {
   description?: string;
   key: string;
   type: "phrase" | "private_key";
+  storePassword?: boolean;
   // Any address that has been linked to this wallet during cli interaction
   // Getting address for all chains and wallet can be expensive so better to provide
   // the utility to search a wallet based on past address linked in cli
@@ -134,7 +135,7 @@ export default class WalletStore {
   /**
    * Updates a wallet by name
    */
-  protected updateWallet(name: string, data: Partial<StoredWalletData>) {
+  updateWallet(name: string, data: Partial<StoredWalletData>) {
     const wallet = this.wallet(name);
     if (!wallet) throw new Error(`Wallet with name - ${name} not stored`);
     this.wallets = this.wallets
@@ -196,8 +197,7 @@ export default class WalletStore {
 
     this.wallets = this.wallets.filter((w) => w.name !== name);
 
-    // Remove any stored passphrases for the current wallet
-    await keychain.deletePassword(KEYCHAIN_SERVICE, name);
+    await this.removeKeychain(name);
   }
 
   /**
@@ -252,6 +252,15 @@ export default class WalletStore {
   }
 
   /**
+* Gets the address of current wallet
+* @param name
+* @returns The wallet's address if it exists
+*/
+  async currentWalletAddressWithoutPassphrase() {
+    return this.getWalletAddressWithoutPassphrase(this.currentWallet?.name || '', config.get('chain.addressPrefix'))
+  }
+
+  /**
    * Generates a new wallet and stores it
    * @param chainId The chain ID for the new wallet
    * @param name The wallet's name
@@ -289,6 +298,8 @@ export default class WalletStore {
   }
 
   async storeKeychain(name: string, passphrase: string) {
+    const wallet = this.wallet(name);
+    if (wallet?.storePassword === false) return;
     await keychain.setPassword(KEYCHAIN_SERVICE, name, passphrase);
   }
 
@@ -341,8 +352,7 @@ export default class WalletStore {
     if (!passphrase) {
       passphrase = await promptPassphrase(name);
     }
-
-    await keychain.setPassword(KEYCHAIN_SERVICE, name, passphrase);
+    await this.storeKeychain(name, passphrase)
 
     return passphrase ?? "";
   }
@@ -424,7 +434,7 @@ export default class WalletStore {
     const storedData = this.storageData;
     storedData.wallets = storedData.wallets.filter(wallet => !(wallet.name === name && this.isLegacyWallet(wallet)))
     this.storageData = storedData;
-    await keychain.deletePassword(KEYCHAIN_SERVICE, name);
+    await this.removeKeychain(name)
   }
 
   /**

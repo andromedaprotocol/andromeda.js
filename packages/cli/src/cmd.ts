@@ -233,7 +233,7 @@ export async function listCommands(commands: Commands, prefix?: string) {
   const commandsArray = Object.keys(commands);
   const commandTable = new Table({
     ...logTableConfig,
-    colWidths: [2],
+    // colWidths: [2],
   });
   //Commands are sorted alphabetically with `exit` being the last
   const sortedCommands = commandsArray.sort((a, b) =>
@@ -249,7 +249,7 @@ export async function listCommands(commands: Commands, prefix?: string) {
     try {
       const disabled = cmd.disabled && (await cmd.disabled());
       if (!disabled)
-        commandTable.push(["", cmd.color(cmdName), cmd.description ?? ""]);
+        commandTable.push(["", cmd.color(cmdName), pc.gray(cmd.description ?? "")]);
     } catch (error) {
       errors.push(error);
     }
@@ -257,7 +257,7 @@ export async function listCommands(commands: Commands, prefix?: string) {
 
   if (prefix) {
     log(`Usage:`);
-    log(pc.green(`${prefix ? `${prefix} ` : ""}[cmd]`));
+    log(pc.green(`${prefix ? `${prefix} ` : ""}<cmd>`));
     log();
   }
   log(`Valid commands:`);
