@@ -78,5 +78,12 @@
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.5.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "braces@<3.0.3": ">=3.0.3",
+      "ws@>=7.0.0 <7.5.10": ">=7.5.10",
+      "micromatch@<4.0.8": ">=4.0.8"
+    }
   }
 }

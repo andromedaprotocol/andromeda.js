@@ -463,6 +463,7 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
 export const andromedaAccountParser = (account: Any) => {
   switch (account.typeUrl) {
     case "/injective.types.v1beta1.EthAccount":
+    case "/eth.types.v1.EthAccount":
     case "/ethermint.types.v1.EthAccount": {
       const baseAccount = ModuleAccount.decode(account.value).baseAccount;
       assert(baseAccount);

@@ -64,11 +64,12 @@ export default class AndromedaClient {
     signer?: OfflineSigner | OfflineDirectSigner,
     // Only used for Cosmos Clients
     options?: SigningStargateClientOptions,
+    config?: Partial<ChainClient['config']>,
     rpcClient?: RpcClient
   ) {
     delete this.chainClient;
 
-    this.chainClient = createClient(addressPrefix);
+    this.chainClient = createClient(addressPrefix, config);
 
     // Nibiru rpc somehow doesn't work with HttpBatchClient
     if (!rpcClient && addressPrefix === 'nibi') {
