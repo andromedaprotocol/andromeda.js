@@ -53,6 +53,7 @@ import { fromBase64 } from "@cosmjs/encoding";
 import {
   CometClient,
   HttpBatchClient,
+  RpcClient,
   Tendermint37Client,
 } from "@cosmjs/tendermint-rpc";
 import { Any } from "cosmjs-types/google/protobuf/any";
@@ -71,14 +72,14 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
   async connect(
     endpoint: string,
     signer?: OfflineSigner | OfflineDirectSigner,
-    options?: SigningStargateClientOptions
+    options?: SigningStargateClientOptions,
+    rpcClient?: RpcClient
   ): Promise<void> {
     delete this.signingClient;
     delete this.queryClient;
     this.gasPrice = options?.gasPrice;
     this.signerWallet = signer;
-    const rpcClient = new HttpBatchClient(endpoint);
-    const cometClient = await Tendermint37Client.create(rpcClient);
+    const cometClient = await Tendermint37Client.create(rpcClient ?? new HttpBatchClient(endpoint));
     this.cometClient = cometClient;
     this.queryClient = await CosmWasmClient.create(cometClient);
     this.txQueryClient = await QueryClient.withExtensions(

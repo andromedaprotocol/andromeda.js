@@ -15,7 +15,7 @@ import type { Coin, EncodeObject, OfflineDirectSigner, OfflineSigner } from "@co
 import type { AminoTypes, GasPrice, MsgSendEncodeObject, QueryClient, SigningStargateClient, SigningStargateClientOptions, TxExtension } from "@cosmjs/stargate";
 import type { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import type { Fee, Msg } from "../types";
-import { CometClient } from "@cosmjs/tendermint-rpc";
+import { CometClient, RpcClient } from "@cosmjs/tendermint-rpc";
 
 /**
  * When interacting with any Cosmos chain there may be differences in how they sign messages or how the messages themselves are constructed.
@@ -51,7 +51,8 @@ export default interface ChainClient {
   connect(
     endpoint: string,
     signer?: OfflineSigner | OfflineDirectSigner,
-    options?: SigningStargateClientOptions
+    options?: SigningStargateClientOptions,
+    rpcClient?: RpcClient
   ): Promise<void>;
   /**
    * Disconnects from the current chain completely

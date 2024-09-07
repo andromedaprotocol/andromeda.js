@@ -16,6 +16,7 @@ import type { ChainClient } from "./clients";
 import createClient from "./clients";
 import type { Fee, Msg } from "./types";
 import ADOSchemaAPI from "api/ADOSchemaAPI";
+import { HttpClient, RpcClient } from "@cosmjs/tendermint-rpc";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
@@ -34,8 +35,12 @@ export default class AndromedaClient {
   // API for aOS
   public os = new OperatingSystemAPI(this);
 
-  constructor({ schemaUrl }: { schemaUrl: string }) {
+  // Default use batch client, some rpcs might not support it so set this to false for those chains
+  public useBatchClient = true;
+
+  constructor({ schemaUrl, useBatchClient }: { schemaUrl: string, useBatchClient?: boolean }) {
     this.schema = new ADOSchemaAPI(schemaUrl, this);
+    this.useBatchClient = useBatchClient ?? true
   }
 
   /**
@@ -58,12 +63,18 @@ export default class AndromedaClient {
     addressPrefix: string,
     signer?: OfflineSigner | OfflineDirectSigner,
     // Only used for Cosmos Clients
-    options?: SigningStargateClientOptions
+    options?: SigningStargateClientOptions,
+    rpcClient?: RpcClient
   ) {
     delete this.chainClient;
 
     this.chainClient = createClient(addressPrefix);
-    await this.chainClient.connect(endpoint, signer, options);
+
+    // Nibiru rpc somehow doesn't work with HttpBatchClient
+    if (!rpcClient && addressPrefix === 'nibi') {
+      rpcClient = new HttpClient(endpoint);
+    }
+    await this.chainClient.connect(endpoint, signer, options, rpcClient);
     await this.assignKeyAddresses(kernelAddress);
   }
 
