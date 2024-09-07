@@ -330,11 +330,27 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
       this.config.storeCodeEvent,
       "code_id"
     );
-    const checksumAttr = findAttribute(
-      logs,
-      this.config.storeCodeEvent,
-      "checksum"
-    );
+    const codeId = Number(JSON.parse(codeIdAttr.value));
+
+    let checksum = ""
+    try {
+      const checksumAttr = findAttribute(
+        logs,
+        this.config.storeCodeEvent,
+        "checksum"
+      );
+      checksum = checksumAttr.value
+    } catch (err) {
+      try {
+        const checksumAttr = findAttribute(
+          logs,
+          this.config.storeCodeEvent,
+          "code_checksum"
+        );
+        checksum = checksumAttr.value
+      } catch (err) {
+      }
+    }
     return {
       events: tx.events,
       gasUsed: tx.gasUsed,
@@ -342,10 +358,10 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
       height: tx.height,
       transactionHash: tx.transactionHash,
       logs,
-      codeId: parseInt(codeIdAttr.value),
+      codeId: codeId,
       originalSize: code.length,
       compressedSize: encodeMsg.value.wasmByteCode?.length || 0,
-      checksum: checksumAttr.value,
+      checksum: checksum,
     };
   }
 
