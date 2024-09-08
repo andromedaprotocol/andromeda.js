@@ -49,6 +49,7 @@ export default class WalletStore {
 
   /**
    * Gets the data stored in the config file
+   * @note This method reads from the file
    */
   protected get storageData(): StoredData {
     try {
@@ -72,22 +73,25 @@ export default class WalletStore {
   }
 
   /**
-   * Writes new data to storage, overriding any current data, called when a default wallet is updated or a wallet is added/removed
+   * Writes new data to storage, overriding any current data
+   * @note This method writes to the file
    */
   protected set storageData(newData: StoredData) {
     writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(newData));
   }
 
   /**
-   * Gets the default wallets for each chain
-   * @returns A mapping between chain ID and wallet name
+   * Gets the default wallet name
+   * @returns The name of the default wallet
    */
   get defaultWallet() {
     return this.storageData.default;
   }
 
   /**
-   * Writes a new default wallets object to storage
+   * Sets the default wallet name
+   * @param defaultWallet The name of the new default wallet
+   * @note This method indirectly writes to the file by calling storageData setter
    */
   set defaultWallet(defaultWallet: string) {
     const newData: StoredData = {
@@ -113,6 +117,7 @@ export default class WalletStore {
 
   /**
    * Writes new wallets to stored data, used when a wallet is added/removed
+   * @note This method indirectly writes to the file by calling storageData setter
    */
   protected set wallets(wallets: StoredData["wallets"]) {
     const newData = {
@@ -133,7 +138,11 @@ export default class WalletStore {
   }
 
   /**
-   * Updates a wallet by name
+   * Updates a wallet's data
+   * @param name The name of the wallet to update
+   * @param data The partial data to update the wallet with
+   * @throws Error if the wallet is not found
+   * @note This method indirectly writes to the file by calling wallets setter
    */
   updateWallet(name: string, data: Partial<StoredWalletData>) {
     const wallet = this.wallet(name);
@@ -150,6 +159,11 @@ export default class WalletStore {
 
   /**
   * rename a wallet by name
+  * @param name The current name of the wallet
+  * @param newName The new name for the wallet
+  * @param passphrase Optional passphrase for the wallet
+  * @throws Error if the new name is already taken or the wallet is not found
+  * @note This method indirectly writes to the file by calling wallets setter and defaultWallet setter
   */
   async renameWallet(name: string, newName: string, passphrase?: string) {
     if (this.wallet(newName)) throw new Error(`Wallet with name - ${newName} already present`);
@@ -172,6 +186,7 @@ export default class WalletStore {
   /**
    * Adds a new wallet to storage
    * @param walletData The new wallet data
+   * @note This method indirectly writes to the file by calling wallets setter
    */
   addWallet(walletData: StoredWalletData) {
     const wallet = this.wallet(walletData.name);
@@ -182,6 +197,7 @@ export default class WalletStore {
   /**
    * Removes a wallet by its name
    * @param name The name of the wallet to remove
+   * @note This method indirectly writes to the file by calling wallets setter and defaultWallet setter
    */
   async removeWallet(name: string) {
     name = name.trim();
@@ -219,6 +235,7 @@ export default class WalletStore {
   /**
    * Gets the address for a given wallet name
    * @param name
+   * @param passphrase Optional passphrase for the wallet to bypass keychain
    * @returns The wallet's address if it exists
    */
   async getWalletAddress(name: string, passphrase?: string) {
@@ -234,6 +251,7 @@ export default class WalletStore {
   /**
  * Gets the address for a given wallet name
  * @param name
+ * @param passphrase Optional passphrase for the wallet to bypass keychain
  * @returns The wallet's address if it exists
  */
   async getWalletAddressWithoutPassphrase(name: string, prefix: string) {
@@ -245,6 +263,7 @@ export default class WalletStore {
   /**
  * Gets the address of current wallet
  * @param name
+ * @param passphrase Optional passphrase for the wallet to bypass keychain
  * @returns The wallet's address if it exists
  */
   async currentWalletAddress(passphrase?: string) {
@@ -262,11 +281,12 @@ export default class WalletStore {
 
   /**
    * Generates a new wallet and stores it
-   * @param chainId The chain ID for the new wallet
    * @param name The wallet's name
    * @param passphrase A passphrase to encrypt the wallet key
-   * @param mnemonic An optional mnemonic to generate the wallet (used on recovery)
+   * @param mnemonicOrPrivateKey The mnemonic or private key to generate the wallet
    * @returns The newly generated wallet
+   * @throws Error if a wallet with the given name already exists
+   * @note This method indirectly writes to the file by calling addWallet
    */
   async generateWallet(name: string, passphrase: string, mnemonicOrPrivateKey: string) {
     const wallet = this.wallet(name);
@@ -297,12 +317,24 @@ export default class WalletStore {
     return newWallet;
   }
 
+  /**
+   * Stores the passphrase for a wallet in the keychain
+   * @param name The name of the wallet
+   * @param passphrase The passphrase to store
+   * @note This method writes to the system's keychain, not the file
+   */
   async storeKeychain(name: string, passphrase: string) {
     const wallet = this.wallet(name);
+    // If wallet is not set to store password, do not store in keychain
     if (wallet?.storePassword === false) return;
     await keychain.setPassword(KEYCHAIN_SERVICE, name, passphrase);
   }
 
+  /**
+   * Removes the passphrase for a wallet from the keychain
+   * @param name The name of the wallet
+   * @note This method removes data from the system's keychain, not the file
+   */
   async removeKeychain(name: string) {
     await keychain.deletePassword(KEYCHAIN_SERVICE, name);
   }
@@ -344,6 +376,7 @@ export default class WalletStore {
    * If the keychain does not have a passphrase for the wallet the user is prompted for it.
    * @param name
    * @returns The passphrase for the given wallet
+   * @note This method may indirectly write to the file by calling storeKeychain
    */
   async getWalletPassphrase(name: string) {
     // Check keychain

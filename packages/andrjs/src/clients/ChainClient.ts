@@ -37,16 +37,20 @@ export default interface ChainClient {
   gasPrice?: GasPrice;
 
   config: {
+    // Some chains have different event names for the store code message
     storeCodeEvent: string,
+    // Custom pubkey type url
     accountPubKeyTypeUrl?: string;
+    // Default fee multiplier for gas estimation
     defaultFeeMultiplier: number;
   }
 
   /**
-   * Connects to the given chain. Assigns all clients used within the chain client, if a signer is provided a signing client is assigned
-   * @param endpoint
-   * @param signer
-   * @param options
+   * Connects to the given chain. Assigns all clients used within the chain client, if a signer is provided a signing client is assigned.
+   * @param endpoint - The endpoint URL of the chain.
+   * @param signer - Optional signer for transactions.
+   * @param options - Optional SigningStargateClient options.
+   * @param rpcClient - Optional RPC client.
    */
   connect(
     endpoint: string,
@@ -253,11 +257,10 @@ export default interface ChainClient {
     msg: Msg
   ): MsgMigrateContractEncodeObject;
   /**
-   * Converts a migrate message to an EncodeObject for signing or simulating
-   * @param address
-   * @param codeId
-   * @param msg
-   * @returns
+   * Converts a send message to an EncodeObject for signing or simulating.
+   * @param receivingAddress - The address receiving the tokens.
+   * @param amount - The amount of tokens to send.
+   * @returns The encoded send message.
    */
   encodeSendMessage(
     receivingAddress: string,

@@ -50,7 +50,10 @@ const commands: Commands = {
     },
 };
 
-
+/**
+ * Changes the current environment
+ * @param input - The environment to use
+ */
 async function useHandler(input: string[]) {
     const [env] = input;
     loadEnv(env);
@@ -60,6 +63,10 @@ async function useHandler(input: string[]) {
     await title();
 }
 
+/**
+ * Updates the current environment
+ * @param input - The key and value to update
+ */
 async function updateHandler(input: string[]) {
     const [key, value] = input;
     if (!ALLOWED_UPDATE_FIELDS.includes(key.trim() as typeof ALLOWED_UPDATE_FIELDS[number])) {

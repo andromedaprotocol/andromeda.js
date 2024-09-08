@@ -315,6 +315,7 @@ async function setKey(key: string, value: string) {
 async function listConfigsHandler() {
   const configTable = new Table(logTableConfig);
   configTable.push([pc.bold("Name"), pc.bold("Chain ID")]);
+  // TODO: Add a flag to show all chains, not just local chains
   [...localChains.get('chains')].forEach((chainConfig) =>
     config.get("chain.name") === chainConfig.name
       ? configTable.push([
@@ -354,7 +355,7 @@ async function useConfigHandler(input: string[]) {
     await setCurrentWallet(wallet);
   } else {
     // If no wallet, connect the client without a signer
-    async () => await State.connectClient()
+    await State.connectClient()
   }
   await title();
 }

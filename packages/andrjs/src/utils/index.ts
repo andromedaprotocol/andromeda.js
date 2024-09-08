@@ -6,7 +6,7 @@ import { bech32 } from "bech32";
  * @returns
  */
 export function encode(data: any): string {
-  return Buffer.from(JSON.stringify(data)).toString("base64");
+    return Buffer.from(JSON.stringify(data)).toString("base64");
 }
 
 /**
@@ -16,12 +16,12 @@ export function encode(data: any): string {
  * @returns
  */
 export function validateAddress(addr: string, addressPrefix?: string) {
-  try {
-    const resp = bech32.decode(addr);
-    return !addressPrefix || resp.prefix === addressPrefix;
-  } catch (error) {
-    throw error;
-  }
+    try {
+        const resp = bech32.decode(addr);
+        return !addressPrefix || resp.prefix === addressPrefix;
+    } catch (error) {
+        throw error;
+    }
 }
 
 /**
@@ -31,8 +31,10 @@ export function validateAddress(addr: string, addressPrefix?: string) {
  * @returns
  */
 export function getTxExplorerURL(hash: string, url: string) {
-  if (!url.includes("${txHash}"))
-    throw new Error("Provided URL does not include '${txHash}'");
+    if (!url.includes("${txHash}"))
+        throw new Error("Provided URL does not include '${txHash}'");
 
-  return url.replace("${txHash}", hash);
+    return url.replace("${txHash}", hash);
 }
+
+export * from "./denom";
