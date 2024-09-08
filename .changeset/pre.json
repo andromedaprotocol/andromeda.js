@@ -1,0 +1,13 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@andromedaprotocol/adocodegen": "1.0.0",
+    "@andromedaprotocol/andromeda.js": "1.0.0",
+    "@andromedaprotocol/cli": "1.0.1",
+    "@andromedaprotocol/gql": "1.0.0"
+  },
+  "changesets": [
+    "shaggy-carrots-serve"
+  ]
+}

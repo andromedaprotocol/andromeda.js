@@ -1,5 +1,11 @@
 # @andromedaprotocol/gql
 
+## 1.0.1-beta.0
+
+### Patch Changes
+
+- https://github.com/andromedaprotocol/andromeda.js/pull/117#issue-2511612740
+
 ## 1.0.0
 
 ### Major Changes
