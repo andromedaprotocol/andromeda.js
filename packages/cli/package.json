@@ -11,7 +11,7 @@
     "andr": "dist/cli.js"
   },
   "scripts": {
-    "start": "nodemon --exec \"npm run\" dev",
+    "start": "ANDR_CONFIG_DIR='./.andr-cli-test' nodemon --exec \"npm run\" dev",
     "start:windows": "nodemon --exec \"npm run\" build",
     "create": "npm run build && npm run test",
     "build": "rimraf ./dist && tsc -p tsconfig.build.json && tsc-alias tsc -p tsconfig.build.json",
@@ -20,7 +20,7 @@
     "test": "jest",
     "tsc": "tsc -p tsconfig.json --noEmit",
     "depcheck": "depcheck",
-    "dev": "ts-node-dev -r tsconfig-paths/register src/cli.ts",
+    "dev": "ANDR_CONFIG_DIR='./.andr-cli-test' ts-node-dev -r tsconfig-paths/register src/cli.ts",
     "list-global": "npm --global ls"
   },
   "keywords": [],
