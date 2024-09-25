@@ -4,7 +4,6 @@ import { Commands } from "../../types";
 import { addressQueryExecuteInjector } from '../ado/common'
 import { queryMessage } from "handlers/wasm";
 import { validateAddressInput } from "handlers/utils";
-const { client } = State;
 
 const commands: Commands = {
   address: {
@@ -25,7 +24,7 @@ const commands: Commands = {
       },
     ],
   },
-  ...addressQueryExecuteInjector(() => client.os.vfs?.address || "", "os vfs", "VFS")
+  ...addressQueryExecuteInjector(() => State.client.os.vfs?.address || "", "os vfs", "VFS")
 };
 
 
@@ -34,14 +33,14 @@ const commands: Commands = {
  * @param input
  */
 async function getPathsHandler(input: string[]) {
-  if (!client.os.vfs || !client.os.vfs.address)
+  if (!State.client.os.vfs || !State.client.os.vfs.address)
     throw new Error("No VFS address for current chain");
 
   const [address] = input;
 
-  const msg = client.os.vfs.pathsMsg(address);
+  const msg = State.client.os.vfs.pathsMsg(address);
 
-  const resp = await queryMessage<Array<string>>(client.os.vfs.address, msg);
+  const resp = await queryMessage<Array<string>>(State.client.os.vfs.address, msg);
   console.log("Paths:");
   resp.forEach(p => {
     console.log(pc.bold(p));
@@ -52,7 +51,7 @@ async function getPathsHandler(input: string[]) {
  * Prints the current chain's ADO DB contract address
  */
 async function getAddressHandler() {
-  console.log(client.os.vfs?.address || "<unset>");
+  console.log(State.client.os.vfs?.address || "<unset>");
 }
 
 export default commands;

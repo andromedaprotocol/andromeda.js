@@ -14,7 +14,7 @@ import {
   writeStorageFile,
 } from "../config/storage";
 import State from "../state";
-import { Commands } from "../types";
+import { Commands, Flags } from "../types";
 import { setCurrentWallet } from "./wallet";
 
 const STORAGE_FILE = "chainConfigs.json";
@@ -33,6 +33,12 @@ const commands: Commands = {
     color: pc.blue,
     description: "Lists all the currently locally saved configs",
     usage: "chain list",
+    flags: {
+      local: {
+        description: "Only show locally saved configs",
+        usage: "--local-only",
+      },
+    },
   },
   use: {
     handler: useConfigHandler,
@@ -312,17 +318,30 @@ async function setKey(key: string, value: string) {
 /**
  * Prints all available config names/chain IDs
  */
-async function listConfigsHandler() {
+async function listConfigsHandler(_input: string[], flags: Flags) {
   const configTable = new Table(logTableConfig);
-  configTable.push([pc.bold("Name"), pc.bold("Chain ID")]);
-  // TODO: Add a flag to show all chains, not just local chains
-  [...localChains.get('chains')].forEach((chainConfig) =>
-    config.get("chain.name") === chainConfig.name
-      ? configTable.push([
-        pc.green(chainConfig.name),
-        pc.green(chainConfig.chainId),
-      ])
-      : configTable.push([chainConfig.name, chainConfig.chainId])
+  configTable.push([pc.bold("Name"), pc.bold("Chain ID"), pc.bold("Type")]);
+
+  if (!flags.local) {
+    const configs = await displaySpinnerAsync(
+      "Loading configs...",
+      async () => [...await queryAllConfigsSafe(), ...localChains.get('chains')]
+    );
+    configs.forEach((chainConfig) => {
+      let data = [chainConfig.name, chainConfig.chainId, chainConfig.chainType];
+      if (config.get("chain.name") === chainConfig.name) {
+        data = data.map(d => pc.green(d));
+      }
+      configTable.push(data);
+    });
+  }
+
+  localChains.get('chains').forEach((chainConfig) =>
+    configTable.push([
+      pc.gray(chainConfig.name),
+      pc.gray(chainConfig.chainId),
+      pc.gray(chainConfig.chainType),
+    ])
   );
   console.log()
   console.log(configTable.toString());

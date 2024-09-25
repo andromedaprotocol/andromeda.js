@@ -17,7 +17,6 @@ import { executeMessage, instantiateMessage, queryMessage } from "../wasm";
 import moduleCommands from "./modules";
 // import operatorCommands from "./operators";
 
-const { client, wallets } = State;
 // Operators have several subcommands, see 'operators.ts'
 // const operatorsHandler = generateHandler(operatorCommands);
 // Modules have several subcommands, see 'modules.ts'
@@ -38,7 +37,7 @@ const commands: Commands = {
           try {
             const adoTypes = displaySpinnerAsync(
               "Fetching ADO types...",
-              async () => await client!.os!.adoDB!.getAllADO()
+              async () => await State.client!.os!.adoDB!.getAllADO()
             );
 
             return adoTypes ?? [];
@@ -131,10 +130,10 @@ const commands: Commands = {
  */
 async function createHandler(input: string[], flags: Flags) {
   const [type] = input;
-  const codeId = await client!.os!.adoDB!.getCodeId(type);
+  const codeId = await State.client!.os!.adoDB!.getCodeId(type);
   const adoSchema = await displaySpinnerAsync(
     `Fetching schema for ${type} (${codeId}) ...`,
-    async () => await client.schema!.getSchemaFromCodeId(codeId)
+    async () => await State.client.schema!.getSchemaFromCodeId(codeId)
   );
 
   const msg = await promptInstantiateMsg(
@@ -151,7 +150,7 @@ async function createHandler(input: string[], flags: Flags) {
  * @returns The codeId of ADO the contract is, errors if address is not a contract
  */
 async function queryCodeId(address: string) {
-  const { codeId } = await client.chainClient!.queryClient!.getContract(address);
+  const { codeId } = await State.client.chainClient!.queryClient!.getContract(address);
   return codeId;
 }
 
@@ -165,12 +164,12 @@ async function queryAdoSchema(address: string) {
 
   // Try to create a fallback type from ado types query
   let fallbackType: string | undefined = undefined;
-  const adoType = await client.ado.getType(address).catch(() => undefined);
+  const adoType = await State.client.ado.getType(address).catch(() => undefined);
   if (adoType) {
     // Trying to prevent unncessary call for version if type query already failed
-    fallbackType = adoType && await client.ado.getVersion(address).then(version => `${adoType}@${version}`).catch(() => undefined);
+    fallbackType = adoType && await State.client.ado.getVersion(address).then(version => `${adoType}@${version}`).catch(() => undefined);
   }
-  const schema = await client.schema!.getSchemaFromCodeId(codeId, undefined, fallbackType);
+  const schema = await State.client.schema!.getSchemaFromCodeId(codeId, undefined, fallbackType);
   return schema;
 }
 
@@ -226,11 +225,11 @@ async function queryInfoHandler(input: string[]) {
   const { type, version, owner, publisher, createdHeight } =
     await displaySpinnerAsync("Querying ADO info...", async () => {
       const info = [
-        client.ado.getType(address),
-        client.ado.getVersion(address),
-        client.ado.getOwner(address),
-        client.ado.getPublisher(address),
-        client.ado.getCreatedHeight(address),
+        State.client.ado.getType(address),
+        State.client.ado.getVersion(address),
+        State.client.ado.getOwner(address),
+        State.client.ado.getPublisher(address),
+        State.client.ado.getCreatedHeight(address),
       ];
       const [type, version, owner, publisher, createdHeight] =
         await Promise.all(info);
@@ -260,13 +259,13 @@ async function queryInfoHandler(input: string[]) {
 async function transferHandler(input: string[], flags: Flags) {
   const [address, recipient] = input;
 
-  const owner = await client.ado.getOwner(address);
-  const currWallet = await wallets.currentWalletAddress();
+  const owner = await State.client.ado.getOwner(address);
+  const currWallet = await State.wallets.currentWalletAddress();
 
   if (!currWallet || owner !== currWallet)
     throw new Error("Cannot transfer an ADO you do not own");
 
-  const msg = client.ado.updateOwnerMsg(recipient);
+  const msg = State.client.ado.updateOwnerMsg(recipient);
   await executeMessage(address, msg, flags, "ADO Transferred!");
 }
 

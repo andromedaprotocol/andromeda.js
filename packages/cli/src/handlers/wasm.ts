@@ -15,7 +15,6 @@ import State from "../state";
 import { Commands, Flags } from "../types";
 import { parseJSONInput, validateAddressInput } from "./utils";
 
-const { client } = State;
 
 export const commands: Commands = {
   query: {
@@ -323,7 +322,7 @@ export async function executeMessage(
   }
   const resp = await displaySpinnerAsync(
     "Executing Tx...",
-    async () => await client.execute(address, msg, fee, memo, msgFunds)
+    async () => await State.client.execute(address, msg, fee, memo, msgFunds)
   );
   console.log();
   console.log(pc.green(successMessage ?? "Transaction executed!"));
@@ -365,7 +364,7 @@ export async function uploadWasm(
 
   const result = await displaySpinnerAsync(
     "Uploading contract binary...",
-    async () => await client.upload(binary, fee)
+    async () => await State.client.upload(binary, fee)
   );
   console.log(successMessage ?? pc.green("Wasm uploaded!"));
   console.log();
@@ -386,7 +385,7 @@ export async function queryMessage<T = any>(
 ): Promise<T> {
   const resp = await displaySpinnerAsync(
     loadingMessage,
-    async () => await client.queryContract<T>(address, msg)
+    async () => await State.client.queryContract<T>(address, msg)
   );
   return resp;
 }
@@ -435,7 +434,7 @@ export async function instantiateMessage(
   const resp = await displaySpinnerAsync(
     "Instantiating your contract...",
     async () =>
-      await client.instantiate(
+      await State.client.instantiate(
         codeId,
         msg,
         label ?? "Instantiation",
@@ -489,7 +488,7 @@ export async function migrateMessage(
   const resp = await displaySpinnerAsync(
     "Migrating your contract...",
     async () =>
-      await client.migrate(contractAddress, codeId, msg, flags.fee, memo)
+      await State.client.migrate(contractAddress, codeId, msg, flags.fee, memo)
   );
   console.log();
   console.log(successMessage ?? pc.green("Contract migrated!"));
@@ -529,7 +528,7 @@ export async function simulateExecuteMessage(
   const feeEstimate = displaySpinnerAsync(
     "Simulating Tx...",
     async () =>
-      await client.estimateExecuteFee(address, msg, msgFunds, undefined, memo)
+      await State.client.estimateExecuteFee(address, msg, msgFunds, undefined, memo)
   );
   return feeEstimate;
 }
@@ -548,7 +547,7 @@ export async function simulateInstantiationMessage(
 ) {
   const feeEstimate = displaySpinnerAsync(
     "Simulating Instantiation Tx...",
-    async () => await client.estimateInstantiationFee(codeId, msg, label)
+    async () => await State.client.estimateInstantiationFee(codeId, msg, label)
   );
   return feeEstimate;
 }
@@ -561,7 +560,7 @@ export async function simulateInstantiationMessage(
 export async function simulateUploadMessage(binary: Uint8Array) {
   const feeEstimate = displaySpinnerAsync(
     "Simulating Upload Tx...",
-    async () => await client.estimateUploadFee(binary)
+    async () => await State.client.estimateUploadFee(binary)
   );
   return feeEstimate;
 }
@@ -580,7 +579,7 @@ export async function simulateMigrate(
 ) {
   const feeEstimate = displaySpinnerAsync(
     "Simulating Migrate Tx...",
-    async () => await client.estimateMigrateFee(address, codeId, msg)
+    async () => await State.client.estimateMigrateFee(address, codeId, msg)
   );
   return feeEstimate;
 }

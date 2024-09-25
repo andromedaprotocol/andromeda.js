@@ -8,9 +8,7 @@ import { clearPreviousLines, displaySpinnerAsync, logTableConfig, ordinalSuffix 
 import config from "../config";
 import State, { StoredWalletData } from "../state";
 import { Commands } from "../types";
-import state from "state/State";
 
-const store = State.wallets;
 
 const commands: Commands = {
     recover: {
@@ -22,7 +20,7 @@ const commands: Commands = {
             {
                 requestMessage: "Input Wallet Name:",
                 validate: (input: string) => {
-                    const wallet = store.wallet(input);
+                    const wallet = State.wallets.getWallet(input);
                     return typeof wallet === "undefined"
                         ? true
                         : "Wallet name already in use for this chain";
@@ -50,7 +48,7 @@ const commands: Commands = {
             {
                 requestMessage: "Input Wallet Name:",
                 validate: (input: string) => {
-                    const wallet = store.wallet(input);
+                    const wallet = State.wallets.getWallet(input);
                     return typeof wallet === "undefined"
                         ? true
                         : "Wallet name already in use for this chain";
@@ -72,7 +70,7 @@ const commands: Commands = {
         inputs: [
             {
                 requestMessage: "Select wallet to remove:",
-                options: () => store.wallets.map((wallet) => wallet.name),
+                options: () => State.wallets.wallets.map((wallet) => wallet.name),
             },
         ],
     },
@@ -97,7 +95,7 @@ const commands: Commands = {
         inputs: [
             {
                 requestMessage: "Select wallet to migrate:",
-                options: () => store.legacyWallets.map((wallet) => wallet.name),
+                options: () => State.wallets.legacyWallets.map((wallet) => wallet.name),
             },
         ],
     },
@@ -109,7 +107,7 @@ const commands: Commands = {
         inputs: [
             {
                 requestMessage: "Select wallet to use:",
-                options: () => store.wallets.map((wallet) => wallet.name),
+                options: () => State.wallets.wallets.map((wallet) => wallet.name),
             }
         ],
     },
@@ -127,7 +125,7 @@ const commands: Commands = {
         inputs: [
             {
                 requestMessage: "Select wallet:",
-                options: () => store.wallets.map((wallet) => wallet.name),
+                options: () => State.wallets.wallets.map((wallet) => wallet.name),
             },
             {
                 requestMessage: "Input Passphrase:",
@@ -144,7 +142,7 @@ const commands: Commands = {
         inputs: [
             {
                 requestMessage: "Select wallet: ",
-                options: () => store.wallets.map((wallet) => wallet.name),
+                options: () => State.wallets.wallets.map((wallet) => wallet.name),
             },
             {
                 requestMessage: "Autosave: ",
@@ -244,7 +242,7 @@ async function recoverWalletHandler(input: string[]) {
 
     console.log("");
     try {
-        const wallet = await store.generateWallet(name, passphrase, phrase);
+        const wallet = await State.wallets.generateWallet(name, passphrase, phrase);
         await setCurrentWallet(wallet, passphrase);
         console.log(pc.green(`Wallet ${name} added!`));
     } catch (error) {
@@ -281,7 +279,7 @@ async function generateWalletHandler(input: string[]) {
     const mnemonic = Bip39.encode(entropy).toString();
     await newWalletConfirmation(mnemonic);
 
-    const newWallet = await store.generateWallet(name, passphrase, mnemonic);
+    const newWallet = await State.wallets.generateWallet(name, passphrase, mnemonic);
 
     try {
         await newWallet.getWallet(passphrase);
@@ -358,17 +356,17 @@ async function removeWalletHandler(input: string[]) {
  */
 async function renameWalletHandler(input: string[]) {
     const [newName] = input;
-    if (!state.wallets.currentWallet) {
+    if (!State.wallets.currentWallet) {
         console.log(pc.red("You need to connect to a wallet first to rename it"));
         return;
     }
     const confirmed = await promptWithExit({
         name: "rmwalletconfirm",
         type: "confirm",
-        message: `Are you sure you want to remove wallet ${state.wallets.currentWallet?.name}?`,
+        message: `Are you sure you want to remove wallet ${State.wallets.currentWallet?.name}?`,
     });
     if (confirmed) {
-        await store.renameWallet(state.wallets.currentWallet?.name, newName);
+        await State.wallets.renameWallet(State.wallets.currentWallet?.name, newName);
         await title();
     }
 }
@@ -378,7 +376,7 @@ async function renameWalletHandler(input: string[]) {
  * @param input
  */
 async function removeWalletByName(input: string) {
-    const wallet = store.getWallet(input.trim());
+    const wallet = State.wallets.getWallet(input.trim());
     if (!wallet) {
         throw new Error(`Could not find wallet with name/address ${input.trim()}`);
     }
@@ -388,7 +386,7 @@ async function removeWalletByName(input: string) {
         message: `Are you sure you want to remove wallet ${wallet.name}?`,
     });
     if (confirmed) {
-        await store.removeWallet(input);
+        await State.wallets.removeWallet(input);
     }
 }
 
@@ -396,7 +394,7 @@ async function removeWalletByName(input: string) {
  * Prints all wallets in table format
  */
 async function listWalletsHandler() {
-    await listWallets(store.wallets);
+    await listWallets(State.wallets.wallets);
 }
 
 /**
@@ -415,7 +413,7 @@ You can add a wallet by using the add command:
         ...logTableConfig,
         colWidths: [2],
     });
-    const current = store.currentWallet;
+    const current = State.wallets.currentWallet;
 
     const chainId = config.get("chain.chainId");
 
@@ -423,7 +421,7 @@ You can add a wallet by using the add command:
         // Highlight the currently selected wallet
         const isCurrent = current && wallet.name === current.name;
         const addr =
-            wallet.addresses[chainId] || Object.values(wallet.addresses)[0] || "";
+            wallet.addresses[chainId] || "";
         walletTable.push([
             isCurrent ? "*" : "",
             isCurrent ? pc.green(wallet.name) : wallet.name,
@@ -438,7 +436,7 @@ You can add a wallet by using the add command:
  */
 async function useWalletHandler(input: string[]) {
     const [walletName, passphrase] = input;
-    const wallet = store.getWallet(walletName);
+    const wallet = State.wallets.getWallet(walletName);
     if (!wallet) {
         throw new Error("Wallet not found");
     } else {
@@ -462,7 +460,7 @@ async function migrateLegacyWalletHandler(input: string[]) {
  * @param input
  */
 async function migrateLegacyWallet(legacyName: string) {
-    const updatedWallet = await store.migrateLegacyWallet(legacyName);
+    const updatedWallet = await State.wallets.migrateLegacyWallet(legacyName);
     if (!updatedWallet) return;
     const name = await promptWithExit({
         name: "name",
@@ -470,7 +468,7 @@ async function migrateLegacyWallet(legacyName: string) {
         message: "Enter new name for the wallet",
         default: legacyName,
         validate: (answer) => {
-            const existing = store.wallets[answer.trim()];
+            const existing = State.wallets.wallets[answer.trim()];
             if (existing) {
                 console.log("Already have a wallet with this name");
                 return false;
@@ -479,8 +477,8 @@ async function migrateLegacyWallet(legacyName: string) {
         },
     });
     updatedWallet.name = name.name.trim();
-    store.addWallet(updatedWallet);
-    store.removeLegacyWallet(legacyName);
+    State.wallets.addWallet(updatedWallet);
+    State.wallets.removeLegacyWallet(legacyName);
 }
 
 /**
@@ -494,9 +492,9 @@ export async function setCurrentWallet(
     passphrase?: string,
     autoConnect = true
 ) {
-    passphrase = passphrase ?? (await store.getWalletPassphrase(wallet.name));
+    passphrase = passphrase ?? (await State.wallets.getWalletPassphrase(wallet.name));
     const signer = await wallet.getWallet(passphrase);
-    store.defaultWallet = wallet.name;
+    State.wallets.defaultWallet = wallet.name;
     if (!autoConnect) return signer;
 
     try {
@@ -515,7 +513,7 @@ export async function setCurrentWallet(
  */
 async function revealWalletHandler(input: string[]) {
     const [walletId, passphrase] = input;
-    const wallet = store.getWallet(walletId);
+    const wallet = State.wallets.getWallet(walletId);
     if (!wallet) {
         console.log(pc.red(`No wallet with name - ${walletId}`));
         return;
@@ -549,10 +547,10 @@ async function autosaveWalletHandler(input: string[]) {
         return;
     }
     if (autosave === 'disable') {
-        store.updateWallet(walletId, { storePassword: false });
-        await displaySpinnerAsync("Removing keychain password...", () => store.removeKeychain(walletId));
+        State.wallets.updateWallet(walletId, { storePassword: false });
+        await displaySpinnerAsync("Removing keychain password...", () => State.wallets.removeKeychain(walletId));
     } else {
-        store.updateWallet(walletId, { storePassword: true });
+        State.wallets.updateWallet(walletId, { storePassword: true });
     }
 }
 

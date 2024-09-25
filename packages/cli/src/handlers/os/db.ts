@@ -5,7 +5,6 @@ import { Commands } from "../../types";
 import { queryMessage } from "../wasm";
 import { addressQueryExecuteInjector } from '../ado/common'
 
-const { client } = State;
 
 const commands: Commands = {
   // TODO: Readd with owner/operator queries
@@ -52,7 +51,7 @@ const commands: Commands = {
     handler: getAddressHandler,
     color: pc.white,
   },
-  ...addressQueryExecuteInjector(() => client.os.adoDB?.address || "", "os adodb", "ADODB")
+  ...addressQueryExecuteInjector(() => State.client.os.adoDB?.address || "", "os adodb", "ADODB")
 };
 
 /**
@@ -98,14 +97,14 @@ const commands: Commands = {
  * @param input
  */
 async function getCodeIdHandler(input: string[]) {
-  if (!client.os.adoDB || !client.os.adoDB.address)
+  if (!State.client.os.adoDB || !State.client.os.adoDB.address)
     throw new Error("No ADO DB address for current chain");
 
   const [adoKey] = input;
 
-  const msg = client.os.adoDB.getCodeIdQuery(adoKey);
+  const msg = State.client.os.adoDB.getCodeIdQuery(adoKey);
 
-  const resp = await queryMessage(client.os.adoDB.address, msg);
+  const resp = await queryMessage(State.client.os.adoDB.address, msg);
 
   console.log(`Code ID: ${pc.bold(resp)}`);
 }
@@ -114,7 +113,7 @@ async function getCodeIdHandler(input: string[]) {
  * Prints the current chain's ADO DB contract address
  */
 async function getAddressHandler() {
-  console.log(client.os.adoDB ? client.os.adoDB.address : "<unset>");
+  console.log(State.client.os.adoDB ? State.client.os.adoDB.address : "<unset>");
 }
 
 export default commands;

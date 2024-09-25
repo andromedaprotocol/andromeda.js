@@ -8,7 +8,6 @@ import { displaySpinnerAsync, promptWithExit, validateAddressInput } from "..";
 import State from "../state";
 import { promptAdoType } from "../handlers/ado/common";
 
-const { client } = State;
 
 // The standard message for sending an NFT
 // This is used for referencing by a specific handler for this message type
@@ -34,8 +33,8 @@ async function requestSendNFT(): Promise<SendNftMsg> {
 
   let msg: string | Record<string, any> = {};
   try {
-    const codeId = (await client.chainClient!.queryClient!.getContract(addressInput.address)).codeId;
-    const schema = await client!.schema!.getSubSchemaFromCodeId(codeId, 'cw721receive').catch(() => undefined);
+    const codeId = (await State.client.chainClient!.queryClient!.getContract(addressInput.address)).codeId;
+    const schema = await State.client.schema!.getSubSchemaFromCodeId(codeId, 'cw721receive').catch(() => undefined);
     if (!schema)
       // Maybe add a issue template here so user can request addition of new schema?
       throw new Error("CW721 receive schema not found. Please provide raw message.");
@@ -182,11 +181,11 @@ export default class SchemaPrompt {
       "ADO Type",
       ["App Component"]
     );
-    const codeId = await client!.os!.adoDB!.getCodeId(adoType);
+    const codeId = await State.client.os!.adoDB!.getCodeId(adoType);
 
     const adoSchema = await displaySpinnerAsync(
       `Fetching Schema for ${adoType}...`,
-      async () => await client.schema!.getSchemaFromCodeId(codeId)
+      async () => await State.client.schema!.getSchemaFromCodeId(codeId)
     );
 
     const msg = await promptInstantiateMsg(adoSchema.schema.instantiate, [
@@ -235,7 +234,7 @@ export default class SchemaPrompt {
 
     let type: number = -1;
     try {
-      const resp = await client.chainClient!.queryClient!.getContract(address)
+      const resp = await State.client.chainClient!.queryClient!.getContract(address)
       type = resp.codeId;
     } catch (error) {
       const typeInput = await promptWithExit({
@@ -244,7 +243,7 @@ export default class SchemaPrompt {
         type: "input",
         validate: async (input: string) => {
           try {
-            await client.os.adoDB!.getCodeId(input);
+            await State.client.os.adoDB!.getCodeId(input);
             return true;
           } catch (error) {
             const { message } = error as Error;
@@ -255,12 +254,12 @@ export default class SchemaPrompt {
           }
         },
       });
-      type = await client.os.adoDB!.getCodeId(typeInput.adoType);
+      type = await State.client.os.adoDB!.getCodeId(typeInput.adoType);
     }
 
     const adoSchema = await displaySpinnerAsync(
       "Fetching schema...",
-      async () => await client.schema!.getSchemaFromCodeId(type)
+      async () => await State.client.schema!.getSchemaFromCodeId(type)
     );
     const msg = await promptQueryOrExecuteMessage(adoSchema.schema.execute);
 
@@ -380,7 +379,7 @@ export default class SchemaPrompt {
   ): Promise<any> {
     // Automatically assign kernel address
     if (name === "kernel_address") {
-      return client.os.address;
+      return State.client.os.address;
     }
 
     if (!required) {

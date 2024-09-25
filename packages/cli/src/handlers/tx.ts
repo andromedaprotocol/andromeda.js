@@ -13,7 +13,6 @@ import { Commands } from "../types";
 import { validateAddressInput } from "./utils";
 import State from "../state";
 
-const { client } = State;
 
 export const commands: Commands = {
   info: {
@@ -55,7 +54,7 @@ export const commands: Commands = {
 async function txInfoHandler(input: string[]) {
   const [hash] = input;
 
-  const txInfo = await client.getTx(hash);
+  const txInfo = await State.client.getTx(hash);
   if (!txInfo) {
     console.log(pc.red("Transaction info not found"));
     return;
@@ -71,7 +70,7 @@ async function txInfoHandler(input: string[]) {
 async function txAddressHandler(inputs: string[]) {
   const [addr] = inputs;
 
-  const txInfo = await client.getAllTxsByAddress(addr);
+  const txInfo = await State.client.getAllTxsByAddress(addr);
 
   if (txInfo.length === 0) throw new Error("No transactions found");
 

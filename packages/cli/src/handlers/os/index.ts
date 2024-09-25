@@ -7,7 +7,6 @@ import vfsCommands from './vfs'
 import { queryMessage } from "../../handlers/wasm";
 import { addressQueryExecuteInjector } from '../ado/common'
 
-const { client } = State;
 
 // The ADO DB has several subcommands, see `db.ts`
 const dbHandler = generateHandler(dbCommands, "os adodb");
@@ -43,7 +42,7 @@ const commands: Commands = {
             },
         ],
     },
-    ...addressQueryExecuteInjector(() => client.os.address, "os", "Kernel")
+    ...addressQueryExecuteInjector(() => State.client.os.address, "os", "Kernel")
 }
 
 
@@ -51,7 +50,7 @@ const commands: Commands = {
  * Prints the current chain's kernel contract address
  */
 async function getAddressHandler() {
-    console.log(client.os.address || "<unset>");
+    console.log(State.client.os.address || "<unset>");
 }
 
 
@@ -60,14 +59,14 @@ async function getAddressHandler() {
  * @param input
  */
 async function getKeyHandler(input: string[]) {
-    if (!client.os?.address)
+    if (!State.client.os?.address)
         throw new Error("No Kernel address for current chain");
 
     const [key] = input;
 
-    const msg = client.os.getKeyAddressMessage(key);
+    const msg = State.client.os.getKeyAddressMessage(key);
 
-    const resp = await queryMessage(client.os.address, msg);
+    const resp = await queryMessage(State.client.os.address, msg);
 
     console.log(`Key Address: ${pc.bold(resp)}`);
 }
