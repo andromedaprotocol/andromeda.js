@@ -98,6 +98,7 @@ const commands: Commands = {
                 options: () => State.wallets.legacyWallets.map((wallet) => wallet.name),
             },
         ],
+        disabled: () => State.wallets.legacyWallets.length === 0,
     },
     use: {
         handler: useWalletHandler,
@@ -137,7 +138,7 @@ const commands: Commands = {
     'autosave': {
         handler: autosaveWalletHandler,
         color: pc.white,
-        description: "Password are stored in keychain so you don't need to enter password everytimg. Use this setting to disable default feature.",
+        description: "Password are stored in keychain so you don't need to enter password everytime. Use this setting to disable default feature.",
         usage: "wallets autosave <enable|disable>",
         inputs: [
             {
@@ -405,8 +406,8 @@ async function listWallets(wallets: StoredWalletData[]) {
     if (wallets.length === 0) {
         throw new Error(`No wallets to display
 
-You can add a wallet by using the add command:
-  ${pc.green("wallets add")}
+You can add a wallet by using the generate command:
+  ${pc.green("wallets generate <name>")}
       `);
     }
     const walletTable = new Table({
