@@ -97,7 +97,7 @@ export async function handle(
       log(pc.red("Command disabled"));
       return;
     }
-    if (flags["--help"] && (commandInput.length === 0 || cmd.inputs)) {
+    if (flags["help"] && (commandInput.length === 0 && cmd.inputs && cmd.inputs.length > 0)) {
       //await printCommandHelp(cmd, commands);
       await listCommands(commands, prefix);
       return;
@@ -149,7 +149,7 @@ export async function handle(
         logError(pc.red("Prompt has been interrupted"));
       } else {
         //Invalid command, print out help text
-        const { message } = error as Error;
+        const { message } = error as Error
         logError(pc.red(`${pc.bold('Error:')} ${message}`));
         log(pc.blue(`Use the ${pc.bold("--help")} flag for help`));
       }
@@ -173,7 +173,6 @@ export function generateHandler(
   ) => {
     await handle(input, flags, commands, prefix);
   };
-
   return handlerFunction;
 }
 

@@ -9,7 +9,7 @@ import { logTableConfig } from "common";
 
 type IEnvConfigKeys = keyof ReturnType<typeof envConfig.getProperties>;
 
-const ALLOWED_UPDATE_FIELDS = ["gql", "name", "schema"] as IEnvConfigKeys[];
+const ALLOWED_UPDATE_FIELDS = ["gql", "schema"] as IEnvConfigKeys[];
 
 const commands: Commands = {
     use: {
@@ -42,6 +42,17 @@ const commands: Commands = {
             }
         ]
     },
+    rename: {
+        handler: renameHandler,
+        usage: "env rename <name>",
+        color: pc.yellow,
+        description: "Rename env",
+        inputs: [
+            {
+                requestMessage: "Enter new name: ",
+            },
+        ]
+    },
     print: {
         handler: printHandler,
         color: pc.white,
@@ -56,7 +67,7 @@ const commands: Commands = {
  */
 async function useHandler(input: string[]) {
     const [env] = input;
-    loadEnv(env);
+    await loadEnv(env);
     state.refresh();
     await state.connectClient();
     console.clear();
@@ -73,10 +84,26 @@ async function updateHandler(input: string[]) {
         console.log(pc.red("Invalid key!"));
         return;
     }
-    if (key === "name") {
-        renameEnv(envConfig.get("name"), value);
-    }
     envConfig.set(key, value);
+    writeStorageFile(
+        envConfig.get("name"),
+        "env.json",
+        JSON.stringify(envConfig.getProperties())
+    );
+    await loadEnv(envConfig.get("name"));
+    state.refresh();
+    await state.connectClient();
+    await title();
+}
+
+/**
+ * Updates the current environment
+ * @param input - The key and value to update
+ */
+async function renameHandler(input: string[]) {
+    const [name] = input;
+    renameEnv(envConfig.get("name"), name);
+    envConfig.set("name", name);
     writeStorageFile(
         envConfig.get("name"),
         "env.json",

@@ -9,14 +9,28 @@ import {
   displaySpinnerAsync,
   executeFlags,
   instantiateFlags,
+  logTableConfig,
   printTransactionUrl,
 } from "../common";
 import State from "../state";
 import { Commands, Flags } from "../types";
 import { parseJSONInput, validateAddressInput } from "./utils";
+import Table from "cli-table";
 
 
 export const commands: Commands = {
+  'info': {
+    handler: infoHandler,
+    color: pc.green,
+    description: "Queries a contract info",
+    usage: "wasm info <contract address>",
+    inputs: [
+      {
+        requestMessage: "Input Contract Address:",
+        validate: validateAddressInput,
+      }
+    ],
+  },
   query: {
     handler: queryHandler,
     color: pc.green,
@@ -38,6 +52,24 @@ export const commands: Commands = {
             console.log(pc.red("Invalid JSON Input"));
             return false;
           }
+        },
+      },
+    ],
+  },
+  'query-raw': {
+    handler: queryRawHandler,
+    color: pc.green,
+    description: "Queries a contract key",
+    usage: "wasm query-raw <contract address> <key>",
+    inputs: [
+      {
+        requestMessage: "Input Contract Address:",
+        validate: validateAddressInput,
+      },
+      {
+        requestMessage: "Input key:",
+        validate: (input: string) => {
+          return input.length > 0;
         },
       },
     ],
@@ -182,6 +214,29 @@ export const commands: Commands = {
  * Queries a contract given a query message and address
  * @param input
  */
+async function infoHandler(input: string[]) {
+  const [contractAddr] = input;
+  const resp = await displaySpinnerAsync(
+    "Querying contract info...",
+    async () => await State.client.chainClient!.queryClient!.getContract(contractAddr)
+  );
+
+  console.log();
+  const infoTable = new Table(logTableConfig);
+  infoTable.push([pc.bold(pc.green("Creator: ")), resp.creator]);
+  infoTable.push([pc.bold(pc.green("Admin: ")), resp.admin ?? "None"]);
+  infoTable.push([pc.bold(pc.green("Code ID: ")), resp.codeId.toString()]);
+  infoTable.push([pc.bold(pc.green("Label: ")), resp.label]);
+  infoTable.push([pc.bold(pc.green("IBC Port ID: ")), resp.ibcPortId ?? "None"]);
+  console.log(infoTable.toString());
+  console.log();
+
+}
+
+/**
+ * Queries a contract given a query message and address
+ * @param input
+ */
 async function queryHandler(input: string[]) {
   const [contractAddr, msg] = input;
 
@@ -189,6 +244,24 @@ async function queryHandler(input: string[]) {
 
   const resp = await queryMessage(contractAddr, parsedMsg);
 
+  console.log(JSON.stringify(resp, null, 2));
+}
+
+/**
+ * Queries a contract given a query message and address
+ * @param input
+ */
+async function queryRawHandler(input: string[]) {
+  const [contractAddr, key] = input;
+  const resp = await displaySpinnerAsync(
+    "Querying contrac key...",
+    async () => await State.client.queryContractRaw<any>(contractAddr, key)
+  );
+  if (resp === null) {
+    console.log(pc.red("No data found at key"));
+    return;
+  }
+  console.log(pc.green("Response: "));
   console.log(JSON.stringify(resp, null, 2));
 }
 
