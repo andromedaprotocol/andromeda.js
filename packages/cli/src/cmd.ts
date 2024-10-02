@@ -8,6 +8,7 @@ import {
   allCommands,
   bankHandler,
   chainHandler,
+  envHandler,
   gqlHandler,
   osHandler,
   txHandler,
@@ -19,6 +20,7 @@ import State from "./state";
 import { Command, Commands } from "./types";
 import { getCurrentPackage, getLatestNpmVersion } from "./utils/npm";
 import { figletAsync } from "utils/fonts";
+import config, { envConfig } from "config";
 
 
 /**
@@ -107,6 +109,12 @@ export const baseCommands: Commands = {
     usage: "gql <cmd>",
     disabled: () => !State.client.isConnected,
   },
+  env: {
+    handler: envHandler,
+    description: "Configure CLI Environment",
+    color: pc.magenta,
+    usage: "env <cmd>",
+  },
   version: {
     handler: async () => {
       const npmPackage = getCurrentPackage()
@@ -133,7 +141,6 @@ export const baseCommands: Commands = {
 export async function title() {
   console.clear();
   // const version = await getLatestNpmVersion();
-
   console.log();
   console.log(
     pc.red(
@@ -170,6 +177,9 @@ export async function title() {
   if (version !== latest) {
     console.log(pc.bold(pc.green("Update available")) + ", update using the following command: " + pc.bgBlack(" npm update -g @andromeda-protocol/cli "));
   }
+  const envMsg = pc.gray("Environment - " + envConfig.get('name') + " , " + `Chain Config - ${config.get('chain.name')}` + " ");
+  console.log(envMsg);
+
   const msg = await figletAsync("Andromeda CLI", {
     font: "Standard",
   });
@@ -223,7 +233,7 @@ export async function listCommands(commands: Commands, prefix?: string) {
   const commandsArray = Object.keys(commands);
   const commandTable = new Table({
     ...logTableConfig,
-    colWidths: [2],
+    // colWidths: [2],
   });
   //Commands are sorted alphabetically with `exit` being the last
   const sortedCommands = commandsArray.sort((a, b) =>
@@ -239,7 +249,7 @@ export async function listCommands(commands: Commands, prefix?: string) {
     try {
       const disabled = cmd.disabled && (await cmd.disabled());
       if (!disabled)
-        commandTable.push(["", cmd.color(cmdName), cmd.description ?? ""]);
+        commandTable.push(["", cmd.color(cmdName), pc.gray(cmd.description ?? "")]);
     } catch (error) {
       errors.push(error);
     }
@@ -247,7 +257,7 @@ export async function listCommands(commands: Commands, prefix?: string) {
 
   if (prefix) {
     log(`Usage:`);
-    log(pc.green(`${prefix ? `${prefix} ` : ""}[cmd]`));
+    log(pc.green(`${prefix ? `${prefix} ` : ""}<cmd>`));
     log();
   }
   log(`Valid commands:`);

@@ -86,3 +86,5 @@ export interface ExpirationNever {
 }
 
 export type Expiration = ExpirationAtHeight | ExpirationAtTime | ExpirationNever;
+
+export type Milliseconds = number;

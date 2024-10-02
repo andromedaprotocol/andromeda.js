@@ -9,15 +9,28 @@ import {
   displaySpinnerAsync,
   executeFlags,
   instantiateFlags,
+  logTableConfig,
   printTransactionUrl,
 } from "../common";
 import State from "../state";
 import { Commands, Flags } from "../types";
 import { parseJSONInput, validateAddressInput } from "./utils";
+import Table from "cli-table";
 
-const { client } = State;
 
 export const commands: Commands = {
+  'info': {
+    handler: infoHandler,
+    color: pc.green,
+    description: "Queries a contract info",
+    usage: "wasm info <contract address>",
+    inputs: [
+      {
+        requestMessage: "Input Contract Address:",
+        validate: validateAddressInput,
+      }
+    ],
+  },
   query: {
     handler: queryHandler,
     color: pc.green,
@@ -39,6 +52,24 @@ export const commands: Commands = {
             console.log(pc.red("Invalid JSON Input"));
             return false;
           }
+        },
+      },
+    ],
+  },
+  'query-raw': {
+    handler: queryRawHandler,
+    color: pc.green,
+    description: "Queries a contract key",
+    usage: "wasm query-raw <contract address> <key>",
+    inputs: [
+      {
+        requestMessage: "Input Contract Address:",
+        validate: validateAddressInput,
+      },
+      {
+        requestMessage: "Input key:",
+        validate: (input: string) => {
+          return input.length > 0;
         },
       },
     ],
@@ -183,6 +214,29 @@ export const commands: Commands = {
  * Queries a contract given a query message and address
  * @param input
  */
+async function infoHandler(input: string[]) {
+  const [contractAddr] = input;
+  const resp = await displaySpinnerAsync(
+    "Querying contract info...",
+    async () => await State.client.chainClient!.queryClient!.getContract(contractAddr)
+  );
+
+  console.log();
+  const infoTable = new Table(logTableConfig);
+  infoTable.push([pc.bold(pc.green("Creator: ")), resp.creator]);
+  infoTable.push([pc.bold(pc.green("Admin: ")), resp.admin ?? "None"]);
+  infoTable.push([pc.bold(pc.green("Code ID: ")), resp.codeId.toString()]);
+  infoTable.push([pc.bold(pc.green("Label: ")), resp.label]);
+  infoTable.push([pc.bold(pc.green("IBC Port ID: ")), resp.ibcPortId ?? "None"]);
+  console.log(infoTable.toString());
+  console.log();
+
+}
+
+/**
+ * Queries a contract given a query message and address
+ * @param input
+ */
 async function queryHandler(input: string[]) {
   const [contractAddr, msg] = input;
 
@@ -190,6 +244,24 @@ async function queryHandler(input: string[]) {
 
   const resp = await queryMessage(contractAddr, parsedMsg);
 
+  console.log(JSON.stringify(resp, null, 2));
+}
+
+/**
+ * Queries a contract given a query message and address
+ * @param input
+ */
+async function queryRawHandler(input: string[]) {
+  const [contractAddr, key] = input;
+  const resp = await displaySpinnerAsync(
+    "Querying contrac key...",
+    async () => await State.client.queryContractRaw<any>(contractAddr, key)
+  );
+  if (resp === null) {
+    console.log(pc.red("No data found at key"));
+    return;
+  }
+  console.log(pc.green("Response: "));
   console.log(JSON.stringify(resp, null, 2));
 }
 
@@ -323,7 +395,7 @@ export async function executeMessage(
   }
   const resp = await displaySpinnerAsync(
     "Executing Tx...",
-    async () => await client.execute(address, msg, fee, memo, msgFunds)
+    async () => await State.client.execute(address, msg, fee, memo, msgFunds)
   );
   console.log();
   console.log(pc.green(successMessage ?? "Transaction executed!"));
@@ -365,7 +437,7 @@ export async function uploadWasm(
 
   const result = await displaySpinnerAsync(
     "Uploading contract binary...",
-    async () => await client.upload(binary, fee)
+    async () => await State.client.upload(binary, fee)
   );
   console.log(successMessage ?? pc.green("Wasm uploaded!"));
   console.log();
@@ -386,7 +458,7 @@ export async function queryMessage<T = any>(
 ): Promise<T> {
   const resp = await displaySpinnerAsync(
     loadingMessage,
-    async () => await client.queryContract<T>(address, msg)
+    async () => await State.client.queryContract<T>(address, msg)
   );
   return resp;
 }
@@ -435,7 +507,7 @@ export async function instantiateMessage(
   const resp = await displaySpinnerAsync(
     "Instantiating your contract...",
     async () =>
-      await client.instantiate(
+      await State.client.instantiate(
         codeId,
         msg,
         label ?? "Instantiation",
@@ -489,7 +561,7 @@ export async function migrateMessage(
   const resp = await displaySpinnerAsync(
     "Migrating your contract...",
     async () =>
-      await client.migrate(contractAddress, codeId, msg, flags.fee, memo)
+      await State.client.migrate(contractAddress, codeId, msg, flags.fee, memo)
   );
   console.log();
   console.log(successMessage ?? pc.green("Contract migrated!"));
@@ -529,7 +601,7 @@ export async function simulateExecuteMessage(
   const feeEstimate = displaySpinnerAsync(
     "Simulating Tx...",
     async () =>
-      await client.estimateExecuteFee(address, msg, msgFunds, undefined, memo)
+      await State.client.estimateExecuteFee(address, msg, msgFunds, undefined, memo)
   );
   return feeEstimate;
 }
@@ -548,7 +620,7 @@ export async function simulateInstantiationMessage(
 ) {
   const feeEstimate = displaySpinnerAsync(
     "Simulating Instantiation Tx...",
-    async () => await client.estimateInstantiationFee(codeId, msg, label)
+    async () => await State.client.estimateInstantiationFee(codeId, msg, label)
   );
   return feeEstimate;
 }
@@ -561,7 +633,7 @@ export async function simulateInstantiationMessage(
 export async function simulateUploadMessage(binary: Uint8Array) {
   const feeEstimate = displaySpinnerAsync(
     "Simulating Upload Tx...",
-    async () => await client.estimateUploadFee(binary)
+    async () => await State.client.estimateUploadFee(binary)
   );
   return feeEstimate;
 }
@@ -580,7 +652,7 @@ export async function simulateMigrate(
 ) {
   const feeEstimate = displaySpinnerAsync(
     "Simulating Migrate Tx...",
-    async () => await client.estimateMigrateFee(address, codeId, msg)
+    async () => await State.client.estimateMigrateFee(address, codeId, msg)
   );
   return feeEstimate;
 }

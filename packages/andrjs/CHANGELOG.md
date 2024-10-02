@@ -1,5 +1,16 @@
 # @andromedaprotocol/andromeda.js
 
+## 2.0.0-beta.0
+
+### Major Changes
+
+- https://github.com/andromedaprotocol/andromeda.js/pull/117#issue-2511612740
+
+### Patch Changes
+
+- Updated dependencies
+  - @andromedaprotocol/gql@1.0.1-beta.0
+
 ## 1.0.0
 
 ### Major Changes

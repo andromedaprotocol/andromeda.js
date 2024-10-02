@@ -1,4 +1,3 @@
-import { SigningArchwayClient } from "@archwayhq/arch3.js/build";
 import type {
   CosmWasmClient,
   DeliverTxResponse,
@@ -10,18 +9,13 @@ import type {
   MsgInstantiateContractEncodeObject,
   MsgMigrateContractEncodeObject,
   MsgStoreCodeEncodeObject,
-  SigningCosmWasmClient,
-  SigningCosmWasmClientOptions,
   UploadResult,
 } from "@cosmjs/cosmwasm-stargate";
-import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
-import type { GasPrice, MsgSendEncodeObject } from "@cosmjs/stargate";
-import type { TxRaw as InjTxRaw } from "@injectivelabs/sdk-ts";
-import type { LCDClient, Tx as TerraTx } from "@terra-money/terra.js";
+import type { Coin, EncodeObject, OfflineDirectSigner, OfflineSigner } from "@cosmjs/proto-signing";
+import type { AminoTypes, GasPrice, MsgSendEncodeObject, QueryClient, SigningStargateClient, SigningStargateClientOptions, TxExtension } from "@cosmjs/stargate";
 import type { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import type { Fee, Msg } from "../types";
-import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
-import { SigningStargateClient } from "@injectivelabs/sdk-ts/dist/cjs/core/stargate/SigningStargateClient";
+import { CometClient, RpcClient } from "@cosmjs/tendermint-rpc";
 
 /**
  * When interacting with any Cosmos chain there may be differences in how they sign messages or how the messages themselves are constructed.
@@ -29,30 +23,40 @@ import { SigningStargateClient } from "@injectivelabs/sdk-ts/dist/cjs/core/starg
  * Most of the methods are simply wrappers however some require specific implementations.
  */
 export default interface ChainClient {
-  // The client used to sign any transactions braodcast to the chain
-  signingClient?:
-  | SigningCosmWasmClient
-  | SigningStargateClient
-  | LCDClient
-  | SigningArchwayClient;
   // The client used to query the chain
   queryClient?: CosmWasmClient;
+
+  // tx query client;
+  txQueryClient?: QueryClient & TxExtension
   // The current signer address
   signer: string;
+  commectClient?: CometClient;
+  aminoTypes?: AminoTypes;
   // Whether the current chain is connected
   isConnected: boolean;
   gasPrice?: GasPrice;
 
+  config: {
+    // Some chains have different event names for the store code message
+    storeCodeEvent: string,
+    // Custom pubkey type url
+    accountPubKeyTypeUrl?: string;
+    // Default fee multiplier for gas estimation
+    defaultFeeMultiplier: number;
+  }
+
   /**
-   * Connects to the given chain. Assigns all clients used within the chain client, if a signer is provided a signing client is assigned
-   * @param endpoint
-   * @param signer
-   * @param options
+   * Connects to the given chain. Assigns all clients used within the chain client, if a signer is provided a signing client is assigned.
+   * @param endpoint - The endpoint URL of the chain.
+   * @param signer - Optional signer for transactions.
+   * @param options - Optional SigningStargateClient options.
+   * @param rpcClient - Optional RPC client.
    */
   connect(
     endpoint: string,
     signer?: OfflineSigner | OfflineDirectSigner,
-    options?: SigningCosmWasmClientOptions
+    options?: SigningStargateClientOptions,
+    rpcClient?: RpcClient
   ): Promise<void>;
   /**
    * Disconnects from the current chain completely
@@ -68,14 +72,14 @@ export default interface ChainClient {
     messages: EncodeObject[],
     fee?: Fee,
     memo?: string
-  ): ReturnType<SigningCosmWasmClient["sign"]> | TerraTx;
+  ): ReturnType<SigningStargateClient["sign"]>;
   /**
    * Broadcasts a given transaction to the connected chain
    * @param tx
    */
   broadcast(
-    tx: TxRaw | InjTxRaw | TerraTx
-  ): ReturnType<SigningCosmWasmClient["broadcastTx"]>;
+    tx: TxRaw
+  ): ReturnType<SigningStargateClient["broadcastTx"]>;
   /**
    * Signs a given message before broadcasting it to the connected chain
    * @param messages
@@ -97,7 +101,7 @@ export default interface ChainClient {
     messages: readonly EncodeObject[],
     fee?: Fee,
     memo?: string
-  ): ReturnType<SigningCosmWasmClient["simulate"]>;
+  ): ReturnType<SigningStargateClient["simulate"]>;
   /**
    * Simulates a given message and returns a gas fee estimate
    * @param message
@@ -108,7 +112,7 @@ export default interface ChainClient {
     message: EncodeObject,
     fee?: Fee,
     memo?: string
-  ): ReturnType<SigningCosmWasmClient["simulate"]>;
+  ): ReturnType<SigningStargateClient["simulate"]>;
   execute(
     contractAddress: string,
     msg: Msg,
@@ -231,7 +235,8 @@ export default interface ChainClient {
   encodeInstantiateMsg(
     codeId: number,
     msg: Msg,
-    label: string
+    label: string,
+    options?: InstantiateOptions
   ): MsgInstantiateContractEncodeObject;
   /**
    * Converts an upload message to an EncodeObject for signing or simulating
@@ -252,11 +257,10 @@ export default interface ChainClient {
     msg: Msg
   ): MsgMigrateContractEncodeObject;
   /**
-   * Converts a migrate message to an EncodeObject for signing or simulating
-   * @param address
-   * @param codeId
-   * @param msg
-   * @returns
+   * Converts a send message to an EncodeObject for signing or simulating.
+   * @param receivingAddress - The address receiving the tokens.
+   * @param amount - The amount of tokens to send.
+   * @returns The encoded send message.
    */
   encodeSendMessage(
     receivingAddress: string,

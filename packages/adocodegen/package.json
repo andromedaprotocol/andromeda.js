@@ -6,19 +6,23 @@
     "url": "git+https://github.com/andromedaprotocol/andromeda-cli.git"
   },
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "build": "rimraf ./dist && tsc"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "files": [
-    "./src"
+    "./dist"
   ],
-  "exports": {
-    ".": "./src"
-  },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^18.14.1",
     "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "@cosmjs/cosmwasm-stargate": "^0.32.4",
+    "@cosmjs/amino": "^0.32.4",
+    "type-fest": "^4.21.0"
   }
 }

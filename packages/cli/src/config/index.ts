@@ -1,14 +1,29 @@
-import { queryChainConfig } from "@andromedaprotocol/andromeda.js";
+import { GQL_URLS, queryChainConfig, setGQLSdkUri } from "@andromedaprotocol/andromeda.js";
 import convict from "convict";
 import convictFormatWithValidator from "convict-format-with-validator";
-import { addExitHandler, loadStorageFile, writeStorageFile } from "./storage";
+import { addExitHandler, CONFIG_DIRECTORY, loadStorageFile, writeStorageFile } from "./storage";
+import path from "path";
+import fs from 'fs';
+import { getCurrentPackage } from "utils/npm";
+import { displaySpinnerAsync } from "common";
 
 convict.addFormats(convictFormatWithValidator);
+
+
+export enum DEFAULT_ENVS {
+  TESTNET = "testnet",
+  MAINNET = "mainnet",
+  DEVNET = "devnet"
+}
+
+
+const ROOT_ENV_PATH = path.join(CONFIG_DIRECTORY, 'env.json');
 
 /**
  * Config used by the CLI
  * Uses convict
  */
+
 const config = convict({
   chain: {
     name: {
@@ -52,7 +67,7 @@ const config = convict({
       nullable: false,
     },
     defaultFee: {
-      default: "0.025ujunox",
+      default: "0.025uandr",
       format: String,
       doc: "The default fee amount",
       nullable: false,
@@ -70,7 +85,7 @@ const config = convict({
         if (!val.some((page) => page.includes("${txHash}")))
           throw new Error("Tx page URLs must include '${txHash}'");
       },
-      default: [""],
+      default: [""] as string[],
     },
     blockExplorerAddressPages: {
       format: Array<string>,
@@ -85,35 +100,199 @@ const config = convict({
         if (!val.some((page) => page.includes("${address}")))
           throw new Error("Address page URLs must include '${address}'");
       },
-      default: [""],
+      default: [""] as string[],
     },
     chainType: {
       default: "mainnet",
-      format: ["mainnet", "testnet"],
+      format: ["mainnet", "testnet", "devnet"],
       doc: "The chain type",
       nullable: false,
     },
   },
 });
 
+export type IChainConfig = ReturnType<typeof config.getProperties>['chain'];
+
+/**
+ * Config used by the CLI
+ * Uses convict
+ */
+export const localChains = convict({
+  chains: {
+    default: [] as IChainConfig[],
+    doc: "All local chain configs",
+    format: Array<IChainConfig>,
+    env: "CHAIN_CONFIG_NAME",
+    nullable: false,
+  },
+});
+
+
+const FALLBACK_ENV = getCurrentPackage().version.includes('beta') ? DEFAULT_ENVS.TESTNET : DEFAULT_ENVS.MAINNET;
+/**
+ * Env Config used by the CLI
+ * Uses convict
+ */
+export const envConfig = convict({
+  name: {
+    default: FALLBACK_ENV as string,
+    doc: "CLI Env name",
+    format: String,
+    env: "CLI_ENV",
+    nullable: false,
+  },
+  gql: {
+    default: FALLBACK_ENV === DEFAULT_ENVS.MAINNET ? GQL_URLS.MAINNET : GQL_URLS.TESTNET as string,
+    doc: "Graphql url for this enviroment",
+    format: String,
+    env: "GQL_URL",
+    nullable: false,
+  },
+  schema: {
+    default: "https://api.andromedaprotocol.io/v1/schema",
+    doc: "Schema url for this enviroment",
+    format: String,
+    env: "SCHEMA_URL",
+    nullable: false,
+  },
+  envs: {
+    default: [] as Array<string>,
+    doc: "All available envs",
+    format: Array<string>,
+    nullable: false,
+  },
+});
+
+
+/**
+ * Loads the config used by the CLI on startup
+ */
+export async function loadDefaultEnv() {
+  try {
+    if (!fs.existsSync(ROOT_ENV_PATH)) {
+      fs.writeFileSync(ROOT_ENV_PATH, JSON.stringify({ default: FALLBACK_ENV, envs: [FALLBACK_ENV] }));
+    }
+    const envData = JSON.parse(fs.readFileSync(ROOT_ENV_PATH).toString());
+    envConfig.set('envs', envData.envs ?? [])
+    await loadEnv(envData.default)
+  } catch (error) {
+  }
+}
+
+
+/**
+ * Loads the config used by the CLI on startup
+ */
+export async function loadEnv(env: string) {
+  const all_envs = Array.from(new Set(envConfig.get('envs').concat(env)));
+  const parsedEnvConfig = loadStorageFile(env, 'env.json');
+  envConfig.load(JSON.parse(parsedEnvConfig.toString()));
+
+  envConfig.set('envs', all_envs)
+  setGQLSdkUri(envConfig.get('gql'));
+  await displaySpinnerAsync("Loading config...", loadDefaultConfig);
+  loadLocalChains()
+}
+
+/**
+ * Loads the config used by the CLI on startup
+ */
+export function createEnv(env: string, data?: Partial<ReturnType<typeof envConfig.getProperties>>, doNotThrow = false) {
+  if (fs.existsSync(path.join(CONFIG_DIRECTORY, env, 'env.json'))) {
+    if (doNotThrow) {
+      return;
+    }
+    throw new Error(`Env - ${env} already exists`);
+  }
+  console.log("\nCreating new env")
+  const newEnv = { ...envConfig.getProperties(), ...data };
+  newEnv.name = env;
+  writeStorageFile(env, 'env.json', JSON.stringify(newEnv));
+  const all_envs = Array.from(new Set(envConfig.get('envs').concat(env)));
+  envConfig.set('envs', all_envs)
+}
+
+/**
+ * Rename env with its folder
+ */
+export function renameEnv(env: string, newName: string) {
+  fs.renameSync(path.join(CONFIG_DIRECTORY, env), path.join(CONFIG_DIRECTORY, newName));
+  envConfig.set('envs', envConfig.get('envs').filter(name => name !== env).concat(newName));
+}
+
+
 /**
  * Loads the config used by the CLI on startup
  */
 export async function loadDefaultConfig() {
   try {
-    const savedConfig = loadStorageFile("config.json");
-    try {
-      const parsedSavedConfig = JSON.parse(savedConfig.toString());
-      config.load(parsedSavedConfig);
-    } catch (error) {
-      throw new Error("Invalid config file");
-    }
+    const savedConfig = loadStorageFile(envConfig.get('name'), "config.json");
+    const parsedSavedConfig = JSON.parse(savedConfig.toString());
+    config.load(parsedSavedConfig);
   } catch (error) {
-    console.error(error);
     const defaultConfig = {
-      chain: await queryChainConfig("uni-5"),
+      chain: await queryChainConfig(envConfig.get('gql').includes('mainnet') ? "andromeda-1" : "galileo-4").catch(_ => config.getProperties().chain),
     };
     config.load(defaultConfig);
+  }
+}
+
+/**
+ * Loads the config used by the CLI on startup
+ */
+export function loadLocalChains() {
+  try {
+    const savedConfig = loadStorageFile(envConfig.get('name'), "chainConfigs.json");
+    const parsedSavedConfig = JSON.parse(savedConfig.toString());
+    localChains.set("chains", parsedSavedConfig);
+  } catch (error) {
+    const defaultConfig = {
+      chains: [],
+    };
+    localChains.load(defaultConfig);
+  }
+}
+
+/**
+ * Migrates previous version of cli config files - For dev - Only remove legacy part of this function.
+ * @deprecated will be removed in next update
+ */
+export function migrateLegacyEnv() {
+  try {
+    if (fs.existsSync(path.join(CONFIG_DIRECTORY, 'env.json'))) {
+      return;
+    }
+
+    let defaultEnv: string = DEFAULT_ENVS.TESTNET;
+    createEnv(DEFAULT_ENVS.TESTNET, {
+      'gql': GQL_URLS.TESTNET,
+    }, true);
+    createEnv(DEFAULT_ENVS.MAINNET, {
+      'gql': GQL_URLS.MAINNET,
+    }, true);
+    createEnv(DEFAULT_ENVS.DEVNET, {
+      'gql': GQL_URLS.DEVNET,
+    }, true);
+
+    // If we are migrating from old cli, then migrate the old config files to the new format
+    if (fs.existsSync(path.join(CONFIG_DIRECTORY, 'keys.json'))) {
+      fs.mkdirSync(path.join(CONFIG_DIRECTORY, 'legacy'), { recursive: true });
+      const filesToMove = ['keys.json', 'config.json', 'chainConfigs.json'];
+      filesToMove.forEach(f => {
+        if (fs.existsSync(path.join(CONFIG_DIRECTORY, f))) {
+          fs.copyFileSync(path.join(CONFIG_DIRECTORY, f), path.join(CONFIG_DIRECTORY, 'legacy', f));
+          fs.rmSync(path.join(CONFIG_DIRECTORY, f))
+        }
+      })
+
+      envConfig.set('envs', envConfig.get('envs').concat('legacy'))
+      defaultEnv = 'legacy';
+      createEnv('legacy', envConfig.getProperties());
+    }
+    envConfig.set('env', defaultEnv);
+    fs.writeFileSync(ROOT_ENV_PATH, JSON.stringify({ default: defaultEnv, envs: envConfig.get('envs') }))
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -121,7 +300,9 @@ export async function loadDefaultConfig() {
  * Saves the current config when the CLI is exited
  */
 addExitHandler(() => {
-  writeStorageFile("config.json", JSON.stringify(config.getProperties()));
+  fs.writeFileSync(ROOT_ENV_PATH, JSON.stringify({ default: envConfig.get('name'), envs: envConfig.get('envs') }));
+  writeStorageFile(envConfig.get('name'), "env.json", JSON.stringify(envConfig.getProperties()));
+  writeStorageFile(envConfig.get('name'), "config.json", JSON.stringify(config.getProperties()));
 });
 
 export * as storage from "./storage";

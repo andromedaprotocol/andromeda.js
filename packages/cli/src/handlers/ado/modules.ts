@@ -13,7 +13,6 @@ import { validateAddressInput } from "../utils";
 import { executeMessage, queryMessage } from "../wasm";
 import { isADOOwner } from "./common";
 
-const { client, wallets } = State;
 
 const commands: Commands = {
   list: {
@@ -34,7 +33,7 @@ const commands: Commands = {
     handler: addModuleHandler,
     color: pc.blue,
     flags: executeFlags,
-    disabled: () => !wallets.currentWallet,
+    disabled: () => !State.wallets.currentWallet,
     inputs: [
       {
         requestMessage: "Input the ADO Address:",
@@ -48,7 +47,7 @@ const commands: Commands = {
     handler: removeModuleHandler,
     color: pc.red,
     flags: executeFlags,
-    disabled: () => !wallets.currentWallet,
+    disabled: () => !State.wallets.currentWallet,
     inputs: [
       {
         requestMessage: "Input the ADO Address:",
@@ -62,7 +61,7 @@ const commands: Commands = {
     handler: editModuleHandler,
     color: pc.yellow,
     flags: executeFlags,
-    disabled: () => !wallets.currentWallet,
+    disabled: () => !State.wallets.currentWallet,
     inputs: [
       {
         requestMessage: "Input the ADO Address:",
@@ -79,7 +78,7 @@ const commands: Commands = {
  */
 async function implementsModules(address: string): Promise<boolean> {
   try {
-    await queryMessage(address, client.ado.moduleIdsQuery());
+    await queryMessage(address, State.client.ado.moduleIdsQuery());
     return true;
   } catch (error) {
     return false;
@@ -94,7 +93,7 @@ async function implementsModules(address: string): Promise<boolean> {
 async function getADOModules(address: string): Promise<Module[]> {
   const modules = await displaySpinnerAsync(
     "Querying modules...",
-    async () => await client.ado.getModules(address)
+    async () => await State.client.ado.getModules(address)
   );
 
   return modules;
@@ -143,7 +142,7 @@ async function promptForModule(module?: Module): Promise<Module> {
  */
 async function addModuleHandler(input: string[], flags: Flags) {
   const [address] = input;
-  const currWallet = wallets.currentWalletAddress;
+  const currWallet = await State.wallets.currentWalletAddress();
   if (!isADOOwner(address, currWallet!))
     throw new Error("Cannot add modules to an ADO you do not own");
 
@@ -151,7 +150,7 @@ async function addModuleHandler(input: string[], flags: Flags) {
     throw new Error("Address does not implement ADO Modules");
   const module = await promptForModule();
 
-  const msg = client.ado.registerModuleMsg(module);
+  const msg = State.client.ado.registerModuleMsg(module);
   await executeMessage(address, msg, flags, "Module registered!");
 }
 
@@ -191,7 +190,7 @@ async function listModulesHandler(input: string[]) {
  */
 async function removeModuleHandler(input: string[], flags: Flags) {
   const [address] = input;
-  const currWallet = wallets.currentWalletAddress;
+  const currWallet = await State.wallets.currentWalletAddress();
   if (!isADOOwner(address, currWallet!))
     throw new Error("Cannot add modules to an ADO you do not own");
 
@@ -213,7 +212,7 @@ async function removeModuleHandler(input: string[], flags: Flags) {
   });
   await executeMessage(
     address,
-    client.ado.deregisterModuleMsg(rmChoice.rm),
+    State.client.ado.deregisterModuleMsg(rmChoice.rm),
     flags,
     "Module removed!"
   );
@@ -226,7 +225,7 @@ async function removeModuleHandler(input: string[], flags: Flags) {
  */
 async function editModuleHandler(input: string[], flags: Flags) {
   const [address] = input;
-  const currWallet = wallets.currentWalletAddress;
+  const currWallet = await State.wallets.currentWalletAddress();
   if (!isADOOwner(address, currWallet!))
     throw new Error("Cannot add modules to an ADO you do not own");
 
@@ -256,7 +255,7 @@ async function editModuleHandler(input: string[], flags: Flags) {
 
   await executeMessage(
     address,
-    client.ado.alterModuleMsg((editChoice.edit as Module).idx!, updated),
+    State.client.ado.alterModuleMsg((editChoice.edit as Module).idx!, updated),
     flags,
     "Module updated!"
   );

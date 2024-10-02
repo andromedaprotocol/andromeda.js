@@ -2,20 +2,18 @@ import { GraphQLClient, RequestDocument } from "graphql-request";
 import { getSdk } from "@andromedaprotocol/gql/dist/__generated/node";
 
 
+/**
+ * The URLs to send the GQL queries to
+ * NOTE - Update this URL for production deployments
+*/
 export const GQL_URLS = {
   TESTNET: 'https://api.andromedaprotocol.io/graphql/testnet',
   MAINNET: 'https://api.andromedaprotocol.io/graphql/mainnet',
   DEVNET: 'https://api.andromedaprotocol.io/graphql/dev'
 } as const;
 
-/**
- * The URI to send the GQL queries to
- * NOTE - Update this URL for production deployments
- * PROD - gql.andromedaprotocol.io/graphql
- * TESTNET - api.andromedaprotocol.io/graphql/testnet
-*/
-let URI: Readonly<string> = GQL_URLS[process.env.GQL_URL as keyof typeof GQL_URLS] || process.env.GQL_URL || GQL_URLS.TESTNET;
-const gqlClient = new GraphQLClient(URI);
+let URI: Readonly<string> = GQL_URLS.TESTNET;
+const gqlClient = new GraphQLClient(GQL_URLS.TESTNET);
 
 /**
  * Queries the GraphQL server

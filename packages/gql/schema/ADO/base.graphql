@@ -18,6 +18,8 @@ query MINI_BASE_ADO($contractAddress: String!) {
       andr {
         type
         version
+        blockHeightUponCreation
+        owner
       }
     }
   }

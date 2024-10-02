@@ -6,8 +6,6 @@ import { executeFlags } from "../common";
 import State from "../state";
 import { executeMessage } from "./wasm";
 
-const { client } = State;
-
 export const commands: Commands = {
   register: {
     handler: registerHandler,
@@ -18,11 +16,11 @@ export const commands: Commands = {
   },
   getusername: {
     handler: async () => {
-      if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
-      const walletAddr = State.wallets.currentWalletAddress;
+      if (!State.client.os.vfs?.address) throw new Error("VFS has no assigned address");
+      const walletAddr = await State.wallets.currentWalletAddress();
       if (!walletAddr) throw new Error("No wallet currently assigned");
 
-      const resp = await client.os.vfs?.getUsername(walletAddr);
+      const resp = await State.client.os.vfs?.getUsername(walletAddr);
       console.log(JSON.stringify(resp, null, 2));
     },
     color: pc.cyan,
@@ -36,11 +34,11 @@ export const commands: Commands = {
  * @param flags
  */
 async function registerHandler(flags: Flags) {
-  if (!client.os.vfs?.address) throw new Error("VFS has no assigned address");
-  const walletAddr = State.wallets.currentWalletAddress;
+  if (!State.client.os.vfs?.address) throw new Error("VFS has no assigned address");
+  const walletAddr = await State.wallets.currentWalletAddress();
   if (!walletAddr) throw new Error("No wallet currently assigned");
 
-  const resp = await client.os.vfs?.getUsername(walletAddr);
+  const resp = await State.client.os.vfs?.getUsername(walletAddr);
   console.log(`You already have ${JSON.stringify(resp, null, 2)} registered for your account`);
 
   let username;
@@ -59,8 +57,8 @@ async function registerHandler(flags: Flags) {
     if (username === "exit") return;
   }
 
-  const msgReg = await client.os.vfs?.registerUserMsg(username);
-  await executeMessage(client.os.vfs?.address, msgReg, flags, "Username claimed!"); //TODO: ADD FEE FLAG
+  const msgReg = await State.client.os.vfs?.registerUserMsg(username);
+  await executeMessage(State.client.os.vfs?.address, msgReg, flags, "Username claimed!"); //TODO: ADD FEE FLAG
 }
 
 /**

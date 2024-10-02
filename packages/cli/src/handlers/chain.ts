@@ -7,16 +7,14 @@ import Table from "cli-table";
 import inquirer from "inquirer";
 import pc from "picocolors";
 
-import { promptWithExit } from "../cmd";
+import { promptWithExit, title } from "../cmd";
 import { displaySpinnerAsync, logTableConfig } from "../common";
-import config from "../config";
+import config, { envConfig, IChainConfig, localChains } from "../config";
 import {
-  loadStorageFile,
-  storageFileExists,
   writeStorageFile,
 } from "../config/storage";
 import State from "../state";
-import { Commands } from "../types";
+import { Commands, Flags } from "../types";
 import { setCurrentWallet } from "./wallet";
 
 const STORAGE_FILE = "chainConfigs.json";
@@ -33,8 +31,14 @@ const commands: Commands = {
   list: {
     handler: listConfigsHandler,
     color: pc.blue,
-    description: "Lists all the currently saved configs",
+    description: "Lists all the currently locally saved configs",
     usage: "chain list",
+    flags: {
+      local: {
+        description: "Only show locally saved configs",
+        usage: "--local-only",
+      },
+    },
   },
   use: {
     handler: useConfigHandler,
@@ -47,7 +51,7 @@ const commands: Commands = {
         options: async () => {
           const configs = await displaySpinnerAsync(
             "Loading configs...",
-            queryAllConfigsSafe
+            async () => [...await queryAllConfigsSafe(), ...localChains.get('chains')]
           );
           return configs.map((conf) => conf.name);
         },
@@ -59,18 +63,23 @@ const commands: Commands = {
     color: pc.cyan,
     description: "Displays current value for a given key",
     usage: "chain get <key>",
+    inputs: [
+      {
+        requestMessage: "Input Config Key:",
+        options: Object.keys(config.getSchema()._cvtProperties.chain._cvtProperties)
+      },
+    ]
   },
   set: {
     handler: configSetHandler,
     color: pc.black,
-    description: "Sets the value for a given config key",
+    description: "Sets the value for a given config key (Only available for custom configs)",
     usage: "chain set <key> <value>",
-    disabled: async () =>
-      typeof (await queryChainConfigSafe(config.get("chain.name"))) !==
-      "undefined",
+    disabled: () => !localChains.get('chains').some(c => config.get('chain.name') === c.name),
     inputs: [
       {
         requestMessage: "Input Config Key:",
+        options: Object.keys(config.getSchema()._cvtProperties.chain._cvtProperties)
       },
       {
         requestMessage: "Input Value:",
@@ -108,7 +117,7 @@ const commands: Commands = {
           return true;
         },
         options: async () => [
-          ...localConfigs.map(({ name }) => name),
+          ...localChains.get('chains').map(({ name }) => name),
           ...(await queryAllConfigsSafe()).map(({ name }) => name),
         ],
       },
@@ -136,7 +145,7 @@ const commands: Commands = {
 
           return true;
         },
-        options: async () => [...localConfigs.map(({ name }) => name)],
+        options: async () => [...localChains.get('chains').map(({ name }) => name)],
       },
     ],
   },
@@ -199,28 +208,6 @@ async function queryChainConfigSafe(
   }
 }
 
-// Used for when the user creates their own config
-let localConfigs: ChainConfig[] = [];
-
-/**
- * Loads all local configs from storage
- */
-function loadLocalConfigs() {
-  try {
-    if (!storageFileExists(STORAGE_FILE)) {
-      writeStorageFile(STORAGE_FILE, JSON.stringify([]));
-      return;
-    }
-
-    const loadedConfigsBuffer = loadStorageFile(STORAGE_FILE);
-    localConfigs = JSON.parse(loadedConfigsBuffer.toString()) as ChainConfig[];
-  } catch (error) {
-    console.error("Problem loading local chain configs");
-    console.error(error);
-  }
-}
-
-loadLocalConfigs();
 
 /**
  * Gets the description of a given key from config
@@ -243,11 +230,11 @@ function getConfigDoc(key: ConfigKey): string {
  */
 async function getCLIChainConfig(
   identifier: string
-): Promise<ChainConfig | undefined> {
+): Promise<IChainConfig | undefined> {
   try {
     const config =
       (await queryChainConfigSafe(identifier)) ??
-      localConfigs.find(
+      localChains.get('chains').find(
         (config) => config.name === identifier || config.chainId === identifier
       );
     return config;
@@ -292,6 +279,7 @@ async function printConfig(config: ChainConfig, keyToPrint?: ConfigKey) {
   console.log(pc.green("Current chain config"));
   console.log();
   console.log(configTable.toString());
+  console.log();
 }
 
 /**
@@ -313,35 +301,51 @@ async function setKey(key: string, value: string) {
   const name = config.get("chain.name");
   config.set(`chain.${trimmedKey}`, trimmedValue);
 
-  const localConfig = localConfigs.find(
+  const localConfig = localChains.get('chains').find(
     ({ name: localConfigName }) => localConfigName === name
   );
 
   // Save any updates to local configs
   if (localConfig) {
-    localConfigs = localConfigs.map((config) =>
+    const localConfigs = localChains.get('chains').map((config) =>
       config.name === name ? { ...config, [trimmedKey]: trimmedValue } : config
     );
-    writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
+    localChains.set('chains', localConfigs)
+    writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties().chains));
   }
 }
 
 /**
  * Prints all available config names/chain IDs
  */
-async function listConfigsHandler() {
+async function listConfigsHandler(_input: string[], flags: Flags) {
   const configTable = new Table(logTableConfig);
-  configTable.push([pc.bold("Name"), pc.bold("Chain ID")]);
-  [...(await queryAllConfigsSafe()), ...localConfigs].forEach((chainConfig) =>
-    config.get("chain.name") === chainConfig.name
-      ? configTable.push([
-        pc.green(chainConfig.name),
-        pc.green(chainConfig.chainId),
-      ])
-      : configTable.push([chainConfig.name, chainConfig.chainId])
-  );
+  configTable.push([pc.bold("Name"), pc.bold("Chain ID"), pc.bold("Type")]);
 
+  if (!flags.local) {
+    const configs = await displaySpinnerAsync(
+      "Loading configs...",
+      async () => [...await queryAllConfigsSafe(), ...localChains.get('chains')]
+    );
+    configs.forEach((chainConfig) => {
+      let data = [chainConfig.name, chainConfig.chainId, chainConfig.chainType];
+      if (config.get("chain.name") === chainConfig.name) {
+        data = data.map(d => pc.green(d));
+      }
+      configTable.push(data);
+    });
+  }
+
+  localChains.get('chains').forEach((chainConfig) =>
+    configTable.push([
+      pc.gray(chainConfig.name),
+      pc.gray(chainConfig.chainId),
+      pc.gray(chainConfig.chainType),
+    ])
+  );
+  console.log()
   console.log(configTable.toString());
+  console.log()
 }
 
 /**
@@ -362,6 +366,7 @@ async function useConfigHandler(input: string[]) {
     throw new Error(`No chain config for chain ID: ${chainId}`);
   }
   config.set("chain", chainConfig);
+  writeStorageFile(envConfig.get('name'), 'config.json', JSON.stringify(config.getProperties()));
   console.log(pc.green(`Config loaded!`));
   const wallet = State.wallets.currentWallet;
   if (wallet) {
@@ -369,11 +374,9 @@ async function useConfigHandler(input: string[]) {
     await setCurrentWallet(wallet);
   } else {
     // If no wallet, connect the client without a signer
-    await displaySpinnerAsync(
-      "Connecting client...",
-      async () => await State.connectClient()
-    );
+    await State.connectClient()
   }
+  await title();
 }
 
 /**
@@ -446,9 +449,9 @@ export async function newConfigHandler(input: string[]) {
       validate: (input: string) => input.length > 0,
     },
     {
-      name: "registryAddress",
+      name: "kernelAddress",
       message:
-        "Input the address of the Andromeda Registry for this chain (optional):",
+        "Input the address of the Andromeda Kernel Address for this chain:",
       type: "input",
     },
     {
@@ -457,6 +460,16 @@ export async function newConfigHandler(input: string[]) {
       type: "input",
       validate: (input: string) =>
         input.length >= 4 ? true : "Invalid Address Prefix",
+    },
+    {
+      name: "coinType",
+      message: "Input coin type for this chain:",
+      type: "input",
+      validate: (input: string) => {
+        const regex = /^[0-9]+$/gm;
+        return regex.test(input) ? true : "Invalid Coin Type";
+      },
+      default: "118"
     },
     {
       name: "defaultFee",
@@ -469,17 +482,19 @@ export async function newConfigHandler(input: string[]) {
     },
   ];
   // Any type to allow construction
-  let config: any = await promptWithExit(questions);
+  let newConfig: any = await promptWithExit(questions);
+
 
   const fullConfig: ChainConfig = {
-    ...config,
+    ...newConfig,
     name,
     blockExplorerAddressPages: [],
     blockExplorerTxPages: [],
   };
-
+  const localConfigs = localChains.get('chains');
   localConfigs.push(fullConfig);
-  writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
+  localChains.set('chains', localConfigs);
+  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties().chains));
   await useConfigHandler(input);
 }
 
@@ -493,8 +508,11 @@ async function copyConfigHandler(input: string[]) {
   if (!oldConfig) throw new Error(`Config '${oldConfigName}' not found`);
 
   const newConfig = { ...oldConfig!, name: newConfigName };
+
+  const localConfigs = localChains.get('chains');
   localConfigs.push(newConfig);
-  writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
+  localChains.set('chains', localConfigs);
+  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties().chains));
 
   await useConfigHandler([newConfigName]);
 }
@@ -508,15 +526,16 @@ async function removeConfigHandler(input: string[]) {
   const defaultConfig = await queryChainConfigSafe(configName);
   if (defaultConfig) throw new Error("Cannot remove a default config");
 
-  const localConfig = localConfigs.find(
+  const localConfig = localChains.get('chains').find(
     ({ name, chainId }) => name === configName || chainId === configName
   );
   if (!localConfig) throw new Error(`Config '${configName}' not found`);
 
-  localConfigs = localConfigs.filter(
+  const localConfigs = localChains.get('chains').filter(
     ({ name, chainId }) => name !== configName && chainId !== configName
   );
-  writeStorageFile(STORAGE_FILE, JSON.stringify(localConfigs));
+  localChains.set('chains', localConfigs);
+  writeStorageFile(envConfig.get('name'), STORAGE_FILE, JSON.stringify(localChains.getProperties().chains));
 
   if (localConfig.name === config.get("chain.name")) {
     const replacementConfig = await promptWithExit({

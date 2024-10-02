@@ -158,7 +158,7 @@ export type IMiniBaseAdoQueryVariables = Exact<{
 }>;
 
 
-export type IMiniBaseAdoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', address: string, chainId: string, andr: { __typename?: 'AndrQuery', type: string, version: string } } } };
+export type IMiniBaseAdoQuery = { __typename?: 'Query', ADO: { __typename?: 'AdoQuery', ado: { __typename?: 'BaseAdo', address: string, chainId: string, andr: { __typename?: 'AndrQuery', type: string, version: string, blockHeightUponCreation: number, owner: string } } } };
 
 export type ICrowdfundAvailableTokensQueryVariables = Exact<{
   contractAddress: Scalars['String']['input'];
@@ -2342,6 +2342,8 @@ export const MiniBaseAdoDocument = /*#__PURE__*/ gql`
       andr {
         type
         version
+        blockHeightUponCreation
+        owner
       }
     }
   }

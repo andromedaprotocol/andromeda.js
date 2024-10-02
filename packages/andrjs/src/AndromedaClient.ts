@@ -1,22 +1,22 @@
 import {
   InstantiateOptions,
-  SigningCosmWasmClientOptions,
 } from "@cosmjs/cosmwasm-stargate";
 import {
   DeliverTxResponse,
+  SigningStargateClientOptions,
   StdFee,
   calculateFee,
 } from "@cosmjs/stargate";
 import { ADOAPI } from "./api";
 
-import type { Coin, EncodeObject, OfflineSigner } from "@cosmjs/proto-signing";
+import type { Coin, EncodeObject, OfflineDirectSigner, OfflineSigner } from "@cosmjs/proto-signing";
 import OperatingSystemAPI from "api/OperatingSystemAPI";
 import { isUndefined } from "lodash";
 import type { ChainClient } from "./clients";
 import createClient from "./clients";
 import type { Fee, Msg } from "./types";
-import { OfflineDirectSigner } from "@injectivelabs/sdk-ts/dist/cjs/core/accounts/signers/types/proto-signer";
 import ADOSchemaAPI from "api/ADOSchemaAPI";
+import { HttpClient, RpcClient } from "@cosmjs/tendermint-rpc";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
@@ -31,9 +31,17 @@ export default class AndromedaClient {
 
   // API for shared ADO messages
   public ado = new ADOAPI(this);
-  public schema = new ADOSchemaAPI(this);
+  public schema;
   // API for aOS
   public os = new OperatingSystemAPI(this);
+
+  // Default use batch client, some rpcs might not support it so set this to false for those chains
+  public useBatchClient = true;
+
+  constructor({ schemaUrl, useBatchClient }: { schemaUrl: string, useBatchClient?: boolean }) {
+    this.schema = new ADOSchemaAPI(schemaUrl, this);
+    this.useBatchClient = useBatchClient ?? true
+  }
 
   /**
    * A pre-message hook to check that the client is connected and functioning
@@ -55,12 +63,19 @@ export default class AndromedaClient {
     addressPrefix: string,
     signer?: OfflineSigner | OfflineDirectSigner,
     // Only used for Cosmos Clients
-    options?: SigningCosmWasmClientOptions
+    options?: SigningStargateClientOptions,
+    config?: Partial<ChainClient['config']>,
+    rpcClient?: RpcClient
   ) {
     delete this.chainClient;
 
-    this.chainClient = createClient(addressPrefix);
-    await this.chainClient.connect(endpoint, signer, options);
+    this.chainClient = createClient(addressPrefix, config);
+
+    // Nibiru rpc somehow doesn't work with HttpBatchClient
+    if (!rpcClient && addressPrefix === 'nibi') {
+      rpcClient = new HttpClient(endpoint);
+    }
+    await this.chainClient.connect(endpoint, signer, options, rpcClient);
     await this.assignKeyAddresses(kernelAddress);
   }
 
@@ -179,10 +194,27 @@ export default class AndromedaClient {
    */
   async queryContract<T = any>(address: string, query: Msg) {
     this.preMessage();
-    return (await this.chainClient!.queryClient!!.queryContractSmart(
+    return (await this.chainClient!.queryClient!.queryContractSmart(
       address,
       query
     )) as T;
+  }
+
+  /**
+   * Wrapper function for CosmWasm query
+   * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#queryContractSmart
+   * @param address
+   * @param query
+   * @returns
+   */
+  async queryContractRaw<T = any>(address: string, key: string) {
+    this.preMessage();
+    const result = await this.chainClient!.queryClient!.queryContractRaw(
+      address,
+      Buffer.from(key)
+    );
+    if (!result || result.length === 0) return null;
+    return JSON.parse(Buffer.from(result).toString('utf8')) as T
   }
 
   /**
@@ -269,14 +301,14 @@ export default class AndromedaClient {
     msg: Msg,
     label: string,
     fee?: StdFee,
-    memo?: string
+    options?: InstantiateOptions
   ) {
     this.preMessage();
     console.log(msg);
     return this.simulateMsgs(
-      [this.chainClient!.encodeInstantiateMsg(codeId, msg, label)],
+      [this.chainClient!.encodeInstantiateMsg(codeId, msg, label, options)],
       fee,
-      memo
+      options?.memo
     );
   }
 

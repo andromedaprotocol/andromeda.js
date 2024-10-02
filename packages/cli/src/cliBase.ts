@@ -1,4 +1,3 @@
-import { CONFIG_DIRECTORY } from "./config/storage";
 import inquirer from "inquirer";
 import minimist from "minimist";
 import {
@@ -6,7 +5,8 @@ import {
   baseCommands,
   displaySpinnerAsync,
   handle,
-  loadDefaultConfig,
+  loadDefaultEnv,
+  migrateLegacyEnv,
   parseInput,
   State,
   title,
@@ -34,11 +34,8 @@ inquirer.registerPrompt("command", inquirerCommandPrompt);
 
 async function onStartup() {
   try {
-    await displaySpinnerAsync(`Loading config from ${CONFIG_DIRECTORY}...`, loadDefaultConfig);
-    await displaySpinnerAsync(
-      "Connecting client...",
-      async () => await State.connectClient()
-    );
+    migrateLegacyEnv();
+    await displaySpinnerAsync("Loading env..", loadDefaultEnv);
   } catch (error) {
     console.error(error);
   }
@@ -49,12 +46,14 @@ export async function start() {
   const inputs = process.argv.slice(2);
   if (inputs.length === 0) {
     await title();
+    await State.connectClient()
     while (true) {
       let input = await ask();
       const { _: cmd, ...flags } = minimist(parseInput(input.command));
       await handle(cmd, flags, baseCommands);
     }
   } else {
+    await State.connectClient()
     const { _: cmd, ...flags } = minimist(parseInput(inputs.join(" ")));
     await handle(cmd, flags, baseCommands);
     process.exit();

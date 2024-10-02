@@ -6,7 +6,6 @@ import { Commands } from "types";
 import { executeHandler, queryHandler } from ".";
 import pc from "picocolors";
 
-const { client } = State;
 
 /**
  * Validates if the given address is the owner of a given ADO address
@@ -18,7 +17,7 @@ export async function isADOOwner(
   adoAddress: string,
   address: string
 ): Promise<boolean> {
-  const owner = await client.ado.getOwner(adoAddress);
+  const owner = await State.client.ado.getOwner(adoAddress);
 
   return address === owner;
 }
@@ -29,7 +28,7 @@ export async function promptAdoType(
 ) {
   const adoTypes = await displaySpinnerAsync(
     "Fetching ADO types...",
-    async () => await client!.os!.adoDB!.getAllADO()
+    async () => await State.client.os!.adoDB!.getAllADO()
   );
   const input = await promptWithExit({
     prefix: bread ? `[Constructing ${bread.join(".")}]` : "",

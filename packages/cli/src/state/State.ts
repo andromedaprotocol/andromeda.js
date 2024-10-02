@@ -2,19 +2,23 @@ import AndromedaClient from "@andromedaprotocol/andromeda.js";
 import { GasPrice } from "@cosmjs/stargate";
 import WalletStore from "./WalletStore";
 import pc from "picocolors";
-import config from "../config";
-import axios from "axios";
-import ADOSchemaAPI from "@andromedaprotocol/andromeda.js/dist/api/ADOSchemaAPI";
-import { getCurrentPackage } from "utils/npm";
+import config, { envConfig } from "../config";
+import { displaySpinnerAsync } from "common";
+
 
 /**
  * A class to store the current CLI state including the Andromeda Client used and any wallet related info
  */
 export class State {
   // The Andromeda Client providing connection to the current chain
-  public client: AndromedaClient = new AndromedaClient();
+  public client: AndromedaClient = new AndromedaClient({ schemaUrl: envConfig.get('schema') });
   // The wallets stored and used by the CLI
   public wallets: WalletStore = new WalletStore();
+
+  refresh() {
+    this.client.disconnect();
+    this.client = new AndromedaClient({ schemaUrl: envConfig.get('schema') });
+  }
 
   /**
    * What is printed before the command prompt
@@ -32,37 +36,37 @@ export class State {
   /**
    * Connects the Andromeda Client to chain. Has a default timeout to prevent infinite awaiting.
    */
-  public async connectClient() {
-    const { chainUrl, defaultFee, addressPrefix, kernelAddress: _kernelAddress, chainId } =
+  public async connectClient(passphrase?: string) {
+    const { chainUrl, defaultFee, addressPrefix, kernelAddress } =
       config.get("chain");
-
-    const pkgVersion = await getCurrentPackage().version;
-    const overrideKernels: Array<string> = await axios.get(`${ADOSchemaAPI.SCHEMA_BASE_URL}/kernel/${pkgVersion}`).then(res => res.data.kernels || []).catch(_ => []);
-    const kernelAddress = overrideKernels.find(k => k.startsWith(addressPrefix)) || _kernelAddress;
 
     const { client, wallets } = this;
 
     const currentWallet = wallets.currentWallet;
-    const passphrase = currentWallet
-      ? await wallets.getWalletPassphrase(currentWallet.name, chainId)
-      : "";
+    if (!passphrase) {
+      passphrase = currentWallet
+        ? await wallets.getWalletPassphrase(currentWallet.name)
+        : "";
+    }
     const signer = currentWallet
       ? await currentWallet.getWallet(passphrase)
       : undefined;
-
-    return await new Promise((resolve, reject) => {
-      client
-        .connect(chainUrl, kernelAddress, addressPrefix, signer, {
-          gasPrice: GasPrice.fromString(defaultFee),
-        })
-        .then(() => resolve(undefined))
-        .catch((err: any) => {
-          console.error(err);
-          resolve(undefined);
-        });
-      // Set timeout for client connection
-      setTimeout(() => reject(pc.red("Client connection timed out")), 30000);
-    });
+    return await displaySpinnerAsync(
+      "Connecting Client...",
+      () => new Promise<void>((resolve, reject) => {
+        client
+          .connect(chainUrl, kernelAddress, addressPrefix, signer as any, {
+            gasPrice: GasPrice.fromString(defaultFee),
+          })
+          .then(() => resolve())
+          .catch((err: any) => {
+            console.error(err);
+            resolve();
+          });
+        // Set timeout for client connection
+        setTimeout(() => reject(pc.red("Client connection timed out")), 30000);
+      })
+    );
   }
 }
 

@@ -5,8 +5,8 @@ import { displaySpinnerAsync, printTransactionUrl } from "../common";
 import State from "../state";
 import { Commands } from "../types";
 import { validateAddressInput } from "./utils";
+import WalletStore from "state/WalletStore";
 
-const { client } = State;
 
 export const commands: Commands = {
   send: {
@@ -45,7 +45,7 @@ export const commands: Commands = {
     inputs: [
       {
         requestMessage: "Input Denom:",
-        default: async () => State.wallets.currentWalletDenom
+        default: async () => WalletStore.feeDenom
       },
       {
         requestMessage: `Input Address${typeof State.wallets.currentWallet !== "undefined"
@@ -60,7 +60,7 @@ export const commands: Commands = {
             return true;
           return validateAddressInput(input);
         },
-        default: async () => State.wallets.currentWalletAddress || ''
+        default: async () => await State.wallets.currentWalletAddressWithoutPassphrase() || ''
       },
     ],
   },
@@ -92,7 +92,7 @@ async function handleSend(input: string[]) {
 
   const resp = await displaySpinnerAsync(
     "Sending tokens...",
-    async () => await client.sendTokens(recipient, coins)
+    async () => await State.client.sendTokens(recipient, coins)
   );
 
   console.log();
@@ -107,7 +107,7 @@ async function handleSend(input: string[]) {
 async function handleBalance(inputs: string[]) {
   const [denom, addr] = inputs;
 
-  const resp = await client.getBalance(denom, addr);
+  const resp = await State.client.getBalance(denom, addr);
   console.log(resp);
   console.log();
   console.log(pc.bold("Balance"));

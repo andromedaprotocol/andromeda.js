@@ -1,5 +1,5 @@
 import type AndromedaClient from "../AndromedaClient";
-import type { Expiration, Fee, Module, Msg } from "../types";
+import type { Fee, Milliseconds, Module } from "../types";
 
 export default class ADOAPI {
 
@@ -7,15 +7,6 @@ export default class ADOAPI {
     protected client: AndromedaClient,
     protected address: string = ""
   ) { }
-
-  /**
-   * Converts a message object to an Andromeda Execute Message
-   * @param msg
-   * @returns
-   */
-  protected andromedaReceive(msg: Msg) {
-    return { andr_receive: msg };
-  }
 
   /**
    * Execute Messages
@@ -26,7 +17,7 @@ export default class ADOAPI {
    * @param newOwner
    * @returns
    */
-  updateOwnerMsg(newOwner: string, expiration?: Expiration) {
+  updateOwnerMsg(newOwner: string, expiration?: Milliseconds) {
     // TODO: Add expiration?
     return {
       ownership: {
@@ -50,7 +41,7 @@ export default class ADOAPI {
   async updateOwner(
     newOwner: string,
     addr: string = this.address,
-    expiration?: Expiration,
+    expiration?: Milliseconds,
     fee?: Fee,
     memo?: string
   ) {
@@ -59,36 +50,6 @@ export default class ADOAPI {
 
     return resp;
   }
-
-  // /**
-  //  * Returns an update operators message
-  //  * @param operators
-  //  * @returns
-  //  */
-  // updateOperatorsMsg(operators: string[]) {
-  //   return this.andromedaReceive({ update_operators: { operators } });
-  // }
-
-  // /**
-  //  * Updates the operators for a given ADO.
-  //  *  **Only accessible to the current owner**
-  //  * @param operators
-  //  * @param addr
-  //  * @param fee
-  //  * @param memo
-  //  * @returns
-  //  */
-  // async updateOperators(
-  //   operators: string[],
-  //   addr: string = this.address,
-  //   fee?: Fee,
-  //   memo?: string
-  // ) {
-  //   const msg = this.updateOperatorsMsg(operators);
-  //   const resp = await this.client.execute(addr, msg, fee, memo);
-
-  //   return resp;
-  // }
 
   /**
    * Returns an update app contract message
@@ -221,107 +182,6 @@ export default class ADOAPI {
 
     return resp;
   }
-
-  // /**
-  //  * Returns a refresh address message
-  //  * @param key
-  //  * @returns
-  //  */
-  // refreshAddressMsg(key: string) {
-  //   return this.andromedaReceive({ refresh_address: { address: key } });
-  // }
-
-  // /**
-  //  * Refreshes any AndrAddresses within the ADO
-  //  * **Only accessible by the contract owner.**
-  //  * @param key
-  //  * @param addr
-  //  * @param fee
-  //  * @param memo
-  //  * @returns
-  //  */
-  // async refreshAddress(
-  //   key: string,
-  //   addr: string = this.address,
-  //   fee?: Fee,
-  //   memo?: string
-  // ) {
-  //   const msg = this.refreshAddressMsg(key);
-  //   const resp = await this.client.execute(addr, msg, fee, memo);
-
-  //   return resp;
-  // }
-
-  // /**
-  //  * Returns a refresh addresses message
-  //  * @param startAfter The key to start after
-  //  * @param limit
-  //  * @returns
-  //  */
-  // refreshAddressesMsg(startAfter?: string, limit?: number) {
-  //   return this.andromedaReceive({
-  //     refresh_addresses: { start_after: startAfter, limit },
-  //   });
-  // }
-
-  // /**
-  //  * Refreshes multiple addresses
-  //  * **Only accessible by the contract owner.**
-  //  * @param startAfter The key to start after
-  //  * @param limit The amount to refresh
-  //  * @param addr
-  //  * @param fee
-  //  * @param memo
-  //  * @returns
-  //  */
-  // async refreshAddresses(
-  //   startAfter?: string,
-  //   limit?: number,
-  //   addr: string = this.address,
-  //   fee?: Fee,
-  //   memo?: string
-  // ) {
-  //   const msg = this.refreshAddressesMsg(startAfter, limit);
-  //   const resp = await this.client.execute(addr, msg, fee, memo);
-
-  //   return resp;
-  // }
-
-  // /**
-  //  * Query Messages
-  //  */
-
-  // /**
-  //  * Converts a message object to an Andromeda Query message
-  //  * @param msg
-  //  * @returns
-  //  */
-  // protected andromedaQuery(msg: Msg) {
-  //   return { andr_query: msg };
-  // }
-
-  // /**
-  //  * Returns an operators query message
-  //  * @returns
-  //  */
-  // operatorsQuery() {
-  //   return { operators: {} };
-  // }
-
-  // /**
-  //  * Gets all operators for the provided ADO
-  //  * @param addr
-  //  * @returns
-  //  */
-  // async getOperators(addr: string = this.address) {
-  //   const query = this.operatorsQuery();
-  //   const resp = await this.client.queryContract<{ operators: string[] }>(
-  //     addr,
-  //     query
-  //   );
-
-  //   return resp.operators;
-  // }
 
   /**
    * Returns an owner query message
@@ -500,13 +360,10 @@ export default class ADOAPI {
    */
   async getModules(addr: string = this.address) {
     const ids = await this.getModuleIds(addr);
-    const modulePromises = [];
 
-    for (let i = 0; i < ids.length; i++) {
-      modulePromises.push(this.getModule(ids[i], addr));
-    }
-
-    const modules = await Promise.all(modulePromises);
+    const modules = await Promise.all(ids.map(async (moduleId) => {
+      return this.getModule(moduleId, addr)
+    }));
 
     return modules;
   }

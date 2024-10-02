@@ -4,10 +4,8 @@ import pc from "picocolors";
 import { displaySpinnerAsync, logTableConfig } from "../../common";
 import State from "../../state";
 import { Commands, Flags } from "../../types";
-import { generateHandler, validateAddressInput } from "../utils";
-import urlCommands from './url';
+import { validateAddressInput } from "../utils";
 
-const urlHandler = generateHandler(urlCommands, "gql url");
 
 const commands: Commands = {
     app: {
@@ -38,14 +36,16 @@ const commands: Commands = {
                 description: "Filter assets by name",
                 usage: "--search name",
             },
+            limit: {
+                description: "Paginate response, 0 mean no limit",
+                usage: "--limit 10",
+            },
+            offset: {
+                description: "Paginate response",
+                usage: "--offset 0",
+            },
         },
-    },
-    url: {
-        description: "Graphql url config",
-        usage: "gql url <cmd>",
-        handler: urlHandler,
-        color: pc.white,
-    },
+    }
 };
 
 
@@ -94,13 +94,15 @@ async function appHandler(input: string[]) {
  * @param flags
  */
 async function assetsHandler(_input: string[], flags: Flags) {
-    const walletAddr = State.wallets.currentWalletAddress;
+    const walletAddr = await State.wallets.currentWalletAddress();
     if (!walletAddr) throw new Error("No wallet currently assigned");
     const { type, search } = flags;
 
+    const limit = parseInt(flags.limit ?? '10');
+    const offset = parseInt(flags.offset ?? '0');
     const assets = await displaySpinnerAsync(
         "Searching the Cosmos...",
-        async () => await queryAssets(walletAddr, 0, 0, IAndrOrderBy.DESC, search, type)
+        async () => await queryAssets(walletAddr, limit, offset, IAndrOrderBy.DESC, search, type)
     );
 
     const assetsTable = new Table({
@@ -116,7 +118,11 @@ async function assetsHandler(_input: string[], flags: Flags) {
         assetsTable.push([asset.address, asset.name ?? "", asset.adoType, asset.appContract ?? ""]);
     });
 
+    console.log()
     console.log(assetsTable.toString());
+    console.log()
+    console.log(pc.gray(`Limit - ${limit}, Offset - ${offset}`))
+    console.log()
 }
 
 enum IAndrOrderBy {
