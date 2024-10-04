@@ -1,8 +1,8 @@
 import pc from "picocolors";
 import { Commands } from "../../types";
-import { createEnv, envConfig, getAllEnvs, loadEnv, renameEnv } from "../../config";
+import { createEnv, DEFAULT_ENVS, envConfig, getAllEnvs, loadEnv, removeEnv, renameEnv } from "../../config";
 import state from "../../state/State";
-import { title } from "cmd";
+import { promptWithExit, title } from "cmd";
 import { loadStorageFile, writeStorageFile } from "config/storage";
 import Table from "cli-table";
 import { logTableConfig } from "common";
@@ -22,7 +22,7 @@ const commands: Commands = {
             {
                 requestMessage: "Select env to use: ",
                 options: async () => {
-                    return getAllEnvs();
+                    return getAllEnvs().filter((env) => env !== envConfig.get("name"));
                 },
             },
         ],
@@ -56,9 +56,33 @@ const commands: Commands = {
         description: "Rename env",
         inputs: [
             {
-                requestMessage: "Enter new name: ",
+                requestMessage: "Select env: ",
+                options: getAllEnvs().filter((env) => !Object.values(DEFAULT_ENVS).includes(env as DEFAULT_ENVS)),
             },
-        ]
+            {
+                requestMessage: "Enter new name: ",
+                validate: (input: string) => {
+                    const exists = getAllEnvs().includes(input);
+                    if (exists) {
+                        console.log(pc.red("Env already exists!"));
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        ],
+    },
+    remove: {
+        handler: removeHandler,
+        usage: "env remove <name>",
+        color: pc.yellow,
+        description: "Remove env",
+        inputs: [
+            {
+                requestMessage: "Enter env to remove: ",
+                options: getAllEnvs().filter((env) => env !== envConfig.get("name") && !Object.values(DEFAULT_ENVS).includes(env as DEFAULT_ENVS)),
+            },
+        ],
     },
     create: {
         handler: createHandler,
@@ -172,19 +196,34 @@ async function updateHandler(input: string[]) {
  * @param input - The key and value to update
  */
 async function renameHandler(input: string[]) {
-    const [name] = input;
-    renameEnv(envConfig.get("name"), name);
-    envConfig.set("name", name);
-    writeStorageFile(
-        envConfig.get("name"),
-        "env.json",
-        JSON.stringify(envConfig.getProperties())
-    );
-    await loadEnv(envConfig.get("name"));
-    state.refresh();
-    await state.connectClient();
-    await title();
+    const [env, newName] = input;
+    renameEnv(env, newName);
+    if (envConfig.get("name") === env) {
+        await loadEnv(newName);
+        state.refresh();
+        await state.connectClient();
+        await title();
+    }
 }
+
+/**
+ * Updates the current environment
+ * @param input - The key and value to update
+ */
+async function removeHandler(input: string[]) {
+    const [name] = input;
+
+    const confirm = await promptWithExit({
+        type: "confirm",
+        name: "confirmremove",
+        message: `This action is irreversible! Are you sure you want to remove env ${name}?`,
+    });
+
+    if (!confirm.confirmremove) return;
+    removeEnv(name);
+    console.log(pc.green("Env removed!"));
+}
+
 
 /**
  * Updates the current environment

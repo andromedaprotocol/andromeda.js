@@ -209,7 +209,22 @@ export function createEnv(env: string, data?: Partial<ReturnType<typeof envConfi
  * Rename env with its folder
  */
 export function renameEnv(env: string, newName: string) {
+  const config = JSON.parse(loadStorageFile(env, "env.json").toString()) as ReturnType<typeof envConfig.getProperties>;
   fs.renameSync(path.join(CONFIG_DIRECTORY, env), path.join(CONFIG_DIRECTORY, newName));
+  config.name = newName;
+  writeStorageFile(
+    newName,
+    "env.json",
+    JSON.stringify(config)
+  );
+}
+
+/**
+ * Rename env with its folder
+ */
+export function removeEnv(env: string) {
+  if (env === envConfig.get("name")) throw new Error("Cannot remove current env");
+  fs.rmSync(path.join(CONFIG_DIRECTORY, env), { recursive: true });
 }
 
 
