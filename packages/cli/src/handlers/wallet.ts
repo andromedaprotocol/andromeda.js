@@ -95,10 +95,10 @@ const commands: Commands = {
         inputs: [
             {
                 requestMessage: "Select wallet to migrate:",
-                options: () => State.wallets.legacyWallets.map((wallet) => wallet.name),
+                options: () => State.wallets.legacyWallets.wallets.map((wallet) => wallet.name),
             },
         ],
-        disabled: () => State.wallets.legacyWallets.length === 0,
+        disabled: () => State.wallets.legacyWallets.wallets.length === 0,
     },
     use: {
         handler: useWalletHandler,
@@ -406,7 +406,7 @@ async function listWallets(wallets: StoredWalletData[]) {
     if (wallets.length === 0) {
         throw new Error(`No wallets to display
 
-You can add a wallet by using the generate command:
+You can create a new wallet by using the generate command:
   ${pc.green("wallets generate <name>")}
       `);
     }
@@ -461,22 +461,23 @@ async function migrateLegacyWalletHandler(input: string[]) {
  * @param input
  */
 async function migrateLegacyWallet(legacyName: string) {
-    const updatedWallet = await State.wallets.migrateLegacyWallet(legacyName);
-    if (!updatedWallet) return;
     const name = await promptWithExit({
         name: "name",
         type: "input",
         message: "Enter new name for the wallet",
         default: legacyName,
-        validate: (answer) => {
-            const existing = State.wallets.wallets[answer.trim()];
+        validate: (answer: string) => {
+            const existing = State.wallets.wallets.some((w) => w.name === answer.trim());
             if (existing) {
-                console.log("Already have a wallet with this name");
+                console.log();
+                console.log(pc.red("Already have a wallet with this name"));
                 return false;
             }
             return true;
         },
     });
+    const updatedWallet = await State.wallets.migrateLegacyWallet(legacyName);
+    if (!updatedWallet) return;
     updatedWallet.name = name.name.trim();
     State.wallets.addWallet(updatedWallet);
     State.wallets.removeLegacyWallet(legacyName);

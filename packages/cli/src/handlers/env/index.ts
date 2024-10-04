@@ -1,9 +1,9 @@
 import pc from "picocolors";
 import { Commands } from "../../types";
-import { envConfig, loadEnv, renameEnv } from "../../config";
+import { createEnv, envConfig, getAllEnvs, loadEnv, renameEnv } from "../../config";
 import state from "../../state/State";
 import { title } from "cmd";
-import { writeStorageFile } from "config/storage";
+import { loadStorageFile, writeStorageFile } from "config/storage";
 import Table from "cli-table";
 import { logTableConfig } from "common";
 
@@ -22,10 +22,17 @@ const commands: Commands = {
             {
                 requestMessage: "Select env to use: ",
                 options: async () => {
-                    return envConfig.get('envs');
+                    return getAllEnvs();
                 },
             },
         ],
+    },
+    list: {
+        handler: listHandler,
+        usage: "env list",
+        color: pc.blue,
+        description:
+            "List all environments",
     },
     update: {
         handler: updateHandler,
@@ -53,6 +60,50 @@ const commands: Commands = {
             },
         ]
     },
+    create: {
+        handler: createHandler,
+        usage: "env create <name>",
+        color: pc.yellow,
+        description: "Create env",
+        inputs: [
+            {
+                requestMessage: "Env Name: ",
+                validate: (input: string) => {
+                    const exists = getAllEnvs().includes(input);
+                    if (exists) {
+                        console.log();
+                        console.log(pc.red("Env already exists!"));
+                        return false;
+                    }
+                    return true;
+                }
+            },
+            {
+                requestMessage: "GQL Url: ",
+                validate: (input: string) => {
+                    if (!input.startsWith("http")) {
+                        console.log();
+                        console.log(pc.red("Invalid GQL Url!"));
+                        return false;
+                    }
+                    return true;
+                },
+                default: envConfig.get('gql')
+            },
+            {
+                requestMessage: "Schema Url: ",
+                validate: (input: string) => {
+                    if (!input.startsWith("http")) {
+                        console.log();
+                        console.log(pc.red("Invalid Schema Url!"));
+                        return false;
+                    }
+                    return true;
+                },
+                default: envConfig.get('schema')
+            },
+        ]
+    },
     print: {
         handler: printHandler,
         color: pc.white,
@@ -72,6 +123,26 @@ async function useHandler(input: string[]) {
     await state.connectClient();
     console.clear();
     await title();
+}
+
+/**
+ * Changes the current environment
+ * @param input - The environment to use
+ */
+async function listHandler(_input: string[]) {
+    const envs = getAllEnvs();
+    console.log();
+    const infoTable = new Table(logTableConfig);
+    infoTable.push([pc.bold("Name"), pc.bold(pc.green("GQL")), pc.bold(pc.green("Schema Url"))]);
+
+    envs.forEach((env) => {
+        const envData = JSON.parse(loadStorageFile(env, "env.json").toString()) as ReturnType<typeof envConfig.getProperties>;
+        const data = [pc.bold(env), pc.bold(envData.gql), pc.bold(envData.schema)]
+        infoTable.push(env === envConfig.get("name") ? data.map(d => pc.green(d)) : data);
+    })
+
+    console.log(infoTable.toString());
+    console.log();
 }
 
 /**
@@ -114,6 +185,21 @@ async function renameHandler(input: string[]) {
     await state.connectClient();
     await title();
 }
+
+/**
+ * Updates the current environment
+ * @param input - The key and value to update
+ */
+async function createHandler(input: string[]) {
+    const [name, gql, schema] = input;
+
+    createEnv(name, { gql, schema });
+    await loadEnv(name);
+    state.refresh();
+    await state.connectClient();
+    await title();
+}
+
 
 
 /**

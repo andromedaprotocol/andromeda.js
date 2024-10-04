@@ -22,26 +22,16 @@ if (!fs.existsSync(CONFIG_DIRECTORY)) {
  * @returns A buffer containing the file data
  */
 export function loadStorageFile(env: string, file: string) {
-  const filePath = path.join(CONFIG_DIRECTORY, env, file);
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`File ${file} does not exist`);
-  }
-
-  return fs.readFileSync(filePath);
+  return loadFile(path.join(CONFIG_DIRECTORY, env, file));
 }
 
 /**
- * Writes to s a stored file
+ * Writes to a stored file
  * @param file The path of where to write the data
  * @param data The data to write
  */
 export function writeStorageFile(env: string, file: string, data: string) {
-  const envDir = path.join(CONFIG_DIRECTORY, env);
-  const filePath = path.join(envDir, file);
-  if (!fs.existsSync(envDir)) {
-    fs.mkdirSync(envDir, { recursive: true })
-  }
-  fs.writeFileSync(filePath, data);
+  writeFile(path.join(CONFIG_DIRECTORY, env), file, data);
 }
 
 /**
@@ -50,8 +40,70 @@ export function writeStorageFile(env: string, file: string, data: string) {
  * @returns
  */
 export function storageFileExists(env: string, file: string) {
-  const filePath = path.join(CONFIG_DIRECTORY, env, file);
-  return fs.existsSync(filePath);
+  return pathExists(path.join(CONFIG_DIRECTORY, env, file));
+}
+
+
+/**
+ * Checks if a root file exists
+ * @param file The file to check for
+ * @returns
+ */
+export function rootFileExists(file: string) {
+  return pathExists(path.join(CONFIG_DIRECTORY, file));
+}
+
+/**
+ * Loads a root file
+ * @param file The path to the file to load
+ * @returns A buffer containing the file data
+ */
+export function loadRootFile(file: string) {
+  return loadFile(path.join(CONFIG_DIRECTORY, file));
+}
+
+/**
+ * Writes to a root file
+ * @param file The path of where to write the data
+ * @param data The data to write
+ */
+export function writeRootFile(file: string, data: string) {
+  writeFile(CONFIG_DIRECTORY, file, data);
+}
+
+
+/**
+ * Loads a stored file
+ * @param file The path to the file to load
+ * @returns A buffer containing the file data
+ */
+function loadFile(filePath: string) {
+  if (!pathExists(filePath)) {
+    throw new Error(`File ${filePath} does not exist`);
+  }
+  return fs.readFileSync(filePath);
+}
+
+/**
+ * Writes to s a stored file
+ * @param file The path of where to write the data
+ * @param data The data to write
+ */
+function writeFile(dirPath: string, file: string, data: string) {
+  if (!pathExists(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true })
+  }
+  const filePath = path.join(dirPath, file);
+  fs.writeFileSync(filePath, data);
+}
+
+/**
+ * Checks if a stored file exists
+ * @param path The file to check for
+ * @returns
+ */
+function pathExists(path: string) {
+  return fs.existsSync(path);
 }
 
 /**
