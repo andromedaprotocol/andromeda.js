@@ -416,18 +416,17 @@ You can create a new wallet by using the generate command:
     });
     const current = State.wallets.currentWallet;
 
-    const chainId = config.get("chain.chainId");
+    const prefix = config.get("chain.addressPrefix");
 
     for (const wallet of wallets) {
+        const data = [
+            wallet.name,
+            wallet.addresses[prefix] || "",
+        ]
         // Highlight the currently selected wallet
         const isCurrent = current && wallet.name === current.name;
-        const addr =
-            wallet.addresses[chainId] || "";
-        walletTable.push([
-            isCurrent ? "*" : "",
-            isCurrent ? pc.green(wallet.name) : wallet.name,
-            isCurrent ? pc.green(addr) : addr,
-        ]);
+
+        walletTable.push(isCurrent ? ["*", ...data.map(d => pc.green(d))] : ["*", ...data]);
     }
     console.log(walletTable.toString());
 }
@@ -492,12 +491,10 @@ async function migrateLegacyWallet(legacyName: string) {
 export async function setCurrentWallet(
     wallet: Wallet,
     passphrase?: string,
-    autoConnect = true
 ) {
     passphrase = passphrase ?? (await State.wallets.getWalletPassphrase(wallet.name));
     const signer = await wallet.getWallet(passphrase);
     State.wallets.defaultWallet = wallet.name;
-    if (!autoConnect) return signer;
 
     try {
         await State.connectClient(passphrase);
