@@ -1,5 +1,12 @@
 # @andromedaprotocol/cli
 
+## 2.0.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @andromedaprotocol/andromeda.js@2.0.0-beta.1
+
 ## 2.0.0-beta.0
 
 ### Major Changes
