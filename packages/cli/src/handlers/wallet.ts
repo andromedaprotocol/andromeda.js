@@ -364,9 +364,9 @@ async function renameWalletHandler(input: string[]) {
     const confirmed = await promptWithExit({
         name: "rmwalletconfirm",
         type: "confirm",
-        message: `Are you sure you want to remove wallet ${State.wallets.currentWallet?.name}?`,
+        message: `Are you sure you want to rename wallet ${State.wallets.currentWallet?.name}?`,
     });
-    if (confirmed.confirm) {
+    if (confirmed.rmwalletconfirm) {
         await State.wallets.renameWallet(State.wallets.currentWallet?.name, newName);
         await title();
     }

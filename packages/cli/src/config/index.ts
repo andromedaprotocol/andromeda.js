@@ -157,9 +157,13 @@ export const envConfig = convict({
 });
 
 export function getAllEnvs() {
-  return fs.readdirSync(CONFIG_DIRECTORY).filter(env => {
-    return storageFileExists(env, 'env.json');
-  });
+  try {
+    return fs.readdirSync(CONFIG_DIRECTORY).filter(env => {
+      return storageFileExists(env, 'env.json');
+    });
+  } catch (error) {
+    return [];
+  }
 }
 
 
@@ -209,6 +213,9 @@ export function createEnv(env: string, data?: Partial<ReturnType<typeof envConfi
  * Rename env with its folder
  */
 export function renameEnv(env: string, newName: string) {
+  if (fs.existsSync(path.join(CONFIG_DIRECTORY, newName))) {
+    throw new Error(`Environment '${newName}' already exists`);
+  }
   const config = JSON.parse(loadStorageFile(env, "env.json").toString()) as ReturnType<typeof envConfig.getProperties>;
   fs.renameSync(path.join(CONFIG_DIRECTORY, env), path.join(CONFIG_DIRECTORY, newName));
   config.name = newName;
@@ -224,7 +231,12 @@ export function renameEnv(env: string, newName: string) {
  */
 export function removeEnv(env: string) {
   if (env === envConfig.get("name")) throw new Error("Cannot remove current env");
-  fs.rmSync(path.join(CONFIG_DIRECTORY, env), { recursive: true });
+  try {
+    fs.rmSync(path.join(CONFIG_DIRECTORY, env), { recursive: true });
+  } catch (error) {
+    console.error(`Error removing environment '${env}':`, error);
+    throw error;
+  }
 }
 
 
@@ -264,7 +276,11 @@ export function loadLocalChains() {
  * Saves the current config when the CLI is exited
  */
 addExitHandler(() => {
-  writeRootFile('env.json', JSON.stringify({ default: envConfig.get('name') }));
+  try {
+    writeRootFile('env.json', JSON.stringify({ default: envConfig.get('name') }));
+  } catch (error) {
+    console.error("Error saving config on exit:", error);
+  }
   writeStorageFile(envConfig.get('name'), "env.json", JSON.stringify(envConfig.getProperties()));
   writeStorageFile(envConfig.get('name'), "config.json", JSON.stringify(config.getProperties()));
 });

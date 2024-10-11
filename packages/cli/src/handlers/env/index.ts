@@ -150,8 +150,8 @@ async function useHandler(input: string[]) {
 }
 
 /**
- * Changes the current environment
- * @param input - The environment to use
+ * Lists all environments
+ * @param input - Not used
  */
 async function listHandler(_input: string[]) {
     const envs = getAllEnvs();
@@ -192,8 +192,8 @@ async function updateHandler(input: string[]) {
 }
 
 /**
- * Updates the current environment
- * @param input - The key and value to update
+ * Renames an environment
+ * @param input - The environment to rename and the new name
  */
 async function renameHandler(input: string[]) {
     const [env, newName] = input;
@@ -207,8 +207,8 @@ async function renameHandler(input: string[]) {
 }
 
 /**
- * Updates the current environment
- * @param input - The key and value to update
+ * Removes an environment
+ * @param input - The environment to remove
  */
 async function removeHandler(input: string[]) {
     const [name] = input;
@@ -226,8 +226,8 @@ async function removeHandler(input: string[]) {
 
 
 /**
- * Updates the current environment
- * @param input - The key and value to update
+ * Creates an environment
+ * @param input - The name, gql and schema url
  */
 async function createHandler(input: string[]) {
     const [name, gql, schema] = input;

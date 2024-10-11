@@ -36,15 +36,12 @@ inquirer.registerPrompt("command", inquirerCommandPrompt);
 
 async function onStartup() {
   try {
-    createEnv(DEFAULT_ENVS.TESTNET, {
-      'gql': GQL_URLS.TESTNET,
-    }, true);
-    createEnv(DEFAULT_ENVS.MAINNET, {
-      'gql': GQL_URLS.MAINNET,
-    }, true);
-    createEnv(DEFAULT_ENVS.DEVNET, {
-      'gql': GQL_URLS.DEVNET,
-    }, true);
+    const environments = ['TESTNET', 'MAINNET', 'DEVNET'] as const;
+    environments.forEach(env => {
+      createEnv(DEFAULT_ENVS[env], {
+        'gql': GQL_URLS[env],
+      }, true);
+    })
     await displaySpinnerAsync("Loading env..", loadDefaultEnv);
   } catch (error) {
     console.error(error);

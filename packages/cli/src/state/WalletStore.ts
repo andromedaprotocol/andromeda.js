@@ -41,7 +41,9 @@ export interface StoredWalletData {
 }
 
 
-// @deprecated Will be removed in next update
+/**
+ * @deprecated Will be removed in next update
+ */
 export interface LegacyStoredData {
   wallets: LegacyStoredWalletData[];
   defaults: Record<string, string>;
@@ -505,8 +507,8 @@ export default class WalletStore {
  */
   async removeLegacyWallet(name: string) {
     const legacyWallets = this.legacyWallets;
-    legacyWallets.wallets = legacyWallets.wallets.filter(wallet => !(wallet.name === name))
-    this.legacyWallets = legacyWallets;
+    const updatedWallets = legacyWallets.wallets.filter(wallet => !(wallet.name === name))
+    this.legacyWallets = { ...legacyWallets, wallets: updatedWallets };
     await this.removeKeychain(name)
   }
 

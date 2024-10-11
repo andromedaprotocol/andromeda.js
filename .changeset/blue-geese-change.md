@@ -3,4 +3,4 @@
 "@andromedaprotocol/andromeda.js": patch
 ---
 
-Fix: Ether wallet now apply Bech32 prefix properly
+Fix: Ether wallet now applies Bech32 prefix properly

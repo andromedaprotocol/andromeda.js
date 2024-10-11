@@ -27,6 +27,7 @@ export function loadStorageFile(env: string, file: string) {
 
 /**
  * Writes to a stored file
+ * @param env TThe environment directory where the file will be stored
  * @param file The path of where to write the data
  * @param data The data to write
  */
@@ -36,6 +37,7 @@ export function writeStorageFile(env: string, file: string, data: string) {
 
 /**
  * Checks if a stored file exists
+ * @param env The environment directory where the file is stored
  * @param file The file to check for
  * @returns
  */
@@ -68,7 +70,12 @@ export function loadRootFile(file: string) {
  * @param data The data to write
  */
 export function writeRootFile(file: string, data: string) {
-  writeFile(CONFIG_DIRECTORY, file, data);
+  try {
+    writeFile(CONFIG_DIRECTORY, file, data);
+  } catch (error) {
+    console.error(`Error writing to root file '${file}':`, error);
+    throw error;
+  }
 }
 
 
@@ -91,7 +98,11 @@ function loadFile(filePath: string) {
  */
 function writeFile(dirPath: string, file: string, data: string) {
   if (!pathExists(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true })
+    try {
+      fs.mkdirSync(dirPath, { recursive: true })
+    } catch (error: any) {
+      throw new Error(`Failed to create directory ${dirPath}: ${error?.message}`)
+    }
   }
   const filePath = path.join(dirPath, file);
   fs.writeFileSync(filePath, data);
