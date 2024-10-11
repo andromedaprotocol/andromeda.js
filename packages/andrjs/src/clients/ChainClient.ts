@@ -32,6 +32,7 @@ export default interface ChainClient {
   // The client used to query the chain
   queryClient?: CosmWasmClient;
 
+
   rawQueryClient?: QueryClient & TxExtension & WasmExtension
 
   // The current signer address

@@ -72,6 +72,7 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
 
   /** Client for querying blockchain data */
   public queryClient?: ChainClient["queryClient"];
+
   /** Client for querying data with raw implementation */
   public rawQueryClient?: ChainClient["rawQueryClient"];
   /** Client for interacting with the Comet BFT consensus engine */

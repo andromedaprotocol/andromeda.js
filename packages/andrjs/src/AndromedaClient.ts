@@ -6,6 +6,7 @@ import {
   SigningStargateClientOptions,
   StdFee,
   calculateFee,
+  createProtobufRpcClient,
 } from "@cosmjs/stargate";
 import { ADOAPI } from "./api";
 
@@ -18,6 +19,7 @@ import type { Fee, Msg } from "./types";
 import ADOSchemaAPI from "api/ADOSchemaAPI";
 import { RpcClient } from "@cosmjs/tendermint-rpc";
 import { PageRequest } from "cosmjs-types/cosmos/base/query/v1beta1/pagination";
+import { QueryClientImpl as WasmQueryClientImpl } from 'cosmjs-types/cosmwasm/wasm/v1/query'
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
@@ -221,18 +223,20 @@ export default class AndromedaClient {
  */
   async queryContractRawAll(address: string, pagination: Partial<PageRequest>) {
     this.preMessage();
-    const result = await this.chainClient!.rawQueryClient!.wasm.getAllContractState(
-      address,
-      await this.encodePagination(pagination)
-    );
-    return result.models.map(model => ({
-      key: Buffer.from(model.key).toString('utf8'),
-      value: Buffer.from(model.value).toString('utf8')
-    }))
-  }
+    const rpcClient = createProtobufRpcClient(this.chainClient!.rawQueryClient!);
+    const wasmQueryClient = new WasmQueryClientImpl(rpcClient);
 
-  async encodePagination(pagination: Partial<PageRequest>) {
-    return PageRequest.encode(PageRequest.fromPartial(pagination)).finish();
+    const result = await wasmQueryClient.AllContractState({
+      address,
+      pagination: PageRequest.fromPartial(pagination)
+    });
+    return {
+      states: result.models.map(model => ({
+        key: Buffer.from(model.key).toString('utf8'),
+        value: Buffer.from(model.value).toString('utf8')
+      })),
+      pagination: result.pagination
+    }
   }
 
   /**

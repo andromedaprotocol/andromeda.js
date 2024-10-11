@@ -68,13 +68,21 @@ export const commands: Commands = {
     ],
     flags: {
       limit: {
-        description: "Paginate response, 0 mean no limit",
+        description: "Limit number of results",
         usage: "--limit 10",
       },
       offset: {
-        description: "Paginate response",
+        description: "Offset number of results (This might not be supported by all chains)",
         usage: "--offset 0",
       },
+      ['next-key']: {
+        description: "Next key to paginate from",
+        usage: "--next-key <key>",
+      },
+      ['next-key-bytes']: {
+        description: "Next key to paginate from (bytes)",
+        usage: "--next-key-bytes <key>",
+      }
     }
   },
   execute: {
@@ -258,22 +266,34 @@ async function queryRawHandler(input: string[], flags: Flags) {
   const [contractAddr] = input;
   const limit = BigInt(flags.limit ?? '10');
   const offset = BigInt(flags.offset ?? '0');
+  const nextKey = flags['next-key'] as string | undefined;
+  const nextKeyBytes = flags['next-key-bytes'] as string | undefined;
+
+  if (nextKeyBytes && nextKey) {
+    throw new Error("Cannot provide both next-key and next-key-bytes");
+  }
+
+  const key = nextKeyBytes ? Uint8Array.from(Buffer.from(nextKeyBytes, 'hex')) : nextKey ? Uint8Array.from(Buffer.from(nextKey, 'utf8')) : undefined;
 
   const states = await displaySpinnerAsync(
     "Querying contrac key...",
-    async () => await State.client.queryContractRawAll(contractAddr, { limit, offset })
+    async () => await State.client.queryContractRawAll(contractAddr, { limit, offset, key })
   );
   console.log();
-  const infoTable = new Table(logTableConfig);
 
 
-  infoTable.push([pc.bold("Key"), ":", pc.bold("Value")]);
-  for (const state of states) {
-    infoTable.push([pc.blue(state.key), ":", state.value]);
+  for (const state of states.states) {
+    console.log(pc.blue(state.key));
+    console.log(state.value);
+    console.log();
   }
-  console.log(infoTable.toString());
   console.log();
-  console.log(pc.gray(`Limit - ${limit}, Offset - ${offset}`))
+  console.log(pc.gray(`Limit - ${limit}, Offset - ${offset}, key - ${key ? Buffer.from(key).toString('utf8') : 'None'}`))
+  if (states.pagination) {
+    console.log(pc.gray(`Next Key - ${Buffer.from(states.pagination.nextKey).toString('utf8')}`));
+    console.log(pc.gray(`Next Key Bytes - ${Buffer.from(states.pagination.nextKey).toString('hex')}`));
+    console.log(pc.gray(`Total - ${states.pagination.total.toString()}`));
+  }
   console.log()
 
 
