@@ -1,6 +1,5 @@
-import { Msg } from "@andromedaprotocol/andromeda.js";
+import { convertMicroToMacro, getUnitsConfigFromDenom, Msg, formatAmountToInternational } from "@andromedaprotocol/andromeda.js";
 import { Coin, parseCoins } from "@cosmjs/proto-signing";
-import { StdFee } from "@cosmjs/stargate";
 import { promptWithExit } from "../cmd";
 import fs from "fs";
 import path from "path";
@@ -16,7 +15,7 @@ import State from "../state";
 import { Commands, Flags } from "../types";
 import { parseJSONInput, validateAddressInput } from "./utils";
 import Table from "cli-table";
-
+import { StdFee } from "@cosmjs/amino";
 
 export const commands: Commands = {
   'info': {
@@ -66,13 +65,17 @@ export const commands: Commands = {
         requestMessage: "Input Contract Address:",
         validate: validateAddressInput,
       },
-      {
-        requestMessage: "Input key:",
-        validate: (input: string) => {
-          return input.length > 0;
-        },
-      },
     ],
+    flags: {
+      limit: {
+        description: "Paginate response, 0 mean no limit",
+        usage: "--limit 10",
+      },
+      offset: {
+        description: "Paginate response",
+        usage: "--offset 0",
+      },
+    }
   },
   execute: {
     handler: executeHandler,
@@ -251,18 +254,29 @@ async function queryHandler(input: string[]) {
  * Queries a contract given a query message and address
  * @param input
  */
-async function queryRawHandler(input: string[]) {
-  const [contractAddr, key] = input;
-  const resp = await displaySpinnerAsync(
+async function queryRawHandler(input: string[], flags: Flags) {
+  const [contractAddr] = input;
+  const limit = BigInt(flags.limit ?? '10');
+  const offset = BigInt(flags.offset ?? '0');
+
+  const states = await displaySpinnerAsync(
     "Querying contrac key...",
-    async () => await State.client.queryContractRaw<any>(contractAddr, key)
+    async () => await State.client.queryContractRawAll(contractAddr, { limit, offset })
   );
-  if (resp === null) {
-    console.log(pc.red("No data found at key"));
-    return;
+  console.log();
+  const infoTable = new Table(logTableConfig);
+
+
+  infoTable.push([pc.bold("Key"), ":", pc.bold("Value")]);
+  for (const state of states) {
+    infoTable.push([pc.blue(state.key), ":", state.value]);
   }
-  console.log(pc.green("Response: "));
-  console.log(JSON.stringify(resp, null, 2));
+  console.log(infoTable.toString());
+  console.log();
+  console.log(pc.gray(`Limit - ${limit}, Offset - ${offset}`))
+  console.log()
+
+
 }
 
 /**
@@ -580,7 +594,9 @@ function logFeeEstimation(fee: StdFee) {
   console.log("Fee estimates:");
   for (let i = 0; i < fee.amount.length; i++) {
     const feeCoin = fee.amount[i];
-    console.log(`   ${pc.green(`${feeCoin.amount}${feeCoin.denom}`)}`);
+    const denomUnits = getUnitsConfigFromDenom(feeCoin.denom);
+    const macroAmount = convertMicroToMacro(feeCoin.amount, denomUnits.units);
+    console.log(`   ${pc.green(`${formatAmountToInternational(macroAmount)} ${denomUnits.macroDenom}`)}`);
   }
   console.log();
 }

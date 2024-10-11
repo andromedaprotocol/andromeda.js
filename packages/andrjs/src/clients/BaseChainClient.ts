@@ -35,6 +35,7 @@ const DEFAULT_CONFIG: ChainClient['config'] = {
  * Base class for chain clients, implementing partial functionality of ChainClient
  */
 export default class BaseChainClient implements Partial<ChainClient> {
+  public addressPrefix: string;
   protected signingClient?: SigningStargateClient;
   public queryClient?: ChainClient["queryClient"];
   public signer = "";
@@ -44,7 +45,8 @@ export default class BaseChainClient implements Partial<ChainClient> {
    * Creates a new BaseChainClient instance
    * @param config - Optional partial configuration to override defaults
    */
-  constructor(config?: Partial<ChainClient['config']>) {
+  constructor(addressPrefix: string, config?: Partial<ChainClient['config']>) {
+    this.addressPrefix = addressPrefix;
     this.config = {
       ...DEFAULT_CONFIG,
       ...config,

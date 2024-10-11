@@ -42,16 +42,8 @@ export class State {
 
     const { client, wallets } = this;
 
-    const currentWallet = wallets.currentWallet;
-    if (!passphrase) {
-      passphrase = currentWallet
-        ? await wallets.getWalletPassphrase(currentWallet.name)
-        : "";
-    }
-    const signer = currentWallet
-      ? await currentWallet.getWallet(passphrase)
-      : undefined;
-    return await displaySpinnerAsync(
+    const signer = wallets.currentWallet ? await wallets.getWalletSigner(wallets.currentWallet, passphrase) : undefined;
+    await displaySpinnerAsync(
       "Connecting Client...",
       () => new Promise<void>((resolve, reject) => {
         client
@@ -66,7 +58,7 @@ export class State {
         // Set timeout for client connection
         setTimeout(() => reject(pc.red("Client connection timed out")), 30000);
       })
-    );
+    )
   }
 }
 

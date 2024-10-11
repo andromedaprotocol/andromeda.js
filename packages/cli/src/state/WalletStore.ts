@@ -244,6 +244,20 @@ export default class WalletStore {
     return this.getWallet(this.defaultWallet);
   }
 
+  async getWalletSigner(wallet: Wallet, passphrase?: string) {
+    if (!passphrase) {
+      passphrase = await this.getWalletPassphrase(wallet.name)
+    }
+    const signer = await wallet.getWallet(passphrase).catch(async (err) => {
+      if (err.message?.includes("Invalid password")) {
+        const passphrase = await this.getWalletPassphrase(wallet.name, true);
+        return wallet.getWallet(passphrase);
+      }
+      throw err;
+    })
+    return signer;
+  }
+
   /**
    * Gets the address for a given wallet name
    * @param name
@@ -390,11 +404,14 @@ export default class WalletStore {
    * @returns The passphrase for the given wallet
    * @note This method may indirectly write to the file by calling storeKeychain
    */
-  async getWalletPassphrase(name: string) {
+  async getWalletPassphrase(name: string, forcePrompt = false) {
     // Check keychain
-    let passphrase = await keychain.getPassword(KEYCHAIN_SERVICE, name);
+    let passphrase = '';
+    if (!forcePrompt) {
+      passphrase = await keychain.getPassword(KEYCHAIN_SERVICE, name) || '';
+    }
     // Otherwise prompt
-    if (!passphrase) {
+    if (!passphrase || forcePrompt) {
       passphrase = await promptPassphrase(name);
     }
     await this.storeKeychain(name, passphrase)

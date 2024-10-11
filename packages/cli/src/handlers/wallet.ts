@@ -492,8 +492,8 @@ export async function setCurrentWallet(
     wallet: Wallet,
     passphrase?: string,
 ) {
-    passphrase = passphrase ?? (await State.wallets.getWalletPassphrase(wallet.name));
-    const signer = await wallet.getWallet(passphrase);
+
+    const signer = await State.wallets.getWalletSigner(wallet, passphrase);
     State.wallets.defaultWallet = wallet.name;
 
     try {

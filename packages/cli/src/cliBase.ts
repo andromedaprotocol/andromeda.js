@@ -56,7 +56,7 @@ export async function start() {
   const inputs = process.argv.slice(2);
   if (inputs.length === 0) {
     await title();
-    await State.connectClient()
+    await State.connectClient().catch(_ => { })
     while (true) {
       let input = await ask();
       const { _: cmd, ...flags } = minimist(parseInput(input.command));

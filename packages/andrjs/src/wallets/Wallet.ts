@@ -101,11 +101,15 @@ export default class Wallet {
   async decrypt(
     password: string,
   ): Promise<string> {
-    const kdfConfiguration = basicPasswordHashingOptions;
-    const encryptionKey = await executeKdf(password, kdfConfiguration);
-    const keyBuffer = Buffer.from(this.key, 'hex').valueOf();
-    const nonce = keyBuffer.slice(0, xchacha20NonceLength);
-    const decrypted = await Xchacha20poly1305Ietf.decrypt(keyBuffer.slice(xchacha20NonceLength), encryptionKey, nonce);
-    return Buffer.from(decrypted).toString('ascii')
+    try {
+      const kdfConfiguration = basicPasswordHashingOptions;
+      const encryptionKey = await executeKdf(password, kdfConfiguration);
+      const keyBuffer = Buffer.from(this.key, 'hex').valueOf();
+      const nonce = keyBuffer.slice(0, xchacha20NonceLength);
+      const decrypted = await Xchacha20poly1305Ietf.decrypt(keyBuffer.slice(xchacha20NonceLength), encryptionKey, nonce);
+      return Buffer.from(decrypted).toString('ascii')
+    } catch (e) {
+      throw new Error("Invalid password");
+    }
   }
 }
