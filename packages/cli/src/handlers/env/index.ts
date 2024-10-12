@@ -58,7 +58,7 @@ const commands: Commands = {
         inputs: [
             {
                 requestMessage: "Select env: ",
-                options: getAllEnvs().filter((env) => !Object.values(DEFAULT_ENVS).includes(env as DEFAULT_ENVS)),
+                options: () => getAllEnvs().filter((env) => !Object.values(DEFAULT_ENVS).includes(env as DEFAULT_ENVS)),
             },
             {
                 requestMessage: "Enter new name: ",
@@ -81,7 +81,7 @@ const commands: Commands = {
         inputs: [
             {
                 requestMessage: "Enter env to remove: ",
-                options: getAllEnvs().filter((env) => env !== envConfig.get("name") && !Object.values(DEFAULT_ENVS).includes(env as DEFAULT_ENVS)),
+                options: () => getAllEnvs().filter((env) => env !== envConfig.get("name") && !Object.values(DEFAULT_ENVS).includes(env as DEFAULT_ENVS)),
             },
         ],
     },
