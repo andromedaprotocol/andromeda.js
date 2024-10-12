@@ -47,7 +47,8 @@ const commands: Commands = {
             {
                 requestMessage: "Enter Value: ",
             }
-        ]
+        ],
+        disabled: () => Object.values(DEFAULT_ENVS).includes(envConfig.get("name") as DEFAULT_ENVS)
     },
     rename: {
         handler: renameHandler,
@@ -197,6 +198,10 @@ async function updateHandler(input: string[]) {
  */
 async function renameHandler(input: string[]) {
     const [env, newName] = input;
+    if (Object.values(DEFAULT_ENVS).includes(env as DEFAULT_ENVS)) {
+        console.log(pc.red("Cannot rename default env!"));
+        return;
+    }
     renameEnv(env, newName);
     if (envConfig.get("name") === env) {
         await loadEnv(newName);
@@ -212,6 +217,11 @@ async function renameHandler(input: string[]) {
  */
 async function removeHandler(input: string[]) {
     const [name] = input;
+
+    if (Object.values(DEFAULT_ENVS).includes(name as DEFAULT_ENVS)) {
+        console.log(pc.red("Cannot remove default env!"));
+        return;
+    }
 
     const confirm = await promptWithExit({
         type: "confirm",
