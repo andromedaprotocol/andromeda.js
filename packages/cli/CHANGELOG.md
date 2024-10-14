@@ -1,5 +1,26 @@
 # @andromedaprotocol/cli
 
+## 2.0.0-beta.2
+
+### Patch Changes
+
+
+Feat - wasm query-raw and info commands
+Feat - Legacy wallet can be imported in any environment
+
+Fix - Fix env reanme and create command
+Fix - Wallet address in wallet list will not show differnt chain address
+
+- Updated dependencies
+  - @andromedaprotocol/andromeda.js@2.0.0-beta.2
+
+## 2.0.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @andromedaprotocol/andromeda.js@2.0.0-beta.1
+
 ## 2.0.0-beta.0
 
 ### Major Changes

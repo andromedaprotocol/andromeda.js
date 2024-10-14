@@ -8,6 +8,8 @@
     "@andromedaprotocol/gql": "1.0.0"
   },
   "changesets": [
-    "shaggy-carrots-serve"
+    "blue-geese-change",
+    "shaggy-carrots-serve",
+    "warm-oranges-attack"
   ]
 }

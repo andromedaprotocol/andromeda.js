@@ -8,7 +8,9 @@ import Crypto from "crypto-js";
 import { promptPassphrase, promptWithExit } from "..";
 import config, { envConfig } from "../config";
 import {
+  loadRootFile,
   loadStorageFile,
+  writeRootFile,
   writeStorageFile,
 } from "../config/storage";
 import { getCoinTypeFromPrefix } from "./utils";
@@ -36,10 +38,22 @@ export interface StoredWalletData {
   addresses: {
     [bech32: string]: string;
   };
-  /** @deprecated Will be removed in next update */
-  chainId?: string;
-  /** @deprecated Will be removed in next update */
-  address?: string;
+}
+
+
+/**
+ * @deprecated Will be removed in next update
+ */
+export interface LegacyStoredData {
+  wallets: LegacyStoredWalletData[];
+  defaults: Record<string, string>;
+}
+
+export interface LegacyStoredWalletData {
+  name: string;
+  address: string;
+  chainId: string;
+  key: string;
 }
 
 /**
@@ -109,7 +123,7 @@ export default class WalletStore {
   get wallets() {
     try {
       const storedData = this.storageData;
-      return storedData.wallets.filter((w) => !this.isLegacyWallet(w));
+      return storedData.wallets
     } catch (error) {
       return [];
     }
@@ -119,10 +133,10 @@ export default class WalletStore {
    * Writes new wallets to stored data, used when a wallet is added/removed
    * @note This method indirectly writes to the file by calling storageData setter
    */
-  protected set wallets(wallets: StoredData["wallets"]) {
+  protected set wallets(wallets: StoredWalletData[]) {
     const newData = {
       ...this.storageData,
-      wallets: [...wallets, ...this.legacyWallets],
+      wallets: [...wallets],
     };
 
     this.storageData = newData;
@@ -230,6 +244,20 @@ export default class WalletStore {
    */
   get currentWallet() {
     return this.getWallet(this.defaultWallet);
+  }
+
+  async getWalletSigner(wallet: Wallet, passphrase?: string) {
+    if (!passphrase) {
+      passphrase = await this.getWalletPassphrase(wallet.name)
+    }
+    const signer = await wallet.getWallet(passphrase).catch(async (err) => {
+      if (err.message?.includes("Invalid password")) {
+        const passphrase = await this.getWalletPassphrase(wallet.name, true);
+        return wallet.getWallet(passphrase);
+      }
+      throw err;
+    })
+    return signer;
   }
 
   /**
@@ -378,11 +406,14 @@ export default class WalletStore {
    * @returns The passphrase for the given wallet
    * @note This method may indirectly write to the file by calling storeKeychain
    */
-  async getWalletPassphrase(name: string) {
+  async getWalletPassphrase(name: string, forcePrompt = false) {
     // Check keychain
-    let passphrase = await keychain.getPassword(KEYCHAIN_SERVICE, name);
+    let passphrase = '';
+    if (!forcePrompt) {
+      passphrase = await keychain.getPassword(KEYCHAIN_SERVICE, name) || '';
+    }
     // Otherwise prompt
-    if (!passphrase) {
+    if (!passphrase || forcePrompt) {
       passphrase = await promptPassphrase(name);
     }
     await this.storeKeychain(name, passphrase)
@@ -391,15 +422,18 @@ export default class WalletStore {
   }
 
   /** @deprecated Will be removed in next update */
-  private isLegacyWallet(wallet: StoredWalletData) {
-    return !!(wallet.address || wallet.chainId);
-  }
-  /** @deprecated Will be removed in next update */
   async migrateLegacyWallet(
     name: string,
   ) {
-    let walletData = this.legacyWallets.find(w => w.name === name);
+    let walletData = this.legacyWallets.wallets.find(w => w.name === name);
     if (!walletData) throw new Error(`Legacy wallet - ${name} not found`);
+
+    let newWalletData: StoredWalletData = {
+      name: name,
+      key: "",
+      addresses: {},
+      type: "phrase",
+    }
     const passphrase = await promptWithExit({
       message: `Input passphrase for wallet ${name}:`,
       type: "password",
@@ -412,31 +446,29 @@ export default class WalletStore {
       if (privKey.startsWith('0x')) {
         privKey = privKey.substring(2);
       }
-      walletData.key = await Wallet.encrypt(privKey, passphrase);
-      walletData.type = "private_key";
+      newWalletData.key = await Wallet.encrypt(privKey, passphrase);
+      newWalletData.type = "private_key";
     } else {
       const wallet = await DirectSecp256k1HdWallet.deserialize(
         walletData.key,
         passphrase
       );
-      walletData.key = await Wallet.encrypt(wallet.mnemonic, passphrase);
-      walletData.type = "phrase";
+      newWalletData.key = await Wallet.encrypt(wallet.mnemonic, passphrase);
+      newWalletData.type = "phrase";
     }
-    walletData.address = undefined;
-    walletData.chainId = undefined;
     try {
       const prefix = config.get("chain.addressPrefix");
       const wallet = newWallet(
         name,
-        walletData.key,
+        newWalletData.key,
         prefix,
         getCoinTypeFromPrefix(prefix)
       );
       const address = await wallet.getAddress(passphrase);
-      walletData.addresses = {
+      newWalletData.addresses = {
         [prefix]: address
       }
-      return walletData;
+      return newWalletData;
     } catch (err) {
       console.log(err)
       console.log("Unable to migrate, either you have entered wrong passphrase or data is corrupted");
@@ -451,11 +483,21 @@ export default class WalletStore {
    */
   get legacyWallets() {
     try {
-      const storedData = this.storageData;
-      return storedData.wallets.filter((w) => this.isLegacyWallet(w));
+      const legacyWallets = loadRootFile("keys.json");
+      const data = JSON.parse(legacyWallets.toString()) as LegacyStoredData;
+      return data;
     } catch (error) {
-      return [];
+      return { wallets: [], defaults: {} };
     }
+  }
+
+  /**
+   * All stored legacy wallets
+   * @deprecated will be removed in next version update
+   * @returns StoredWalletData[]
+   */
+  set legacyWallets(data: LegacyStoredData) {
+    writeRootFile("keys.json", JSON.stringify(data));
   }
 
   /**
@@ -464,9 +506,9 @@ export default class WalletStore {
  * @returns StoredWalletData[]
  */
   async removeLegacyWallet(name: string) {
-    const storedData = this.storageData;
-    storedData.wallets = storedData.wallets.filter(wallet => !(wallet.name === name && this.isLegacyWallet(wallet)))
-    this.storageData = storedData;
+    const legacyWallets = this.legacyWallets;
+    const updatedWallets = legacyWallets.wallets.filter(wallet => !(wallet.name === name))
+    this.legacyWallets = { ...legacyWallets, wallets: updatedWallets };
     await this.removeKeychain(name)
   }
 

@@ -1,5 +1,19 @@
 # @andromedaprotocol/andromeda.js
 
+## 2.0.0-beta.2
+
+### Patch Changes
+
+Feat - Endpoint can now be rpc string or RPC Client
+Feat - Added simulateRaw command
+
+
+## 2.0.0-beta.1
+
+### Patch Changes
+
+- Fix: Ether wallet now apply Bech32 prefix properly
+
 ## 2.0.0-beta.0
 
 ### Major Changes

@@ -1,9 +1,9 @@
 import pc from "picocolors";
 import { Commands } from "../../types";
-import { envConfig, loadEnv, renameEnv } from "../../config";
+import { createEnv, DEFAULT_ENVS, envConfig, getAllEnvs, loadEnv, removeEnv, renameEnv } from "../../config";
 import state from "../../state/State";
-import { title } from "cmd";
-import { writeStorageFile } from "config/storage";
+import { promptWithExit, title } from "cmd";
+import { loadStorageFile, writeStorageFile } from "config/storage";
 import Table from "cli-table";
 import { logTableConfig } from "common";
 
@@ -22,10 +22,17 @@ const commands: Commands = {
             {
                 requestMessage: "Select env to use: ",
                 options: async () => {
-                    return envConfig.get('envs');
+                    return getAllEnvs().filter((env) => env !== envConfig.get("name"));
                 },
             },
         ],
+    },
+    list: {
+        handler: listHandler,
+        usage: "env list",
+        color: pc.blue,
+        description:
+            "List all environments",
     },
     update: {
         handler: updateHandler,
@@ -40,7 +47,8 @@ const commands: Commands = {
             {
                 requestMessage: "Enter Value: ",
             }
-        ]
+        ],
+        disabled: () => Object.values(DEFAULT_ENVS).includes(envConfig.get("name") as DEFAULT_ENVS)
     },
     rename: {
         handler: renameHandler,
@@ -49,7 +57,75 @@ const commands: Commands = {
         description: "Rename env",
         inputs: [
             {
+                requestMessage: "Select env: ",
+                options: () => getAllEnvs().filter((env) => !Object.values(DEFAULT_ENVS).includes(env as DEFAULT_ENVS)),
+            },
+            {
                 requestMessage: "Enter new name: ",
+                validate: (input: string) => {
+                    const exists = getAllEnvs().includes(input);
+                    if (exists) {
+                        console.log(pc.red("Env already exists!"));
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        ],
+    },
+    remove: {
+        handler: removeHandler,
+        usage: "env remove <name>",
+        color: pc.yellow,
+        description: "Remove env",
+        inputs: [
+            {
+                requestMessage: "Enter env to remove: ",
+                options: () => getAllEnvs().filter((env) => env !== envConfig.get("name") && !Object.values(DEFAULT_ENVS).includes(env as DEFAULT_ENVS)),
+            },
+        ],
+    },
+    create: {
+        handler: createHandler,
+        usage: "env create <name>",
+        color: pc.yellow,
+        description: "Create env",
+        inputs: [
+            {
+                requestMessage: "Env Name: ",
+                validate: (input: string) => {
+                    const exists = getAllEnvs().includes(input);
+                    if (exists) {
+                        console.log();
+                        console.log(pc.red("Env already exists!"));
+                        return false;
+                    }
+                    return true;
+                }
+            },
+            {
+                requestMessage: "GQL Url: ",
+                validate: (input: string) => {
+                    if (!input.startsWith("http")) {
+                        console.log();
+                        console.log(pc.red("Invalid GQL Url!"));
+                        return false;
+                    }
+                    return true;
+                },
+                default: envConfig.get('gql')
+            },
+            {
+                requestMessage: "Schema Url: ",
+                validate: (input: string) => {
+                    if (!input.startsWith("http")) {
+                        console.log();
+                        console.log(pc.red("Invalid Schema Url!"));
+                        return false;
+                    }
+                    return true;
+                },
+                default: envConfig.get('schema')
             },
         ]
     },
@@ -75,6 +151,26 @@ async function useHandler(input: string[]) {
 }
 
 /**
+ * Lists all environments
+ * @param input - Not used
+ */
+async function listHandler(_input: string[]) {
+    const envs = getAllEnvs();
+    console.log();
+    const infoTable = new Table(logTableConfig);
+    infoTable.push([pc.bold("Name"), pc.bold(pc.green("GQL")), pc.bold(pc.green("Schema Url"))]);
+
+    envs.forEach((env) => {
+        const envData = JSON.parse(loadStorageFile(env, "env.json").toString()) as ReturnType<typeof envConfig.getProperties>;
+        const data = [pc.bold(env), pc.bold(envData.gql), pc.bold(envData.schema)]
+        infoTable.push(env === envConfig.get("name") ? data.map(d => pc.green(d)) : data);
+    })
+
+    console.log(infoTable.toString());
+    console.log();
+}
+
+/**
  * Updates the current environment
  * @param input - The key and value to update
  */
@@ -97,23 +193,62 @@ async function updateHandler(input: string[]) {
 }
 
 /**
- * Updates the current environment
- * @param input - The key and value to update
+ * Renames an environment
+ * @param input - The environment to rename and the new name
  */
 async function renameHandler(input: string[]) {
+    const [env, newName] = input;
+    if (Object.values(DEFAULT_ENVS).includes(env as DEFAULT_ENVS)) {
+        console.log(pc.red("Cannot rename default env!"));
+        return;
+    }
+    renameEnv(env, newName);
+    if (envConfig.get("name") === env) {
+        await loadEnv(newName);
+        state.refresh();
+        await state.connectClient();
+        await title();
+    }
+}
+
+/**
+ * Removes an environment
+ * @param input - The environment to remove
+ */
+async function removeHandler(input: string[]) {
     const [name] = input;
-    renameEnv(envConfig.get("name"), name);
-    envConfig.set("name", name);
-    writeStorageFile(
-        envConfig.get("name"),
-        "env.json",
-        JSON.stringify(envConfig.getProperties())
-    );
-    await loadEnv(envConfig.get("name"));
+
+    if (Object.values(DEFAULT_ENVS).includes(name as DEFAULT_ENVS)) {
+        console.log(pc.red("Cannot remove default env!"));
+        return;
+    }
+
+    const confirm = await promptWithExit({
+        type: "confirm",
+        name: "confirmremove",
+        message: `This action is irreversible! Are you sure you want to remove env ${name}?`,
+    });
+
+    if (!confirm.confirmremove) return;
+    removeEnv(name);
+    console.log(pc.green("Env removed!"));
+}
+
+
+/**
+ * Creates an environment
+ * @param input - The name, gql and schema url
+ */
+async function createHandler(input: string[]) {
+    const [name, gql, schema] = input;
+
+    createEnv(name, { gql, schema });
+    await loadEnv(name);
     state.refresh();
     await state.connectClient();
     await title();
 }
+
 
 
 /**

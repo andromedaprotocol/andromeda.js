@@ -22,11 +22,72 @@ if (!fs.existsSync(CONFIG_DIRECTORY)) {
  * @returns A buffer containing the file data
  */
 export function loadStorageFile(env: string, file: string) {
-  const filePath = path.join(CONFIG_DIRECTORY, env, file);
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`File ${file} does not exist`);
-  }
+  return loadFile(path.join(CONFIG_DIRECTORY, env, file));
+}
 
+/**
+ * Writes to a stored file
+ * @param env TThe environment directory where the file will be stored
+ * @param file The path of where to write the data
+ * @param data The data to write
+ */
+export function writeStorageFile(env: string, file: string, data: string) {
+  writeFile(path.join(CONFIG_DIRECTORY, env), file, data);
+}
+
+/**
+ * Checks if a stored file exists
+ * @param env The environment directory where the file is stored
+ * @param file The file to check for
+ * @returns
+ */
+export function storageFileExists(env: string, file: string) {
+  return pathExists(path.join(CONFIG_DIRECTORY, env, file));
+}
+
+
+/**
+ * Checks if a root file exists
+ * @param file The file to check for
+ * @returns
+ */
+export function rootFileExists(file: string) {
+  return pathExists(path.join(CONFIG_DIRECTORY, file));
+}
+
+/**
+ * Loads a root file
+ * @param file The path to the file to load
+ * @returns A buffer containing the file data
+ */
+export function loadRootFile(file: string) {
+  return loadFile(path.join(CONFIG_DIRECTORY, file));
+}
+
+/**
+ * Writes to a root file
+ * @param file The path of where to write the data
+ * @param data The data to write
+ */
+export function writeRootFile(file: string, data: string) {
+  try {
+    writeFile(CONFIG_DIRECTORY, file, data);
+  } catch (error) {
+    console.error(`Error writing to root file '${file}':`, error);
+    throw error;
+  }
+}
+
+
+/**
+ * Loads a stored file
+ * @param file The path to the file to load
+ * @returns A buffer containing the file data
+ */
+function loadFile(filePath: string) {
+  if (!pathExists(filePath)) {
+    throw new Error(`File ${filePath} does not exist`);
+  }
   return fs.readFileSync(filePath);
 }
 
@@ -35,23 +96,25 @@ export function loadStorageFile(env: string, file: string) {
  * @param file The path of where to write the data
  * @param data The data to write
  */
-export function writeStorageFile(env: string, file: string, data: string) {
-  const envDir = path.join(CONFIG_DIRECTORY, env);
-  const filePath = path.join(envDir, file);
-  if (!fs.existsSync(envDir)) {
-    fs.mkdirSync(envDir, { recursive: true })
+function writeFile(dirPath: string, file: string, data: string) {
+  if (!pathExists(dirPath)) {
+    try {
+      fs.mkdirSync(dirPath, { recursive: true })
+    } catch (error: any) {
+      throw new Error(`Failed to create directory ${dirPath}: ${error?.message}`)
+    }
   }
+  const filePath = path.join(dirPath, file);
   fs.writeFileSync(filePath, data);
 }
 
 /**
  * Checks if a stored file exists
- * @param file The file to check for
+ * @param path The file to check for
  * @returns
  */
-export function storageFileExists(env: string, file: string) {
-  const filePath = path.join(CONFIG_DIRECTORY, env, file);
-  return fs.existsSync(filePath);
+function pathExists(path: string) {
+  return fs.existsSync(path);
 }
 
 /**

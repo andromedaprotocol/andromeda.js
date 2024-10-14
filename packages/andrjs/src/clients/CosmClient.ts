@@ -5,6 +5,7 @@ import {
   InstantiateOptions,
   InstantiateResult,
   MigrateResult,
+  setupWasmExtension,
   UploadResult,
   wasmTypes,
 } from "@cosmjs/cosmwasm-stargate";
@@ -53,6 +54,7 @@ import { fromBase64 } from "@cosmjs/encoding";
 import {
   CometClient,
   HttpBatchClient,
+  HttpClient,
   RpcClient,
   Tendermint37Client,
 } from "@cosmjs/tendermint-rpc";
@@ -66,11 +68,13 @@ import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 export default class CosmClient extends BaseChainClient implements ChainClient {
   /** Offline signer for transaction signing */
   private signerWallet?: OfflineSigner | OfflineDirectSigner;
+  public chainId?: string;
 
   /** Client for querying blockchain data */
   public queryClient?: ChainClient["queryClient"];
-  /** Client for querying transaction data */
-  public txQueryClient?: ChainClient["txQueryClient"];
+
+  /** Client for querying data with raw implementation */
+  public rawQueryClient?: ChainClient["rawQueryClient"];
   /** Client for interacting with the Comet BFT consensus engine */
   public cometClient?: CometClient | undefined;
 
@@ -87,21 +91,30 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
    * @param rpcClient - Optional RPC client
    */
   async connect(
-    endpoint: string,
+    endpoint: string | RpcClient,
     signer?: OfflineSigner | OfflineDirectSigner,
     options?: SigningStargateClientOptions,
-    rpcClient?: RpcClient
   ): Promise<void> {
     delete this.signingClient;
     delete this.queryClient;
     this.gasPrice = options?.gasPrice;
     this.signerWallet = signer;
-    const cometClient = await Tendermint37Client.create(rpcClient ?? new HttpBatchClient(endpoint));
+    // Nibiru rpc somehow doesn't work with HttpBatchClient
+    if (typeof endpoint === 'string') {
+      if (this.addressPrefix === 'nibi') {
+        endpoint = new HttpClient(endpoint);
+      } else {
+        endpoint = new HttpBatchClient(endpoint);
+      }
+    }
+
+    const cometClient = await Tendermint37Client.create(endpoint);
     this.cometClient = cometClient;
     this.queryClient = await CosmWasmClient.create(cometClient);
-    this.txQueryClient = QueryClient.withExtensions(
+    this.rawQueryClient = QueryClient.withExtensions(
       cometClient,
-      setupTxExtension
+      setupTxExtension,
+      setupWasmExtension
     );
     if (signer) {
       const aminoTypes = options?.aminoTypes ?? new AminoTypes({
@@ -125,7 +138,9 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
 
       const [account] = await signer.getAccounts();
       this.signer = account.address;
+
     }
+    this.chainId = await this.queryClient!.getChainId();
   }
 
   /**
@@ -162,6 +177,30 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     memo?: string
   ): Promise<number> {
     return this.signingClient!.simulate(this.signer, messages, memo);
+  }
+
+  /**
+ * Simulates multiple messages execution
+ * @param messages - Array of messages to simulate
+ * @param _fee - Optional fee
+ * @param memo - Optional memo
+ */
+  public async simulateRaw(
+    messages: EncodeObject[],
+    memo?: string
+  ) {
+    const anyMsgs = messages.map((m) => this.signingClient!.registry.encodeAsAny(m));
+    const accountFromSigner = (await this.signerWallet!.getAccounts()).find((account) => account.address === this.signer);
+    if (!accountFromSigner) {
+      throw new Error("Failed to retrieve account from signer");
+    }
+    const pk = { ...encodeSecp256k1Pubkey(accountFromSigner.pubkey) }
+    if (this.config.accountPubKeyTypeUrl) {
+      pk.type = this.config.accountPubKeyTypeUrl as any;
+    }
+    const { sequence } = await this.signingClient!.getSequence(this.signer);
+    const result = await this.rawQueryClient!.tx.simulate(anyMsgs, memo, pk, sequence);
+    return result
   }
 
   /**
@@ -229,11 +268,10 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     const { accountNumber, sequence } = await this.signingClient!.getSequence(
       this.signer
     );
-    const chainId = await this.signingClient!.getChainId();
     const signerData: SignerData = {
       accountNumber: accountNumber,
       sequence: sequence,
-      chainId: chainId,
+      chainId: this.chainId!,
     };
 
     return isOfflineDirectSigner(this.signerWallet!)

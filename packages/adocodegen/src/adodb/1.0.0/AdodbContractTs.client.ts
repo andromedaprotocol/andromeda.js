@@ -23,7 +23,7 @@ export interface AdodbContractTsReadOnlyInterface {
     codeId
   }: {
     codeId: number;
-  }) => Promise<TypeResponse>;
+  }) => Promise<TypeError>;
   allAdoTypes: ({
     limit,
     startAfter
@@ -44,7 +44,7 @@ export interface AdodbContractTsReadOnlyInterface {
     adoType
   }: {
     adoType: string;
-  }) => Promise<any>;
+  }) => Promise<ADOMetadata>;
   actionFee: ({
     action,
     adoType
@@ -111,7 +111,7 @@ export class AdodbContractTsQueryClient implements AdodbContractTsReadOnlyInterf
     codeId
   }: {
     codeId: number;
-  }): Promise<TypeResponse> => {
+  }): Promise<TypeError> => {
     return this.client.queryContractSmart(this.contractAddress, {
       ado_type: {
         code_id: codeId
@@ -124,7 +124,7 @@ export class AdodbContractTsQueryClient implements AdodbContractTsReadOnlyInterf
   }: {
     limit?: number;
     startAfter?: string;
-  }): Promise<any> => {
+  }): Promise<TypeResponse[]> => {
     return this.client.queryContractSmart(this.contractAddress, {
       all_ado_types: {
         limit,
@@ -140,7 +140,7 @@ export class AdodbContractTsQueryClient implements AdodbContractTsReadOnlyInterf
     adoType: string;
     limit?: number;
     startAfter?: string;
-  }): Promise<any> => {
+  }): Promise<VersionResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       ado_versions: {
         ado_type: adoType,
@@ -153,7 +153,7 @@ export class AdodbContractTsQueryClient implements AdodbContractTsReadOnlyInterf
     adoType
   }: {
     adoType: string;
-  }): Promise<any> => {
+  }): Promise<ADOMetadata> => {
     return this.client.queryContractSmart(this.contractAddress, {
       ado_metadata: {
         ado_type: adoType

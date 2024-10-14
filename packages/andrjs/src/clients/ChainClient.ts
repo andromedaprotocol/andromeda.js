@@ -10,12 +10,14 @@ import type {
   MsgMigrateContractEncodeObject,
   MsgStoreCodeEncodeObject,
   UploadResult,
+  WasmExtension,
 } from "@cosmjs/cosmwasm-stargate";
 import type { Coin, EncodeObject, OfflineDirectSigner, OfflineSigner } from "@cosmjs/proto-signing";
 import type { AminoTypes, GasPrice, MsgSendEncodeObject, QueryClient, SigningStargateClient, SigningStargateClientOptions, TxExtension } from "@cosmjs/stargate";
 import type { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import type { Fee, Msg } from "../types";
 import { CometClient, RpcClient } from "@cosmjs/tendermint-rpc";
+import { SimulateResponse } from "cosmjs-types/cosmos/tx/v1beta1/service";
 
 /**
  * When interacting with any Cosmos chain there may be differences in how they sign messages or how the messages themselves are constructed.
@@ -23,11 +25,16 @@ import { CometClient, RpcClient } from "@cosmjs/tendermint-rpc";
  * Most of the methods are simply wrappers however some require specific implementations.
  */
 export default interface ChainClient {
+
+  addressPrefix: string;
+  chainId?: string;
+
   // The client used to query the chain
   queryClient?: CosmWasmClient;
 
-  // tx query client;
-  txQueryClient?: QueryClient & TxExtension
+
+  rawQueryClient?: QueryClient & TxExtension & WasmExtension
+
   // The current signer address
   signer: string;
   commectClient?: CometClient;
@@ -53,10 +60,9 @@ export default interface ChainClient {
    * @param rpcClient - Optional RPC client.
    */
   connect(
-    endpoint: string,
+    endpoint: string | RpcClient,
     signer?: OfflineSigner | OfflineDirectSigner,
     options?: SigningStargateClientOptions,
-    rpcClient?: RpcClient
   ): Promise<void>;
   /**
    * Disconnects from the current chain completely
@@ -120,6 +126,19 @@ export default interface ChainClient {
     memo?: string,
     funds?: readonly Coin[]
   ): Promise<ExecuteResult>;
+
+
+  /**
+ * Simulates all given messages and returns a gas fee estimate
+ * @param messages
+ * @param fee
+ * @param memo
+ */
+  simulateRaw(
+    messages: readonly EncodeObject[],
+    memo?: string
+  ): Promise<SimulateResponse>;
+
   /**
    * Simulates an execute message and returns a gas fee estimate
    * @param address

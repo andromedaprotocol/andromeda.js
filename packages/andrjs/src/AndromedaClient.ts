@@ -6,6 +6,7 @@ import {
   SigningStargateClientOptions,
   StdFee,
   calculateFee,
+  createProtobufRpcClient,
 } from "@cosmjs/stargate";
 import { ADOAPI } from "./api";
 
@@ -16,7 +17,9 @@ import type { ChainClient } from "./clients";
 import createClient from "./clients";
 import type { Fee, Msg } from "./types";
 import ADOSchemaAPI from "api/ADOSchemaAPI";
-import { HttpClient, RpcClient } from "@cosmjs/tendermint-rpc";
+import { RpcClient } from "@cosmjs/tendermint-rpc";
+import { PageRequest } from "cosmjs-types/cosmos/base/query/v1beta1/pagination";
+import { QueryClientImpl as WasmQueryClientImpl } from 'cosmjs-types/cosmwasm/wasm/v1/query'
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
@@ -58,24 +61,18 @@ export default class AndromedaClient {
    * @param options Any additional client options (**Only for CosmosClients**)
    */
   async connect(
-    endpoint: string,
+    endpoint: string | RpcClient,
     kernelAddress: string,
     addressPrefix: string,
     signer?: OfflineSigner | OfflineDirectSigner,
     // Only used for Cosmos Clients
     options?: SigningStargateClientOptions,
     config?: Partial<ChainClient['config']>,
-    rpcClient?: RpcClient
   ) {
     delete this.chainClient;
 
     this.chainClient = createClient(addressPrefix, config);
-
-    // Nibiru rpc somehow doesn't work with HttpBatchClient
-    if (!rpcClient && addressPrefix === 'nibi') {
-      rpcClient = new HttpClient(endpoint);
-    }
-    await this.chainClient.connect(endpoint, signer, options, rpcClient);
+    await this.chainClient.connect(endpoint, signer, options);
     await this.assignKeyAddresses(kernelAddress);
   }
 
@@ -217,6 +214,33 @@ export default class AndromedaClient {
     return JSON.parse(Buffer.from(result).toString('utf8')) as T
   }
 
+  /**
+ * Wrapper function for CosmWasm query
+ * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#queryContractSmart
+ * @param address
+ * @param query
+ * @returns
+ */
+  async queryContractRawAll(address: string, pagination: Partial<PageRequest>) {
+    this.preMessage();
+    const rpcClient = createProtobufRpcClient(this.chainClient!.rawQueryClient!);
+    const wasmQueryClient = new WasmQueryClientImpl(rpcClient);
+
+    const result = await wasmQueryClient.AllContractState({
+      address,
+      pagination: PageRequest.fromPartial(pagination)
+    });
+    return {
+      states: result.models.map(model => ({
+        key: Buffer.from(model.key).toString('utf8'),
+        value: Buffer.from(model.value).toString('utf8')
+      })),
+      pagination: result.pagination
+    }
+  }
+
+  /**
+   * Wrapper function for CosmWasm migrate
   /**
    * Wrapper function for CosmWasm migrate
    * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#migrate
@@ -428,13 +452,12 @@ export default class AndromedaClient {
    * @param gas
    * @returns
    */
-  calculcateFee(gas: number) {
+  calculcateFee(gas: number, multiplier = 1.3) {
     const gasPrice = this.chainClient?.gasPrice;
     if (!gasPrice)
       throw new Error(
         "No gas prices provided for client. Cannot simulate Tx fee."
       );
-    const multiplier = 1.3; // Unsure why this is necessary but is added during simulateTx in cosmjs
     return calculateFee(Math.round(gas * multiplier), gasPrice);
   }
 

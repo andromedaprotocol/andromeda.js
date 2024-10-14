@@ -95,10 +95,10 @@ const commands: Commands = {
         inputs: [
             {
                 requestMessage: "Select wallet to migrate:",
-                options: () => State.wallets.legacyWallets.map((wallet) => wallet.name),
+                options: () => State.wallets.legacyWallets.wallets.map((wallet) => wallet.name),
             },
         ],
-        disabled: () => State.wallets.legacyWallets.length === 0,
+        disabled: () => State.wallets.legacyWallets.wallets.length === 0,
     },
     use: {
         handler: useWalletHandler,
@@ -364,9 +364,9 @@ async function renameWalletHandler(input: string[]) {
     const confirmed = await promptWithExit({
         name: "rmwalletconfirm",
         type: "confirm",
-        message: `Are you sure you want to remove wallet ${State.wallets.currentWallet?.name}?`,
+        message: `Are you sure you want to rename wallet ${State.wallets.currentWallet?.name}?`,
     });
-    if (confirmed) {
+    if (confirmed.rmwalletconfirm) {
         await State.wallets.renameWallet(State.wallets.currentWallet?.name, newName);
         await title();
     }
@@ -406,7 +406,7 @@ async function listWallets(wallets: StoredWalletData[]) {
     if (wallets.length === 0) {
         throw new Error(`No wallets to display
 
-You can add a wallet by using the generate command:
+You can create a new wallet by using the generate command:
   ${pc.green("wallets generate <name>")}
       `);
     }
@@ -416,18 +416,17 @@ You can add a wallet by using the generate command:
     });
     const current = State.wallets.currentWallet;
 
-    const chainId = config.get("chain.chainId");
+    const prefix = config.get("chain.addressPrefix");
 
     for (const wallet of wallets) {
+        const data = [
+            wallet.name,
+            wallet.addresses[prefix] || "",
+        ]
         // Highlight the currently selected wallet
         const isCurrent = current && wallet.name === current.name;
-        const addr =
-            wallet.addresses[chainId] || "";
-        walletTable.push([
-            isCurrent ? "*" : "",
-            isCurrent ? pc.green(wallet.name) : wallet.name,
-            isCurrent ? pc.green(addr) : addr,
-        ]);
+
+        walletTable.push(isCurrent ? ["*", ...data.map(d => pc.green(d))] : ["*", ...data]);
     }
     console.log(walletTable.toString());
 }
@@ -461,22 +460,23 @@ async function migrateLegacyWalletHandler(input: string[]) {
  * @param input
  */
 async function migrateLegacyWallet(legacyName: string) {
-    const updatedWallet = await State.wallets.migrateLegacyWallet(legacyName);
-    if (!updatedWallet) return;
     const name = await promptWithExit({
         name: "name",
         type: "input",
         message: "Enter new name for the wallet",
         default: legacyName,
-        validate: (answer) => {
-            const existing = State.wallets.wallets[answer.trim()];
+        validate: (answer: string) => {
+            const existing = State.wallets.wallets.some((w) => w.name === answer.trim());
             if (existing) {
-                console.log("Already have a wallet with this name");
+                console.log();
+                console.log(pc.red("Already have a wallet with this name"));
                 return false;
             }
             return true;
         },
     });
+    const updatedWallet = await State.wallets.migrateLegacyWallet(legacyName);
+    if (!updatedWallet) return;
     updatedWallet.name = name.name.trim();
     State.wallets.addWallet(updatedWallet);
     State.wallets.removeLegacyWallet(legacyName);
@@ -491,12 +491,10 @@ async function migrateLegacyWallet(legacyName: string) {
 export async function setCurrentWallet(
     wallet: Wallet,
     passphrase?: string,
-    autoConnect = true
 ) {
-    passphrase = passphrase ?? (await State.wallets.getWalletPassphrase(wallet.name));
-    const signer = await wallet.getWallet(passphrase);
+
+    const signer = await State.wallets.getWalletSigner(wallet, passphrase);
     State.wallets.defaultWallet = wallet.name;
-    if (!autoConnect) return signer;
 
     try {
         await State.connectClient(passphrase);

@@ -40,6 +40,6 @@ export default class EtherWallet extends Wallet {
         Buffer.from(mnemonicOrPrivKey.replace("0x", ""), "hex")
       );
     }
-    return await DirectEthSecp256k1Wallet.fromKey(privKeyArray);
+    return await DirectEthSecp256k1Wallet.fromKey(privKeyArray, this.prefix);
   }
 }

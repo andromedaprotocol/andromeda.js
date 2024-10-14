@@ -7,9 +7,9 @@
 import { AndrAddr, InstantiateMsg, Module, ExecuteMsg, Milliseconds, Uint128, Binary, ReplyOn, OwnershipMessage, Addr, PermissioningMessage, Permission, Uint64, CrowdfundMintMsg, TokenExtension, Coin, Recipient, AMPPkt, AMPCtx, AMPMsg, AMPMsgConfig, IBCConfig, QueryMsg, AppContractResponse, ArrayOfString, BlockHeightResponse, Config, Boolean, KernelAddressResponse, PublisherResponse, ContractOwnerResponse, ContractPotentialOwnerResponse, ArrayOfPermissionInfo, PermissionInfo, Expiration, Timestamp, State, TypeResponse, VersionResponse } from "./CrowdfundContractTs.types";
 import { CamelCasedProperties } from "type-fest";
 export abstract class CrowdfundContractTsExecuteMsgBuilder {
-  static mint = (msgs: CrowdfundMintMsg[]): ExecuteMsg => {
+  static mint = (msg: CrowdfundMintMsg[]): ExecuteMsg => {
     return {
-      mint: msgs
+      mint: msg
     };
   };
   static startSale = ({
