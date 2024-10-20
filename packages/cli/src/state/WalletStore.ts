@@ -257,6 +257,8 @@ export default class WalletStore {
       }
       throw err;
     })
+    const address = await signer.getAccounts().then(accounts => accounts[0].address);
+    this.updateWallet(wallet.name, { addresses: { [wallet.prefix]: address } })
     return signer;
   }
 
