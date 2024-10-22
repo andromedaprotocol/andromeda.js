@@ -1,12 +1,19 @@
 # @andromedaprotocol/andromeda.js
 
+## 2.0.0-beta.3
+
+### Patch Changes
+
+- NPM package updates
+- Updated dependencies
+  - @andromedaprotocol/gql@1.0.1-beta.1
+
 ## 2.0.0-beta.2
 
 ### Patch Changes
 
 Feat - Endpoint can now be rpc string or RPC Client
 Feat - Added simulateRaw command
-
 
 ## 2.0.0-beta.1
 

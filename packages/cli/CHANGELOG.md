@@ -1,9 +1,18 @@
 # @andromedaprotocol/cli
 
-## 2.0.0-beta.2
+## 2.0.0-beta.3
 
 ### Patch Changes
 
+- NPM package updates
+- Wallet Address cache
+- GQL Assets default to app-contract
+- Updated dependencies
+  - @andromedaprotocol/andromeda.js@2.0.0-beta.3
+
+## 2.0.0-beta.2
+
+### Patch Changes
 
 Feat - wasm query-raw and info commands
 Feat - Legacy wallet can be imported in any environment
