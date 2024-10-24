@@ -4,6 +4,14 @@
     "outDir": "dist",
     "declaration": false
   },
-  "include": ["src/**/*.ts", "src/**/*.json"],
-  "exclude": ["node_modules", "dist", "test/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test/**/*.ts",
+    "src/**/*spec.ts"
+  ]
 }

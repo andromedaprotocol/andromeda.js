@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "pnpm --filter \"./packages/*\" run build",
+    "test": "pnpm --filter \"./packages/*\" run test",
     "prepack": "rimraf packages/*/andromedaprotocol-*.tgz",
     "pack": "npm run build &&  pnpm --filter \"./packages/*\" exec pnpm pack",
     "postpack": "npm run collect",

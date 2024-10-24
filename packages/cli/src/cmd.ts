@@ -175,7 +175,7 @@ export async function title() {
   // const versionMsg = "CLI version - v" + version;
   console.log(versionMsg);
   if (version !== latest) {
-    console.log(pc.bold(pc.green("Update available")) + ", update using the following command: " + pc.bgBlack(" npm update -g @andromeda-protocol/cli "));
+    console.log(pc.bold(pc.green("Update available")) + ", update using the following command: " + pc.bgBlack(pc.white(" npm update -g @andromeda-protocol/cli ")));
   }
   const envMsg = pc.gray("Environment - " + envConfig.get('name') + " , " + `Chain Config - ${config.get('chain.name')}` + " ");
   console.log(envMsg);
