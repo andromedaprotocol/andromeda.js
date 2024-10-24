@@ -5,6 +5,9 @@
 ### Patch Changes
 
 - NPM package updates
+- Fix: Denom utilities now return the correct amount of decimal places
+- Tests: Added tests for denom utilities
+- Fix: Query Contract Raw supports Uint8Array keys now
 - Updated dependencies
   - @andromedaprotocol/gql@1.0.1-beta.1
 

@@ -7,6 +7,8 @@
 - NPM package updates
 - Wallet Address cache
 - GQL Assets default to app-contract
+- wasm query-raw command changed to query raw key
+- wasm contract-state command now list all contract keys (previously knows as wasm query-raw command)
 - Updated dependencies
   - @andromedaprotocol/andromeda.js@2.0.0-beta.3
 
