@@ -1,4 +1,4 @@
-import { convertMicroToMacro, convertMacroToMicro, formatAmountToInternational, DENOM_EXPONENTS } from './denom';
+import { convertMicroToMacro, convertMacroToMicro, formatAmountToInternational, DENOM_EXPONENTS, getUnitsConfigFromDenom } from './denom';
 
 describe('Denom Utility Functions', () => {
     test('converts micro to macro correctly', () => {
@@ -42,5 +42,10 @@ describe('Denom Utility Functions', () => {
             'z': 21,
             'y': 24,
         });
+    });
+
+    test('getUnitsConfigFromDenom returns correct values', () => {
+        expect(getUnitsConfigFromDenom('inj')).toEqual({ units: 18, microDenom: 'inj', macroDenom: 'inj' });
+        expect(getUnitsConfigFromDenom('uatom')).toEqual({ units: 6, microDenom: 'uatom', macroDenom: 'ATOM' });
     });
 });
