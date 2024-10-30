@@ -10,6 +10,7 @@ import {
   chainHandler,
   envHandler,
   gqlHandler,
+  ibcHandler,
   osHandler,
   txHandler,
   userHandler,
@@ -72,6 +73,13 @@ export const baseCommands: Commands = {
     description: "Send CosmWasm messages to the chain",
     color: pc.cyan,
     usage: "wasm <cmd>",
+    disabled: () => !State.client.isConnected,
+  },
+  ibc: {
+    handler: ibcHandler,
+    description: "Query IBC messages",
+    color: pc.cyan,
+    usage: "ibc <cmd>",
     disabled: () => !State.client.isConnected,
   },
   tx: {

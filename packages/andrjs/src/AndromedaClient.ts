@@ -20,6 +20,9 @@ import ADOSchemaAPI from "api/ADOSchemaAPI";
 import { RpcClient } from "@cosmjs/tendermint-rpc";
 import { PageRequest } from "cosmjs-types/cosmos/base/query/v1beta1/pagination";
 import { QueryClientImpl as WasmQueryClientImpl } from 'cosmjs-types/cosmwasm/wasm/v1/query'
+import { Acknowledgement } from "cosmjs-types/ibc/core/channel/v1/channel";
+import { bytesFromBase64 } from "cosmjs-types/helpers";
+import { MerkleProof } from "cosmjs-types/ibc/core/commitment/v1/commitment";
 
 /**
  * A helper class for interacting with the Andromeda ecosystem
@@ -221,6 +224,42 @@ export default class AndromedaClient {
  * @param query
  * @returns
  */
+  async queryIbcAck(portId: string, channelId: string, packetSequence: number) {
+    this.preMessage();
+
+    const result = await this.chainClient!.rawQueryClient?.ibc.channel.packetAcknowledgement(
+      portId,
+      channelId,
+      packetSequence
+    );
+    if (!result) return null;
+    const proof = MerkleProof.decode(result.proof);
+    const acknowledgement = await this.decodeAck(result.acknowledgement);
+    return {
+      acknowledgement: {
+        ...acknowledgement,
+        result: acknowledgement.result ? Buffer.from(acknowledgement.result).toString('utf8') : null
+      },
+      proof,
+      proofHeight: result.proofHeight
+    }
+  }
+
+  async decodeAck(acknowledgement: Uint8Array | string) {
+    this.preMessage();
+    if (typeof acknowledgement === 'string') {
+      return Acknowledgement.decode(bytesFromBase64(acknowledgement));
+    }
+    return Acknowledgement.decode(acknowledgement);
+  }
+
+  /**
+ * Wrapper function for CosmWasm query
+ * https://cosmos.github.io/cosmjs/latest/cosmwasm-stargate/classes/SigningCosmWasmClient.html#queryContractSmart
+ * @param address
+ * @param query
+ * @returns
+ */
   async queryContractStates(address: string, pagination: Partial<PageRequest>) {
     this.preMessage();
     const rpcClient = createProtobufRpcClient(this.chainClient!.rawQueryClient!);
@@ -238,6 +277,7 @@ export default class AndromedaClient {
       pagination: result.pagination
     }
   }
+
 
   /**
    * Wrapper function for CosmWasm migrate
