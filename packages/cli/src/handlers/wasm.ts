@@ -65,6 +65,27 @@ export const commands: Commands = {
         requestMessage: "Input Contract Address:",
         validate: validateAddressInput,
       },
+      {
+        requestMessage: "Input Key:",
+      },
+    ],
+    flags: {
+      encoded: {
+        description: "Key provided is already encoded as hex",
+        usage: "--encoded",
+      }
+    }
+  },
+  'contract-state': {
+    handler: queryStatesHandler,
+    color: pc.green,
+    description: "Queries a contract states",
+    usage: "wasm contract-state <contract address>",
+    inputs: [
+      {
+        requestMessage: "Input Contract Address:",
+        validate: validateAddressInput,
+      },
     ],
     flags: {
       limit: {
@@ -263,6 +284,30 @@ async function queryHandler(input: string[]) {
  * @param input
  */
 async function queryRawHandler(input: string[], flags: Flags) {
+  const [contractAddr, key] = input;
+  const encodedKey = !!flags.encoded;
+  const keyBytes = encodedKey ? Uint8Array.from(Buffer.from(key, 'hex')) : Uint8Array.from(Buffer.from(key, 'utf8'));
+
+
+  const value = await displaySpinnerAsync(
+    "Querying contrac key...",
+    async () => await State.client.queryContractRaw(contractAddr, keyBytes)
+  );
+  console.log();
+
+
+  console.log("Key:", pc.blue(key));
+  console.log("Value:");
+  console.log(JSON.stringify(value, null, 2));
+
+  console.log()
+}
+
+/**
+ * Queries a contract given a query message and address
+ * @param input
+ */
+async function queryStatesHandler(input: string[], flags: Flags) {
   const [contractAddr] = input;
   const limit = BigInt(flags.limit ?? '10');
   const offset = BigInt(flags.offset ?? '0');
@@ -276,14 +321,14 @@ async function queryRawHandler(input: string[], flags: Flags) {
   const key = nextKeyBytes ? Uint8Array.from(Buffer.from(nextKeyBytes, 'hex')) : nextKey ? Uint8Array.from(Buffer.from(nextKey, 'utf8')) : undefined;
 
   const states = await displaySpinnerAsync(
-    "Querying contrac key...",
-    async () => await State.client.queryContractRawAll(contractAddr, { limit, offset, key })
+    "Querying contract states...",
+    async () => await State.client.queryContractStates(contractAddr, { limit, offset, key })
   );
   console.log();
 
 
   for (const state of states.states) {
-    console.log(pc.blue(state.key));
+    console.log(pc.blue(state.key), pc.gray(`(hex: ${Buffer.from(state.key).toString('hex')})`));
     console.log(state.value);
     console.log();
   }
@@ -295,8 +340,6 @@ async function queryRawHandler(input: string[], flags: Flags) {
     console.log(pc.gray(`Total - ${states.pagination.total.toString()}`));
   }
   console.log()
-
-
 }
 
 /**

@@ -29,7 +29,7 @@ const commands: Commands = {
             "Queries details about your deployed apps and ADOs for the current chain",
         flags: {
             type: {
-                description: "Filter assets by ADO type",
+                description: "Filter assets by ADO type. Default: app-contract",
                 usage: "--type cw721",
             },
             search: {
@@ -37,11 +37,11 @@ const commands: Commands = {
                 usage: "--search name",
             },
             limit: {
-                description: "Paginate response, 0 mean no limit",
+                description: "Paginate response, 0 mean no limit. Default: 10",
                 usage: "--limit 10",
             },
             offset: {
-                description: "Paginate response",
+                description: "Paginate response. Default: 0",
                 usage: "--offset 0",
             },
         },
@@ -96,7 +96,7 @@ async function appHandler(input: string[]) {
 async function assetsHandler(_input: string[], flags: Flags) {
     const walletAddr = await State.wallets.currentWalletAddress();
     if (!walletAddr) throw new Error("No wallet currently assigned");
-    const { type, search } = flags;
+    const { type = "app-contract", search } = flags;
 
     const limit = parseInt(flags.limit ?? '10');
     const offset = parseInt(flags.offset ?? '0');

@@ -204,11 +204,11 @@ export default class AndromedaClient {
    * @param query
    * @returns
    */
-  async queryContractRaw<T = any>(address: string, key: string) {
+  async queryContractRaw<T = any>(address: string, key: string | Uint8Array) {
     this.preMessage();
     const result = await this.chainClient!.queryClient!.queryContractRaw(
       address,
-      Buffer.from(key)
+      typeof key === 'string' ? Buffer.from(key, 'utf8') : key
     );
     if (!result || result.length === 0) return null;
     return JSON.parse(Buffer.from(result).toString('utf8')) as T
@@ -221,7 +221,7 @@ export default class AndromedaClient {
  * @param query
  * @returns
  */
-  async queryContractRawAll(address: string, pagination: Partial<PageRequest>) {
+  async queryContractStates(address: string, pagination: Partial<PageRequest>) {
     this.preMessage();
     const rpcClient = createProtobufRpcClient(this.chainClient!.rawQueryClient!);
     const wasmQueryClient = new WasmQueryClientImpl(rpcClient);

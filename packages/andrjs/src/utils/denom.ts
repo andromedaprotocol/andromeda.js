@@ -31,8 +31,8 @@ export const convertMicroToMacro = (amount: string, unit: UNITS) => {
     let numZeroes = typeof unit === 'number' ? unit : DENOM_EXPONENTS[unit];
     amount = amount.padStart(numZeroes + 1, '0');
     const fixed = amount.substring(0, amount.length - numZeroes);
-    const decimals = (amount.substring(amount.length - numZeroes)).replace(/0+$/, '').padEnd(1, '0');
-    return fixed.concat('.').concat(decimals).concat(subDecimals.join());
+    const decimals = (amount.substring(amount.length - numZeroes)).concat(subDecimals.join()).replace(/0+$/, '').padEnd(1, '0');
+    return fixed.concat('.').concat(decimals);
 }
 
 /**
@@ -49,8 +49,13 @@ export const convertMicroToMacro = (amount: string, unit: UNITS) => {
 export const convertMacroToMicro = (amount: string, unit: UNITS) => {
     const numZeroes = typeof unit === 'number' ? unit : DENOM_EXPONENTS[unit];
     let [result, decimals = ''] = amount.split('.');
-    decimals = decimals.substring(0, numZeroes).padEnd(numZeroes, '0');
-    return result.concat(decimals).replace(/^0+/, '');
+    const shiftedDecimals = decimals.substring(0, numZeroes).padEnd(numZeroes, '0');
+    const remainingDecimals = decimals.substring(numZeroes).replace(/0+$/, '');;
+    result = result.concat(shiftedDecimals).replace(/^0+/, '').padEnd(1, '0');
+    if (remainingDecimals) {
+        result = result.concat('.').concat(remainingDecimals);
+    }
+    return result;
 }
 
 /**
