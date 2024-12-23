@@ -37,7 +37,7 @@ export default interface ChainClient {
 
   // The current signer address
   signer: string;
-  commectClient?: CometClient;
+  cometClient?: CometClient;
   aminoTypes?: AminoTypes;
   // Whether the current chain is connected
   isConnected: boolean;
