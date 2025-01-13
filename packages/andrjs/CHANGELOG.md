@@ -1,5 +1,11 @@
 # @andromedaprotocol/andromeda.js
 
+## 2.0.0-beta.4
+
+### Patch Changes
+
+- Fix bug with comet client variable name
+
 ## 2.0.0-beta.3
 
 ### Patch Changes
