@@ -80,7 +80,7 @@ export const baseCommands: Commands = {
     description: "Query IBC messages",
     color: pc.cyan,
     usage: "ibc <cmd>",
-    disabled: () => !State.client.isConnected,
+    disabled: () => true, // Disable IBC until it's implemented
   },
   tx: {
     handler: txHandler,

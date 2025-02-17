@@ -49,8 +49,8 @@ export const commands: Commands = {
 };
 
 /**
- * Queries a contract given a query message and address
- * @param input
+ * Queries an IBC acknowledgement
+ * @param input [port-id, channel-id, packet-sequence]
  */
 async function packetAckHandler(input: string[]) {
   const [portId, channelId, packetSequence] = input;
@@ -68,8 +68,8 @@ async function packetAckHandler(input: string[]) {
 }
 
 /**
- * Queries a contract given a query message and address
- * @param input
+ * Decodes an IBC acknowledgement
+ * @param input [acknowledgement]
  */
 async function decodeAckHandler(input: string[]) {
   const [acknowledgement] = input;
@@ -83,7 +83,5 @@ async function decodeAckHandler(input: string[]) {
   console.log(pc.bold(pc.green("Acknowledgement: ")), resp?.result);
   console.log();
 }
-
-
 
 export default commands;
