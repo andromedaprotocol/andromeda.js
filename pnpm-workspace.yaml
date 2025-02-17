@@ -3,3 +3,13 @@ packages:
   - "apps/*"
   # all packages in subdirs of packages/ and components/
   - "packages/*"
+catalog:
+  "@cosmjs/amino": "^0.32.4"
+  "@cosmjs/cosmwasm-stargate": "^0.32.4"
+  "@cosmjs/crypto": "^0.32.4"
+  "@cosmjs/encoding": "^0.32.4"
+  "@cosmjs/math": "^0.32.4"
+  "@cosmjs/proto-signing": "^0.32.4"
+  "@cosmjs/stargate": "^0.32.4"
+  "@cosmjs/tendermint-rpc": "^0.32.4"
+  "@cosmjs/utils": "^0.32.4"
