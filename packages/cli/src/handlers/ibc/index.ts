@@ -27,7 +27,7 @@ export const commands: Commands = {
       {
         requestMessage: "Input packet-sequence:",
         validate: (input: string) => {
-          return !isNaN(parseInt(input));
+          return !Number.isNaN(parseInt(input));
         },
       }
     ],
@@ -54,17 +54,21 @@ export const commands: Commands = {
  */
 async function packetAckHandler(input: string[]) {
   const [portId, channelId, packetSequence] = input;
-  const resp = await displaySpinnerAsync(
-    "Querying contract info...",
-    async () => await State.client.queryIbcAck(portId, channelId, parseInt(packetSequence))
-  );
 
-  console.log();
-  console.log(pc.bold(pc.green("Proof: ")), JSON.stringify(resp?.proof, null, 2));
-  console.log(pc.bold(pc.green("Acknowledgement: ")), resp?.acknowledgement.result);
-  console.log(pc.bold(pc.green("Proof Height: ")), resp?.proofHeight);
-  console.log();
+  try {
+    const resp = await displaySpinnerAsync(
+      "Querying contract info...",
+      async () => await State.client.queryIbcAck(portId, channelId, parseInt(packetSequence))
+    );
 
+    console.log();
+    console.log(pc.bold(pc.green("Proof: ")), JSON.stringify(resp?.proof, null, 2));
+    console.log(pc.bold(pc.green("Acknowledgement: ")), resp?.acknowledgement.result);
+    console.log(pc.bold(pc.green("Proof Height: ")), resp?.proofHeight);
+    console.log();
+  } catch (error: any) {
+    console.log(pc.red(`Failed to query IBC acknowledgement: ${error.message}`));
+  }
 }
 
 /**
@@ -73,15 +77,19 @@ async function packetAckHandler(input: string[]) {
  */
 async function decodeAckHandler(input: string[]) {
   const [acknowledgement] = input;
-  console.log(Buffer.from(acknowledgement, 'base64').toString('ascii'));
-  const resp = await displaySpinnerAsync(
-    "Decoding acknowledgement...",
-    async () => await State.client.decodeAck(acknowledgement)
-  );
+  try {
+    console.log(Buffer.from(acknowledgement, 'base64').toString('ascii'));
+    const resp = await displaySpinnerAsync(
+      "Decoding acknowledgement...",
+      async () => await State.client.decodeAck(acknowledgement)
+    );
 
-  console.log();
-  console.log(pc.bold(pc.green("Acknowledgement: ")), resp?.result);
-  console.log();
+    console.log();
+    console.log(pc.bold(pc.green("Acknowledgement: ")), resp?.result);
+    console.log();
+  } catch (error: any) {
+    console.log(pc.red(`Failed to decode acknowledgement: ${error.message}`));
+  }
 }
 
 export default commands;
