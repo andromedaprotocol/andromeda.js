@@ -4,6 +4,36 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@cosmjs/amino':
+      specifier: ^0.32.4
+      version: 0.32.4
+    '@cosmjs/cosmwasm-stargate':
+      specifier: ^0.32.4
+      version: 0.32.4
+    '@cosmjs/crypto':
+      specifier: ^0.32.4
+      version: 0.32.4
+    '@cosmjs/encoding':
+      specifier: ^0.32.4
+      version: 0.32.4
+    '@cosmjs/math':
+      specifier: ^0.32.4
+      version: 0.32.4
+    '@cosmjs/proto-signing':
+      specifier: ^0.32.4
+      version: 0.32.4
+    '@cosmjs/stargate':
+      specifier: ^0.32.4
+      version: 0.32.4
+    '@cosmjs/tendermint-rpc':
+      specifier: ^0.32.4
+      version: 0.32.4
+    '@cosmjs/utils':
+      specifier: ^0.32.4
+      version: 0.32.4
+
 overrides:
   postcss@<8.4.31: '>=8.4.31'
   graphql@>=16.3.0 <16.8.1: '>=16.8.1'
@@ -56,31 +86,31 @@ importers:
         specifier: workspace:*
         version: link:../gql
       '@cosmjs/amino':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/cosmwasm-stargate':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/crypto':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/encoding':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/math':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/proto-signing':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/stargate':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/tendermint-rpc':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/utils':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@injectivelabs/sdk-ts':
         specifier: 1.14.13
@@ -156,16 +186,16 @@ importers:
         specifier: workspace:*
         version: link:../andrjs
       '@cosmjs/amino':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/crypto':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/proto-signing':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       '@cosmjs/stargate':
-        specifier: ^0.32.4
+        specifier: 'catalog:'
         version: 0.32.4
       axios:
         specifier: ^1.7.7
