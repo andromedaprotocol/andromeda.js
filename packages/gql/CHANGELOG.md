@@ -1,5 +1,12 @@
 # @andromedaprotocol/gql
 
+## 1.0.1
+
+### Patch Changes
+
+- dae3c02: https://github.com/andromedaprotocol/andromeda.js/pull/117#issue-2511612740
+- 15c661d: NPM package updates and Wallet Address cache in CLI
+
 ## 1.0.1-beta.1
 
 ### Patch Changes

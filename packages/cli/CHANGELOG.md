@@ -1,5 +1,29 @@
 # @andromedaprotocol/cli
 
+## 2.0.0
+
+### Major Changes
+
+- dae3c02: https://github.com/andromedaprotocol/andromeda.js/pull/117#issue-2511612740
+
+### Patch Changes
+
+- b8d7bb9: Andrjs - Feat - Endpoint can now be rpc string or RPC Client
+  Andrjs - Feat - Added simulateRaw command
+
+  CLI - Fix - Fix env reanme and create command
+  CLI - Feat - Legacy wallet can be imported in any environment
+  CLI - Fix - Wallet address in wallet list will not show differnt chain address
+  CLI - Feat - wasm query-raw and info commands
+
+- 15c661d: NPM package updates and Wallet Address cache in CLI
+- Updated dependencies [0cd251a]
+- Updated dependencies [1e66583]
+- Updated dependencies [dae3c02]
+- Updated dependencies [b8d7bb9]
+- Updated dependencies [15c661d]
+  - @andromedaprotocol/andromeda.js@2.0.0
+
 ## 2.0.0-beta.5
 
 ### Patch Changes
