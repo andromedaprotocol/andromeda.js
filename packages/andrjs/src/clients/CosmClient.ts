@@ -35,6 +35,7 @@ import {
   DeliverTxResponse,
   GasPrice,
   QueryClient,
+  setupIbcExtension,
   setupTxExtension,
   SignerData,
   SigningStargateClient,
@@ -114,7 +115,8 @@ export default class CosmClient extends BaseChainClient implements ChainClient {
     this.rawQueryClient = QueryClient.withExtensions(
       cometClient,
       setupTxExtension,
-      setupWasmExtension
+      setupWasmExtension,
+      setupIbcExtension
     );
     if (signer) {
       const aminoTypes = options?.aminoTypes ?? new AminoTypes({

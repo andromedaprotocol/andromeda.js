@@ -10,6 +10,7 @@ import {
   chainHandler,
   envHandler,
   gqlHandler,
+  ibcHandler,
   osHandler,
   txHandler,
   userHandler,
@@ -73,6 +74,13 @@ export const baseCommands: Commands = {
     color: pc.cyan,
     usage: "wasm <cmd>",
     disabled: () => !State.client.isConnected,
+  },
+  ibc: {
+    handler: ibcHandler,
+    description: "Query IBC messages",
+    color: pc.cyan,
+    usage: "ibc <cmd>",
+    disabled: () => true, // Disable IBC until it's implemented
   },
   tx: {
     handler: txHandler,
