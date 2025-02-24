@@ -548,9 +548,12 @@ export default class AndromedaClient {
    * @param addr
    * @returns
    */
-  async getSentTxsByAddress(addr: string) {
+  async getSentTxsByAddress(addr: string, minHeight?: number, maxHeight?: number) {
     this.preMessage();
-    return this.chainClient!.queryClient!?.searchTx([{ key: "message.sender", value: addr }]);
+    const queries = [`message.sender='${addr}'`];
+    if (minHeight) queries.push(`tx.height>=${minHeight}`);
+    if (maxHeight) queries.push(`tx.height<=${maxHeight}`);
+    return this.chainClient!.queryClient!?.searchTx(queries.join(" AND "));
   }
 
   /**
@@ -558,9 +561,12 @@ export default class AndromedaClient {
    * @param addr
    * @returns
    */
-  async getTxsByContract(addr: string) {
+  async getTxsByContract(addr: string, minHeight?: number, maxHeight?: number) {
     this.preMessage();
-    return this.chainClient!.queryClient!?.searchTx([{ key: "execute._contract_address", value: addr }]);
+    const queries = [`execute._contract_address='${addr}'`];
+    if (minHeight) queries.push(`tx.height>=${minHeight}`);
+    if (maxHeight) queries.push(`tx.height<=${maxHeight}`);
+    return this.chainClient!.queryClient!?.searchTx(queries.join(" AND "));
   }
 
   /**
@@ -568,13 +574,19 @@ export default class AndromedaClient {
    * @param addr
    * @returns
    */
-  async getBankTxsByAddress(addr: string) {
+  async getBankTxsByAddress(addr: string, minHeight?: number, maxHeight?: number) {
     this.preMessage();
-    const sentQuery = `message.module='bank' AND transfer.sender='${addr}'`;
-    const receivedQuery = `message.module='bank' AND transfer.recipient='${addr}'`;
+    const queries = [`message.module='bank'`];
+    if (minHeight) queries.push(`tx.height>=${minHeight}`);
+    if (maxHeight) queries.push(`tx.height<=${maxHeight}`);
+    const sentQuery = queries.concat(`transfer.sender='${addr}'`).join(" AND ");
+    const receivedQuery = queries.concat(`transfer.recipient='${addr}'`).join(" AND ");
+
+
     const [sent, received] = await Promise.all(
       [sentQuery, receivedQuery].map((rawQuery) => this.chainClient!.queryClient!?.searchTx(rawQuery)),
     );
+
     const sentHashes = sent.map((t) => t.hash);
     return [...sent, ...received.filter((t) => !sentHashes.includes(t.hash))];
   };
@@ -584,10 +596,13 @@ export default class AndromedaClient {
    * @param addr
    * @returns
    */
-  async getAllTxsByAddress(addr: string) {
-    const sentTxs = await this.getSentTxsByAddress(addr);
-    const contractTxs = await this.getTxsByContract(addr);
-    const bankTxs = await this.getBankTxsByAddress(addr);
+  async getAllTxsByAddress(addr: string, minHeight?: number, maxHeight?: number) {
+    const [sentTxs, contractTxs, bankTxs] = await Promise.all([
+      this.getSentTxsByAddress(addr, minHeight, maxHeight),
+      this.getTxsByContract(addr, minHeight, maxHeight),
+      this.getBankTxsByAddress(addr, minHeight, maxHeight),
+    ]);
+    console.log(sentTxs, contractTxs, bankTxs);
     return [
       ...(sentTxs ?? []),
       ...(contractTxs ?? []),

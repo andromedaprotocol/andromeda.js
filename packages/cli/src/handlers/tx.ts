@@ -7,12 +7,22 @@ import {
 import pc from "picocolors";
 import Table from "cli-table";
 import _ from "lodash";
-import { logTableConfig } from "../common";
+import { displaySpinnerAsync, logTableConfig } from "../common";
 import config from "../config";
-import { Commands } from "../types";
+import { Commands, Flags, Flag } from "../types";
 import { validateAddressInput } from "./utils";
 import State from "../state";
 
+const TX_PAGINATION_FLAGS: Record<string, Flag> = {
+  'min-height': {
+    description: "Minimum height of transactions to fetch. Defaults to 10000 blocks before max height.",
+    usage: "--min-height 10",
+  },
+  'max-height': {
+    description: "Maximum height of transactions to fetch. Defaults to the current height",
+    usage: "--max-height 10",
+  },
+}
 
 export const commands: Commands = {
   info: {
@@ -25,6 +35,7 @@ export const commands: Commands = {
         requestMessage: "Input Transaction Hash:",
       },
     ],
+    flags: TX_PAGINATION_FLAGS,
   },
   byaddress: {
     handler: txAddressHandler,
@@ -37,6 +48,7 @@ export const commands: Commands = {
         validate: validateAddressInput,
       },
     ],
+    flags: TX_PAGINATION_FLAGS,
   },
   history: {
     handler: txHistoryHandler,
@@ -44,6 +56,7 @@ export const commands: Commands = {
     description: "Gets a history of transactions for your current wallet",
     usage: "tx history",
     disabled: () => typeof State.wallets.currentWallet === "undefined",
+    flags: TX_PAGINATION_FLAGS,
   },
 };
 
@@ -54,7 +67,10 @@ export const commands: Commands = {
 async function txInfoHandler(input: string[]) {
   const [hash] = input;
 
-  const txInfo = await State.client.getTx(hash);
+  const txInfo = await displaySpinnerAsync(
+    "Fetching transaction info...",
+    async () => await State.client.getTx(hash),
+  );
   if (!txInfo) {
     console.log(pc.red("Transaction info not found"));
     return;
@@ -67,12 +83,17 @@ async function txInfoHandler(input: string[]) {
  * Prints all transactions and their types by a given address
  * @param inputs
  */
-async function txAddressHandler(inputs: string[]) {
+async function txAddressHandler(inputs: string[], flags: Flags) {
   const [addr] = inputs;
+  const maxHeight = flags['max-height'] ? parseInt(flags['max-height']) : undefined;
+  const minHeight = flags['min-height'] ? parseInt(flags['min-height']) : maxHeight ? maxHeight - 10000 : await State.client.chainClient?.queryClient?.getHeight().then(height => height - 10000).catch(() => undefined);
 
-  const txInfo = await State.client.getAllTxsByAddress(addr);
+  const txInfo = await displaySpinnerAsync(
+    "Fetching transactions...",
+    async () => await State.client.getAllTxsByAddress(addr, minHeight, maxHeight),
+  );
 
-  if (txInfo.length === 0) throw new Error("No transactions found");
+
 
   const urls = config.get("chain.blockExplorerTxPages");
 
@@ -90,18 +111,30 @@ async function txAddressHandler(inputs: string[]) {
     ]);
   });
 
+
+
   console.log();
   console.log(txTable.toString());
+
+  if (txInfo.length === 0) {
+    console.log();
+    console.log(pc.red("No transactions found"));
+    console.log();
+  }
+
+  console.log();
+  console.log(pc.gray(`Min Height - ${minHeight}, Max Height - ${maxHeight}`))
+
 }
 
 /**
  * Prints all transactions and their types for the current wallet
  */
-async function txHistoryHandler() {
+async function txHistoryHandler(_inputs: string[], flags: Flags) {
   const walletAddr = await State.wallets.currentWalletAddress();
   if (!walletAddr) throw new Error("No wallet currently assigned");
 
-  await txAddressHandler([walletAddr]);
+  await txAddressHandler([walletAddr], flags);
 }
 
 export default commands;
