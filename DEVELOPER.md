@@ -5,7 +5,7 @@
 
 ## About
 
-The Andromeda.js repository contains three packages: 
+The Andromeda.js repository contains three packages:
 
 - [andrjs](https://github.com/andromedaprotocol/andromeda.js/tree/development/packages/andrjs): JavaScript SDK for writing applications that interact with the Andromeda ecosystem.
 - [cli](https://github.com/andromedaprotocol/andromeda.js/tree/development/packages/cli): Used to interact with the Andromeda ecosystem and any of the chains Andromeda is deployed on.
@@ -16,18 +16,35 @@ The Andromeda.js repository contains three packages:
 We use pnpm to manage packages. Most of the commands for pnpm are same as npm but make sure you use `pnpm` (not `npm`).
 
 ## How to Build
- 
- 1. Install dependencies by `pnpm i`.
- 2. Each package has build function. To build all package run `npm run build` in root directory.
- 3. To Build each package indepedently, make sure the dependencies are already build (they have `dist/` folder). Then go inside that package directory and run `npm run build`.
 
- ## Publish
+1.  Install dependencies by `pnpm i`.
+2.  Each package has build function. To build all package run `npm run build` in root directory.
+3.  To Build each package indepedently, make sure the dependencies are already build (they have `dist/` folder). Then go inside that package directory and run `npm run build`.
 
- 1. Commit your changes
- 2. Run `pnpm changeset` in root directory
- 3. Select the packages changed. All packages are linked using `fixed` config in `.changesets/config.json` so all will be bumped but make sure you specify correct packages
- 4. Run `pnpm changeset version` and choose correct version.
- 5. Add commit message and tag for the new version with proper messages.
+## Publish
+
+1.  Commit your changes
+2.  Run `pnpm changeset` in root directory
+3.  Select the packages changed. All packages are linked using `fixed` config in `.changesets/config.json` so all will be bumped but make sure you specify correct packages
+4.  Run `pnpm changeset version` and choose correct version.
+5.  Add commit message and tag for the new version with proper messages.
 
 Now packages are ready for publish. Use `pnpm publish` to publish them to npm. Good Luck!
 
+## Publish commands
+
+To help with correct publishing using pnpm, use the following commands:
+
+Change your working directory to the package you want to publish.
+
+```bash
+# Release latest version
+pnpm publish --tag latest --access public --publish-branch development
+
+# Release beta version
+pnpm publish --tag beta --access public --publish-branch development
+
+# Release Dry Run
+pnpm publish --tag latest --access public --publish-branch development --dry-run
+
+```
